@@ -10,13 +10,16 @@
 
 namespace util {
 
+/**
+ * @brief Privately inherit `util::noncopyable` to prevent copy constructors and
+ * reassignment.
+*/
 class noncopyable {
 protected:
 	noncopyable() = default;
 	~noncopyable() = default;
 
 private:
-	// Prevent copy constructor and assignment for both references and rvalues
 	noncopyable(const noncopyable&) = delete;
 	noncopyable(noncopyable&&) = delete;
 
