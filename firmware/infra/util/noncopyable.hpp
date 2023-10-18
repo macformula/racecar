@@ -1,7 +1,6 @@
 /**
  * @author Blake Freer
  * @date 2023-10-14
- * @brief Provides a class which can be inherited to prevent copying objects
  * @note Taken from Christopher Kormanyos
 **/
 
