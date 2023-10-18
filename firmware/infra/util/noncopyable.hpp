@@ -1,8 +1,6 @@
-/**
- * @author Blake Freer
- * @date 2023-10-14
- * @note Taken from Christopher Kormanyos
-**/
+/// @author Blake Freer
+/// @date 2023-10-14
+/// @note Taken from Christopher Kormanyos
 
 #ifndef UTIL_NONCOPYABLE
 #define UTIL_NONCOPYABLE
