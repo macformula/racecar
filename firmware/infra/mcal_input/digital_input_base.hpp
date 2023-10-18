@@ -6,12 +6,11 @@
 
 #include "mcal_input/input_base.hpp"
 
-namespace mcal { namespace input {
+namespace mcal {
+namespace input {
 
-/**
- * @brief Digital input base class is just a boolean Input_Base
- * @note Can be changed to a class later by inheriting from Input_Base<bool>
-*/
+/// @brief Digital input base class is just a boolean Input_Base
+/// @note Can be changed to a class later by inheriting from Input_Base<bool>
 using DigitalInput_Base = Input_Base<bool>;
 
 } // namespace input

@@ -9,9 +9,7 @@
 namespace mcal {
 namespace input {
 
-/**
- * @brief Base class for all microcontroller input sources
- */
+/// @brief Base class for all microcontroller input sources
 template <typename return_type>
 class Input_Base : public util::noncopyable {
 

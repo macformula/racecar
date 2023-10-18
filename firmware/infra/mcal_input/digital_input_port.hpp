@@ -10,9 +10,7 @@
 namespace mcal {
 namespace input {
 
-/**
- * @brief Digital input from a physical pin
- */
+/// @brief Digital input from a physical pin
 class DigitalInputPin : public DigitalInput_Base {
 
 private:

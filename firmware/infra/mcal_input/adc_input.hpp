@@ -43,7 +43,7 @@ public:
 		waiting = true;
 	}
 
-	/// @brief Call in the ADC complete ISR to update the object's valuea and
+	/// @brief Call in the ADC complete ISR to update the object's value and
 	/// flags.
 	friend void isr_value_callback(ADCInput& obj, return_type _value);
 };
