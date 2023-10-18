@@ -1,12 +1,9 @@
-/**
- * @author Blake Freer
- * @date 2023-10-14
- * @brief Provides a class which can be inherited to prevent copying objects
- * @note Taken from Christopher Kormanyos
-**/
+/// @author Blake Freer
+/// @date 2023-10-14
+/// @note Taken from Christopher Kormanyos
 
-#ifndef UTIL_NONCOPYABLE
-#define UTIL_NONCOPYABLE
+#ifndef UTIL_NONCOPYABLE_HPP
+#define UTIL_NONCOPYABLE_HPP
 
 namespace util {
 

@@ -1,7 +1,8 @@
-/**
- * @author Blake Freer
- * @date 2023-10-14
-**/
+/// @author Blake Freer
+/// @date 2023-10-14
+
+#ifndef UTIL_COMMUNICATION_HPP
+#define UTIL_COMMUNICATION_HPP
 
 #include "util/noncopyable.hpp"
 
@@ -15,3 +16,5 @@ class communication_base : private util::noncopyable{
 };
 
 }
+
+#endif
