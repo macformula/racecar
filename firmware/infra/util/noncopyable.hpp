@@ -2,8 +2,8 @@
 /// @date 2023-10-14
 /// @note Taken from Christopher Kormanyos
 
-#ifndef UTIL_NONCOPYABLE
-#define UTIL_NONCOPYABLE
+#ifndef UTIL_NONCOPYABLE_HPP
+#define UTIL_NONCOPYABLE_HPP
 
 namespace util {
 
