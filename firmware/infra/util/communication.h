@@ -4,7 +4,7 @@
 #ifndef UTIL_COMMUNICATION_HPP
 #define UTIL_COMMUNICATION_HPP
 
-#include "util/noncopyable.hpp"
+#include "util/noncopyable.h"
 
 namespace util {
 

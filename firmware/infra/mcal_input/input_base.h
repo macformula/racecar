@@ -4,7 +4,7 @@
 #ifndef MCAL_INPUT_BASE_HPP
 #define MCAL_INPUT_BASE_HPP
 
-#include "util/noncopyable.hpp"
+#include "util/noncopyable.h"
 
 namespace mcal {
 namespace input {

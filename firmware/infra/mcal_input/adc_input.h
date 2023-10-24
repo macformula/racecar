@@ -4,8 +4,8 @@
 #ifndef MCAL_ADC_INPUT_HPP
 #define MCAL_ADC_INPUT_HPP
 
-#include "mcal_input/input_base.hpp"
-#include "mcal_port/port_pin.hpp"
+#include "mcal_input/input_base.h"
+#include "mcal_port/port_pin.h"
 
 namespace mcal {
 namespace input {

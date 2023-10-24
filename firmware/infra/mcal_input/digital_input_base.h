@@ -4,7 +4,7 @@
 #ifndef MCAL_DIGITAL_INPUT_BASE_HPP
 #define MCAL_DIGITAL_INPUT_BASE_HPP
 
-#include "mcal_input/input_base.hpp"
+#include "mcal_input/input_base.h"
 
 namespace mcal {
 namespace input {

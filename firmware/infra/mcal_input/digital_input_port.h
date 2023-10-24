@@ -4,8 +4,8 @@
 #ifndef MCAL_DIGITAL_INPUT_PORT_HPP
 #define MCAL_DIGITAL_INPUT_PORT_HPP
 
-#include "mcal_input/digital_input_base.hpp"
-#include "mcal_port/port_pin.hpp"
+#include "mcal_input/digital_input_base.h"
+#include "mcal_port/port_pin.h"
 
 namespace mcal {
 namespace input {
