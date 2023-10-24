@@ -27,7 +27,6 @@ public:
 
     /// @brief Get the most recent ADC value
     /// @note 0 is returned if no conversions have been performed
-    /// @return ReturnType
     ReturnType read() noexcept {
         newValueReady_ = false;
         return value_;
