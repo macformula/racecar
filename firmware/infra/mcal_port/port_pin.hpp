@@ -20,7 +20,7 @@ public:
     void set_direction_input(void) noexcept;
 };
 
-} // namespace port
-} // namespace mcal
+}  // namespace port
+}  // namespace mcal
 
 #endif

@@ -12,12 +12,11 @@ namespace input {
 /// @brief Base class for all microcontroller input sources
 template <typename return_type>
 class Input_Base : public util::noncopyable {
-
 public:
     virtual return_type read() noexcept = 0;
 };
 
-} // namespace input
-} // namespace mcal
+}  // namespace input
+}  // namespace mcal
 
 #endif

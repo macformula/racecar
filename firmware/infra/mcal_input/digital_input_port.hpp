@@ -12,19 +12,16 @@ namespace input {
 
 /// @brief Digital input from a physical pin
 class DigitalInputPin : public DigitalInput_Base {
-
 private:
     port::port_pin pin;
 
 public:
     DigitalInputPin(port::port_pin _port_pin) : pin(_port_pin) {}
 
-    bool read() noexcept {
-        return pin.read_bit();
-    }
+    bool read() noexcept { return pin.read_bit(); }
 };
 
-} // namespace input
-} // namespace mcal
+}  // namespace input
+}  // namespace mcal
 
 #endif

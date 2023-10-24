@@ -13,7 +13,7 @@ namespace input {
 /// @note Can be changed to a class later by inheriting from Input_Base<bool>
 using DigitalInput_Base = Input_Base<bool>;
 
-} // namespace input
-} // namespace mcal
+}  // namespace input
+}  // namespace mcal
 
 #endif
