@@ -2,24 +2,24 @@
 /// @date 2023-10-14
 /// @note Taken from Christopher Kormanyos
 
-#ifndef UTIL_NONCOPYABLE_HPP
-#define UTIL_NONCOPYABLE_HPP
+#ifndef INFRA_UTIL_NONCOPYABLE_H_
+#define INFRA_UTIL_NONCOPYABLE_H_
 
 namespace util {
 
-/// @brief Privately inherit `util::noncopyable` to prevent copy constructors
+/// @brief Privately inherit `util::Noncopyable` to prevent copy constructors
 /// and reassignment.
-class noncopyable {
+class Noncopyable {
 protected:
-    noncopyable() = default;
-    ~noncopyable() = default;
+    Noncopyable() = default;
+    ~Noncopyable() = default;
 
 private:
-    noncopyable(const noncopyable&) = delete;
-    noncopyable(noncopyable&&) = delete;
+    Noncopyable(const Noncopyable&) = delete;
+    Noncopyable(Noncopyable&&) = delete;
 
-    auto operator=(const noncopyable&) -> noncopyable& = delete;
-    auto operator=(noncopyable&&) -> noncopyable& = delete;
+    auto operator=(const Noncopyable&) -> Noncopyable& = delete;
+    auto operator=(Noncopyable&&) -> Noncopyable& = delete;
 };
 
 }  // namespace util

@@ -1,8 +1,8 @@
 /// @author Blake Freer
 /// @date 2023-10-17
 
-#ifndef MCAL_INPUT_BASE_HPP
-#define MCAL_INPUT_BASE_HPP
+#ifndef INFRA_MCAL_INPUT_BASE_H_
+#define INFRA_MCAL_INPUT_BASE_H_
 
 #include "util/noncopyable.h"
 
@@ -10,10 +10,10 @@ namespace mcal {
 namespace input {
 
 /// @brief Base class for all microcontroller input sources
-template <typename return_type>
-class Input_Base : public util::noncopyable {
+template <typename ReturnType>
+class InputBase : public util::Noncopyable {
 public:
-    virtual return_type read() noexcept = 0;
+    virtual ReturnType read() noexcept = 0;
 };
 
 }  // namespace input

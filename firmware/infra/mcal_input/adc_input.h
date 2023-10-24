@@ -1,8 +1,8 @@
 /// @author Blake Freer
 /// @date 2023-10-17
 
-#ifndef MCAL_ADC_INPUT_HPP
-#define MCAL_ADC_INPUT_HPP
+#ifndef INFRA_MCAL_ADC_INPUT_H_
+#define INFRA_MCAL_ADC_INPUT_H_
 
 #include "mcal_input/input_base.h"
 #include "mcal_port/port_pin.h"
@@ -11,45 +11,45 @@ namespace mcal {
 namespace input {
 
 /// @brief Analog-Digital Conversion Input. Capture started by a pin
-/// @tparam return_type
-template <typename return_type>
-class ADCInput : public Input_Base<return_type> {
+/// @tparam ReturnType
+template <typename ReturnType>
+class ADCInput : public InputBase<ReturnType> {
 private:
-    port::port_pin pin;
+    port::PortPin pin_;
 
-    bool waiting;
-    bool newValueReady;
-    return_type value;
+    bool waiting_;
+    bool newValueReady_;
+    ReturnType value_;
 
 public:
-    ADCInput(port::port_pin _pin)
-        : pin(_pin), value(0), waiting(false), newValueReady(false) {}
+    ADCInput(port::PortPin pin)
+        : pin_(pin), value_(0), waiting_(false), newValueReady_(false) {}
 
     /// @brief Get the most recent ADC value
     /// @note 0 is returned if no conversions have been performed
-    /// @return return_type
-    return_type read() noexcept {
-        newValueReady = false;
-        return value;
+    /// @return ReturnType
+    ReturnType read() noexcept {
+        newValueReady_ = false;
+        return value_;
     }
 
     /// @brief Start an ADC conversion by sending pin high
     void start() {
-        pin.set_direction_output();
-        pin.set_high();
-        waiting = true;
+        pin_.SetDirectionOutput();
+        pin_.SetHigh();
+        waiting_ = true;
     }
 
     /// @brief Call in the ADC complete ISR to update the object's value and
     /// flags.
-    friend void isr_value_callback(ADCInput& obj, return_type _value);
+    friend void isr_value_callback(ADCInput& obj, ReturnType value);
 };
 
-template <typename return_type>
-void isr_value_callback(ADCInput<return_type>& obj, return_type _value) {
-    obj->value = _value;
-    obj->waiting = false;
-    obj->newValueReady = true;
+template <typename ReturnType>
+void isr_value_callback(ADCInput<ReturnType>& obj, ReturnType value) {
+    obj->value_ = value;
+    obj->waiting_ = false;
+    obj->newValueReady_ = true;
 }
 
 }  // namespace input
