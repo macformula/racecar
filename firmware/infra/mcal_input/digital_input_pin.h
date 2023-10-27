@@ -5,20 +5,23 @@
 #define INFRA_MCAL_DIGITAL_INPUT_PIN_H_
 
 #include "mcal_input/digital_input_base.h"
-#include "mcal_port/port_pin.h"
+#include "gpio.h"
 
 namespace mcal {
 namespace input {
 
 /// @brief Digital input from a physical pin
+
+template <typename pin>
 class DigitalInputPin : public DigitalInputBase {
-private:
-    port::PortPin pin_;
 
 public:
-    DigitalInputPin(port::PortPin pin) : pin_(pin) {}
-
-    bool read() noexcept { return pin_.ReadBit(); }
+	void init() {
+		pin::init();
+	}
+    bool read() noexcept {
+		return pin::read();
+	}
 };
 
 }  // namespace input

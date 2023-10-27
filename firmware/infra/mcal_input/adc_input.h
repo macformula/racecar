@@ -5,7 +5,6 @@
 #define INFRA_MCAL_ADC_INPUT_H_
 
 #include "mcal_input/input_base.h"
-#include "mcal_port/port_pin.h"
 
 namespace mcal {
 namespace input {
