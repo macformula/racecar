@@ -10,7 +10,6 @@
 #include "stm32f767xx.h"
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx_hal_gpio.h"
-#include "util/disjunction.h"
 
 namespace mcal {
 namespace gpio {
@@ -42,17 +41,27 @@ GPIO_STRUCT(GPIOK, k)
 
 }  // namespace port
 
-template <uint32_t... _pins>
-struct pins {
-    static const uint32_t value = util::FlagDisjunction<_pins...>::value;
+enum class pin_num {
+	p0 = GPIO_PIN_0,
+	p1 = GPIO_PIN_1,
+	p2 = GPIO_PIN_2,
+	p3 = GPIO_PIN_3,
+	p4 = GPIO_PIN_4,
+	p5 = GPIO_PIN_5,
+	p6 = GPIO_PIN_6,
+	p7 = GPIO_PIN_7,
+	p8 = GPIO_PIN_8,
+	p9 = GPIO_PIN_9,
+	p10 = GPIO_PIN_10,
+	p11 = GPIO_PIN_11,
+	p12 = GPIO_PIN_12,
+	p13 = GPIO_PIN_13,
+	p14 = GPIO_PIN_14,
+	p15 = GPIO_PIN_15,
+	all_pins = GPIO_PIN_All
 };
 
-struct all_pins {
-    static const uint32_t value = GPIO_PIN_All;
-};
-
-namespace mode {
-enum modes {
+enum class mode {
     input = GPIO_MODE_INPUT,
     output_od = GPIO_MODE_OUTPUT_OD,
     output_pp = GPIO_MODE_OUTPUT_PP,
@@ -66,41 +75,36 @@ enum modes {
     evt_falling = GPIO_MODE_EVT_FALLING,
     evt_both_edges = GPIO_MODE_EVT_RISING_FALLING,
 };
-}  // namespace mode
 
-namespace pull {
-enum pull_mode {
+enum class pull {
     nopull = GPIO_NOPULL,
     up = GPIO_PULLUP,
     down = GPIO_PULLDOWN,
 };
-}  // namespace pull
 
-namespace speed {
-enum speed_mode {
+enum class speed {
     low = GPIO_SPEED_FREQ_LOW,
     medium = GPIO_SPEED_FREQ_MEDIUM,
     high = GPIO_SPEED_FREQ_HIGH,
     very_high = GPIO_SPEED_FREQ_VERY_HIGH,
 };
-}  // namespace speed
 
 template <typename _gpio,
-		  typename _pin_nums,
-		  mode::modes _mode,
-		  pull::pull_mode _pull = pull::nopull,
-		  speed::speed_mode _speed = speed::low>
+		  pin_num _pin_num,
+		  mode _mode,
+		  pull _pull = pull::nopull,
+		  speed _speed = speed::low>
 struct pin {
-    static const auto pin_value_ = _pin_nums::value;
-    static const auto mode_ = _mode;
-    static const auto speed_ = _speed;
-    static const auto pull_ = _pull;
+    static const uint32_t pin_num_ = static_cast<uint32_t>(_pin_num);
+    static const uint32_t mode_ = static_cast<uint32_t>(_mode);
+    static const uint32_t speed_ = static_cast<uint32_t>(_speed);
+    static const uint32_t pull_ = static_cast<uint32_t>(_pull);
     using gpio_ = _gpio;
 
     inline static void init() {
         GPIO_InitTypeDef gpio_init;
         gpio_init.Mode = mode_;
-        gpio_init.Pin = pin_value_;
+        gpio_init.Pin = pin_num_;
         gpio_init.Speed = speed_;
         gpio_init.Pull = pull_;
 
@@ -115,58 +119,22 @@ struct pin {
     inline static bool lock() {
         return HAL_GPIO_LockPin(gpio_::get(), pin_value_) == HAL_OK;
     }
-	
-	/// may need to move back to output_pin
 	inline static void set() {
 		static_assert(mode_ == mode::output_od || mode_ == mode::output_pp,
 			"pin must be configured as an output");
 		HAL_GPIO_WritePin(gpio_::get(), pin_value_, GPIO_PIN_SET);
 	}
+
+	inline static void reset() {
+		static_assert(mode_ == mode::output_od || mode_ == mode::output_pp,
+			"pin must be configured as an output");
+		HAL_GPIO_WritePin(gpio_::get(), pin_value_, GPIO_PIN_RESET);
+	}
 	
-	/// may need to move back to input_pin
 	inline static bool read() {
 		return HAL_GPIO_ReadPin(gpio_::get(), pin_value_) == GPIO_PIN_SET;
 	}
 };
-
-template <typename pin>
-struct output_pin {
-	using pin_ = pin;
-	inline static void init() {
-		static_assert(pin_::mode_ == mode::output_od || pin_::mode_ == mode::output_pp,
-			"pin must be configured as an output");
-		
-		pin_::init();
-	}
-
-	inline static void reset() {
-		HAL_GPIO_WritePin(pin_::gpio_::get(), pin_::pin_value_, GPIO_PIN_RESET);
-	}
-
-	inline static void toggle () {
-		HAL_GPIO_TogglePin(pin_::gpio_::get(), pin::pin_value_);
-	}
-
-	inline static void set() {
-		static_assert(pin_::mode_ == mode::output_od || pin_::mode_ == mode::output_pp,
-			"pin must be configured as an output");
-		HAL_GPIO_WritePin(pin_::gpio_::get(), pin_::pin_value_, GPIO_PIN_SET);
-	}
-};
-
-template <typename pin>
-struct input_pin {
-	using pin_ = pin;
-	inline static void init() {
-		static_assert(pin_::mode == mode::input,
-			"pin must be configured as an input");
-		pin_::init();
-	}
-	inline static bool read() {
-		return HAL_GPIO_ReadPin(pin_::gpio_::get(), pin_::pin_value_) == GPIO_PIN_SET;
-	}
-};
-
 
 }  // namespace gpio
 
