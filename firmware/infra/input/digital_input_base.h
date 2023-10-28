@@ -1,12 +1,12 @@
 /// @author Blake Freer
 /// @date 2023-10-17
 
-#ifndef INFRA_MCAL_DIGITAL_INPUT_BASE_H_
-#define INFRA_MCAL_DIGITAL_INPUT_BASE_H_
+#ifndef INFRA_INPUT_DIGITAL_INPUT_BASE_H_
+#define INFRA_INPUT_DIGITAL_INPUT_BASE_H_
 
-#include "mcal_input/input_base.h"
+#include "input/input_base.h"
 
-namespace mcal {
+namespace infra {
 namespace input {
 
 /// @brief Digital input base class is just a boolean InputBase

@@ -1,12 +1,12 @@
 /// @author Blake Freer
 /// @date 2023-10-17
 
-#ifndef INFRA_MCAL_ADC_INPUT_H_
-#define INFRA_MCAL_ADC_INPUT_H_
+#ifndef INFRA_INPUT_ADC_INPUT_H_
+#define INFRA_INPUT_ADC_INPUT_H_
 
-#include "mcal_input/input_base.h"
+#include "input/input_base.h"
 
-namespace mcal {
+namespace infra {
 namespace input {
 
 /// @brief Analog-Digital Conversion Input. Capture started by a pin

@@ -1,12 +1,12 @@
 /// @author Blake Freer
 /// @date 2023-10-17
 
-#ifndef INFRA_MCAL_INPUT_BASE_H_
-#define INFRA_MCAL_INPUT_BASE_H_
+#ifndef INFRA_INPUT_INPUT_BASE_H_
+#define INFRA_INPUT_INPUT_BASE_H_
 
 #include "util/noncopyable.h"
 
-namespace mcal {
+namespace infra {
 namespace input {
 
 /// @brief Base class for all microcontroller input sources
