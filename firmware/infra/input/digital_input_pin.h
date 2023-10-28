@@ -11,7 +11,9 @@
 namespace infra {
 namespace input {
 
+
 /// @brief Digital input from a physical pin
+/// @tparam pin Must be a class conforming to the `GpioPin` concept
 template <mcal::type::GpioPin pin>
 class DigitalInputPin : public DigitalInputBase {
 

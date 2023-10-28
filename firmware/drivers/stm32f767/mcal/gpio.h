@@ -2,8 +2,8 @@
 /// @date 2023-10-25
 /// @note See https://github.com/tomikaa87/stm32-hal-cpp
 
-#ifndef INFRA_MCAL_STM32F767_GPIO_H_
-#define INFRA_MCAL_STM32F767_GPIO_H_
+#ifndef DRIVERS_STM32F767_MCAL_GPIO_H_
+#define DRIVERS_STM32F767_MCAL_GPIO_H_
 
 #include <cstdint>
 
@@ -41,6 +41,7 @@ GPIO_STRUCT(GPIOK, k)
 
 }  // namespace port
 
+/// @brief Enumerated constants for the GPIO pin numbers
 enum class pin_num {
 	p0 = GPIO_PIN_0,
 	p1 = GPIO_PIN_1,
@@ -61,6 +62,7 @@ enum class pin_num {
 	all_pins = GPIO_PIN_All
 };
 
+/// @brief All available STM32F7 GPIO modes
 enum class mode {
     input = GPIO_MODE_INPUT,
     output_od = GPIO_MODE_OUTPUT_OD,
@@ -76,12 +78,14 @@ enum class mode {
     evt_both_edges = GPIO_MODE_EVT_RISING_FALLING,
 };
 
+/// @brief Pull Up/Down modes
 enum class pull {
     nopull = GPIO_NOPULL,
     up = GPIO_PULLUP,
     down = GPIO_PULLDOWN,
 };
 
+/// @brief GPIO port speed settings
 enum class speed {
     low = GPIO_SPEED_FREQ_LOW,
     medium = GPIO_SPEED_FREQ_MEDIUM,
@@ -89,7 +93,13 @@ enum class speed {
     very_high = GPIO_SPEED_FREQ_VERY_HIGH,
 };
 
-template <typename _gpio,
+/// @brief STM32F767 GPIO Pin wrapper
+/// @tparam _gpio Select GPIO port from `mcal::gpio::port::`
+/// @tparam _pin_num Pin number from `mcal::gpio::pin_num::` 
+/// @tparam _mode GPIO pin mode from `mcal::gpio::mode::`
+/// @tparam _pull Push Up/Down resistor setting from `mcal::gpio::pull::`
+/// @tparam _speed Port Speed settings from `mcal::gpio::speed::`
+template <typename _gpio_port,
 		  pin_num _pin_num,
 		  mode _mode,
 		  pull _pull = pull::nopull,
@@ -99,7 +109,7 @@ struct pin {
     static const uint32_t mode_ = static_cast<uint32_t>(_mode);
     static const uint32_t speed_ = static_cast<uint32_t>(_speed);
     static const uint32_t pull_ = static_cast<uint32_t>(_pull);
-    using gpio_ = _gpio;
+    using gpio_ = _gpio_port;
 
     inline static void init() {
         GPIO_InitTypeDef gpio_init;
@@ -119,12 +129,17 @@ struct pin {
     inline static bool lock() {
         return HAL_GPIO_LockPin(gpio_::get(), pin_value_) == HAL_OK;
     }
+
+	/// @brief Set output to HIGH
+	/// @note Only available with output modes
 	inline static void set() {
 		static_assert(mode_ == mode::output_od || mode_ == mode::output_pp,
 			"pin must be configured as an output");
 		HAL_GPIO_WritePin(gpio_::get(), pin_value_, GPIO_PIN_SET);
 	}
 
+	/// @brief Set output to LOW
+	/// @note Only available with output modes
 	inline static void reset() {
 		static_assert(mode_ == mode::output_od || mode_ == mode::output_pp,
 			"pin must be configured as an output");
