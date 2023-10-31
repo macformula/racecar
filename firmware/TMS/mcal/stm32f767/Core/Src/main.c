@@ -59,7 +59,9 @@ void SystemClock_Config(void);
  * @brief  The application entry point.
  * @retval int
  */
-int main(void) {
+
+// renamed by Blake Freer to avoid redefining int main(). Function will be removed later
+int main2(void) {
     /* USER CODE BEGIN 1 */
 
     /* USER CODE END 1 */
