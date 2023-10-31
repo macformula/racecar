@@ -105,29 +105,29 @@ template <typename _gpio_port,
 		  pull _pull = pull::nopull,
 		  speed _speed = speed::low>
 struct pin {
-    static const uint32_t pin_num_ = static_cast<uint32_t>(_pin_num);
-    static const uint32_t mode_ = static_cast<uint32_t>(_mode);
-    static const uint32_t speed_ = static_cast<uint32_t>(_speed);
-    static const uint32_t pull_ = static_cast<uint32_t>(_pull);
+    static const auto pin_num_ = _pin_num;
+    static const auto mode_ = _mode;
+    static const auto speed_ = _speed;
+    static const auto pull_ = _pull;
     using gpio_ = _gpio_port;
 
     inline static void init() {
         GPIO_InitTypeDef gpio_init;
-        gpio_init.Mode = mode_;
-        gpio_init.Pin = pin_num_;
-        gpio_init.Speed = speed_;
-        gpio_init.Pull = pull_;
+        gpio_init.Mode = static_cast<uint32_t>(mode_);
+        gpio_init.Pin = static_cast<uint32_t>(pin_num_);
+        gpio_init.Speed = static_cast<uint32_t>(speed_);
+        gpio_init.Pull = static_cast<uint32_t>(pull_);
 
         gpio_::enable_clock();
         HAL_GPIO_Init(gpio_::get(), &gpio_init);
     }
 
     inline static void deinit() {
-		HAL_GPIO_DeInit(gpio_::get(), pin_value_);
+		HAL_GPIO_DeInit(gpio_::get(), static_cast<uint32_t>(pin_num_));
 	}
 
     inline static bool lock() {
-        return HAL_GPIO_LockPin(gpio_::get(), pin_value_) == HAL_OK;
+        return HAL_GPIO_LockPin(gpio_::get(), static_cast<uint32_t>(pin_num_)) == HAL_OK;
     }
 
 	/// @brief Set output to HIGH
@@ -135,7 +135,7 @@ struct pin {
 	inline static void set() {
 		static_assert(mode_ == mode::output_od || mode_ == mode::output_pp,
 			"pin must be configured as an output");
-		HAL_GPIO_WritePin(gpio_::get(), pin_value_, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(gpio_::get(), static_cast<uint32_t>(pin_num_), GPIO_PIN_SET);
 	}
 
 	/// @brief Set output to LOW
@@ -143,11 +143,11 @@ struct pin {
 	inline static void reset() {
 		static_assert(mode_ == mode::output_od || mode_ == mode::output_pp,
 			"pin must be configured as an output");
-		HAL_GPIO_WritePin(gpio_::get(), pin_value_, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(gpio_::get(), static_cast<uint32_t>(pin_num_), GPIO_PIN_RESET);
 	}
 	
 	inline static bool read() {
-		return HAL_GPIO_ReadPin(gpio_::get(), pin_value_) == GPIO_PIN_SET;
+		return HAL_GPIO_ReadPin(gpio_::get(), static_cast<uint32_t>(pin_num_)) == GPIO_PIN_SET;
 	}
 };
 
