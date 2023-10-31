@@ -1,0 +1,10 @@
+{
+	"files.associations": {
+		"*.pyscn": "python",
+		"*.py": "python",
+		"ios": "cpp",
+		"cstdint": "cpp",
+		"stm32f7xx_hal.h": "c",
+		"stm32f7xx_hal_conf.h": "c"
+	}
+}
