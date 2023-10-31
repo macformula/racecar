@@ -68,6 +68,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 
 # Core MCAL Source Code
 set(MCAL_CORE_INCLUDE_DIRECTORIES ${MCAL_CORE}/Inc)
+set(INFRA_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/infra)
 
 # Driver source code
 set(DRIVER_INCLUDE_DIRECTORIES
@@ -75,51 +76,56 @@ set(DRIVER_INCLUDE_DIRECTORIES
 	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Inc/Legacy
 	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/CMSIS/Device/ST/STM32F7xx/Include
 	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/CMSIS/Include
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/mcal
 )
 
-# set(DRIVER_SOURCES
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_cortex.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim_ex.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc_ex.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_flash.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_flash_ex.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_gpio.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma_ex.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr_ex.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c_ex.c
-# 	Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_exti.c
+set(DRIVER_SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_cortex.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim_ex.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc_ex.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_flash.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_flash_ex.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_gpio.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma_ex.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr_ex.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c_ex.c
+	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_exti.c
+)
+
+# file(GLOB_RECURSE DRIVER_SOURCES CONFIGURE_DEPENDS
+# 	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/*.c
+# 	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/*.cc
 # )
-
-file(GLOB_RECURSE DRIVER_SOURCES CONFIGURE_DEPENDS
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src*.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/*.cc
-)
 
 # Core source code
 set(CORE_INCLUDE_DIRECTORIES
-	${CMAKE_CURRENT_SOURCE_DIR}/Core/Inc
+	${CMAKE_CURRENT_SOURCE_DIR}/TMS/mcl/stm32f767/Core/Inc
 )
 file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
-	${CMAKE_CURRENT_SOURCE_DIR}/Core/*.c
-	${CMAKE_CURRENT_SOURCE_DIR}/Core/*.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/TMS/mcal/stm32f767/Core/Src/*.c
+	${CMAKE_CURRENT_SOURCE_DIR}/TMS/mcal/stm32f767/Core/Src/*.cc
 )
+
+set(MAIN_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/TMS/main.cc)
 
 add_executable(
 	${EXECUTABLE}
 	${DRIVER_SOURCES}
 	${CORE_SOURCES}
 	${STARTUP_SCRIPT}
+	${MAIN_SOURCE}
 )
 
 target_compile_definitions(${EXECUTABLE} PRIVATE
 	${MCU_MODEL}
 	USE_HAL_DRIVER
+	STM32F767xx
 )
 
 # Include directories to executable
@@ -132,6 +138,10 @@ target_include_directories(${EXECUTABLE} PRIVATE
 
 target_include_directories(${EXECUTABLE} PRIVATE
 	${MCAL_CORE_INCLUDE_DIRECTORIES}
+)
+
+target_include_directories(${EXECUTABLE} PRIVATE
+	${INFRA_INCLUDE_DIRECTORIES}
 )
 
 target_compile_options(${EXECUTABLE} PRIVATE
