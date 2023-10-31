@@ -21,7 +21,7 @@ public:
 	void init() {
 		pin::init();
 	}
-    bool read() noexcept {
+    bool read() noexcept override  {
 		return pin::read();
 	}
 };
