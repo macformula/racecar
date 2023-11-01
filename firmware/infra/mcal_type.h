@@ -16,7 +16,7 @@ concept GpioPin = requires {
 	{pin::init()} -> std::same_as<void>;
 	{pin::read()} -> std::same_as<bool>;
 	{pin::set()} -> std::same_as<void>;
-	{pin::reset()} -> std::same_as<void>;
+	{pin::clear()} -> std::same_as<void>;
 };
 
 } // namespace type
