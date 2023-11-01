@@ -140,7 +140,7 @@ struct pin {
 
 	/// @brief Set output to LOW
 	/// @note Only available with output modes
-	inline static void reset() {
+	inline static void clear() {
 		static_assert(mode_ == mode::output_od || mode_ == mode::output_pp,
 			"pin must be configured as an output");
 		HAL_GPIO_WritePin(gpio_::get(), static_cast<uint32_t>(pin_num_), GPIO_PIN_RESET);
