@@ -3,7 +3,6 @@
 #include "gpio.h"
 
 // remove this region later
-#pragma region 
 #include "main.h"
 
 void Error_Handler(void) {
@@ -47,7 +46,7 @@ void SystemClock_Config(void) {
         Error_Handler();
     }
 }
-#pragma endregion
+// end remove region
 
 using led_pin = mcal::gpio::pin<mcal::gpio::port::b,
 							  mcal::gpio::pin_num::p7,
@@ -67,14 +66,11 @@ int main(void) {
     SystemClock_Config();
 
 	led.Init();
-	btn.init();
-
-	// uint32_t period = 200000;
-	// volatile uint32_t counter = period;
+	btn.Init();
 
 	while (true) {
 		
-		led.Set(btn.read());
+		led.Set(btn.Read());
 
 	}
 	

@@ -19,10 +19,10 @@ namespace port {
 #define GPIO_STRUCT(_PORT, _NAME)                           \
     struct _NAME {                                          \
         static inline GPIO_TypeDef* get() { return _PORT; } \
-        static inline void enable_clock() {                 \
+        static inline void EnableClock() {                  \
             __HAL_RCC_##_PORT##_CLK_ENABLE();               \
         }                                                   \
-        static inline void disable_clock() {                \
+        static inline void DisableClock() {                 \
             __HAL_RCC_##_PORT##_CLK_DISABLE();              \
         }                                                   \
     };
@@ -111,28 +111,28 @@ struct pin {
     static const auto pull_ = _pull;
     using gpio_ = _gpio_port;
 
-    inline static void init() {
+    inline static void Init() {
         GPIO_InitTypeDef gpio_init;
         gpio_init.Mode = static_cast<uint32_t>(mode_);
         gpio_init.Pin = static_cast<uint32_t>(pin_num_);
         gpio_init.Speed = static_cast<uint32_t>(speed_);
         gpio_init.Pull = static_cast<uint32_t>(pull_);
 
-        gpio_::enable_clock();
+        gpio_::EnableClock();
         HAL_GPIO_Init(gpio_::get(), &gpio_init);
     }
 
-    inline static void deinit() {
+    inline static void DeInit() {
 		HAL_GPIO_DeInit(gpio_::get(), static_cast<uint32_t>(pin_num_));
 	}
 
-    inline static bool lock() {
+    inline static bool Lock() {
         return HAL_GPIO_LockPin(gpio_::get(), static_cast<uint32_t>(pin_num_)) == HAL_OK;
     }
 
 	/// @brief Set output to HIGH
 	/// @note Only available with output modes
-	inline static void set() {
+	inline static void Set() {
 		static_assert(mode_ == mode::output_od || mode_ == mode::output_pp,
 			"pin must be configured as an output");
 		HAL_GPIO_WritePin(gpio_::get(), static_cast<uint32_t>(pin_num_), GPIO_PIN_SET);
@@ -140,13 +140,13 @@ struct pin {
 
 	/// @brief Set output to LOW
 	/// @note Only available with output modes
-	inline static void clear() {
+	inline static void Clear() {
 		static_assert(mode_ == mode::output_od || mode_ == mode::output_pp,
 			"pin must be configured as an output");
 		HAL_GPIO_WritePin(gpio_::get(), static_cast<uint32_t>(pin_num_), GPIO_PIN_RESET);
 	}
 	
-	inline static bool read() {
+	inline static bool Read() {
 		return HAL_GPIO_ReadPin(gpio_::get(), static_cast<uint32_t>(pin_num_)) == GPIO_PIN_SET;
 	}
 };
