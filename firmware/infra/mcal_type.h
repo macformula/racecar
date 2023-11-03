@@ -8,18 +8,19 @@
 #define INFRA_MCAL_TYPE_H_
 
 namespace mcal {
-namespace type {
 
-template<typename pin>
+namespace gpio {
 /// @brief Specifies the requirements for a class to act as a "GpioPin"
+template<typename pin>
 concept GpioPin = requires {
-	{pin::init()} -> std::same_as<void>;
-	{pin::read()} -> std::same_as<bool>;
-	{pin::set()} -> std::same_as<void>;
-	{pin::clear()} -> std::same_as<void>;
+	{pin::Init()} -> std::same_as<void>;
+	{pin::Read()} -> std::same_as<bool>;
+	{pin::Set()} -> std::same_as<void>;
+	{pin::Clear()} -> std::same_as<void>;
 };
 
-} // namespace type
+} // namespace gpio
+
 } // namespace mcal
 
 #endif

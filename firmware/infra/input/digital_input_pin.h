@@ -14,15 +14,15 @@ namespace input {
 
 /// @brief Digital input from a physical pin
 /// @tparam pin Must be a class conforming to the `GpioPin` concept
-template <mcal::type::GpioPin pin>
+template <mcal::gpio::GpioPin pin>
 class DigitalInputPin : public DigitalInputBase {
 
 public:
-	void init() {
+	void Init() {
 		pin::init();
 	}
-    bool read() noexcept override  {
-		return pin::read();
+    bool Read() noexcept override  {
+		return pin::Read();
 	}
 };
 

@@ -13,7 +13,7 @@ namespace input {
 template <typename ReturnType>
 class InputBase : public util::Noncopyable {
 public:
-    virtual ReturnType read() noexcept = 0;
+    virtual ReturnType Read() noexcept = 0;
 };
 
 }  // namespace input
