@@ -10,18 +10,18 @@
 namespace infra {
 namespace output {
 
-template<mcal::type::GpioPin pin>
+template<mcal::gpio::GpioPin pin>
 class DigitalOutputPin : public DigitalOutputBase {
 
 public:
 	void Init() {
-		pin::init();
+		pin::Init();
 	}
 	void SetHigh() noexcept override {
-		pin::set();
+		pin::Set();
 	}
 	void SetLow() noexcept override {
-		pin::clear();
+		pin::Clear();
 	}
 };
 
