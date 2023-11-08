@@ -7,6 +7,7 @@
 
 #include "..\racecar\drivers\STM32F7xx_HAL_Driver\Inc\stm32f7xx_hal_can.h"
 #include "..\racecar\drivers\STM32F7xx_HAL_Driver\Inc\stm32f7xx_hal.h"
+#include "..\racecar\firmware\drivers\stm32f767\STM32F7xx_HAL_Driver\Inc\Legacy\stm32f7xx_hal_can_legacy.h"
 #include "communication.hpp"
 #include <iostream>
 
