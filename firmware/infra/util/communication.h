@@ -4,7 +4,7 @@
 #ifndef INFRA_UTIL_COMMUNICATION_H_
 #define INFRA_UTIL_COMMUNICATION_H_
 
-#include "util/noncopyable.h"
+#include "infra/util/noncopyable.h"
 
 namespace util {
 
