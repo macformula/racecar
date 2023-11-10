@@ -8,4 +8,6 @@ To build, open Git Bash and `cd` into `.../racecar/firmware`
 
 Run `make build` to generate the cmake files and compile form them. The output (TMS.elf) will be stored in `TMS/build`.
 
+Run `make flash` after building to flash the `.elf` to an stm32f767 board.
+
 Run `make clean` to remove the build directory.
