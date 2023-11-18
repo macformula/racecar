@@ -88,6 +88,10 @@ using led_pin = mcal::gpio::pin<mcal::gpio::port::b,
 							  mcal::gpio::pin_num::p7,
 							  mcal::gpio::mode::output_pp,
 							  mcal::gpio::pull::nopull>;
+using led2_pin = mcal::gpio::pin<mcal::gpio::port::b,
+							  mcal::gpio::pin_num::p14,
+							  mcal::gpio::mode::output_pp,
+							  mcal::gpio::pull::nopull>;
 
 using btn_pin = mcal::gpio::pin<mcal::gpio::port::c,
 								mcal::gpio::pin_num::p13,
@@ -95,6 +99,7 @@ using btn_pin = mcal::gpio::pin<mcal::gpio::port::c,
 								mcal::gpio::pull::down>;
 
 infra::output::DigitalOutputPin<led_pin> led;
+infra::output::DigitalOutputPin<led2_pin> led2;
 infra::input::DigitalInputPin<btn_pin> btn;
 
 int main(void) {
@@ -103,6 +108,7 @@ int main(void) {
 
 
     led.Init();
+    led2.Init();
     btn.Init();
       /* Init scheduler */
     osKernelInitialize();
@@ -127,9 +133,9 @@ void StartDefaultTask(void *argument)
 int status = 1;
   for(;;)
   {
-    led.Set(true);
+    led.Set(status);
     status = !status;
-    osDelay(300);
+    osDelay(500);
   }
   /* USER CODE END 5 */
 }
@@ -138,10 +144,12 @@ void StartDefaultTask2(void *argument)
 {
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
+int status = 0;
   for(;;)
   {
-    led.Set(false);
-    osDelay(350);
+    led2.Set(status);
+    status = !status;
+    osDelay(500);
   }
   /* USER CODE END 5 */
 }
