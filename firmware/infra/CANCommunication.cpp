@@ -1,4 +1,4 @@
-#include "communication.hpp"
+#include "../util/communication.hpp"
 
 namespace util {
     util::CANCommunication <CANMessage> CANCommunicationObject(hcan);
