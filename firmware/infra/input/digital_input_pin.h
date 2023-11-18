@@ -19,7 +19,7 @@ class DigitalInputPin : public DigitalInputBase {
 
 public:
 	void Init() {
-		pin::init();
+		pin::Init();
 	}
     bool Read() noexcept override  {
 		return pin::Read();

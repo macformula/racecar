@@ -2,8 +2,44 @@
 #include "output/digital_output_pin.h"
 #include "gpio.h"
 
+#include "cmsis_os.h"
+
 // remove this region later
 #include "main.h"
+
+/* Private typedef -----------------------------------------------------------*/
+typedef StaticTask_t osStaticThreadDef_t;
+
+/* Definitions for defaultTask */
+osThreadId_t defaultTaskHandle;
+uint32_t defaultTaskBuffer[ 128 ];
+osStaticThreadDef_t defaultTaskControlBlock;
+const osThreadAttr_t defaultTask_attributes = {
+  .name = "defaultTask",
+  .cb_mem = &defaultTaskControlBlock,
+  .cb_size = sizeof(defaultTaskControlBlock),
+  .stack_mem = &defaultTaskBuffer[0],
+  .stack_size = sizeof(defaultTaskBuffer),
+  .priority = (osPriority_t) osPriorityNormal,
+};
+
+void StartDefaultTask(void *argument);
+
+/* Definitions for defaultTask */
+osThreadId_t defaultTaskHandle2;
+uint32_t defaultTaskBuffer2[ 128 ];
+osStaticThreadDef_t defaultTaskControlBlock2;
+const osThreadAttr_t defaultTask_attributes2 = {
+  .name = "defaultTask2",
+  .cb_mem = &defaultTaskControlBlock2,
+  .cb_size = sizeof(defaultTaskControlBlock2),
+  .stack_mem = &defaultTaskBuffer2[0],
+  .stack_size = sizeof(defaultTaskBuffer2),
+  .priority = (osPriority_t) osPriorityNormal,
+};
+
+void StartDefaultTask2(void *argument);
+
 
 void Error_Handler(void) {
     /* USER CODE BEGIN Error_Handler_Debug */
@@ -65,14 +101,47 @@ int main(void) {
     HAL_Init();
     SystemClock_Config();
 
-	led.Init();
-	btn.Init();
+
+    led.Init();
+    btn.Init();
+      /* Init scheduler */
+    osKernelInitialize();
+    defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+    defaultTaskHandle2 = osThreadNew(StartDefaultTask2, NULL, &defaultTask_attributes2);
+    /* Start scheduler */
+    osKernelStart();
 
 	while (true) {
 		
-		led.Set(btn.Read());
 
 	}
 	
 	return 0;
+}
+
+void StartDefaultTask(void *argument)
+{
+  /* USER CODE BEGIN 5 */
+  /* Infinite loop */
+
+int status = 1;
+  for(;;)
+  {
+    led.Set(true);
+    status = !status;
+    osDelay(300);
+  }
+  /* USER CODE END 5 */
+}
+
+void StartDefaultTask2(void *argument)
+{
+  /* USER CODE BEGIN 5 */
+  /* Infinite loop */
+  for(;;)
+  {
+    led.Set(false);
+    osDelay(350);
+  }
+  /* USER CODE END 5 */
 }

@@ -98,6 +98,26 @@ set(DRIVER_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_exti.c
 )
 
+# FreeRTOS code
+set(FREERTOS_INCLUDE_DIRECTORIES
+	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
+	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/include
+	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1
+)
+
+set(FREERTOS_SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/croutine.c
+	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/event_groups.c
+	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/list.c
+	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/queue.c
+	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c
+	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/tasks.c
+	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/timers.c
+	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
+	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1/port.c
+	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c
+)
+
 # file(GLOB_RECURSE DRIVER_SOURCES CONFIGURE_DEPENDS
 # 	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/*.c
 # 	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/*.cc
@@ -117,6 +137,7 @@ set(MAIN_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/TMS/main.cc)
 add_executable(
 	${EXECUTABLE}
 	${DRIVER_SOURCES}
+	${FREERTOS_SOURCES}
 	${CORE_SOURCES}
 	${STARTUP_SCRIPT}
 	${MAIN_SOURCE}
@@ -134,6 +155,9 @@ target_include_directories(${EXECUTABLE} SYSTEM PRIVATE
 )
 target_include_directories(${EXECUTABLE} PRIVATE
 	${CORE_INCLUDE_DIRECTORIES}
+)
+target_include_directories(${EXECUTABLE} PRIVATE
+	${FREERTOS_INCLUDE_DIRECTORIES}
 )
 
 target_include_directories(${EXECUTABLE} PRIVATE
