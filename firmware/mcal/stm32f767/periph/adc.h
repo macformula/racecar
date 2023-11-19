@@ -4,7 +4,7 @@
 #ifndef MCAL_STM32F767_PERIPH_ADC_H_
 #define MCAL_STM32F767_PERIPH_ADC_H_
 
-#include "stdint.h"
+#include <cstdint>
 #include "stm32f7xx_hal_adc.h"
 
 #include "shared/util/peripheral.h"
@@ -23,7 +23,7 @@ public:
 		HAL_ADC_Start(hadc_);
 	}
 	
-	uint32_t Read() {
+	std::uint32_t Read() {
 		/// @todo should there be a standard output range?
 		/// if so, the conversion would require knowing the resolution and
 		/// alignment settings
