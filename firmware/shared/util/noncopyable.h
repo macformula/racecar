@@ -2,13 +2,13 @@
 /// @date 2023-10-14
 /// @note Taken from Christopher Kormanyos
 
-#ifndef INFRA_UTIL_NONCOPYABLE_H_
-#define INFRA_UTIL_NONCOPYABLE_H_
+#ifndef SHARED_UTIL_NONCOPYABLE_H_
+#define SHARED_UTIL_NONCOPYABLE_H_
 
-namespace util {
+namespace shared::util {
 
-/// @brief Privately inherit `util::Noncopyable` to prevent copy constructors
-/// and reassignment.
+/// @brief Usage: Privately inherit `util::Noncopyable` to prevent copy
+/// constructors and reassignment.
 class Noncopyable {
 protected:
     Noncopyable() = default;
@@ -22,6 +22,6 @@ private:
     auto operator=(Noncopyable&&) -> Noncopyable& = delete;
 };
 
-}  // namespace util
+}  // namespace shared::util
 
 #endif
