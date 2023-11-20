@@ -8,7 +8,7 @@
 
 namespace shared::util {
 
-class Peripheral : private Noncopyable {
+class Peripheral {//: private Noncopyable {
 
 };
 
