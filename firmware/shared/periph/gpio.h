@@ -20,7 +20,7 @@ template <typename T>
 concept DigitalOutput = requires(T obj, bool value) {
 	{ obj.SetHigh() } -> std::same_as<void>;
 	{ obj.SetLow() } -> std::same_as<void>;
-	{ obj.Set() } -> std::same_as<void>;
+	{ obj.Set(value) } -> std::same_as<void>;
 
 	std::is_base_of_v<util::Peripheral, T>;
 };

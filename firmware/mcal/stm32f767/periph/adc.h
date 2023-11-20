@@ -5,7 +5,7 @@
 #define MCAL_STM32F767_PERIPH_ADC_H_
 
 #include <cstdint>
-#include "stm32f7xx_hal_adc.h"
+#include "stm32f7xx_hal.h"
 
 #include "shared/util/peripheral.h"
 
