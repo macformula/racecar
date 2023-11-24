@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/clara/racecar/firmware/mcal/stm32f767/can",
-      "program": "c:/Users/clara/racecar/firmware/mcal/stm32f767/can/build/Debug/outDebug",
+      "cwd": "c:/Users/clara/racecar/firmware/shared/comms",
+      "program": "c:/Users/clara/racecar/firmware/shared/comms/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

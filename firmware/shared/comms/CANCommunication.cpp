@@ -1,26 +1,12 @@
-#include "../util/communication.hpp"
+#include "communication.hpp"
 
 namespace util {
+    CAN_HandleTypeDef hcan;
     util::CANCommunication <CANMessage> CANCommunicationObject(hcan);
 
     CANCommunication::CANCommunication(CAN_HandleTypeDef* hcan) {
         //constructor implementation 
     }
-
-    /*
-    // maybe don't need since initialization is done in main.c
-    void CANCommunication::Init() {
-        if(HAL_CAN_Init(hcan) != HAL_OK) {
-            //initialization failed
-            Error_Handler();
-        }
-        //initalize transmission header
-        txHeader.StdId = message->std_id;
-        txHeader.RTR = CAN_RTR_DATA;
-        txHeader.IDE = CAN_ID_STD;
-        txHeader.DLC = message->dlc;
-    }
-    */
 
     void CANCommunication::Transmit(CANMessage& message, uint8_t size) {        
         // initialize Tx header

@@ -4,7 +4,7 @@
 #ifndef UTIL_COMMUNICATION_HPP
 #define UTIL_COMMUNICATION_HPP
 
-#include "noncopyable.hpp"
+#include "../util/noncopyable.hpp"
 #include "..\drivers\STM32F7xx_HAL_Driver\Inc\stm32f7xx_hal_can.h"
 #include "..\drivers\STM32F7xx_HAL_Driver\Inc\stm32f7xx_hal.h"
 
