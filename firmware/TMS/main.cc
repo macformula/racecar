@@ -17,11 +17,12 @@ The following lines of code would allow for an extern import of PushButton
 1 |  #include "app.h"
 2 |  #include "mcal/stm32f767/periph/gpio.h"
 3 |  extern PushButton<mcal::periph::DigitalInput> button;
- 
+
 ---- bindings.cc ----
 1 |  #include "app.h"
 2 |  #include "mcal/stm32f767/periph/gpio.h"
-3 |  PushButton button{mcal::periph::DigitalInput(ButtonPin_GPIO_Port, ButtonPin_Pin)};
+3 |  PushButton button{mcal::periph::DigitalInput(ButtonPin_GPIO_Port,
+ButtonPin_Pin)};
 
 The issue is obvious in line 2 and 3 of main.cc -> we should not have to include
 the mcal implementation into main, but it is required to specify the template
@@ -39,10 +40,14 @@ bindings.h file actually instatiates the correct objects with the corrent names.
 **/
 #include "TMS/mcal/stm32f767/bindings.h"
 
+extern PushButton<mcal::periph::DigitalInput> button;
+extern Indicator<mcal::periph::DigitalOutput> light;
+extern FanContoller<mcal::periph::PWMOutput> fanController;
+extern TempSensor<mcal::periph::ADCInput> tempSensor;
 
-float adcToPwm(std::uint32_t adc_value) {
-	// remap 12 bit adc to 0-100%
-	return float(adc_value) / 4095.0f * 100.0f;
+float tempToPWM(std::uint32_t adc_value) {
+    // remap 12 bit adc to 0-100%
+    return float(adc_value) / 4095.0f * 100.0f;
 }
 
 int main(void) {
@@ -53,11 +58,11 @@ int main(void) {
     std::uint32_t tempValue;
 
     while (true) {
-		button.Read();
+        button.Read();
         light.SetLight(button.Read());
 
         tempValue = tempSensor.Read();
-        fanController.Set(adcToPwm(tempValue));
+        fanController.Set(tempToPWM(tempValue));
     }
 
     return 0;

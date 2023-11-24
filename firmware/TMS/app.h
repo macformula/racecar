@@ -57,6 +57,7 @@ class TempSensor {
 private:
 	ADCInput adc_;
 
+
 public:
 	TempSensor(ADCInput adc) : adc_(adc) {}
 
