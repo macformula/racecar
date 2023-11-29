@@ -23,7 +23,7 @@ public:
 		HAL_ADC_Start(hadc_);
 	}
 	
-	std::uint32_t Read() {
+	uint32_t Read() {
 		/// @todo should there be a standard output range?
 		/// if so, the conversion would require knowing the resolution and
 		/// alignment settings

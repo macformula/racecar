@@ -14,7 +14,7 @@ namespace shared::periph {
 template <typename T>
 concept ADCInput = requires(T obj) {
 	{ obj.Start() } -> std::same_as<void>;
-	{ obj.Read() } -> std::same_as<std::uint32_t>;
+	{ obj.Read() } -> std::same_as<uint32_t>;
 
 	std::is_base_of_v<util::Peripheral, T>;
 };
