@@ -61,7 +61,7 @@ private:
 public:
 	TempSensor(ADCInput adc) : adc_(adc) {}
 
-	std::uint32_t Read() {
+	uint32_t Read() {
 		return adc_.Read();
 	}
 };
