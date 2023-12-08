@@ -6,6 +6,9 @@
 #define TMS_APP_H_
 
 #include <cstdint>
+
+#include <shared/util/data_structures/lookup_table.h>
+
 #include "shared/periph/gpio.h"
 #include "shared/periph/adc.h"
 #include "shared/periph/pwm.h"
@@ -56,7 +59,7 @@ class TempSensor {
 
 private:
 	ADCInput adc_;
-
+	
 
 public:
 	TempSensor(ADCInput adc) : adc_(adc) {}

@@ -7,14 +7,18 @@
 
 #include "TMS/mcal/stm32f767/bindings.h"
 
-extern PushButton<mcal::periph::DigitalInput> button;
-extern Indicator<mcal::periph::DigitalOutput> light;
-extern FanContoller<mcal::periph::PWMOutput> fanController;
-extern TempSensor<mcal::periph::ADCInput> tempSensor;
+const int kTempSensorCount = 6;
+extern mcal::periph::ADCInput temp_sensor_adc[kTempSensorCount];
 
-float tempToPWM(uint32_t adc_value) {
-    // remap 12 bit adc to 0-100%
-    return float(adc_value) / 4095.0f * 100.0f;
+TempSensor<
+
+extern TempSensor<mcal::periph::ADCInput> temp_sensors[kTempSensorCount];
+
+/**
+ * @brief Replaces HAL_TIM_PeriodElapsedCallback
+*/
+void TaskUpdate(){
+    
 }
 
 int main(void) {
@@ -24,13 +28,7 @@ int main(void) {
 
     uint32_t tempValue;
 
-    while (true) {
-        button.Read();
-        light.SetLight(button.Read());
-
-        tempValue = tempSensor.Read();
-        fanController.Set(tempToPWM(tempValue));
-    }
+    while (true) {}
 
     return 0;
 }
