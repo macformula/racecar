@@ -7,10 +7,17 @@
 
 #include "TMS/mcal/stm32f767/bindings.h"
 
-extern PushButton<mcal::periph::DigitalInput> button;
-extern Indicator<mcal::periph::DigitalOutput> light;
-extern FanContoller<mcal::periph::PWMOutput> fanController;
-extern TempSensor<mcal::periph::ADCInput> tempSensor;
+namespace bindings {
+    extern mcal::periph::DigitalInput button_di;
+    extern mcal::periph::DigitalOutput light_do;
+    extern mcal::periph::PWMOutput fan_controller_pwm;
+    extern mcal::periph::ADCInput temp_sensor_adc;
+} // namespace bindings
+
+PushButton button{bindings::button_di};
+Indicator light{bindings::light_do};
+FanContoller fanController{bindings::fan_controller_pwm};
+TempSensor tempSensor{bindings::temp_sensor_adc};
 
 float tempToPWM(uint32_t adc_value) {
     // remap 12 bit adc to 0-100%

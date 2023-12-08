@@ -8,10 +8,12 @@
 #include "tim.h"
 
 // Create microcontroller level objects
-PushButton button{mcal::periph::DigitalInput(ButtonPin_GPIO_Port, ButtonPin_Pin)};
-Indicator light{mcal::periph::DigitalOutput(LedPin_GPIO_Port, LedPin_Pin)};
-TempSensor tempSensor{mcal::periph::ADCInput(&hadc1)};
-FanContoller fanController{mcal::periph::PWMOutput(&htim1, TIM_CHANNEL_1)};
+namespace bindings {
+mcal::periph::DigitalInput button{ButtonPin_GPIO_Port, ButtonPin_Pin};
+mcal::periph::DigitalOutput light{LedPin_GPIO_Port, LedPin_Pin};
+mcal::periph::ADCInput tempSensor{&hadc1};
+mcal::periph::PWMOutput fanController{&htim1, TIM_CHANNEL_1};
+} // namespace bindings
 
 extern "C" {
 void SystemClock_Config();
