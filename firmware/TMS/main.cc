@@ -7,18 +7,21 @@
 
 #include "TMS/mcal/stm32f767/bindings.h"
 
-const int kTempSensorCount = 6;
-extern mcal::periph::ADCInput temp_sensor_adc[kTempSensorCount];
+namespace bindings {
+    extern mcal::periph::DigitalInput button_di;
+    extern mcal::periph::DigitalOutput light_do;
+    extern mcal::periph::PWMOutput fan_controller_pwm;
+    extern mcal::periph::ADCInput temp_sensor_adc;
+} // namespace bindings
 
-TempSensor<
+PushButton button{bindings::button_di};
+Indicator light{bindings::light_do};
+FanContoller fanController{bindings::fan_controller_pwm};
+TempSensor tempSensor{bindings::temp_sensor_adc};
 
-extern TempSensor<mcal::periph::ADCInput> temp_sensors[kTempSensorCount];
-
-/**
- * @brief Replaces HAL_TIM_PeriodElapsedCallback
-*/
-void TaskUpdate(){
-    
+float tempToPWM(uint32_t adc_value) {
+    // remap 12 bit adc to 0-100%
+    return float(adc_value) / 4095.0f * 100.0f;
 }
 
 int main(void) {
