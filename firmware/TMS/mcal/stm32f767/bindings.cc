@@ -7,12 +7,12 @@
 #include "main.h"
 #include "tim.h"
 
-// Create microcontroller level objects
+// Used in main.cc via extern ...
 namespace bindings {
-mcal::periph::DigitalInput button{ButtonPin_GPIO_Port, ButtonPin_Pin};
-mcal::periph::DigitalOutput light{LedPin_GPIO_Port, LedPin_Pin};
-mcal::periph::ADCInput tempSensor{&hadc1};
-mcal::periph::PWMOutput fanController{&htim1, TIM_CHANNEL_1};
+    mcal::periph::DigitalInput button_di{ButtonPin_GPIO_Port, ButtonPin_Pin};
+    mcal::periph::DigitalOutput light_do{LedPin_GPIO_Port, LedPin_Pin};
+    mcal::periph::ADCInput temp_sensor_adc{&hadc1};
+    mcal::periph::PWMOutput fan_controller_pwm{&htim1, TIM_CHANNEL_1};
 } // namespace bindings
 
 extern "C" {

@@ -16,8 +16,8 @@ namespace bindings {
 
 PushButton button{bindings::button_di};
 Indicator light{bindings::light_do};
-FanContoller fanController{bindings::fan_controller_pwm};
-TempSensor tempSensor{bindings::temp_sensor_adc};
+FanContoller fan_controller{bindings::fan_controller_pwm};
+TempSensor temp_sensor{bindings::temp_sensor_adc};
 
 float tempToPWM(uint32_t adc_value) {
     // remap 12 bit adc to 0-100%
@@ -27,9 +27,7 @@ float tempToPWM(uint32_t adc_value) {
 int main(void) {
     Initialize();
 
-    fanController.StartPWM();
-
-    uint32_t tempValue;
+    fan_controller.StartPWM();
 
     while (true) {}
 
