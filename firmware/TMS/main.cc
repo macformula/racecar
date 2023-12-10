@@ -12,7 +12,10 @@ namespace bindings {
     extern mcal::periph::ADCInput temp_sensor_adc;
 } // namespace bindings
 
-
+/**
+ * @note This lookup table is determined by the ADC - TempSensor circuit. Is it more
+ * accurate to have it under platform-dependent code (i.e. mcal/bindings)?
+*/
 const float const temp_lut_data[33][2] = {
     {3077, -40},
 	{3066, -35},
