@@ -14,3 +14,7 @@ flash: FORCE
 
 # empty rule to force others to occur
 FORCE:
+
+windows: FORCE
+	mkdir TMS/build/windows -p
+	g++ TMS/main.cc TMS/mcal/windows/bindings.cc -I TMS/mcal -I. --std=c++20 -o "TMS/build/windows/main.exe"

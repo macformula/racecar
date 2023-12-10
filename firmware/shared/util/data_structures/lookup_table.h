@@ -8,7 +8,7 @@ namespace shared::util {
 
 class LookupTable {
 public:
-	LookupTable(const float const (*table)[2], int row_count) : row_count_(row_count), table_(table) {
+	LookupTable(const float (*table)[2], int row_count) : row_count_(row_count), table_(table) {
 
 	}
 
@@ -39,7 +39,7 @@ public:
 
 private:
 	const int row_count_;
-	const float const (*table_)[2];
+	const float (*table_)[2];
 };
 
 
