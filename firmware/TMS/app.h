@@ -24,36 +24,6 @@ void Initialize();
 	App-level objects
 ***************************************************************/
 
-template <shared::periph::DigitalInput DigitalInput>
-class PushButton {
-
-private:
-
-	DigitalInput btn_;
-
-public:
-	PushButton(DigitalInput btn) : btn_(btn) {}
-
-	bool Read() {
-		return btn_.Read();
-	}
-
-};
-
-template <shared::periph::DigitalOutput DigitalOutput>
-class Indicator {
-
-private:
-	DigitalOutput led_;
-
-public:
-	Indicator(DigitalOutput led) : led_(led) {}
-
-	void SetLight(bool value) {
-		led_.Set(value);
-	}
-};
-
 template <shared::periph::ADCInput ADCInput>
 class TempSensor {
 

@@ -8,14 +8,10 @@
 #include "TMS/mcal/stm32f767/bindings.h"
 
 namespace bindings {
-    extern mcal::periph::DigitalInput button_di;
-    extern mcal::periph::DigitalOutput light_do;
     extern mcal::periph::PWMOutput fan_controller_pwm;
     extern mcal::periph::ADCInput temp_sensor_adc;
 } // namespace bindings
 
-PushButton button{bindings::button_di};
-Indicator light{bindings::light_do};
 FanContoller fan_controller{bindings::fan_controller_pwm};
 TempSensor temp_sensor{bindings::temp_sensor_adc};
 
