@@ -27,15 +27,19 @@ void Initialize();
 template <shared::periph::ADCInput ADCInput>
 class TempSensor {
 
+	using LUT = shared::util::LookupTable;
+
 private:
 	ADCInput adc_;
-	
+	LUT& adc_to_temp_;
 
 public:
-	TempSensor(ADCInput adc) : adc_(adc) {}
+	TempSensor(ADCInput adc, LUT& adc_to_temp) : adc_(adc), adc_to_temp_(adc_to_temp) {}
 
-	uint32_t Read() {
-		return adc_.Read();
+	float Read() {
+		uint32_t adc_value = adc_.Read();
+		float temperature = adc_to_temp_.Interpolate(float(adc_value));
+		return temperature;
 	}
 };
 

@@ -8,7 +8,7 @@ namespace shared::util {
 
 class LookupTable {
 public:
-	LookupTable(int length, float* keys, float* values) : length_(length), keys_(keys), values_(values) {
+	LookupTable(const float const (*table)[2], int row_count) : row_count_(row_count), table_(table) {
 
 	}
 
@@ -16,31 +16,30 @@ public:
 		int least_greater_idx = 0;
 
 		// Find next greatest element in keys_, assumes keys_ is sorted
-		while (keys_[least_greater_idx] < key && least_greater_idx < length_) {
+		while (table_[least_greater_idx][0] < key && least_greater_idx < row_count_) {
 			least_greater_idx += 1;
 		}
 
 		// If key is outside of range, return edge value
 		if (least_greater_idx == 0) {
-			return values_[0];
+			return table_[0][1];
 		}
-		if (least_greater_idx == length_) {
-			return values_[length_-1];
+		if (least_greater_idx == row_count_) {
+			return table_[row_count_-1][1];
 		}
 		
-		float fraction = (key - keys_[least_greater_idx - 1])
-			/ (keys_[least_greater_idx] - keys_[least_greater_idx - 1]);
+		float fraction = (key - table_[least_greater_idx - 1][0])
+			/ (table_[least_greater_idx][0] - table_[least_greater_idx - 1][0]);
 
-		float interpolated_value = (1 - fraction) * values_[least_greater_idx - 1]
-			+ fraction * values_[least_greater_idx];
+		float interpolated_value = (1 - fraction) * table_[least_greater_idx - 1][1]
+			+ fraction * table_[least_greater_idx][1];
 
 		return interpolated_value;
 	}
 
 private:
-	int length_;
-	float* keys_;
-	float* values_;
+	const int row_count_;
+	const float const (*table_)[2];
 };
 
 
