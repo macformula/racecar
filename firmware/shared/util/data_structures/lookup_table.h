@@ -1,6 +1,16 @@
 /// @author Blake Freer
 /// @date 2023-12-04
 
+/**
+ * @note We should create a concept / abstract class representing a "mapper" function
+ * that would represent the functionality of a LookupTable, linear mapping function, etc
+ * such that any range conversion can use a unified type
+ * 
+ * @todo (BlakeFreer) This lookup table requires the keys to be sorted in increasing
+ * order. Write a compile time checker that fails if this is not the case (iterate over)
+ * keys, if one is less than previous, raise error.
+*/
+
 #ifndef SHARED_UTIL_DATA_STRUCTURES_LOOKUP_TABLE_H_
 #define SHARED_UTIL_DATA_STRUCTURES_LOOKUP_TABLE_H_
 
