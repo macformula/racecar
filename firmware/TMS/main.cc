@@ -2,6 +2,7 @@
 /// @date 2023-11-18
 
 #include <cstdint>
+#include <cstring>
 
 #include "app.h"
 
@@ -65,6 +66,7 @@ int main(void) {
 
     while (true) {
         float temperature = temp_sensor.Read();
+		Log("Temperature: " + std::to_string(temperature));
         fan_controller.Set(temperature);
     }
 

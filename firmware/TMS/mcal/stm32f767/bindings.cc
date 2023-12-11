@@ -1,3 +1,8 @@
+/// @author Blake Freer
+/// @date 2023-12-11
+
+#include <string>
+
 #include "bindings.h"
 
 // CubeMX imports
@@ -22,4 +27,8 @@ void Initialize() {
     HAL_Init();
     MX_ADC1_Init();
     MX_TIM1_Init();
+}
+
+void Log(std::string message) {
+    return;
 }

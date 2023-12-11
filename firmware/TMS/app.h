@@ -6,6 +6,7 @@
 #define TMS_APP_H_
 
 #include <cstdint>
+#include <string>
 
 #include <shared/util/data_structures/lookup_table.h>
 
@@ -18,7 +19,7 @@
 ***************************************************************/
 
 void Initialize();
-
+void Log(std::string message);
 
 /***************************************************************
 	App-level objects

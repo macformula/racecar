@@ -24,9 +24,9 @@ public:
 	uint32_t Read() {
 		Start();
 		uint32_t adc_val;
-		std::cout << "  Enter 32bit value: ";
+		std::cout << " | Enter an unsigned 32-bit value: ";
 		std::cin >> adc_val;
-		std::cout << "Obtained value " << adc_val << std::endl;
+		std::cout << " | Obtained value " << adc_val << std::endl;
 		return adc_val; 
 	}
 
