@@ -1,4 +1,22 @@
 {
+<<<<<<< HEAD
+  "configurations": [
+    {
+      "name": "windows-gcc-x64",
+      "includePath": [
+        "${workspaceFolder}/**"
+      ],
+      "compilerPath": "C:/msys64/mingw64/bin/gcc.exe",
+      "cStandard": "${default}",
+      "cppStandard": "${default}",
+      "intelliSenseMode": "windows-gcc-x64",
+      "compilerArgs": [
+        ""
+      ]
+    }
+  ],
+  "version": 4
+=======
     "configurations": [
         {
             "name": "STM32F7",
@@ -25,4 +43,5 @@
         }
     ],
     "version": 4
+>>>>>>> 5696b012528d69194229afcfc13c1b28773f6eb8
 }
