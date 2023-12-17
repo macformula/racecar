@@ -1,9 +1,9 @@
 /// @author Blake Freer
 /// @date 2023-12-11
 
-#include <string>
-
 #include "bindings.h"
+
+#include <string>
 
 // CubeMX imports
 #include "TMS/app.h"
@@ -14,9 +14,9 @@
 
 // Used in main.cc via extern ...
 namespace bindings {
-    mcal::periph::ADCInput temp_sensor_adc{&hadc1};
-    mcal::periph::PWMOutput fan_controller_pwm{&htim1, TIM_CHANNEL_1};
-} // namespace bindings
+mcal::periph::ADCInput temp_sensor_adc{&hadc1};
+mcal::periph::PWMOutput fan_controller_pwm{&htim1, TIM_CHANNEL_1};
+}  // namespace bindings
 
 extern "C" {
 void SystemClock_Config();
