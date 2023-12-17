@@ -5,19 +5,14 @@
 #include <cstring>
 
 #include "app.h"
-
-// #include "TMS/mcal/stm32f767/bindings.h"
-#include "TMS/mcal/windows/bindings.h"
+#include "bindings.h"
 
 namespace bindings {
-    extern mcal::periph::PWMOutput fan_controller_pwm;
-    extern mcal::periph::ADCInput temp_sensor_adc;
-} // namespace bindings
+extern mcal::periph::PWMOutput fan_controller_pwm;
+extern mcal::periph::ADCInput temp_sensor_adc;
+}  // namespace bindings
 
-/**
- * @note This lookup table is determined by the ADC - TempSensor circuit. Is it more
- * accurate to have it under platform-dependent code (i.e. mcal/bindings)?
-*/
+// clang-format off
 const float temp_lut_data[33][2] = {
     {2475, 120},
 	{2480, 115},
@@ -53,11 +48,12 @@ const float temp_lut_data[33][2] = {
 	{3066, -35},
     {3077, -40},
 };
+// clang-format on
 
-shared::util::LookupTable temp_lut {temp_lut_data, 33};
+shared::util::LookupTable temp_lut{temp_lut_data, 33};
 
-FanContoller fan_controller {bindings::fan_controller_pwm};
-TempSensor temp_sensor {bindings::temp_sensor_adc, temp_lut};
+FanContoller fan_controller{bindings::fan_controller_pwm};
+TempSensor temp_sensor{bindings::temp_sensor_adc, temp_lut};
 
 int main(void) {
     Initialize();
@@ -66,7 +62,7 @@ int main(void) {
 
     while (true) {
         float temperature = temp_sensor.Read();
-		Log("Temperature: " + std::to_string(temperature));
+        Log("Temperature: " + std::to_string(temperature));
         fan_controller.Set(temperature);
     }
 
