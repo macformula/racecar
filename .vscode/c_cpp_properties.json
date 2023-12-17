@@ -4,12 +4,13 @@
             "name": "STM32F7",
             "includePath": [
                 "${workspaceFolder}/firmware",
-                "${workspaceFolder}/firmware/TMS/mcal/stm32f767/**",
+                "${workspaceFolder}/firmware/TMS/mcal/stm32f767",
+                "${workspaceFolder}/firmware/TMS/mcal/stm32f767/Inc",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Device",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Device/ST/STM32F7xx/Include",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Core/Include",
                 "${workspaceFolder}/firmware/drivers/stm32f767/",
-				"${workspaceFolder}/firmware/drivers/stm32f767/STM32F7xx_HAL_Driver/Inc"
+                "${workspaceFolder}/firmware/drivers/stm32f767/STM32F7xx_HAL_Driver/Inc"
             ],
             "defines": [
                 "_DEBUG",
@@ -22,6 +23,22 @@
             "cStandard": "c17",
             "cppStandard": "c++20",
             "intelliSenseMode": "windows-gcc-arm"
+        },
+        {
+            "name": "Windows",
+            "includePath": [
+                "${workspaceFolder}/firmware",
+                "${workspaceFolder}/firmware/TMS/mcal/windows/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "g++",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "windows-gcc-x64"
         }
     ],
     "version": 4
