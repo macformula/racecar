@@ -2,6 +2,8 @@
 
 ## Building
 
+_this is out of data (@bfreer)_
+
 A simple CMakeLists has been prepared. It only supports TMS on the stm32f767 board. There are many improvements to be made, but it works as of its initial commit.
 
 To build, open Git Bash and `cd` into `.../racecar/firmware`
