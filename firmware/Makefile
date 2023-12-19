@@ -1,20 +1,13 @@
-# Run 'make build' or 'make clean' from Git Bash. May not work in other shells
+PLATFORM = windows
+PROJECT = TMS
 
-BINARY = TMS/build/TMS.bin
+BUILD_DIR = build/$(PROJECT)/$(PLATFORM)
 
-build: FORCE
-	cmake -B TMS/build -S . -G "Unix Makefiles"
-	cmake --build TMS/build
+build: clean
+	cmake -B $(BUILD_DIR) -S. -G"Unix Makefiles" -DPROJECT=$(PROJECT) -DPLATFORM=$(PLATFORM) 
+	cmake --build $(BUILD_DIR)
 
 clean: FORCE
-	rm -r TMS/build
+	rm build -rf
 
-flash: FORCE
-	st-flash --reset write $(BINARY) 0x08000000
-
-# empty rule to force others to occur
 FORCE:
-
-windows: FORCE
-	mkdir TMS/build/windows -p
-	g++ TMS/main.cc TMS/mcal/windows/bindings.cc -I TMS/mcal -I. --std=c++20 -o "TMS/build/windows/main.exe"

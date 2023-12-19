@@ -1,16 +1,9 @@
 # Blake Freer
-# December 17, 2023
+# December 18, 2023
 
-add_library(tms_main)
+add_executable(main)
 
-target_sources(tms_main
-  PUBLIC
+target_sources(main
+PRIVATE
     main.cc
 )
-
-target_include_directories(tms_main
-  PUBLIC
-    mcal/windows
-	../
-)
-
