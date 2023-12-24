@@ -65,5 +65,4 @@ PRIVATE
 target_link_libraries(main
 PRIVATE
 	bindings
-	driver
 )
