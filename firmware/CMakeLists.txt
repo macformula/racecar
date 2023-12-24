@@ -2,7 +2,6 @@
 # December 18, 2023
 
 cmake_minimum_required(VERSION 3.27)
-set(CMAKE_CXX_STANDARD 20)
 
 # Get PROJECT option and ensure the folder exists
 
@@ -28,9 +27,25 @@ if(NOT (EXISTS "${DIR_PLATFORM}" AND IS_DIRECTORY "${DIR_PLATFORM}"))
 	message(FATAL_ERROR "Invalid platform \"${PLATFORM}\". See ${DIR_PROJECT}/mcal for available platforms.")
 endif()
 
-# Options are parsed -> Start building
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
+	set(CMAKE_BUILD_TYPE Debug)
+endif()
+message("Build type: ${CMAKE_BUILD_TYPE}")
 
+# Options are parsed -> Start building
 message(STATUS "Building \"${PROJECT}\" for \"${PLATFORM}\"")
+
+include(${DIR_PLATFORM}/Settings.cmake)
+
+enable_language(C CXX ASM)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS ON)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+set(CMAKE_CXX_EXTENSIONS ON)
+
 project("${PROJECT}-${PLATFORM}")
 
 add_subdirectory(${DIR_PROJECT})  # provides "main" (executable)

@@ -1,4 +1,4 @@
-PLATFORM = windows
+PLATFORM = stm32f767
 PROJECT = TMS
 
 BUILD_DIR = build/$(PROJECT)/$(PLATFORM)
@@ -8,6 +8,6 @@ build: clean
 	cmake --build $(BUILD_DIR)
 
 clean: FORCE
-	rm build -rf
+	rm $(BUILD_DIR) -rf
 
 FORCE:
