@@ -2,28 +2,22 @@
 # December 19, 2023
 
 set(CPU_PARAMETERS
-	${CPU_PARAMETERS}
 	-mcpu=cortex-m7
 	-mthumb
 	-mfpu=fpv5-d16
 	-mfloat-abi=hard
 )
 
-set(COMPILE_DEFINITIONS
-	${COMPILE_DEFINITIONS}
+add_library(driver)
+
+target_compile_definitions(driver
+PUBLIC
 	USE_HAL_DRIVER
 	STM32F767xx
 )
 
-add_library(bindings)
-
-target_sources(bindings
+target_sources(driver
 PRIVATE
-	bindings.cc
-)
-
-target_sources(bindings
-PUBLIC
 	cubemx/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_cortex.c
 	cubemx/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim.c
 	cubemx/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim_ex.c
@@ -43,41 +37,20 @@ PUBLIC
 	cubemx/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_adc.c
 )
 
-set(DRIVER_INC
+target_include_directories(driver
+PUBLIC
 	cubemx/Drivers/CMSIS/Device/ST/STM32F7xx/Include
 	cubemx/Drivers/CMSIS/Include
 	cubemx/Drivers/STM32F7xx_HAL_Driver/Inc
 	cubemx/Drivers/STM32F7xx_HAL_Driver/Inc/Legacy
 )
 
-target_include_directories(bindings
-PRIVATE
-	${DRIVER_INC}
-)
-
-target_sources(bindings
+target_include_directories(driver
 PUBLIC
-	cubemx/Src/adc.c
-	cubemx/Src/gpio.c
-	cubemx/Src/main.c
-	cubemx/Src/stm32f7xx_hal_msp.c
-	cubemx/Src/stm32f7xx_it.c
-	cubemx/Src/system_stm32f7xx.c
-	cubemx/Src/tim.c
-)
-
-target_include_directories(bindings
-PRIVATE
 	cubemx/Inc
 )
 
-target_compile_definitions(bindings
-PUBLIC
-	USE_HAL_DRIVER
-	STM32F767xx
-)
-
-target_compile_options(bindings
+target_compile_options(driver
 PUBLIC
 	${CPU_PARAMETERS}
 	-Wall
@@ -100,8 +73,34 @@ PUBLIC
 	$<$<CONFIG:Release>:-Og -g0>
 )
 
+add_library(bindings)
+
+target_sources(bindings
+PRIVATE
+	bindings.cc
+)
+
+target_sources(bindings
+PRIVATE
+	cubemx/Src/adc.c
+	cubemx/Src/gpio.c
+	cubemx/Src/main.c
+	cubemx/Src/stm32f7xx_hal_msp.c
+	cubemx/Src/stm32f7xx_it.c
+	cubemx/Src/system_stm32f7xx.c
+	cubemx/Src/tim.c
+)
+
+target_include_directories(bindings
+PUBLIC
+	cubemx/Inc
+)
+
+# must be public so that the 'main' executable can use its headers
+target_link_libraries(bindings PUBLIC driver)
+
 target_link_options(main PRIVATE
-    -T cubemx/STM32F767ZITx_FLASH.ld
+    -T C:/Formula/repos/racecar/firmware/TMS/mcal/stm32f767/cubemx/STM32F767ZITx_FLASH.ld
     ${CPU_PARAMETERS}
     -Wl,-Map=${CMAKE_PROJECT_NAME}.map
     $<$<VERSION_GREATER:$<C_COMPILER_VERSION>,10.3.1>:-Wl,--no-warn-rwx-segments>
@@ -111,10 +110,4 @@ target_link_options(main PRIVATE
     -lstdc++
     -Wl,--end-group
     -Wl,--print-memory-usage
-)
-
-target_include_directories(main
-PUBLIC
-	${DRIVER_INC}
-	cubemx/Inc
 )

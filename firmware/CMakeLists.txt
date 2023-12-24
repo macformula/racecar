@@ -33,7 +33,7 @@ endif()
 message("Build type: ${CMAKE_BUILD_TYPE}")
 
 # Options are parsed -> Start building
-message(STATUS "Building \"${PROJECT}\" for \"${PLATFORM}\"")
+message("Building \"${PROJECT}\" for \"${PLATFORM}\"")
 
 include(${DIR_PLATFORM}/Settings.cmake)
 
@@ -54,15 +54,16 @@ add_subdirectory(${DIR_PLATFORM})  # provides "bindings" (library)
 target_include_directories(main
 PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
-	${DIR_PLATFORM}
+	${DIR_PLATFORM}  # provides the platform-specific bindings header
 )
 
 target_include_directories(bindings
 PRIVATE
-	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}  # provides app.h
 )
 
 target_link_libraries(main
 PRIVATE
 	bindings
+	driver
 )
