@@ -1,0 +1,13 @@
+Add command to convert .elf to .bin and flash
+
+- verify that code builds, flashes, and runs binary switch for stm
+- would be good to create a new project for this, kind of like a HelloWorld
+	- stm uses on-board button
+	- windows use y/n input
+
+- remove default parameters from Makefile to enforce specification
+- write a readme describing how to build (make PLATFORM=? ...)
+- include instructions for creating a new project in the readme / documentation pdf (readme should be fine)
+
+- finish TMS tasks, test with windows
+- PR

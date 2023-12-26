@@ -1,11 +1,14 @@
 {
+    "env": {
+        "PROJECT" : "HelloWorld"
+    },
     "configurations": [
         {
             "name": "STM32F7",
             "includePath": [
                 "${workspaceFolder}/firmware",
-                "${workspaceFolder}/firmware/TMS/mcal/stm32f767",
-                "${workspaceFolder}/firmware/TMS/mcal/stm32f767/cubemx/Inc",
+                "${workspaceFolder}/firmware/${PROJECT}/mcal/stm32f767",
+                "${workspaceFolder}/firmware/${PROJECT}/mcal/stm32f767/cubemx/Inc",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Device",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Device/ST/STM32F7xx/Include",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Core/Include",
@@ -28,7 +31,7 @@
             "name": "Windows",
             "includePath": [
                 "${workspaceFolder}/firmware",
-                "${workspaceFolder}/firmware/TMS/mcal/windows/**"
+                "${workspaceFolder}/firmware/${PROJECT}/mcal/windows"
             ],
             "defines": [
                 "_DEBUG",
