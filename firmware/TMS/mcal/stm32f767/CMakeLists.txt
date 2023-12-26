@@ -35,6 +35,8 @@ PRIVATE
 	cubemx/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c_ex.c
 	cubemx/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_exti.c
 	cubemx/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_adc.c
+PUBLIC
+	cubemx/startup_stm32f767xx.s
 )
 
 target_include_directories(driver
@@ -100,7 +102,7 @@ PUBLIC
 target_link_libraries(bindings PUBLIC driver)
 
 target_link_options(main PRIVATE
-    -T C:/Formula/repos/racecar/firmware/TMS/mcal/stm32f767/cubemx/STM32F767ZITx_FLASH.ld
+    -T ${CMAKE_CURRENT_SOURCE_DIR}/cubemx/STM32F767ZITx_FLASH.ld
     ${CPU_PARAMETERS}
     -Wl,-Map=${CMAKE_PROJECT_NAME}.map
     $<$<VERSION_GREATER:$<C_COMPILER_VERSION>,10.3.1>:-Wl,--no-warn-rwx-segments>

@@ -48,6 +48,8 @@ set(CMAKE_CXX_EXTENSIONS ON)
 
 project("${PROJECT}-${PLATFORM}")
 
+add_executable(main)
+
 add_subdirectory(${DIR_PROJECT})  # provides "main" (executable)
 add_subdirectory(${DIR_PLATFORM})  # provides "bindings" (library)
 
@@ -66,3 +68,10 @@ target_link_libraries(main
 PRIVATE
 	bindings
 )
+
+set(POSTBUILD_FILE ${DIR_PLATFORM}/PostBuild.cmake)
+if(EXISTS "${POSTBUILD_FILE}" AND NOT IS_DIRECTORY "${POSTBUILD_FILE}")
+	include("${POSTBUILD_FILE}")
+else()
+	message("No PostBuild file specified.")
+endif()
