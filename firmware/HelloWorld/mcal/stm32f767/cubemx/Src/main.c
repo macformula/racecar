@@ -56,21 +56,7 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-// int main() {
-//   SystemClock_Config();
-//   HAL_Init();
-//   MX_GPIO_Init();
 
-//   while (1) {
-//     HAL_GPIO_WritePin(LedPin_GPIO_Port, LedPin_Pin, GPIO_PIN_SET);
-//     HAL_Delay(500);
-//     HAL_GPIO_WritePin(LedPin_GPIO_Port, LedPin_Pin, GPIO_PIN_RESET);
-//     HAL_Delay(200);
-
-//   }
-
-//   return 0;
-// }
 
 /* USER CODE END 0 */
 
