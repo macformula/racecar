@@ -7,5 +7,5 @@ add_custom_command(
 	COMMAND ${CMAKE_SIZE} $<TARGET_FILE:main>
 	COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:main> main.hex
 	COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:main> main.bin
-	COMMAND ${CMAKE_OBJDUMP} -D -C $<TARGET_FILE:main> > main.s
+	# COMMAND ${CMAKE_OBJDUMP} -D -C $<TARGET_FILE:main> > main.s
 )

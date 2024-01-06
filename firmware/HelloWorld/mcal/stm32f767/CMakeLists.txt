@@ -37,6 +37,14 @@ PRIVATE
 	cubemx/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim.c
 	cubemx/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim_ex.c
 PUBLIC
+	cubemx/Src/gpio.c
+	cubemx/Src/main.c
+	cubemx/Src/adc.c
+	cubemx/Src/tim.c
+	cubemx/Src/stm32f7xx_hal_msp.c
+	cubemx/Src/stm32f7xx_it.c
+	cubemx/Src/system_stm32f7xx.c
+PUBLIC
 	cubemx/startup_stm32f767xx.s
 )
 
@@ -81,19 +89,8 @@ PUBLIC
 add_library(bindings)
 
 target_sources(bindings
-PRIVATE
+PUBLIC
 	bindings.cc
-)
-
-target_sources(bindings
-PRIVATE
-	cubemx/Src/gpio.c
-	cubemx/Src/main.c
-	cubemx/Src/adc.c
-	cubemx/Src/tim.c
-	cubemx/Src/stm32f7xx_hal_msp.c
-	cubemx/Src/stm32f7xx_it.c
-	cubemx/Src/system_stm32f7xx.c
 )
 
 target_include_directories(bindings

@@ -35,7 +35,7 @@ message("Build type: ${CMAKE_BUILD_TYPE}")
 # Options are parsed -> Start building
 message("Building \"${PROJECT}\" for \"${PLATFORM}\"")
 
-include(${DIR_PLATFORM}/Settings.cmake)
+set(CMAKE_TOOLCHAIN_FILE ${DIR_PLATFORM}/Toolchain.cmake)  # sets the compiler, linker, etc based on the Toolchain.cmake file
 
 enable_language(C CXX ASM)
 set(CMAKE_C_STANDARD 11)

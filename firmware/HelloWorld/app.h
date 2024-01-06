@@ -6,10 +6,10 @@
 template <shared::periph::DigitalInput DigitalInput>
 class Button {
 private:
-    DigitalInput di_;
+    DigitalInput& di_;
 
 public:
-    Button(DigitalInput di) : di_(di){};
+    Button(DigitalInput& di) : di_(di){};
 
     bool Read() {
         return di_.Read();
@@ -19,12 +19,19 @@ public:
 template <shared::periph::DigitalOutput DigitalOutput>
 class Indicator {
 private:
-    DigitalOutput dig_output_;
-
 public:
-    Indicator(DigitalOutput dig_output) : dig_output_(dig_output) {}
+    DigitalOutput& dig_output_;
+    Indicator(DigitalOutput& dig_output) : dig_output_(dig_output) {}
 
     void Set(bool value) {
         dig_output_.Set(value);
+    }
+
+    void High() {
+        dig_output_.SetHigh();
+    }
+
+    void Low() {
+        dig_output_.SetLow();
     }
 };
