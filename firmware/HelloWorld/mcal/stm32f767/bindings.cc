@@ -3,12 +3,14 @@
 
 #include "bindings.h"
 
+#include "adc.h"
 #include "gpio.h"
 #include "main.h"
+#include "tim.h"
 
 namespace bindings {
-mcal::periph::DigitalInput button_di{USER_Btn_GPIO_Port, USER_Btn_Pin};
-mcal::periph::DigitalOutput indicator_do{Led_GPIO_Port, Led_Pin};
+mcal::periph::DigitalInput button_di{ButtonPin_GPIO_Port, ButtonPin_Pin};
+mcal::periph::DigitalOutput indicator_do{LedPin_GPIO_Port, LedPin_Pin};
 }  // namespace bindings
 
 extern "C" {
@@ -19,4 +21,6 @@ void Initialize() {
     SystemClock_Config();
     HAL_Init();
     MX_GPIO_Init();
+    // MX_ADC1_Init();
+    // MX_TIM1_Init();
 }

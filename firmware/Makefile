@@ -1,5 +1,5 @@
 PLATFORM = stm32f767
-PROJECT = TMS
+PROJECT = HelloWorld
 
 BUILD_DIR = build/$(PROJECT)/$(PLATFORM)
 
