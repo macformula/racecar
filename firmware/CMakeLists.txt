@@ -35,7 +35,8 @@ message("Build type: ${CMAKE_BUILD_TYPE}")
 # Options are parsed -> Start building
 message("Building \"${PROJECT}\" for \"${PLATFORM}\"")
 
-set(CMAKE_TOOLCHAIN_FILE ${DIR_PLATFORM}/Toolchain.cmake)  # sets the compiler, linker, etc based on the Toolchain.cmake file
+set(DIR_MCAL_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/mcal/${PLATFORM})
+set(CMAKE_TOOLCHAIN_FILE ${DIR_MCAL_PLATFORM}/Toolchain.cmake)  # sets the compiler, linker, etc based on the Toolchain.cmake file
 
 enable_language(C CXX ASM)
 set(CMAKE_C_STANDARD 11)
@@ -69,7 +70,7 @@ PRIVATE
 	bindings
 )
 
-set(POSTBUILD_FILE ${DIR_PLATFORM}/PostBuild.cmake)
+set(POSTBUILD_FILE ${DIR_MCAL_PLATFORM}/PostBuild.cmake)
 if(EXISTS "${POSTBUILD_FILE}" AND NOT IS_DIRECTORY "${POSTBUILD_FILE}")
 	include("${POSTBUILD_FILE}")
 else()

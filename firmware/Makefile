@@ -1,5 +1,5 @@
-PLATFORM = stm32f767
-PROJECT = HelloWorld
+PLATFORM =
+PROJECT = 
 
 BUILD_DIR = build/$(PROJECT)/$(PLATFORM)
 
@@ -9,5 +9,8 @@ build: FORCE
 
 clean: FORCE
 	rm $(BUILD_DIR) -rf
+
+st-flash: build
+	st-flash --reset write $(BUILD_DIR)/main.bin 0x08000000
 
 FORCE:

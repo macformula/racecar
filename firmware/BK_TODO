@@ -1,0 +1,7 @@
+- write a readme describing how to build (make PLATFORM=? ...)
+- include instructions for creating a new project in the readme / documentation pdf (readme should be fine)
+
+- move toolchain .cmake files out, maybe to firmware/mcal
+
+- finish TMS tasks, test with windows
+- PR
