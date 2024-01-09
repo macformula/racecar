@@ -32,7 +32,7 @@ if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
 endif()
 message("Build type: ${CMAKE_BUILD_TYPE}")
 
-# Options are parsed -> Start building
+# Options are parsed. Start building
 message("Building \"${PROJECT}\" for \"${PLATFORM}\"")
 
 set(DIR_MCAL_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/mcal/${PLATFORM})
@@ -74,5 +74,5 @@ set(POSTBUILD_FILE ${DIR_MCAL_PLATFORM}/PostBuild.cmake)
 if(EXISTS "${POSTBUILD_FILE}" AND NOT IS_DIRECTORY "${POSTBUILD_FILE}")
 	include("${POSTBUILD_FILE}")
 else()
-	message("No PostBuild file specified.")
+	message(FATAL_ERROR "${POSTBUILD_FILE} does not exist. If no postbuild actions are required, create the file and leave it empty.")
 endif()
