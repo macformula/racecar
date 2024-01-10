@@ -1,6 +1,12 @@
 # Blake Freer
 # December 18, 2023
 
+# You probably shouldn't be modifying this file to adjust compilation as any changes
+# will impact all projects and platforms.
+
+# Use the adjacent Makefile to call CMake. It handles the gritty details to ensure
+# options are properly set and the correct build directory is chosen.
+
 cmake_minimum_required(VERSION 3.27)
 
 # Get PROJECT option and ensure the folder exists
@@ -42,7 +48,7 @@ enable_language(C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 20)  # required for c++ concepts
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 set(CMAKE_CXX_EXTENSIONS ON)

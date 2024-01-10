@@ -7,6 +7,7 @@
             "name": "STM32F7",
             "includePath": [
                 "${workspaceFolder}/firmware",
+                "${workspaceFolder}/firmware/projects/${PROJECT}/inc",
                 "${workspaceFolder}/firmware/projects/${PROJECT}/mcal/stm32f767",
                 "${workspaceFolder}/firmware/projects/${PROJECT}/mcal/stm32f767/cubemx/Inc",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Device",
@@ -32,6 +33,7 @@
             "name": "Windows",
             "includePath": [
                 "${workspaceFolder}/firmware",
+                "${workspaceFolder}/firmware/projects/${PROJECT}/inc",
                 "${workspaceFolder}/firmware/projects/${PROJECT}/mcal/windows"
             ],
             "defines": [

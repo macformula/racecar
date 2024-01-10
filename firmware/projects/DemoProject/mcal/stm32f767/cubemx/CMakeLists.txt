@@ -2,6 +2,9 @@
 # January 8, 2023
 
 message(STATUS "Building CubeMX objects with the auto-generated Makefile")
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Makefile")
+	message(FATAL_ERROR "No auto-generated Makefile was found. Open the .ioc file in STM32CubeMX and click [Generate Code]")
+endif()
 execute_process(
 	COMMAND make -C ${CMAKE_CURRENT_SOURCE_DIR}
 )
@@ -24,6 +27,10 @@ PUBLIC
 	Drivers/STM32F7xx_HAL_Driver/Inc/Legacy
 	Inc
 )
+
+# The rest of the file specifies parameters required to link the object files.
+# This is highly duplicated from the CubeMX generated Makefile, which is not ideal as
+# it requires manual adjustment when the Makefile changes.
 
 set(CPU_PARAMETERS
 	-mcpu=cortex-m7
