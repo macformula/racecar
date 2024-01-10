@@ -3,7 +3,7 @@
 
 message(STATUS "Building CubeMX objects with the auto-generated Makefile")
 execute_process(
-	COMMAND make objects -C ${CMAKE_CURRENT_SOURCE_DIR}
+	COMMAND make -C ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_library(driver)

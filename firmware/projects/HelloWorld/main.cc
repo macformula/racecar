@@ -21,7 +21,7 @@ int main(void) {
 
     while (1) {
         btn_value = button.Read();
-        indicator.Set(!btn_value);
+        indicator.Set(btn_value);
     }
 
     return 0;

@@ -10,7 +10,7 @@ if(NOT PROJECT)
 	message(FATAL_ERROR "Must select a project with -D PROJECT=<project folder name>")
 endif()
 
-set(DIR_PROJECT "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT}")
+set(DIR_PROJECT "${CMAKE_CURRENT_SOURCE_DIR}/projects/${PROJECT}")
 if(NOT (EXISTS "${DIR_PROJECT}" AND IS_DIRECTORY "${DIR_PROJECT}"))
 	message(FATAL_ERROR "Invalid project \"${PROJECT}\". The directory ${DIR_PROJECT} does not exist.")
 endif()
