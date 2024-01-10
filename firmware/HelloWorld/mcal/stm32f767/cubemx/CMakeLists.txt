@@ -1,18 +1,28 @@
 # Blake Freer
 # January 8, 2023
 
+message(STATUS "Building CubeMX objects with the auto-generated Makefile")
 execute_process(
 	COMMAND make objects -C ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_library(driver)
+set_target_properties(driver PROPERTIES LINKER_LANGUAGE C) # required since the source files are object files
 
-set_target_properties(driver PROPERTIES LINKER_LANGUAGE C)
-FILE(GLOB SRC_DRIVER CONFIGURE_DEPENDS "build/*.o")
-
+# The sources are all the object files compiled with the CubeMX Makefile
+FILE(GLOB OBJ_DRIVER CONFIGURE_DEPENDS "build/*.o")
 target_sources(driver
 PUBLIC
-	${SRC_DRIVER}
+	${OBJ_DRIVER}
+)
+
+target_include_directories(driver
+PUBLIC
+	Drivers/CMSIS/Device/ST/STM32F7xx/Include
+	Drivers/CMSIS/Include
+	Drivers/STM32F7xx_HAL_Driver/Inc
+	Drivers/STM32F7xx_HAL_Driver/Inc/Legacy
+	Inc
 )
 
 set(CPU_PARAMETERS
@@ -26,15 +36,6 @@ target_compile_definitions(driver
 PUBLIC
 	USE_HAL_DRIVER
 	STM32F767xx
-)
-
-target_include_directories(driver
-PUBLIC
-	Drivers/CMSIS/Device/ST/STM32F7xx/Include
-	Drivers/CMSIS/Include
-	Drivers/STM32F7xx_HAL_Driver/Inc
-	Drivers/STM32F7xx_HAL_Driver/Inc/Legacy
-	Inc
 )
 
 target_compile_options(driver
@@ -62,6 +63,7 @@ PUBLIC
 	$<$<CONFIG:Release>:-Og -g0>
 )
 
+# Notice that the linker settings are set for the "main" target
 target_link_options(main PRIVATE
     -T ${CMAKE_CURRENT_SOURCE_DIR}/STM32F767ZITx_FLASH.ld
     ${CPU_PARAMETERS}
