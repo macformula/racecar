@@ -2,6 +2,8 @@
 
 This project serves as a starting point for any new firmware project. It has all of the code and build system infrastructure ready and can be used to test your development environment.
 
+To start a new firmware project, make a copy of the DemoProject folder within the same `projects/` folder, then rename the folder appropriately.
+
 ## Program Description
 
 DemoProject is a simple program which polls a boolean input and sets a boolean output to match the input state.
