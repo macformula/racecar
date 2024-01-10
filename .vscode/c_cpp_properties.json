@@ -7,8 +7,8 @@
             "name": "STM32F7",
             "includePath": [
                 "${workspaceFolder}/firmware",
-                "${workspaceFolder}/firmware/${PROJECT}/mcal/stm32f767",
-                "${workspaceFolder}/firmware/${PROJECT}/mcal/stm32f767/cubemx/Inc",
+                "${workspaceFolder}/firmware/projects/${PROJECT}/mcal/stm32f767",
+                "${workspaceFolder}/firmware/projects/${PROJECT}/mcal/stm32f767/cubemx/Inc",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Device",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Device/ST/STM32F7xx/Include",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Core/Include",
@@ -19,7 +19,8 @@
                 "_DEBUG",
                 "UNICODE",
                 "_UNICODE",
-                "STM32F767xx"
+                "STM32F767xx",
+                "USE_HAL_DRIVER"
             ],
             "windowsSdkVersion": "10.0.19041.0",
             "compilerPath": "C:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2021.10/bin/arm-none-eabi-g++.exe",
@@ -31,7 +32,7 @@
             "name": "Windows",
             "includePath": [
                 "${workspaceFolder}/firmware",
-                "${workspaceFolder}/firmware/${PROJECT}/mcal/windows"
+                "${workspaceFolder}/firmware/projects/${PROJECT}/mcal/windows"
             ],
             "defines": [
                 "_DEBUG",
