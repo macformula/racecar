@@ -1,6 +1,6 @@
 {
     "env": {
-        "PROJECT" : "HelloWorld"
+        "PROJECT" : "DemoProject"
     },
     "configurations": [
         {
@@ -8,8 +8,8 @@
             "includePath": [
                 "${workspaceFolder}/firmware",
                 "${workspaceFolder}/firmware/projects/${PROJECT}/inc",
-                "${workspaceFolder}/firmware/projects/${PROJECT}/mcal/stm32f767",
-                "${workspaceFolder}/firmware/projects/${PROJECT}/mcal/stm32f767/cubemx/Inc",
+                "${workspaceFolder}/firmware/projects/${PROJECT}/platforms/stm32f767",
+                "${workspaceFolder}/firmware/projects/${PROJECT}/platforms/stm32f767/cubemx/Inc",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Device",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Device/ST/STM32F7xx/Include",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Core/Include",
@@ -34,7 +34,7 @@
             "includePath": [
                 "${workspaceFolder}/firmware",
                 "${workspaceFolder}/firmware/projects/${PROJECT}/inc",
-                "${workspaceFolder}/firmware/projects/${PROJECT}/mcal/windows"
+                "${workspaceFolder}/firmware/projects/${PROJECT}/platforms/windows"
             ],
             "defines": [
                 "_DEBUG",

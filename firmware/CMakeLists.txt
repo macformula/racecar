@@ -28,9 +28,9 @@ if(NOT PLATFORM)
 	message(FATAL_ERROR "Must select a platform with -D PLATFORM=<platform name>")
 endif()
 
-set(DIR_PLATFORM "${DIR_PROJECT}/mcal/${PLATFORM}")
+set(DIR_PLATFORM "${DIR_PROJECT}/platforms/${PLATFORM}")
 if(NOT (EXISTS "${DIR_PLATFORM}" AND IS_DIRECTORY "${DIR_PLATFORM}"))
-	message(FATAL_ERROR "Invalid platform \"${PLATFORM}\". See ${DIR_PROJECT}/mcal for available platforms.")
+	message(FATAL_ERROR "Invalid platform \"${PLATFORM}\". See ${DIR_PROJECT}/platforms for available platforms.")
 endif()
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
