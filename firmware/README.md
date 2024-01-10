@@ -1,15 +1,14 @@
 # Firmware
 
-## Building
+This documentation is still a work-in-progress. Some project-specific documentation is available in the README of `projects/DemoProject`.
 
-_this is out of date (@bfreer)_
+## Required Dependencies
 
-A simple CMakeLists has been prepared. It only supports TMS on the stm32f767 board. There are many improvements to be made, but it works as of its initial commit.
+* STM32CubeMX - [link](https://www.st.com/content/st_com/en/stm32cubemx.html)
 
-To build, open Git Bash and `cd` into `.../racecar/firmware`
+The following dependecies must be added to your PATH.
 
-Run `make build` to generate the cmake files and compile form them. The output (TMS.elf) will be stored in `TMS/build`.
-
-Run `make flash` after building to flash the `.elf` to an stm32f767 board.
-
-Run `make clean` to remove the build directory.
+* GNU Make
+  * On Windows, the recommended terminal is Git Bash which will include `make`
+* CMake 3.27 or newer - [link](https://cmake.org/download/)
+* arm-none-eabi toolchain 10.3-2021.10 - [link](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)
