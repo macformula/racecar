@@ -1,6 +1,6 @@
 {
     "env": {
-        "PROJECT" : "TMS"
+        "PROJECT" : "HelloWorld"
     },
     "configurations": [
         {
