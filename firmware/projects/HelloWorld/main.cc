@@ -7,9 +7,8 @@
 namespace bindings {
 extern mcal::periph::DigitalInput button_di;
 extern mcal::periph::DigitalOutput indicator_do;
-}  // namespace bindings
-
 extern void Initialize();
+}  // namespace bindings
 
 Button button{bindings::button_di};
 Indicator indicator{bindings::indicator_do};
@@ -17,7 +16,7 @@ Indicator indicator{bindings::indicator_do};
 bool btn_value;
 
 int main(void) {
-    Initialize();
+    bindings::Initialize();
 
     while (1) {
         btn_value = button.Read();
