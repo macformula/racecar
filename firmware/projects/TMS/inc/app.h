@@ -1,37 +1,63 @@
 /// @author Blake Freer
-/// @date 2023-12-25
+/// @date 2023-11-18
+/// @brief Functions and types that will be used in TMS main
 
+#ifndef TMS_APP_H_
+#define TMS_APP_H_
+
+#include <cstdint>
+#include <string>
+
+#include "shared/periph/adc.h"
 #include "shared/periph/gpio.h"
+#include "shared/periph/pwm.h"
+#include "shared/util/data_structures/lookup_table.h"
 
-template <shared::periph::DigitalInput DigitalInput>
-class Button {
+/***************************************************************
+    Function definititions (for those that need an mcal binding)
+***************************************************************/
+
+void Initialize();
+void Log(std::string message);
+
+/***************************************************************
+    App-level objects
+***************************************************************/
+
+template <shared::periph::ADCInput ADCInput>
+class TempSensor {
+    using LUT = shared::util::LookupTable;
+
 private:
-    DigitalInput& di_;
+    ADCInput& adc_;
+    LUT& adc_to_temp_;
 
 public:
-    Button(DigitalInput& di) : di_(di){};
+    TempSensor(ADCInput& adc, LUT& adc_to_temp)
+        : adc_(adc), adc_to_temp_(adc_to_temp) {}
 
-    bool Read() {
-        return di_.Read();
+    float Read() {
+        uint32_t adc_value = adc_.Read();
+        float temperature = adc_to_temp_.Interpolate(float(adc_value));
+        return temperature;
     }
 };
 
-template <shared::periph::DigitalOutput DigitalOutput>
-class Indicator {
+template <shared::periph::PWMOutput PWMOutput>
+class FanContoller {
 private:
+    PWMOutput& pwm_;
+
 public:
-    DigitalOutput& dig_output_;
-    Indicator(DigitalOutput& dig_output) : dig_output_(dig_output) {}
+    FanContoller(PWMOutput& pwm) : pwm_(pwm) {}
 
-    void Set(bool value) {
-        dig_output_.Set(value);
+    void Set(float value) {
+        pwm_.SetDutyCycle(value);
     }
 
-    void High() {
-        dig_output_.SetHigh();
-    }
-
-    void Low() {
-        dig_output_.SetLow();
+    void StartPWM() {
+        pwm_.Start();
     }
 };
+
+#endif

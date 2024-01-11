@@ -1,6 +1,6 @@
 {
     "env": {
-        "PROJECT" : "DemoProject"
+        "PROJECT" : "TMS"
     },
     "configurations": [
         {

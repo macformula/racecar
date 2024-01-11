@@ -3,6 +3,8 @@
 
 #include "bindings.h"
 
+#include <string>
+
 #include "gpio.h"
 #include "main.h"
 
@@ -15,13 +17,18 @@ void SystemClock_Config();
 }
 
 namespace bindings {
-mcal::periph::DigitalInput button_di{ButtonPin_GPIO_Port, ButtonPin_Pin};
-mcal::periph::DigitalOutput indicator_do{LedPin_GPIO_Port, LedPin_Pin};
+mcal::periph::ADCInput temp_sensor_adc{&hadc1};
+mcal::periph::PWMOutput fan_controller_pwm{&htim1, TIM_CHANNEL_1};
 
 void Initialize() {
     SystemClock_Config();
     HAL_Init();
-    MX_GPIO_Init();
+    MX_ADC1_Init();
+    MX_TIM1_Init();
+}
+
+void Log(std::string s) {
+    return;
 }
 
 }  // namespace bindings
