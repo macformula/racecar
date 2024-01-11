@@ -1,20 +1,17 @@
 /// @author Blake Freer
-/// @date 2023-12-10
-
-#include <iostream>
-#include <string>
+/// @date 2023-12-25
 
 #include "bindings.h"
 
+#include <iostream>
+
 namespace bindings {
-	mcal::periph::ADCInput temp_sensor_adc(1);
-	mcal::periph::PWMOutput fan_controller_pwm(1);
-} // namespace bindings
+
+mcal::periph::DigitalInput button_di{1};
+mcal::periph::DigitalOutput indicator_do{2};
 
 void Initialize() {
-	std::cout << "Initializing Windows System" << std::endl;
+    std::cout << "Initializing Windows..." << std::endl;
 }
 
-void Log(std::string message) {
-	std::cout << "(Log) " << message << std::endl;
-}
+}  // namespace bindings
