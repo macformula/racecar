@@ -1,16 +1,16 @@
-# Run 'make build' or 'make clean' from Git Bash. May not work in other shells
+PLATFORM =
+PROJECT = 
 
-BINARY = TMS/build/TMS.bin
+BUILD_DIR = build/$(PROJECT)/$(PLATFORM)
 
 build: FORCE
-	cmake -B TMS/build -S . -G "Unix Makefiles"
-	cmake --build TMS/build
+	cmake -B $(BUILD_DIR) -S. -G"Unix Makefiles" -DPROJECT=$(PROJECT) -DPLATFORM=$(PLATFORM) 
+	cmake --build $(BUILD_DIR)
 
 clean: FORCE
-	rm -r TMS/build
+	rm $(BUILD_DIR) -rf
 
-flash: FORCE
-	st-flash --reset write $(BINARY) 0x08000000
+st-flash: build
+	st-flash --reset write $(BUILD_DIR)/main.bin 0x08000000
 
-# empty rule to force others to occur
 FORCE:

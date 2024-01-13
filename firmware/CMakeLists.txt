@@ -1,194 +1,84 @@
 # Blake Freer
-# October 27, 2023
+# December 18, 2023
 
-cmake_minimum_required(VERSION 3.12)
+# You probably shouldn't be modifying this file to adjust compilation as any changes
+# will impact all projects and platforms.
 
-# gcc-arm
-set(CMAKE_SYSTEM_NAME Generic)
-set(CMAKE_SYSTEM_PROCESSOR arm)
+# Use the adjacent Makefile to call CMake. It handles the gritty details to ensure
+# options are properly set and the correct build directory is chosen.
 
-set(TOOLCHAIN_PREFIX arm-none-eabi-)
-set(CMAKE_C_FLAGS_INIT
-    "-fdata-sections -ffunction-sections --specs=nano.specs -Wl,--gc-sections")
-set(CMAKE_CXX_FLAGS_INIT
-    "${CMAKE_C_FLAGS_INIT} -fno-rtti -fno-exceptions -fno-threadsafe-statics --specs=nosys.specs")
+cmake_minimum_required(VERSION 3.27)
 
-set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}gcc)
-set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
-set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}g++)
-set(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}objcopy)
-set(CMAKE_SIZE ${TOOLCHAIN_PREFIX}size)
-set(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}objdump)
+# Get PROJECT option and ensure the folder exists
 
-set(CMAKE_EXECUTABLE_SUFFIX_ASM ".elf")
-set(CMAKE_EXECUTABLE_SUFFIX_C ".elf")
-set(CMAKE_EXECUTABLE_SUFFIX_CXX ".elf")
-
-set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-
-# Set project name
-if ("${PROJECT_NAME}" STREQUAL "")
-	set(PROJECT_NAME TMS)
+option(PROJECT "Project folder to compile" OFF)
+if(NOT PROJECT)
+	message(FATAL_ERROR "Must select a project with -D PROJECT=<project folder name>")
 endif()
-project(${PROJECT_NAME})
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Use Debug mode by default
+set(DIR_PROJECT "${CMAKE_CURRENT_SOURCE_DIR}/projects/${PROJECT}")
+if(NOT (EXISTS "${DIR_PROJECT}" AND IS_DIRECTORY "${DIR_PROJECT}"))
+	message(FATAL_ERROR "Invalid project \"${PROJECT}\". The directory ${DIR_PROJECT} does not exist.")
+endif()
+
+# Parse PLATFORM option and ensure it exists as a subdirectory of PROJECT/mcal
+
+option(PLATFORM "Platform to compile for" OFF)
+if(NOT PLATFORM)
+	message(FATAL_ERROR "Must select a platform with -D PLATFORM=<platform name>")
+endif()
+
+set(DIR_PLATFORM "${DIR_PROJECT}/platforms/${PLATFORM}")
+if(NOT (EXISTS "${DIR_PLATFORM}" AND IS_DIRECTORY "${DIR_PLATFORM}"))
+	message(FATAL_ERROR "Invalid platform \"${PLATFORM}\". See ${DIR_PROJECT}/platforms for available platforms.")
+endif()
+
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
 	set(CMAKE_BUILD_TYPE Debug)
 endif()
 message("Build type: ${CMAKE_BUILD_TYPE}")
 
-# Set Microcontroller information
-set(MCAL_BOARDNAME stm32f767)
-set(MCU_FAMILY STM32F7xx)
-set(MCU_MODEL STM32F767xx)
+# Options are parsed. Start building
+message("Building \"${PROJECT}\" for \"${PLATFORM}\"")
 
-set(MCAL_CORE ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/mcal/${MCAL_BOARDNAME})
-
-set(CPU_PARAMETERS
-	-mcpu=cortex-m7
-	-mthumb
-	-mfpu=fpv5-d16
-	-mfloat-abi=hard)
-
-set(STARTUP_SCRIPT ${MCAL_CORE}/startup_stm32f767xx.s)
-set(MCU_LINKER_SCRIPT ${MCAL_CORE}/STM32F767ZITx_FLASH.ld)
-
-set(EXECUTABLE ${CMAKE_PROJECT_NAME})
+set(DIR_MCAL_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/mcal/${PLATFORM})
+set(CMAKE_TOOLCHAIN_FILE ${DIR_MCAL_PLATFORM}/Toolchain.cmake)  # sets the compiler, linker, etc based on the Toolchain.cmake file
 
 enable_language(C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 20)  # required for c++ concepts
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 set(CMAKE_CXX_EXTENSIONS ON)
 
-# Core MCAL Source Code
-set(MCAL_CORE_INCLUDE_DIRECTORIES
-	${MCAL_CORE}
-	${MCAL_CORE}/Inc
-)
-set(FIRMWARE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR})
+project("${PROJECT}-${PLATFORM}")
 
-# Driver source code
-set(DRIVER_INCLUDE_DIRECTORIES
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Inc
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Inc/Legacy
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/CMSIS/Device/ST/STM32F7xx/Include
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/CMSIS/Include
+add_executable(main)
+
+add_subdirectory(${DIR_PROJECT})  # provides "main" (executable)
+add_subdirectory(${DIR_PLATFORM})  # provides "bindings" (library)
+
+target_include_directories(main
+PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+	${DIR_PLATFORM}  # provides the platform-specific bindings header
 )
 
-set(DRIVER_SOURCES
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_cortex.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim_ex.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc_ex.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_flash.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_flash_ex.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_gpio.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma_ex.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr_ex.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c_ex.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_exti.c
-	${CMAKE_CURRENT_SOURCE_DIR}/drivers/${MCAL_BOARDNAME}/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_adc.c
+target_include_directories(bindings
+PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}  # provides app.h
 )
 
-
-
-# Core source code
-set(CORE_INCLUDE_DIRECTORIES
-	# ${CMAKE_CURRENT_SOURCE_DIR}/TMS
-)
-file(GLOB_RECURSE CORE_SOURCES CONFIGURE_DEPENDS
-	${CMAKE_CURRENT_SOURCE_DIR}/TMS/mcal/stm32f767/Src/*.c
-	# ${CMAKE_CURRENT_SOURCE_DIR}/TMS/mcal/stm32f767/Src/*.cc
+target_link_libraries(main
+PRIVATE
+	bindings
 )
 
-set(MAIN_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/TMS/main.cc)
-set(PROJ_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/TMS/mcal/stm32f767/bindings.cc)
-
-add_executable(
-	${EXECUTABLE}
-	${DRIVER_SOURCES}
-	${CORE_SOURCES}
-	${STARTUP_SCRIPT}
-	${MAIN_SOURCE}
-	${PROJ_SOURCE}
-)
-
-target_compile_definitions(${EXECUTABLE} PRIVATE
-	${MCU_MODEL}
-	USE_HAL_DRIVER
-	STM32F767xx
-)
-
-# Include directories to executable
-target_include_directories(${EXECUTABLE} SYSTEM PRIVATE
-	${DRIVER_INCLUDE_DIRECTORIES}
-)
-target_include_directories(${EXECUTABLE} PRIVATE
-	${CORE_INCLUDE_DIRECTORIES}
-)
-
-target_include_directories(${EXECUTABLE} PRIVATE
-	${MCAL_CORE_INCLUDE_DIRECTORIES}
-)
-
-target_include_directories(${EXECUTABLE} PRIVATE
-	${FIRMWARE_INCLUDE_DIRECTORIES}
-)
-
-target_compile_options(${EXECUTABLE} PRIVATE
-	${CPU_PARAMETERS}
-	-Wall
-    -Wextra
-    -Wpedantic
-    -Wshadow
-    -Wdouble-promotion
-    -Wformat=2 -Wformat-truncation
-    -Wundef
-    -fno-common
-    -Wno-unused-parameter
-	-Wno-missing-field-initializers
-    $<$<COMPILE_LANGUAGE:CXX>:
-        -Wconversion
-        -Wno-volatile
-        -Wold-style-cast
-        -Wuseless-cast
-        -Wsuggest-override>
-    $<$<CONFIG:Debug>:-Og -g3 -ggdb>
-    $<$<CONFIG:Release>:-Og -g0>
-)
-
-target_link_options(${EXECUTABLE} PRIVATE
-    -T${MCU_LINKER_SCRIPT}
-    ${CPU_PARAMETERS}
-    -Wl,-Map=${CMAKE_PROJECT_NAME}.map
-    $<$<VERSION_GREATER:$<C_COMPILER_VERSION>,10.3.1>:-Wl,--no-warn-rwx-segments>
-    -Wl,--start-group
-    -lc
-    -lm
-    -lstdc++
-    -Wl,--end-group
-    -Wl,--print-memory-usage
-)
-
-add_custom_command(TARGET ${EXECUTABLE} POST_BUILD
-    COMMAND ${CMAKE_SIZE} $<TARGET_FILE:${EXECUTABLE}>
-    COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${EXECUTABLE}> ${EXECUTABLE}.hex
-    COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:${EXECUTABLE}> ${EXECUTABLE}.bin)
-
-option(DUMP_ASM "Create full assembly of final executable" OFF)
-if (${DUMP_ASM})
-    add_custom_command(TARGET ${EXECUTABLE} POST_BUILD
-        COMMAND ${CMAKE_OBJDUMP} -D -C $<TARGET_FILE:${EXECUTABLE}> > ${EXECUTABLE}.s)
+set(POSTBUILD_FILE ${DIR_MCAL_PLATFORM}/PostBuild.cmake)
+if(EXISTS "${POSTBUILD_FILE}" AND NOT IS_DIRECTORY "${POSTBUILD_FILE}")
+	include("${POSTBUILD_FILE}")
+else()
+	message(FATAL_ERROR "${POSTBUILD_FILE} does not exist. If no postbuild actions are required, create the file and leave it empty.")
 endif()
-
