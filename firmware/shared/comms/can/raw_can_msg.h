@@ -17,6 +17,7 @@ typedef struct can_header {
 
 typedef struct raw_can_msg {
     can_header can_hdr;
+    uint8_t data_len;
     uint8_t bytes[CAN_MSG_BYTES];
 };
 
