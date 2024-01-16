@@ -34,9 +34,8 @@ public:
 	CanBase(std::string can_iface) : iface_(can_iface) {};
 
     Setup();
-
 	Send(const shared::comms::can::raw_can_msg& can_tx_msg);
-    ReadQueue(shared::comms::can::raw_can_msg can_rx_msgs[])
+    ReadQueue(shared::comms::can::raw_can_msg can_rx_msgs[]);
 };
 
 } // namespace mcal::periph

@@ -1,4 +1,4 @@
-#include "mcal/raspi/periph/can_base.h"
+#include "mcal/raspi/periph/can.h"
 #include "shared/comms/can/raw_can_msg.h"
 
 #include <iostream>
@@ -44,10 +44,10 @@ CanBase::Send(const shared::comms::can::raw_can_msg& can_tx_msg) {
     if (write(sock_, &frame_, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
         perror("Error writing to socket");
         close(sock_);
-    }
+    }            
     
     return;
-}
+}                
 
 CanBase::ReadQueue(shared::comms::can::raw_can_msg can_rx_msgs[]) {
     return;

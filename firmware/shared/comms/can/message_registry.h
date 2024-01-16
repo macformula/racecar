@@ -1,15 +1,15 @@
 /// @author Samuel Parent
-/// @date 2024-01-13
+/// @date 2024-01-16
 
-#ifndef SHARED_COMMS_CAN_BUS_MANAGER_H_
-#define SHARED_COMMS_CAN_BUS_MANAGER_H_
+#ifndef SHARED_COMMS_CAN_MESSAGE_REGISTRY_H_
+#define SHARED_COMMS_CAN_MESSAGE_REGISTRY_H_
 
 #include "shared/periph/can.h"
 
 namespace shared::comms::can {
 
 template<shared::periph::Can can_base>
-class BusManager {
+class MessageRegistry {
 private:
     can_base& can_base_;
 
@@ -37,4 +37,4 @@ public:
 
 } // namespae shared::comms::can
 
-#endif  // SHARED_COMMS_CAN_BUS_MANAGER_H_
+#endif  // SHARED_COMMS_CAN_MESSAGE_REGISTRY_H_
