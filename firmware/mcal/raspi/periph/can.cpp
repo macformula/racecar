@@ -14,7 +14,7 @@
 
 namespace mcal::periph {
 
-CanBase::Setup() {
+void CanBase::Setup() {
     // Create a socket
     if ((sock_ = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
         perror("Error creating socket");
@@ -36,7 +36,7 @@ CanBase::Setup() {
     return;
 }
 
-CanBase::Send(const shared::comms::can::raw_can_msg& can_tx_msg) {
+void CanBase::Send(const shared::comms::can::raw_can_msg& can_tx_msg) {
     frame_.can_id = can_tx_msg.can_hdr.can_id;
     frame_.can_dlc = can_tx_msg.can_hdr.data_len;
     memccpy((uint8_t *)frame.data, can_tx_msg.data, 8);
@@ -49,7 +49,7 @@ CanBase::Send(const shared::comms::can::raw_can_msg& can_tx_msg) {
     return;
 }                
 
-CanBase::ReadQueue(shared::comms::can::raw_can_msg can_rx_msgs[]) {
+void CanBase::ReadQueue(shared::comms::can::raw_can_msg can_rx_msgs[]) {
     return;
 }
 

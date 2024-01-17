@@ -8,27 +8,27 @@
 #include <chrono>
 
 namespace bindings {
-extern mcal::periph::CanBase veh_can;
 extern void Initialize();
 }  // namespace bindings
 
-
+mcal::periph::CanBase veh_can{"can0"};
 
 int main(void) {
     bindings::Initialize();
-    std::chrono::seconds duration(1);
+    std::chrono::milliseconds duration(10);
 
-    struct can_header msg_hdr = {
+    struct shared::comms::can::can_header msg_hdr = {
         .can_id = 0x123,
+        .data_len = 8,
         .is_extended_frame = false,
-        .bytes = [0,0,0,0,0,0,0,0];
     };
 
-    struct raw_can_msg msg = {
-        can_header can_hdr;
-        uint8_t data_len;
-        uint8_t bytes[CAN_MSG_BYTES];
+    struct shared::comms::can::raw_can_msg msg = {
+        .can_hdr = msg_hdr,
+        .bytes = {0, 0, 0, 0, 0, 0, 0, 0},
     };
+
+    veh_can.Setup();
 
     int i = 0;
     while (1) {
@@ -37,7 +37,7 @@ int main(void) {
         msg.bytes[i++%8]++;
         
 
-        veh_can.Send()
+        veh_can.Send(msg);
     }
 
     return 0;

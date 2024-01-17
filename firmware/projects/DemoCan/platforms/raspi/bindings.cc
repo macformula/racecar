@@ -4,9 +4,7 @@
 #include "bindings.h"
 
 namespace bindings {
-mcal::periph::CanBase veh_can{"vcan0"};
-
-    void Initialize () {
-        veh_can.Setup();
-    }
+void Initialize () {
+    std::cout << "Initializing raspi..." << std::endl;
 }
+} // namespace bindings

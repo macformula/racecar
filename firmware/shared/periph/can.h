@@ -13,7 +13,8 @@
 namespace shared::periph {
 
 template <typename T>
-concept Can = requires(T obj, shared::comms::can::raw_can_msg can_rx_msgs[], const shared::comms::can::raw_can_msg& can_tx_msg) {
+concept CanBase = requires(T obj, shared::comms::can::raw_can_msg can_rx_msgs[], const shared::comms::can::raw_can_msg& can_tx_msg) {
+	{ obj.Setup() } -> std::same_as<void>;
 	{ obj.Send(can_tx_msg) } -> std::same_as<void>;
 	{ obj.ReadQueue(can_rx_msgs) } -> std::same_as<void>;
 

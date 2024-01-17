@@ -8,16 +8,16 @@
 
 namespace shared::comms::can {
 
-#define CAN_MSG_BYTES 8;
+#define CAN_MSG_BYTES 8
 
-typedef struct can_header {
+struct can_header {
     uint32_t can_id;
+    uint8_t data_len;
     bool is_extended_frame;
 };
 
-typedef struct raw_can_msg {
+struct raw_can_msg {
     can_header can_hdr;
-    uint8_t data_len;
     uint8_t bytes[CAN_MSG_BYTES];
 };
 
