@@ -30,6 +30,8 @@ class TempSensor {
 
 private:
     ADCInput& adc_;
+
+    /// @brief Mapping from raw ADC value to temperature [degC]
     LUT& adc_to_temp_;
 
 public:
@@ -45,14 +47,21 @@ public:
 
 template <shared::periph::PWMOutput PWMOutput>
 class FanContoller {
+    using LUT = shared::util::LookupTable;
+
 private:
     PWMOutput& pwm_;
 
-public:
-    FanContoller(PWMOutput& pwm) : pwm_(pwm) {}
+    /// @brief Mapping from temperature [degC] to fan PWM
+    LUT& temp_to_pwm_;
 
-    void Set(float value) {
-        pwm_.SetDutyCycle(value);
+public:
+    FanContoller(PWMOutput& pwm, LUT& temp_to_pwm)
+        : pwm_(pwm), temp_to_pwm_(temp_to_pwm) {}
+
+    void Update(float temperature) {
+        float new_pwm = temp_to_pwm_.Interpolate(temperature);
+        pwm_.SetDutyCycle(new_pwm);
     }
 
     void StartPWM() {

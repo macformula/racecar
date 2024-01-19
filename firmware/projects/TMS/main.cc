@@ -52,10 +52,19 @@ const float temp_lut_data[33][2] = {
 };
 // clang-format on
 
-shared::util::LookupTable temp_lut{temp_lut_data, 33};
+// clang-format off
+const float fan_lut_data[3][2] = {
+	{-1,    0},
+	{ 0,   30},
+	{50,  100}
+};
+// clang-format on
 
-FanContoller fan_controller{bindings::fan_controller_pwm};
-TempSensor temp_sensor{bindings::temp_sensor_adc, temp_lut};
+shared::util::LookupTable temp_adc_lut{temp_lut_data, 33};
+shared::util::LookupTable fan_temp_lut{fan_lut_data, 3};
+
+FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut};
+TempSensor temp_sensor{bindings::temp_sensor_adc, temp_adc_lut};
 
 int main(void) {
     bindings::Initialize();
@@ -65,7 +74,7 @@ int main(void) {
     while (true) {
         float temperature = temp_sensor.Read();
         bindings::Log("Temperature: " + std::to_string(temperature));
-        fan_controller.Set(temperature);
+        fan_controller.Update(temperature);
     }
 
     return 0;
