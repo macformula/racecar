@@ -14,12 +14,6 @@
 #include "shared/util/data_structures/lookup_table.h"
 
 /***************************************************************
-    Function definititions (for those that need an mcal binding)
-***************************************************************/
-
-void Log(std::string message);
-
-/***************************************************************
     App-level objects
 ***************************************************************/
 
