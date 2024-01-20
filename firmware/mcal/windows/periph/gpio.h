@@ -5,6 +5,7 @@
 #define MCAL_WINDOWS_PERIPH_GPIO_H_
 
 #include <iostream>
+#include <string>
 
 #include "shared/util/peripheral.h"
 
@@ -12,14 +13,14 @@ namespace mcal::periph {
 
 class DigitalInput : public shared::util::Peripheral {
 private:
-    int channel_;
+    std::string name_;
 
 public:
-    DigitalInput(int channel) : channel_(channel) {}
+    DigitalInput(std::string name) : name_(name) {}
 
     bool Read() {
         int value;
-        std::cout << "Reading DigitalInput Channel " << channel_ << std::endl;
+        std::cout << "Reading DigitalInput " << name_ << std::endl;
         std::cout << " | Enter 0 for False, 1 for True: ";
         std::cin >> value;
         std::cout << " | Value was " << (value ? "true" : "false") << std::endl;
@@ -29,13 +30,13 @@ public:
 
 class DigitalOutput : public shared::util::Peripheral {
 private:
-    int channel_;
+    std::string name_;
 
 public:
-    DigitalOutput(int channel) : channel_(channel) {}
+    DigitalOutput(std::string name) : name_(name) {}
 
     void Set(bool value) {
-        std::cout << "Setting DigitalOutput Channel " << channel_ << " to "
+        std::cout << "Setting DigitalOutput " << name_ << " to "
                   << (value ? "true" : "false") << std::endl;
     }
 
