@@ -7,8 +7,8 @@
 
 namespace bindings {
 
-mcal::periph::DigitalInput button_di{1};
-mcal::periph::DigitalOutput indicator_do{2};
+mcal::periph::DigitalInput button_di{"Button"};
+mcal::periph::DigitalOutput indicator_do{"Indicator"};
 
 void Initialize() {
     std::cout << "Initializing Windows..." << std::endl;
