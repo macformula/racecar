@@ -17,7 +17,6 @@
     Function definititions (for those that need an mcal binding)
 ***************************************************************/
 
-void Initialize();
 void Log(std::string message);
 
 /***************************************************************
@@ -66,6 +65,24 @@ public:
 
     void StartPWM() {
         pwm_.Start();
+    }
+};
+
+template <shared::periph::DigitalOutput DigitalOutput>
+class DebugIndicator {
+private:
+    DigitalOutput& digital_output_;
+
+public:
+    DebugIndicator(DigitalOutput& digital_output)
+        : digital_output_(digital_output) {}
+
+    void Set() {
+        digital_output_.SetHigh();
+    }
+
+    void Reset() {
+        digital_output_.SetLow();
     }
 };
 

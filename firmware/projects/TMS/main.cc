@@ -10,6 +10,9 @@
 namespace bindings {
 extern mcal::periph::PWMOutput fan_controller_pwm;
 extern mcal::periph::ADCInput temp_sensor_adc;
+extern mcal::periph::DigitalOutput debug_do_green;
+extern mcal::periph::DigitalOutput debug_do_red;
+
 extern void Initialize();
 extern void Log(std::string);
 }  // namespace bindings
@@ -63,8 +66,13 @@ const float fan_lut_data[3][2] = {
 shared::util::LookupTable temp_adc_lut{temp_lut_data, 33};
 shared::util::LookupTable fan_temp_lut{fan_lut_data, 3};
 
+/***************************************************************
+    Create app objects
+***************************************************************/
 FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut};
 TempSensor temp_sensor{bindings::temp_sensor_adc, temp_adc_lut};
+DebugIndicator debug_green{bindings::debug_do_green};
+DebugIndicator debug_red{bindings::debug_do_red};
 
 int main(void) {
     bindings::Initialize();
