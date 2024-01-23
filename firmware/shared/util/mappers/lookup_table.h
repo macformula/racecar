@@ -18,7 +18,7 @@
 
 namespace shared::util {
 
-template <size_t row_count_>
+template <int row_count_>
 class LookupTable {
 public:
     LookupTable(const float (*table)[2]) : table_(table) {}
