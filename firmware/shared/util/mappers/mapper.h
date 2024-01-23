@@ -13,6 +13,20 @@ concept Mapper = requires(T obj, float key) {
     { obj.Evaluate(key) } -> std::same_as<float>;
 };
 
+template <Mapper MapF, Mapper MapG>
+class CompositeMap {
+public:
+    CompositeMap(MapF& f, MapG& g) : f_(f), g_(g) {}
+
+    float Evaluate(float key) {
+        return f_.Evaluate(g_.Evaluate(key));
+    }
+
+private:
+    MapF& f_;
+    MapG& g_;
+};
+
 }  // namespace shared::util
 
 #endif

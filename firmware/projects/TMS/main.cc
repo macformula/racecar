@@ -6,7 +6,6 @@
 
 #include "app.h"
 #include "bindings.h"
-#include "shared/util/mappers/linear_map.h"
 #include "shared/util/mappers/lookup_table.h"
 
 namespace bindings {
