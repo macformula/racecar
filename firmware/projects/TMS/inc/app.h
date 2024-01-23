@@ -38,6 +38,17 @@ public:
     }
 };
 
+template <class T>
+class TempSensorManager {
+public:
+    TempSensorManager(TempSensor sensors[], int sensor_count)
+        : sensors_(sensors), sensor_count_(sensor_count) {}
+
+private:
+    TempSensor sensors_[];
+    int sensor_count_;
+};
+
 template <shared::periph::PWMOutput PWMOutput>
 class FanContoller {
     using LUT = shared::util::LookupTable;
