@@ -2,11 +2,14 @@
 /// @date 2023-11-18
 
 #include <cstdint>
+#include <limits>
 #include <string>
 
 #include "app.h"
 #include "bindings.h"
 #include "shared/util/mappers/lookup_table.h"
+
+float inf = std::numeric_limits<float>::infinity();
 
 namespace bindings {
 extern mcal::periph::ADCInput temp_sensor_adc_1;
