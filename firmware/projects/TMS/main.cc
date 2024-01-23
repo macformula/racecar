@@ -70,8 +70,8 @@ const float fan_lut_data[3][2] = {
 };
 // clang-format on
 
-shared::util::LookupTable temp_adc_lut{temp_lut_data, 33};
-shared::util::LookupTable fan_temp_lut{fan_lut_data, 3};
+shared::util::LookupTable<33> temp_adc_lut{temp_lut_data};
+shared::util::LookupTable<3> fan_temp_lut{fan_lut_data};
 
 /***************************************************************
     Create app objects

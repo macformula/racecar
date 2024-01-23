@@ -16,10 +16,10 @@
 
 namespace shared::util {
 
+template <size_t row_count_>
 class LookupTable {
 public:
-    LookupTable(const float (*table)[2], int row_count)
-        : row_count_(row_count), table_(table) {}
+    LookupTable(const float (*table)[2]) : table_(table) {}
 
     float Interpolate(float key) const {
         int least_greater_idx = 0;
@@ -50,7 +50,6 @@ public:
     }
 
 private:
-    const int row_count_;
     const float (*table_)[2];
 };
 

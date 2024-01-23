@@ -17,9 +17,9 @@
     App-level objects
 ***************************************************************/
 
-template <shared::periph::ADCInput ADCInput>
+template <shared::periph::ADCInput ADCInput, size_t rows>
 class TempSensor {
-    using LUT = shared::util::LookupTable;
+    using LUT = shared::util::LookupTable<rows>;
 
 private:
     ADCInput& adc_;
@@ -38,9 +38,9 @@ public:
     }
 };
 
-template <shared::periph::PWMOutput PWMOutput>
+template <shared::periph::PWMOutput PWMOutput, size_t rows_>
 class FanContoller {
-    using LUT = shared::util::LookupTable;
+    using LUT = shared::util::LookupTable<rows_>;
 
 private:
     PWMOutput& pwm_;
