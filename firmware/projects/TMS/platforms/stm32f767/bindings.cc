@@ -5,8 +5,10 @@
 
 #include <string>
 
+#include "adc.h"
 #include "gpio.h"
 #include "main.h"
+#include "tim.h"
 
 extern "C" {
 /**
@@ -17,7 +19,13 @@ void SystemClock_Config();
 }
 
 namespace bindings {
-mcal::periph::ADCInput temp_sensor_adc{&hadc1};
+mcal::periph::ADCInput temp_sensor_adc_1{&hadc1, SENS_1_UC_IN_CHANNEL};
+mcal::periph::ADCInput temp_sensor_adc_2{&hadc1, SENS_2_UC_IN_CHANNEL};
+mcal::periph::ADCInput temp_sensor_adc_3{&hadc1, SENS_3_UC_IN_CHANNEL};
+mcal::periph::ADCInput temp_sensor_adc_4{&hadc1, SENS_4_UC_IN_CHANNEL};
+mcal::periph::ADCInput temp_sensor_adc_5{&hadc1, SENS_5_UC_IN_CHANNEL};
+mcal::periph::ADCInput temp_sensor_adc_6{&hadc1, SENS_6_UC_IN_CHANNEL};
+
 mcal::periph::PWMOutput fan_controller_pwm{&htim4, TIM_CHANNEL_1};
 
 mcal::periph::DigitalOutput debug_do_green{DEBUG_LED_GREEN_GPIO_Port,
