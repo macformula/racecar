@@ -11,49 +11,45 @@
 #include "shared/periph/adc.h"
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
-#include "shared/util/data_structures/lookup_table.h"
+#include "shared/util/mappers/mapper.h"
 
 /***************************************************************
     App-level objects
 ***************************************************************/
 
-template <shared::periph::ADCInput ADCInput, size_t rows>
+template <shared::periph::ADCInput ADCInput, shared::util::Mapper Mapper>
 class TempSensor {
-    using LUT = shared::util::LookupTable<rows>;
-
 private:
     ADCInput& adc_;
 
     /// @brief Mapping from raw ADC value to temperature [degC]
-    LUT& adc_to_temp_;
+    Mapper& adc_to_temp_;
 
 public:
-    TempSensor(ADCInput& adc, LUT& adc_to_temp)
+    TempSensor(ADCInput& adc, Mapper& adc_to_temp)
         : adc_(adc), adc_to_temp_(adc_to_temp) {}
 
     float Read() {
         uint32_t adc_value = adc_.Read();
-        float temperature = adc_to_temp_.Interpolate(float(adc_value));
+        float temperature = adc_to_temp_.Evaluate(float(adc_value));
         return temperature;
     }
 };
 
-template <shared::periph::PWMOutput PWMOutput, size_t rows_>
+template <shared::periph::PWMOutput PWMOutput, shared::util::Mapper Mapper>
 class FanContoller {
-    using LUT = shared::util::LookupTable<rows_>;
-
 private:
     PWMOutput& pwm_;
 
     /// @brief Mapping from temperature [degC] to fan PWM
-    LUT& temp_to_pwm_;
+    Mapper& temp_to_pwm_;
 
 public:
-    FanContoller(PWMOutput& pwm, LUT& temp_to_pwm)
+    FanContoller(PWMOutput& pwm, Mapper& temp_to_pwm)
         : pwm_(pwm), temp_to_pwm_(temp_to_pwm) {}
 
     void Update(float temperature) {
-        float new_pwm = temp_to_pwm_.Interpolate(temperature);
+        float new_pwm = temp_to_pwm_.Evaluate(temperature);
         pwm_.SetDutyCycle(new_pwm);
     }
 

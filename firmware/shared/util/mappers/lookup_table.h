@@ -11,8 +11,10 @@
  * case (iterate over) keys, if one is less than previous, raise error.
  */
 
-#ifndef SHARED_UTIL_DATA_STRUCTURES_LOOKUP_TABLE_H_
-#define SHARED_UTIL_DATA_STRUCTURES_LOOKUP_TABLE_H_
+#ifndef SHARED_UTIL_MAPPERS_LOOKUP_TABLE_H_
+#define SHARED_UTIL_MAPPERS_LOOKUP_TABLE_H_
+
+#include <cstddef>
 
 namespace shared::util {
 
@@ -21,7 +23,7 @@ class LookupTable {
 public:
     LookupTable(const float (*table)[2]) : table_(table) {}
 
-    float Interpolate(float key) const {
+    float Evaluate(float key) const {
         int least_greater_idx = 0;
 
         // Find next greatest element in keys_, assumes keys_ is sorted
