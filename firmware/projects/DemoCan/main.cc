@@ -9,9 +9,9 @@
 
 namespace bindings {
 extern void Initialize();
+extern mcal::periph::CanBase veh_can;
 }  // namespace bindings
 
-mcal::periph::CanBase veh_can{"can0"};
 
 int main(void) {
     bindings::Initialize();
@@ -28,8 +28,6 @@ int main(void) {
         .bytes = {0, 0, 0, 0, 0, 0, 0, 0},
     };
 
-    veh_can.Setup();
-
     int i = 0;
     while (1) {
         std::this_thread::sleep_for(duration);
@@ -37,7 +35,7 @@ int main(void) {
         msg.bytes[i++%8]++;
         
 
-        veh_can.Send(msg);
+        bindings::veh_can.Send(msg);
     }
 
     return 0;

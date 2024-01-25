@@ -7,6 +7,7 @@
 target_sources(main
 PRIVATE
 	main.cc
+	generated/me
 )
 
 target_include_directories(main

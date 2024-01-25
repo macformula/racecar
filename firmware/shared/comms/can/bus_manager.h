@@ -12,6 +12,8 @@ template<shared::periph::Can can_base>
 class BusManager {
 private:
     can_base& can_base_;
+    struct TmsBroadcast tms_;
+
 
 public:
     template<shared::periph::CanMsg can_msg>
@@ -29,8 +31,8 @@ public:
     }
 
     template<shared::periph::CanMsg can_msg>
-    Read(can_msg msg) {
-        return;
+    Read(can_msg& msg) {
+        message_registry_.Read(can_msg);
     }
 
 };
