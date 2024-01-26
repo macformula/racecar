@@ -3,7 +3,22 @@
 
 message(STATUS "Building CubeMX objects with the auto-generated Makefile")
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Makefile")
-	message(FATAL_ERROR "No auto-generated Makefile was found. Open the .ioc file in STM32CubeMX and click [Generate Code]")
+	find_program(STM32CubeMX_PATH STM32CubeMX.exe)
+
+	if(NOT STM32CubeMX_PATH)
+		message(FATAL_ERROR "STM32CubeMX.exe not found in PATH")
+	endif()
+
+	set(GENERATE_CUBEMX_CONTENT
+		"config load \"${CMAKE_CURRENT_SOURCE_DIR}/board_config.ioc\"\nproject generate ./\nexit\n"
+	)
+
+	# Write the content to generate_cubemx.txt
+	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/generate_cubemx.txt "${GENERATE_CUBEMX_CONTENT}")
+
+	execute_process(
+		COMMAND java -jar ${STM32CubeMX_PATH} -q ${CMAKE_CURRENT_SOURCE_DIR}/generate_cubemx.txt
+	)
 endif()
 execute_process(
 	COMMAND make -C ${CMAKE_CURRENT_SOURCE_DIR}
