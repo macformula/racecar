@@ -2,7 +2,7 @@
 /// @date 2024-01-16
 
 #include "bindings.h"
-#include "shared/comms/can/raw_can_msg.h"
+#include "generated/bus_manager.h"
 
 #include <thread>
 #include <chrono>
@@ -12,6 +12,7 @@ extern void Initialize();
 extern mcal::periph::CanBase veh_can;
 }  // namespace bindings
 
+BusManager bus_manager{bindings::veh_can};
 
 int main(void) {
     bindings::Initialize();

@@ -23,7 +23,6 @@
 namespace mcal::periph {
 
 class CanBase : public shared::util::Peripheral {
-
 private:
     struct sockaddr_can sock_addr_;
     struct ifreq ifreq_;

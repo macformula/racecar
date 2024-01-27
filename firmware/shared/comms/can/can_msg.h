@@ -11,10 +11,10 @@
 
 namespace shared::comms::can {
 
-template <typename T>
-concept CanMsg = requires(T obj, const raw_can_msg& msgs) {
-	{ obj.Pack(msgs) } -> std::same_as<void>;
-	{ obj.Unpack(msgs) } -> std::same_as<void>;
+class CanMsg {
+private:
+	RawCanMsg Pack();
+	void Unpack(const RawCanMsg& raw_msg);
 };
 
 } // namespace shared::comms::can

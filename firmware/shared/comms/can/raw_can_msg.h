@@ -8,17 +8,17 @@
 
 namespace shared::comms::can {
 
-#define CAN_MSG_BYTES 8
+constexpr uint8_t kMaxMsgBytes = 8;
 
-struct can_header {
-    uint32_t can_id;
+struct CanHeader {
+    uint32_t id;
     uint8_t data_len;
     bool is_extended_frame;
 };
 
-struct raw_can_msg {
-    can_header can_hdr;
-    uint8_t bytes[CAN_MSG_BYTES];
+struct RawCanMsg {
+    CanHeader header;
+    uint8_t data[kMaxMsgBytes];
 };
 
 } // namespace shared::comms::can
