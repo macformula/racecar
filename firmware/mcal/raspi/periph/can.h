@@ -57,10 +57,10 @@ public:
 
         return;
     }
-	void Send(const shared::comms::can::raw_can_msg& can_tx_msg) {
-        frame_.can_id = can_tx_msg.can_hdr.can_id;
-        frame_.can_dlc = can_tx_msg.can_hdr.data_len;
-        memcpy((uint8_t *)frame_.data, can_tx_msg.bytes, 8);
+	void Send(const shared::comms::can::RawCanMsg& can_tx_msg) {
+        frame_.can_id = can_tx_msg.header.id;
+        frame_.can_dlc = can_tx_msg.header.data_len;
+        memcpy((uint8_t *)frame_.data, can_tx_msg.data, 8);
 
         if (write(sock_, &frame_, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
             perror("Error writing to socket");
@@ -69,7 +69,7 @@ public:
         
         return;
     }
-    void ReadQueue(shared::comms::can::raw_can_msg can_rx_msgs[]) {
+    void ReadQueue(shared::comms::can::RawCanMsg can_rx_msgs[]) {
         return;
     }
 };

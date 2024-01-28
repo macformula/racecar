@@ -4,7 +4,7 @@
 #include "bindings.h"
 
 namespace bindings {
-mcal::periph::CanBase veh_can{"can0"};
+mcal::periph::CanBase veh_can{"vcan0"};
 
 void Initialize () {
     veh_can.Setup();

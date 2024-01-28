@@ -71,6 +71,13 @@
 		"mutex": "cpp",
 		"ratio": "cpp",
 		"sstream": "cpp",
-		"variant": "cpp"
-	}
+		"variant": "cpp",
+		"thread": "cpp",
+		"chrono": "cpp",
+		"iomanip": "cpp",
+		"numbers": "cpp",
+		"semaphore": "cpp",
+		"stop_token": "cpp"
+	},
+	"C_Cpp.default.compilerPath": "/usr/bin/aarch64-linux-gnu-g++"
 }

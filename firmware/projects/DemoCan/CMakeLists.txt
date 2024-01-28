@@ -7,12 +7,12 @@
 target_sources(main
 PRIVATE
 	main.cc
-	generated/me
 )
 
 target_include_directories(main
 PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/inc
+	${CMAKE_CURRENT_SOURCE_DIR}/generated
 )
 
 # Notice that we don't include any mcal/ subdirectory in this CMake file.

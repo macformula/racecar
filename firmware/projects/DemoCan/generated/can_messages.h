@@ -3,6 +3,12 @@
 
 #include "shared/comms/can/can_msg.h"
 #include "shared/comms/can/raw_can_msg.h"
+#include "shared/periph/can.h"
+
+#pragma once
+
+template <shared::periph::CanBase>
+class BusManager;
 
 class TmsBroadcast : public shared::comms::can::CanMsg {
 private:
@@ -10,11 +16,12 @@ private:
     using CanHeader = shared::comms::can::CanHeader;
 
     const CanHeader header_ = {
-        .id = 0x18F390,
+        .id = 0x55,
         .data_len = 8,
-        .is_extended_frame = true,
+        .is_extended_frame = false,
     };
 
+public:
     void Pack(RawCanMsg& raw_msg) {
         raw_msg.header = header_;
 
@@ -39,7 +46,6 @@ private:
         checksum = raw_msg.data[7];
     }
     
-public:
     uint8_t therm_module_num;
     uint8_t num_therm_enabled;
     int8_t low_therm_value;

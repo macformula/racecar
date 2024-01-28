@@ -48,6 +48,7 @@
                 "path": [
                     "/Users/sparent/Library/CloudStorage/OneDrive-McMasterUniversity/MACFE/macformula/racecar/firmware",
                     "${workspaceFolder}/firmware/projects/${PROJECT}/inc",
+                    "${workspaceFolder}/firmware/projects/${PROJECT}/generated",
                     "${workspaceFolder}/firmware/projects/${PROJECT}/platforms/raspi"
                 ],
                 "limitSymbolsToIncludedHeaders": true
@@ -65,7 +66,6 @@
                 "UNICODE",
                 "_UNICODE"
             ],
-            "compilerPath": "g++",
             "cStandard": "c17",
             "cppStandard": "c++20",
             "intelliSenseMode": "windows-gcc-x64"
