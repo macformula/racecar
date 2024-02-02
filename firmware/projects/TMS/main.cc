@@ -9,8 +9,6 @@
 #include "bindings.h"
 #include "shared/util/mappers/lookup_table.h"
 
-float inf = std::numeric_limits<float>::infinity();
-
 namespace bindings {
 extern mcal::periph::ADCInput temp_sensor_adc_1;
 extern mcal::periph::ADCInput temp_sensor_adc_2;
@@ -84,6 +82,13 @@ FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut};
 TempSensor temp_sensor_1{bindings::temp_sensor_adc_1, temp_adc_lut};
 DebugIndicator debug_green{bindings::debug_do_green};
 DebugIndicator debug_red{bindings::debug_do_red};
+
+TempSensor<mcal::periph::ADCInput, shared::util::LookupTable<33>>*
+    temp_sensors[] = {&temp_sensor_1};
+
+TempSensorManager<
+    TempSensor<mcal::periph::ADCInput, shared::util::LookupTable<33>>>
+    ts_mgr{temp_sensors, 1};
 
 int main(void) {
     bindings::Initialize();

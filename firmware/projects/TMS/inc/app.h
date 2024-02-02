@@ -5,6 +5,7 @@
 #ifndef TMS_APP_H_
 #define TMS_APP_H_
 
+#include <cstddef>
 #include <cstdint>
 #include <string>
 
@@ -34,6 +35,28 @@ public:
         float temperature = adc_to_temp_.Evaluate(float(adc_value));
         return temperature;
     }
+};
+
+// template <template <typename...> class TemplatedType, typename T, typename U>
+//     requires std::is_same_v<TemplatedType<T>, TempSensor<T, U>>
+
+template <typename T>
+class TempSensorManager {
+    using TType = T;
+
+public:
+    TempSensorManager(TType* sensors[], int sensor_count)
+        : sensors_(sensors), sensor_count_(sensor_count) {}
+
+    void ReadSensors(uint32_t* buffer) {
+        for (int i = 0; i < sensor_count_; i++) {
+            buffer[i] = sensors_[i].Read();
+        }
+    }
+
+private:
+    const int sensor_count_;
+    TType** sensors_;
 };
 
 template <shared::periph::PWMOutput PWMOutput, shared::util::Mapper Mapper>
