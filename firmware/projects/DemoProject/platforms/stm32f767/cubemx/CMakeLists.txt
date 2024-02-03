@@ -2,26 +2,19 @@
 # January 8, 2023
 
 message(STATUS "Building CubeMX objects with the auto-generated Makefile")
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Makefile")
-	find_program(STM32CubeMX_PATH STM32CubeMX.exe)
+find_program(STM32CubeMX STM32CubeMX.exe)
 
-	if(NOT STM32CubeMX_PATH)
-		message(FATAL_ERROR "STM32CubeMX.exe not found in PATH")
-	endif()
-
-	set(GENERATE_CUBEMX_CONTENT
-		"config load \"${CMAKE_CURRENT_SOURCE_DIR}/board_config.ioc\"\nproject generate ./\nexit\n"
-	)
-
-	# Write the content to generate_cubemx.txt
-	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/generate_cubemx.txt "${GENERATE_CUBEMX_CONTENT}")
-
-	execute_process(
-		COMMAND java -jar ${STM32CubeMX_PATH} -q ${CMAKE_CURRENT_SOURCE_DIR}/generate_cubemx.txt
-	)
+if(NOT STM32CubeMX)
+	message(FATAL_ERROR "STM32CubeMX not found in PATH")
 endif()
+
 execute_process(
-	COMMAND make -C ${CMAKE_CURRENT_SOURCE_DIR}
+	COMMAND ${CMAKE_MAKE_PROGRAM} "--file" "generate.mk" "CUBEMX_PATH=${STM32CubeMX}" "IOC_FILE=${CMAKE_CURRENT_SOURCE_DIR}/board_config.ioc"
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+execute_process(
+	COMMAND ${CMAKE_MAKE_PROGRAM} "objects"
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_library(driver)
