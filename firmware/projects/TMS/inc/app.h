@@ -37,16 +37,16 @@ public:
     }
 };
 
-// template <template <typename...> class TemplatedType, typename T, typename U>
-//     requires std::is_same_v<TemplatedType<T>, TempSensor<T, U>>
-
 template <typename T>
+concept TempSensorInstance =
+    requires { typename T::template TempSensor<typename T::a, typename T::b>; };
+
+template <TempSensorInstance T, int sensor_count_>
 class TempSensorManager {
     using TType = T;
 
 public:
-    TempSensorManager(TType* sensors[], int sensor_count)
-        : sensors_(sensors), sensor_count_(sensor_count) {}
+    TempSensorManager(TType* sensors[]) : sensors_(sensors) {}
 
     void ReadSensors(uint32_t* buffer) {
         for (int i = 0; i < sensor_count_; i++) {
@@ -55,8 +55,9 @@ public:
     }
 
 private:
-    const int sensor_count_;
-    TType** sensors_;
+    TType* sensors_[sensor_count_];
+
+    // uint32_t temperature_readings?
 };
 
 template <shared::periph::PWMOutput PWMOutput, shared::util::Mapper Mapper>

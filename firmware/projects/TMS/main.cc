@@ -79,16 +79,26 @@ shared::util::LookupTable<3> fan_temp_lut{fan_lut_data};
     Create app objects
 ***************************************************************/
 FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut};
-TempSensor temp_sensor_1{bindings::temp_sensor_adc_1, temp_adc_lut};
+
+using TempSensor_T =
+    TempSensor<mcal::periph::ADCInput, shared::util::LookupTable<33>>;
+
+TempSensor_T temp_sensor_1{bindings::temp_sensor_adc_1, temp_adc_lut};
+TempSensor_T temp_sensor_2{bindings::temp_sensor_adc_2, temp_adc_lut};
+TempSensor_T temp_sensor_3{bindings::temp_sensor_adc_3, temp_adc_lut};
+TempSensor_T temp_sensor_4{bindings::temp_sensor_adc_4, temp_adc_lut};
+TempSensor_T temp_sensor_5{bindings::temp_sensor_adc_5, temp_adc_lut};
+TempSensor_T temp_sensor_6{bindings::temp_sensor_adc_6, temp_adc_lut};
+
 DebugIndicator debug_green{bindings::debug_do_green};
 DebugIndicator debug_red{bindings::debug_do_red};
 
-TempSensor<mcal::periph::ADCInput, shared::util::LookupTable<33>>*
-    temp_sensors[] = {&temp_sensor_1};
+TempSensor_T* temp_sensors[] = {
+    &temp_sensor_1, &temp_sensor_2, &temp_sensor_3,
+    &temp_sensor_4, &temp_sensor_5, &temp_sensor_6,
+};
 
-TempSensorManager<
-    TempSensor<mcal::periph::ADCInput, shared::util::LookupTable<33>>>
-    ts_mgr{temp_sensors, 1};
+TempSensorManager<TempSensor_T, 6> ts_mgr{temp_sensors};
 
 int main(void) {
     bindings::Initialize();
