@@ -8,14 +8,14 @@ namespace shared::util {
 
 class Mapper {
 public:
-    virtual float Evaluate(float key) = 0;
+    virtual float Evaluate(float key) const = 0;
 };
 
 class CompositeMap : public Mapper {
 public:
     CompositeMap(Mapper& f, Mapper& g) : f_(f), g_(g) {}
 
-    float Evaluate(float key) override {
+    float Evaluate(float key) const override {
         return f_.Evaluate(g_.Evaluate(key));
     }
 

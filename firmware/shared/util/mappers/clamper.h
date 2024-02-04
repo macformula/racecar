@@ -26,8 +26,8 @@ public:
     }
 
 private:
-    float min_val_;
-    float max_val_;
+    const float min_val_;
+    const float max_val_;
 };
 
 }  // namespace shared::util
