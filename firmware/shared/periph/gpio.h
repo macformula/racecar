@@ -4,27 +4,22 @@
 #ifndef SHARED_PERIPH_GPIO_H_
 #define SHARED_PERIPH_GPIO_H_
 
-#include <concepts>
 #include "shared/util/peripheral.h"
 
 namespace shared::periph {
 
-template <typename T>
-concept DigitalInput = requires(T obj) {
-	{ obj.Read() } -> std::same_as<bool>;
-
-	std::is_base_of_v<util::Peripheral, T>;
+class DigitalInput : public util::Peripheral {
+public:
+    virtual bool Read() = 0;
 };
 
-template <typename T>
-concept DigitalOutput = requires(T obj, bool value) {
-	{ obj.SetHigh() } -> std::same_as<void>;
-	{ obj.SetLow() } -> std::same_as<void>;
-	{ obj.Set(value) } -> std::same_as<void>;
-
-	std::is_base_of_v<util::Peripheral, T>;
+class DigitalOutput : public util::Peripheral {
+public:
+    virtual void SetHigh() = 0;
+    virtual void SetLow() = 0;
+    virtual void Set(bool value) = 0;
 };
 
-} // namespace shared::periph
+}  // namespace shared::periph
 
 #endif

@@ -3,25 +3,24 @@
 
 #include "shared/periph/gpio.h"
 
-template <shared::periph::DigitalInput DigitalInput>
 class Button {
 private:
-    DigitalInput& di_;
+    shared::periph::DigitalInput& di_;
 
 public:
-    Button(DigitalInput& di) : di_(di){};
+    Button(shared::periph::DigitalInput& di) : di_(di){};
 
     bool Read() {
         return di_.Read();
     }
 };
 
-template <shared::periph::DigitalOutput DigitalOutput>
 class Indicator {
 private:
 public:
-    DigitalOutput& dig_output_;
-    Indicator(DigitalOutput& dig_output) : dig_output_(dig_output) {}
+    shared::periph::DigitalOutput& dig_output_;
+    Indicator(shared::periph::DigitalOutput& dig_output)
+        : dig_output_(dig_output) {}
 
     void Set(bool value) {
         dig_output_.Set(value);

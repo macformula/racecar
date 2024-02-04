@@ -5,21 +5,19 @@
 #define SHARED_PERIPH_PWM_H_
 
 #include <concepts>
+
 #include "shared/util/peripheral.h"
 
 namespace shared::periph {
 
-template <typename T>
-concept PWMOutput = requires(T obj, float duty_cycle) {
-	{ obj.Start() } -> std::same_as<void>;
-	{ obj.Stop() } -> std::same_as<void>;
-	{ obj.SetDutyCycle(duty_cycle) } -> std::same_as<void>;
-	{ obj.GetDutyCycle() } -> std::same_as<float>;
-
-	// force the implementation to inherit from util::Peripheral
-	std::is_base_of_v<util::Peripheral, T>;
+class PWMOutput : public util::Peripheral {
+public:
+    virtual void Start() = 0;
+    virtual void Stop() = 0;
+    virtual void SetDutyCycle(float duty_cycle) = 0;
+    virtual float GetDutyCycle() = 0;
 };
 
-} // namespace shared::periph
+}  // namespace shared::periph
 
 #endif
