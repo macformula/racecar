@@ -36,10 +36,6 @@ A master CMake build system is used for all `racecar/firmware` projects, includi
     The `make` command calls CMake with the necessary parameters.
 3. The project will build. The output will be placed in `racecar/firmware/build/DemoProject/<platform>`
 
-> __Note for `stm32f767`__
->
->We use STM32CubeMX to autogenerate all of the driver and peripheral files for the board. All of the configuration information is contained within the `.ioc` file under `projects/DemoProject/mcal/stm32f767/cubemx`. Prior to building, you must open this `.ioc` file in STM32CubeMX and click "Generate Code."
-
 ## Running / Flashing the Project
 
 This step is dependent on the platform. It assumes you have already compiled for the desired platform using the previous instructions.
