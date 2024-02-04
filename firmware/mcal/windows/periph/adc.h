@@ -8,19 +8,19 @@
 #include <iostream>
 #include <string>
 
-#include "shared/util/peripheral.h"
+#include "shared/periph/adc.h"
 
 namespace mcal::periph {
 
-class ADCInput : public shared::util::Peripheral {
+class ADCInput : public shared::periph::ADCInput {
 public:
     ADCInput(std::string name) : name_(name) {}
 
-    void Start() {
+    void Start() override {
         std::cout << "Reading ADC " << name_ << "..." << std::endl;
     }
 
-    uint32_t Read() {
+    uint32_t Read() override {
         Start();
         uint32_t adc_val;
         std::cout << " | Enter an unsigned 32-bit value: ";

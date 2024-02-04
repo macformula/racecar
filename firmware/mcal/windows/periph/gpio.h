@@ -7,18 +7,18 @@
 #include <iostream>
 #include <string>
 
-#include "shared/util/peripheral.h"
+#include "shared/periph/gpio.h"
 
 namespace mcal::periph {
 
-class DigitalInput : public shared::util::Peripheral {
+class DigitalInput : public shared::periph::DigitalInput {
 private:
     std::string name_;
 
 public:
     DigitalInput(std::string name) : name_(name) {}
 
-    bool Read() {
+    bool Read() override {
         int value;
         std::cout << "Reading DigitalInput " << name_ << std::endl;
         std::cout << " | Enter 0 for False, 1 for True: ";
@@ -28,23 +28,23 @@ public:
     }
 };
 
-class DigitalOutput : public shared::util::Peripheral {
+class DigitalOutput : public shared::periph::DigitalOutput {
 private:
     std::string name_;
 
 public:
     DigitalOutput(std::string name) : name_(name) {}
 
-    void Set(bool value) {
-        std::cout << "Setting DigitalOutput " << name_ << " to "
+    void Set(bool value) override {
+        std::cout << "Setting DigitalOutput Channel " << name_ << " to "
                   << (value ? "true" : "false") << std::endl;
     }
 
-    void SetHigh() {
+    void SetHigh() override {
         Set(true);
     }
 
-    void SetLow() {
+    void SetLow() override {
         Set(false);
     }
 };

@@ -5,20 +5,17 @@
 #define SHARED_PERIPH_ADC_H_
 
 #include <cstdint>
-#include <concepts>
 
 #include "shared/util/peripheral.h"
 
 namespace shared::periph {
 
-template <typename T>
-concept ADCInput = requires(T obj) {
-	{ obj.Start() } -> std::same_as<void>;
-	{ obj.Read() } -> std::same_as<uint32_t>;
-
-	std::is_base_of_v<util::Peripheral, T>;
+class ADCInput : public util::Peripheral {
+public:
+    virtual void Start() = 0;
+    virtual uint32_t Read() = 0;
 };
 
-} // namespace shared::periph
+}  // namespace shared::periph
 
 #endif

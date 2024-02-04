@@ -80,25 +80,19 @@ shared::util::LookupTable<3> fan_temp_lut{fan_lut_data};
 ***************************************************************/
 FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut};
 
-using TempSensor_T =
-    TempSensor<mcal::periph::ADCInput, shared::util::LookupTable<33>>;
-
-TempSensor_T temp_sensor_1{bindings::temp_sensor_adc_1, temp_adc_lut};
-TempSensor_T temp_sensor_2{bindings::temp_sensor_adc_2, temp_adc_lut};
-TempSensor_T temp_sensor_3{bindings::temp_sensor_adc_3, temp_adc_lut};
-TempSensor_T temp_sensor_4{bindings::temp_sensor_adc_4, temp_adc_lut};
-TempSensor_T temp_sensor_5{bindings::temp_sensor_adc_5, temp_adc_lut};
-TempSensor_T temp_sensor_6{bindings::temp_sensor_adc_6, temp_adc_lut};
-
 DebugIndicator debug_green{bindings::debug_do_green};
 DebugIndicator debug_red{bindings::debug_do_red};
 
-TempSensor_T* temp_sensors[] = {
-    &temp_sensor_1, &temp_sensor_2, &temp_sensor_3,
-    &temp_sensor_4, &temp_sensor_5, &temp_sensor_6,
+TempSensor temp_sensors[] = {
+    TempSensor{bindings::temp_sensor_adc_1, temp_adc_lut},
+    TempSensor{bindings::temp_sensor_adc_2, temp_adc_lut},
+    TempSensor{bindings::temp_sensor_adc_3, temp_adc_lut},
+    TempSensor{bindings::temp_sensor_adc_4, temp_adc_lut},
+    TempSensor{bindings::temp_sensor_adc_5, temp_adc_lut},
+    TempSensor{bindings::temp_sensor_adc_6, temp_adc_lut},
 };
 
-TempSensorManager<TempSensor_T, 6> ts_mgr{temp_sensors};
+TempSensorManager<6> ts_mgr{temp_sensors};
 
 int main(void) {
     bindings::Initialize();
@@ -106,7 +100,7 @@ int main(void) {
     fan_controller.StartPWM();
 
     while (true) {
-        float temperature = temp_sensor_1.Read();
+        float temperature = temp_sensors[0].Read();
         bindings::Log("Temperature: " + std::to_string(temperature));
         fan_controller.Update(temperature);
     }

@@ -18,16 +18,15 @@
     App-level objects
 ***************************************************************/
 
-template <shared::periph::ADCInput ADCInput, shared::util::Mapper Mapper>
 class TempSensor {
 private:
-    ADCInput& adc_;
+    shared::periph::ADCInput& adc_;
 
     /// @brief Mapping from raw ADC value to temperature [degC]
-    Mapper& adc_to_temp_;
+    shared::util::Mapper& adc_to_temp_;
 
 public:
-    TempSensor(ADCInput& adc, Mapper& adc_to_temp)
+    TempSensor(shared::periph::ADCInput& adc, shared::util::Mapper& adc_to_temp)
         : adc_(adc), adc_to_temp_(adc_to_temp) {}
 
     float Read() {
@@ -37,16 +36,10 @@ public:
     }
 };
 
-template <typename T>
-concept TempSensorInstance =
-    requires { typename T::template TempSensor<typename T::a, typename T::b>; };
-
-template <TempSensorInstance T, int sensor_count_>
+template <int sensor_count_>
 class TempSensorManager {
-    using TType = T;
-
 public:
-    TempSensorManager(TType* sensors[]) : sensors_(sensors) {}
+    TempSensorManager(TempSensor* sensors) : sensors_(sensors) {}
 
     void ReadSensors(uint32_t* buffer) {
         for (int i = 0; i < sensor_count_; i++) {
@@ -55,21 +48,19 @@ public:
     }
 
 private:
-    TType* sensors_[sensor_count_];
-
-    // uint32_t temperature_readings?
+    TempSensor* sensors_;
 };
 
-template <shared::periph::PWMOutput PWMOutput, shared::util::Mapper Mapper>
 class FanContoller {
 private:
-    PWMOutput& pwm_;
+    shared::periph::PWMOutput& pwm_;
 
     /// @brief Mapping from temperature [degC] to fan PWM
-    Mapper& temp_to_pwm_;
+    shared::util::Mapper& temp_to_pwm_;
 
 public:
-    FanContoller(PWMOutput& pwm, Mapper& temp_to_pwm)
+    FanContoller(shared::periph::PWMOutput& pwm,
+                 shared::util::Mapper& temp_to_pwm)
         : pwm_(pwm), temp_to_pwm_(temp_to_pwm) {}
 
     void Update(float temperature) {
@@ -82,13 +73,12 @@ public:
     }
 };
 
-template <shared::periph::DigitalOutput DigitalOutput>
 class DebugIndicator {
 private:
-    DigitalOutput& digital_output_;
+    shared::periph::DigitalOutput& digital_output_;
 
 public:
-    DebugIndicator(DigitalOutput& digital_output)
+    DebugIndicator(shared::periph::DigitalOutput& digital_output)
         : digital_output_(digital_output) {}
 
     void Set() {

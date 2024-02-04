@@ -14,16 +14,16 @@
 #ifndef SHARED_UTIL_MAPPERS_LOOKUP_TABLE_H_
 #define SHARED_UTIL_MAPPERS_LOOKUP_TABLE_H_
 
-#include <cstddef>
+#include "mapper.h"
 
 namespace shared::util {
 
 template <int row_count_>
-class LookupTable {
+class LookupTable : public Mapper {
 public:
     LookupTable(const float (*table)[2]) : table_(table) {}
 
-    float Evaluate(float key) const {
+    float Evaluate(float key) override {
         int least_greater_idx = 0;
 
         // Find next greatest element in keys_, assumes keys_ is sorted

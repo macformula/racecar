@@ -4,14 +4,16 @@
 #ifndef SHARED_UTIL_MAPPERS_CLAMPER_H_
 #define SHARED_UTIL_MAPPERS_CLAMPER_H_
 
+#include "mapper.h"
+
 namespace shared::util {
 
-class Clamper {
+class Clamper : public Mapper {
 public:
     Clamper(float min_val, float max_val)
         : min_val_(min_val), max_val_(max_val) {}
 
-    float Evaluate(float key) {
+    float Evaluate(float key) override {
         if (key <= min_val_) {
             return min_val_;
 

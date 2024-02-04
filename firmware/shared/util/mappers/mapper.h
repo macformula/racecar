@@ -4,27 +4,24 @@
 #ifndef SHARED_UTIL_MAPPERS_MAPPER_H_
 #define SHARED_UTIL_MAPPERS_MAPPER_H_
 
-#include <concepts>
-
 namespace shared::util {
 
-template <typename T>
-concept Mapper = requires(T obj, float key) {
-    { obj.Evaluate(key) } -> std::same_as<float>;
+class Mapper {
+public:
+    virtual float Evaluate(float key) = 0;
 };
 
-template <Mapper MapF, Mapper MapG>
-class CompositeMap {
+class CompositeMap : public Mapper {
 public:
-    CompositeMap(MapF& f, MapG& g) : f_(f), g_(g) {}
+    CompositeMap(Mapper& f, Mapper& g) : f_(f), g_(g) {}
 
-    float Evaluate(float key) {
+    float Evaluate(float key) override {
         return f_.Evaluate(g_.Evaluate(key));
     }
 
 private:
-    MapF& f_;
-    MapG& g_;
+    Mapper& f_;
+    Mapper& g_;
 };
 
 }  // namespace shared::util

@@ -6,12 +6,12 @@
 
 #include <cstdint>
 
-#include "shared/util/peripheral.h"
+#include "shared/periph/adc.h"
 #include "stm32f7xx_hal.h"
 
 namespace mcal::periph {
 
-class ADCInput : public shared::util::Peripheral {
+class ADCInput : public shared::periph::ADCInput {
 private:
     ADC_HandleTypeDef* hadc_;
     uint32_t adc_channel_;
@@ -20,7 +20,7 @@ public:
     ADCInput(ADC_HandleTypeDef* hadc, uint32_t adc_channel)
         : hadc_(hadc), adc_channel_(adc_channel){};
 
-    void Start() {
+    void Start() override {
         ADC_ChannelConfTypeDef adc_config = {
             .Channel = adc_channel_,
             .Rank = ADC_REGULAR_RANK_1,
@@ -31,7 +31,7 @@ public:
         HAL_ADC_Start(hadc_);
     }
 
-    uint32_t Read() {
+    uint32_t Read() override {
         /// @todo should there be a standard output range?
         /// if so, the conversion would require knowing the resolution and
         /// alignment settings

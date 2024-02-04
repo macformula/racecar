@@ -7,23 +7,23 @@
 #include <iostream>
 #include <string>
 
-#include "shared/util/peripheral.h"
+#include "shared/periph/pwm.h"
 
 namespace mcal::periph {
 
-class PWMOutput : public shared::util::Peripheral {
+class PWMOutput : public shared::periph::PWMOutput {
 public:
     PWMOutput(std::string name) : name_(name) {}
 
-    void Start() {
+    void Start() override {
         std::cout << "Starting PWM " << name_ << std::endl;
     }
 
-    void Stop() {
+    void Stop() override {
         std::cout << "Stopping PWM " << name_ << std::endl;
     }
 
-    void SetDutyCycle(float duty_cycle) {
+    void SetDutyCycle(float duty_cycle) override {
         // clamp duty cycle between 0, 100
         duty_cycle_ = (duty_cycle < 0.0f)     ? 0.0f
                       : (duty_cycle > 100.0f) ? 100.0f
@@ -32,7 +32,7 @@ public:
         std::cout << "Setting PWM " << name_ << " to " << duty_cycle_ << "%"
                   << std::endl;
     }
-    float GetDutyCycle() {
+    float GetDutyCycle() override {
         std::cout << "PWM " << name_ << " has duty cycle " << duty_cycle_ << "%"
                   << std::endl;
         return duty_cycle_;
