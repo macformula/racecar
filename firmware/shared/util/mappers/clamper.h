@@ -13,7 +13,7 @@ public:
     Clamper(float min_val, float max_val)
         : min_val_(min_val), max_val_(max_val) {}
 
-    float Evaluate(float key) override {
+    float Evaluate(float key) const override {
         if (key <= min_val_) {
             return min_val_;
 
@@ -26,8 +26,8 @@ public:
     }
 
 private:
-    const float min_val_;
-    const float max_val_;
+    float const min_val_;
+    float const max_val_;
 };
 
 }  // namespace shared::util

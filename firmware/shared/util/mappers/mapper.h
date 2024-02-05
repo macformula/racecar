@@ -20,8 +20,8 @@ public:
     }
 
 private:
-    Mapper& f_;
-    Mapper& g_;
+    Mapper const& f_;
+    Mapper const& g_;
 };
 
 }  // namespace shared::util
