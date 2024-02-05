@@ -12,14 +12,14 @@ class QuadraticMap : public Mapper {
 public:
     QuadraticMap(float a, float b, float c) : a_(a), b_(b), c_(c) {}
 
-    float Evaluate(float key) override {
+    float Evaluate(float key) const override {
         return a_ * key * key + b_ * key + c_;
     }
 
 private:
-    float a_;
-    float b_;
-    float c_;
+    float const a_;
+    float const b_;
+    float const c_;
 };
 
 }  // namespace shared::util

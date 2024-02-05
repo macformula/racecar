@@ -12,13 +12,13 @@ class LinearMap : public Mapper {
 public:
     LinearMap(float m, float b) : m_(m), b_(b) {}
 
-    float Evaluate(float key) override {
+    float Evaluate(float key) const override {
         return key * m_ + b_;
     }
 
 private:
-    float m_;
-    float b_;
+    float const m_;
+    float const b_;
 };
 
 }  // namespace shared::util

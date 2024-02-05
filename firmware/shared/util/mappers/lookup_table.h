@@ -21,9 +21,9 @@ namespace shared::util {
 template <int row_count_>
 class LookupTable : public Mapper {
 public:
-    LookupTable(const float (*table)[2]) : table_(table) {}
+    LookupTable(float const (*table)[2]) : table_(table) {}
 
-    float Evaluate(float key) override {
+    float Evaluate(float key) const override {
         int least_greater_idx = 0;
 
         // Find next greatest element in keys_, assumes keys_ is sorted
@@ -52,7 +52,7 @@ public:
     }
 
 private:
-    const float (*table_)[2];
+    float const (*table_)[2];
 };
 
 }  // namespace shared::util
