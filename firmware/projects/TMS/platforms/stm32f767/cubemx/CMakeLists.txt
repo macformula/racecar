@@ -2,11 +2,19 @@
 # January 8, 2023
 
 message(STATUS "Building CubeMX objects with the auto-generated Makefile")
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Makefile")
-	message(FATAL_ERROR "No auto-generated Makefile was found. Open the .ioc file in STM32CubeMX and click [Generate Code]")
+find_program(STM32CubeMX STM32CubeMX)
+
+if(NOT STM32CubeMX)
+	message(FATAL_ERROR "STM32CubeMX not found in PATH")
 endif()
+
 execute_process(
-	COMMAND make -C ${CMAKE_CURRENT_SOURCE_DIR}
+	COMMAND ${CMAKE_MAKE_PROGRAM} "--file" "generate.mk" "CUBEMX_PATH=${STM32CubeMX}" "IOC_FILE=${CMAKE_CURRENT_SOURCE_DIR}/board_config.ioc"
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+execute_process(
+	COMMAND ${CMAKE_MAKE_PROGRAM} "objects"
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_library(driver)
