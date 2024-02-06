@@ -30,7 +30,10 @@ public:
         /// @todo change this to be non-blocking, currently just for demo
         Start();
         HAL_ADC_PollForConversion(hadc_, 1000);
-        return HAL_ADC_GetValue(hadc_);
+        uint32_t adc_value = HAL_ADC_GetValue(hadc_);
+        HAL_ADC_Stop(hadc_);
+
+        return adc_value;
     }
 };
 
