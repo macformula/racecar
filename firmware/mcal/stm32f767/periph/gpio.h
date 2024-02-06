@@ -6,12 +6,12 @@
 
 #include <cstdint>
 
-#include "shared/util/peripheral.h"
+#include "shared/periph/gpio.h"
 #include "stm32f7xx_hal.h"
 
 namespace mcal::periph {
 
-class DigitalInput : public shared::util::Peripheral {
+class DigitalInput : public shared::periph::DigitalInput {
 private:
     GPIO_TypeDef* port_;
     uint16_t pin_;
@@ -20,12 +20,12 @@ public:
     DigitalInput(GPIO_TypeDef* gpio_port, uint16_t pin)
         : port_(gpio_port), pin_(pin) {}
 
-    bool Read() {
+    bool Read() override {
         return HAL_GPIO_ReadPin(port_, pin_);
     }
 };
 
-class DigitalOutput : public shared::util::Peripheral {
+class DigitalOutput : public shared::periph::DigitalOutput {
 private:
     GPIO_TypeDef* port_;
     uint16_t pin_;
@@ -34,13 +34,13 @@ public:
     DigitalOutput(GPIO_TypeDef* gpio_port, uint16_t pin)
         : port_(gpio_port), pin_(pin) {}
 
-    void SetHigh() {
+    void SetHigh() override {
         HAL_GPIO_WritePin(port_, pin_, GPIO_PIN_SET);
     }
-    void SetLow() {
+    void SetLow() override {
         HAL_GPIO_WritePin(port_, pin_, GPIO_PIN_RESET);
     }
-    void Set(bool value) {
+    void Set(bool value) override {
         HAL_GPIO_WritePin(port_, pin_, static_cast<GPIO_PinState>(value));
     }
 };

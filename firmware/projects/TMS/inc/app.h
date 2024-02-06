@@ -24,16 +24,15 @@ void Log(std::string message);
     App-level objects
 ***************************************************************/
 
-template <shared::periph::ADCInput ADCInput>
 class TempSensor {
     using LUT = shared::util::LookupTable;
 
 private:
-    ADCInput& adc_;
+    shared::periph::ADCInput& adc_;
     LUT& adc_to_temp_;
 
 public:
-    TempSensor(ADCInput& adc, LUT& adc_to_temp)
+    TempSensor(shared::periph::ADCInput& adc, LUT& adc_to_temp)
         : adc_(adc), adc_to_temp_(adc_to_temp) {}
 
     float Read() {
@@ -43,13 +42,12 @@ public:
     }
 };
 
-template <shared::periph::PWMOutput PWMOutput>
 class FanContoller {
 private:
-    PWMOutput& pwm_;
+    shared::periph::PWMOutput& pwm_;
 
 public:
-    FanContoller(PWMOutput& pwm) : pwm_(pwm) {}
+    FanContoller(shared::periph::PWMOutput& pwm) : pwm_(pwm) {}
 
     void Set(float value) {
         pwm_.SetDutyCycle(value);

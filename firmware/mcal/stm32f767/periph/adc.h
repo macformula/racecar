@@ -5,36 +5,38 @@
 #define MCAL_STM32F767_PERIPH_ADC_H_
 
 #include <cstdint>
-#include "stm32f7xx_hal.h"
 
-#include "shared/util/peripheral.h"
+#include "shared/periph/adc.h"
+#include "stm32f7xx_hal.h"
 
 namespace mcal::periph {
 
-class ADCInput : public shared::util::Peripheral {
-
+class ADCInput : public shared::periph::ADCInput {
 private:
-	ADC_HandleTypeDef* hadc_;
+    ADC_HandleTypeDef* hadc_;
 
 public:
-	ADCInput(ADC_HandleTypeDef* hadc) : hadc_(hadc) {};
-	
-	void Start() {
-		HAL_ADC_Start(hadc_);
-	}
-	
-	uint32_t Read() {
-		/// @todo should there be a standard output range?
-		/// if so, the conversion would require knowing the resolution and
-		/// alignment settings
+    ADCInput(ADC_HandleTypeDef* hadc) : hadc_(hadc){};
 
-		/// @todo change this to be non-blocking, currently just for demo
-		Start();
-		while(HAL_ADC_PollForConversion(hadc_, 1000) != HAL_OK);
-		return HAL_ADC_GetValue(hadc_);
-	}
+    void Start() override {
+        HAL_ADC_Start(hadc_);
+    }
+
+    uint32_t Read() override {
+        /// @todo should there be a standard output range?
+        /// if so, the conversion would require knowing the resolution and
+        /// alignment settings
+
+        /// @todo change this to be non-blocking, currently just for demo
+        Start();
+        HAL_ADC_PollForConversion(hadc_, 1000);
+        uint32_t adc_value = HAL_ADC_GetValue(hadc_);
+        HAL_ADC_Stop(hadc_);
+
+        return adc_value;
+    }
 };
 
-} // namespace mcal::periph
+}  // namespace mcal::periph
 
 #endif

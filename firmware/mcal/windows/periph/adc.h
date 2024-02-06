@@ -7,33 +7,31 @@
 #include <cstdint>
 #include <iostream>
 
-#include "shared/util/peripheral.h"
+#include "shared/periph/adc.h"
 
 namespace mcal::periph {
 
-class ADCInput : public shared::util::Peripheral {
+class ADCInput : public shared::periph::ADCInput {
 public:
-	ADCInput(int channel) : channel_(channel) {
+    ADCInput(int channel) : channel_(channel) {}
 
-	}
+    void Start() override {
+        std::cout << "Reading ADC Channel " << channel_ << "..." << std::endl;
+    }
 
-	void Start() {
-		std::cout << "Reading ADC Channel " << channel_ << "..." << std::endl;
-	}
-
-	uint32_t Read() {
-		Start();
-		uint32_t adc_val;
-		std::cout << " | Enter an unsigned 32-bit value: ";
-		std::cin >> adc_val;
-		std::cout << " | Obtained value " << adc_val << std::endl;
-		return adc_val; 
-	}
+    uint32_t Read() override {
+        Start();
+        uint32_t adc_val;
+        std::cout << " | Enter an unsigned 32-bit value: ";
+        std::cin >> adc_val;
+        std::cout << " | Obtained value " << adc_val << std::endl;
+        return adc_val;
+    }
 
 private:
-	int channel_;
+    int channel_;
 };
 
-} // namespace mcal::periph
+}  // namespace mcal::periph
 
 #endif
