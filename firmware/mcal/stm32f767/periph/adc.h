@@ -29,8 +29,7 @@ public:
 
         /// @todo change this to be non-blocking, currently just for demo
         Start();
-        while (HAL_ADC_PollForConversion(hadc_, 1000) != HAL_OK)
-            ;
+        HAL_ADC_PollForConversion(hadc_, 1000);
         return HAL_ADC_GetValue(hadc_);
     }
 };
