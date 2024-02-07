@@ -9,7 +9,7 @@ if(NOT STM32CubeMX)
 endif()
 
 execute_process(
-	COMMAND ${CMAKE_MAKE_PROGRAM} "--file" "generate.mk" "CUBEMX_PATH=${STM32CubeMX}" "IOC_FILE=${CMAKE_CURRENT_SOURCE_DIR}/board_config.ioc"
+	COMMAND ${CMAKE_MAKE_PROGRAM} "--file" "generate.mk"
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 execute_process(
