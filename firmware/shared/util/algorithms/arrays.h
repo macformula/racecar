@@ -22,6 +22,7 @@ concept Numeric = requires { std::is_arithmetic_v<T>; };
 /// @return Minimum value of the array.
 /// @note Returns a large value if `array_length = 0`.
 template <Numeric T, int array_length>
+    requires(array_length >= 0)
 T GetMinimum(T* array, int* idx_min) {
     // start minimum at greatest value
     T cur_min = std::numeric_limits<T>().max();
@@ -52,6 +53,7 @@ T GetMinimum(T* array, int* idx_min) {
 /// @return Maximum value of the array.
 /// @note Returns a low value if `array_length = 0`.
 template <Numeric T, int array_length>
+    requires(array_length >= 0)
 T GetMaximum(T* array, int* idx_max) {
     // start maximum at lowest value
     T cur_max = std::numeric_limits<T>().min();
@@ -76,10 +78,11 @@ T GetMaximum(T* array, int* idx_max) {
 /// `uint8_t`).
 /// @tparam array_length Length of `array`. Must be determined at compile time.
 /// @param array Input array.
-/// @return Average value of the array, as a `double`.
+/// @return Average value of the array, as a `float`.
 template <Numeric T, int array_length>
-double GetAverage(T* array) {
-    double sum = 0;
+    requires(array_length > 0)
+float GetAverage(T* array) {
+    float sum = 0;
     for (int i = 0; i < array_length; i++) {
         sum += array[i];
     }
