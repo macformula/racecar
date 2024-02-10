@@ -1,5 +1,12 @@
-CUBEMX_PATH =
-IOC_FILE = 
+ifeq ($(OS),Windows_NT)
+    CUBEMX_PATH := $(shell where STM32CubeMX)
+    # Convert path to Windows-style and add .exe extension
+    CUBEMX_PATH := $(subst \,\\,$(CUBEMX_PATH))
+else
+    CUBEMX_PATH := $(shell which STM32CubeMX)
+endif
+
+IOC_FILE = board_config.ioc
 
 CUBEMX_GEN_SCRIPT = cubemx_script.txt
 
