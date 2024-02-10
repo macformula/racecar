@@ -13,21 +13,34 @@
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
 #include "shared/util/mappers/mapper.h"
+#include "shared/util/moving_average.h"
 
 /***************************************************************
     App-level objects
 ***************************************************************/
 
 class TempSensor {
+public:
+    TempSensor(shared::periph::ADCInput& adc, shared::util::Mapper& adc_to_temp)
+        : adc_(adc), adc_to_temp_(adc_to_temp), rolling_temperature_() {}
+
+    float Update() {
+        float new_temperature = Read();
+        rolling_temperature_.LoadValue(new_temperature);
+        return GetTemperature();
+    }
+
+    float GetTemperature() {
+        return rolling_temperature_.GetValue();
+    }
+
 private:
     shared::periph::ADCInput& adc_;
 
     /// @brief Mapping from raw ADC value to temperature [degC]
     shared::util::Mapper& adc_to_temp_;
 
-public:
-    TempSensor(shared::periph::ADCInput& adc, shared::util::Mapper& adc_to_temp)
-        : adc_(adc), adc_to_temp_(adc_to_temp) {}
+    shared::util::MovingAverage<float, 20> rolling_temperature_;
 
     float Read() {
         uint32_t adc_value = adc_.Read();
@@ -41,14 +54,24 @@ class TempSensorManager {
 public:
     TempSensorManager(TempSensor* sensors) : sensors_(sensors) {}
 
-    void ReadSensors(uint32_t* buffer) {
+    /// @brief Updates the temperature values from each temperature sensor.
+    void Update() {
         for (int i = 0; i < sensor_count_; i++) {
-            buffer[i] = sensors_[i].Read();
+            temperatures_[i] = sensors_[i].Update();
+        }
+    }
+
+    /// @brief Copy temperature values to another buffer.
+    /// @param buffer
+    void GetTemperatures(float* buffer) {
+        for (int i = 0; i < sensor_count_; i++) {
+            buffer[i] = temperatures_[i];
         }
     }
 
 private:
     TempSensor* sensors_;
+    float temperatures_[sensor_count_];
 };
 
 class FanContoller {

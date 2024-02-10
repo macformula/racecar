@@ -7,6 +7,7 @@
 
 #include "app.h"
 #include "bindings.h"
+#include "shared/util/algorithms/arrays.h"
 #include "shared/util/mappers/lookup_table.h"
 
 namespace bindings {
@@ -92,7 +93,29 @@ TempSensor temp_sensors[] = {
     TempSensor{bindings::temp_sensor_adc_6, temp_adc_lut},
 };
 
-TempSensorManager<6> ts_mgr{temp_sensors};
+const int kSensorCount = 6;
+TempSensorManager<kSensorCount> ts_manager{temp_sensors};
+
+void UpdateTask() {
+    static float temperature_buffer[kSensorCount];
+
+    ts_manager.Update();
+    ts_manager.GetTemperatures(temperature_buffer);
+
+    float temp_min =
+        shared::util::GetMinimum<float, kSensorCount>(temperature_buffer, NULL);
+
+    float temp_max =
+        shared::util::GetMaximum<float, kSensorCount>(temperature_buffer, NULL);
+
+    float temp_avg =
+        shared::util::GetAverage<float, kSensorCount>(temperature_buffer);
+
+    /// TODO: Pack & send CAN message
+
+    /// TODO: Needs PWM_Sweep_Nonblocking
+    fan_controller.Update(temp_avg);
+}
 
 int main(void) {
     bindings::Initialize();
@@ -100,9 +123,6 @@ int main(void) {
     fan_controller.StartPWM();
 
     while (true) {
-        float temperature = temp_sensors[0].Read();
-        bindings::Log("Temperature: " + std::to_string(temperature));
-        fan_controller.Update(temperature);
     }
 
     return 0;
