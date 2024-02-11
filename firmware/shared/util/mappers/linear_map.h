@@ -17,8 +17,8 @@ public:
     }
 
 private:
-    float const m_;
-    float const b_;
+    const float m_;
+    const float b_;
 };
 
 }  // namespace shared::util

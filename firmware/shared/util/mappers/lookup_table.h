@@ -52,7 +52,7 @@ public:
     }
 
 private:
-    float const (*table_)[2];
+    const float (*table_)[2];
 };
 
 }  // namespace shared::util
