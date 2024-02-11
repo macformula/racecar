@@ -24,16 +24,6 @@ public:
     TempSensor(shared::periph::ADCInput& adc, shared::util::Mapper& adc_to_temp)
         : adc_(adc), adc_to_temp_(adc_to_temp), rolling_temperature_() {}
 
-    float Update() {
-        float new_temperature = Read();
-        rolling_temperature_.LoadValue(new_temperature);
-        return GetTemperature();
-    }
-
-    float GetTemperature() {
-        return rolling_temperature_.GetValue();
-    }
-
 private:
     shared::periph::ADCInput& adc_;
 
@@ -47,6 +37,19 @@ private:
         float temperature = adc_to_temp_.Evaluate(float(adc_value));
         return temperature;
     }
+
+    float Update() {
+        float new_temperature = Read();
+        rolling_temperature_.LoadValue(new_temperature);
+        return GetTemperature();
+    }
+
+    float GetTemperature() {
+        return rolling_temperature_.GetValue();
+    }
+
+    template <int i>
+    friend class TempSensorManager;
 };
 
 template <int sensor_count_>
