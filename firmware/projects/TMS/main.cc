@@ -78,7 +78,7 @@ shared::util::LookupTable<3> fan_temp_lut{fan_lut_data};
 /***************************************************************
     Create app objects
 ***************************************************************/
-FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut};
+FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut, 2.0f};
 
 DebugIndicator debug_green{bindings::debug_do_green};
 DebugIndicator debug_red{bindings::debug_do_red};
@@ -119,7 +119,7 @@ void UpdateTask() {
 int main(void) {
     bindings::Initialize();
 
-    fan_controller.StartPWM();
+    fan_controller.StartPWM(0);
 
     while (true) {
     }

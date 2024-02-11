@@ -12,6 +12,7 @@
 #include "shared/periph/adc.h"
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
+#include "shared/util/mappers/clamper.h"
 #include "shared/util/mappers/mapper.h"
 #include "shared/util/moving_average.h"
 
@@ -78,25 +79,37 @@ private:
 };
 
 class FanContoller {
+public:
+    FanContoller(shared::periph::PWMOutput& pwm,
+                 shared::util::Mapper& temp_to_pwm, float pwm_step_size)
+        : pwm_(pwm), temp_to_pwm_(temp_to_pwm), pwm_step_size_(pwm_step_size) {}
+
+    void Update(float temperature) {
+        static float desired_pwm = temp_to_pwm_.Evaluate(temperature);
+        float current_pwm = pwm_.GetDutyCycle();
+        float delta_pwm = desired_pwm - current_pwm;
+
+        float pwm_step = shared::util::Clamper::Evaluate(
+            delta_pwm, -pwm_step_size_, pwm_step_size_);
+
+        pwm_.SetDutyCycle(current_pwm + pwm_step);
+    }
+
+    void StartPWM(float initial_duty_cycle) {
+        pwm_.Start();
+        pwm_.SetDutyCycle(initial_duty_cycle);
+    }
+
 private:
     shared::periph::PWMOutput& pwm_;
 
     /// @brief Mapping from temperature [degC] to fan PWM
     shared::util::Mapper& temp_to_pwm_;
 
-public:
-    FanContoller(shared::periph::PWMOutput& pwm,
-                 shared::util::Mapper& temp_to_pwm)
-        : pwm_(pwm), temp_to_pwm_(temp_to_pwm) {}
-
-    void Update(float temperature) {
-        float new_pwm = temp_to_pwm_.Evaluate(temperature);
-        pwm_.SetDutyCycle(new_pwm);
-    }
-
-    void StartPWM() {
-        pwm_.Start();
-    }
+    /// @brief Largest allowable PWM per Update() call.
+    /// @todo Express pwm_step_size in pwm/second and use Update() frequency to
+    /// determine it.
+    float pwm_step_size_;
 };
 
 class DebugIndicator {

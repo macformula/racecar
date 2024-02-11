@@ -25,6 +25,16 @@ public:
         }
     }
 
+    static float Evaluate(float value, float min, float max) {
+        if (value <= min) {
+            return min;
+        } else if (value >= max) {
+            return max;
+        } else {
+            return value;
+        }
+    }
+
 private:
     const float min_val_;
     const float max_val_;
