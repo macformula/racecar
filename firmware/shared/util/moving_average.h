@@ -10,31 +10,26 @@
 
 namespace shared::util {
 
-template <typename T, int length>
+template <typename T, size_t length>
     requires(std::is_arithmetic_v<T>) && (length > 0)
 class MovingAverage {
 public:
-    MovingAverage() : sum_(0), count_(0) : moving_average_value_(0) {}
+    MovingAverage() : sum_(0), count_(0), moving_average_value_(0) {}
 
-    /**
-     * @brief Updates the moving average with a new value.
-     */
+    /// @brief Updates the moving average with a new value.
     void LoadValue(T new_value) {
-        sum_ += new_value;
-        try {
-            buffer_.Enqueue(new_value);
-            count_ += 1;  // Not reached if Enqueue throws Full exception
-        } catch (QueueFullException& e) {
+        if (buffer_.is_full()) {
             sum_ -= buffer_.Dequeue();
-            buffer_.Enqueue(new_value);
-            // Count is not modified since one element was added and removed
+        } else {
+            count_ += 1;
         }
-        moving_average_value_ = sum_ / count_;
+        sum_ += new_value;
+        buffer_.Enqueue(new_value);
+
+        moving_average_value_ = sum_ / (float)count_;
     }
 
-    /**
-     * @brief Get the average of the last `length` values.
-     */
+    /// @brief Get the average of the last `length` values.
     T GetValue() {
         return moving_average_value_;
     }

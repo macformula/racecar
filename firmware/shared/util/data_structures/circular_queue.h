@@ -6,55 +6,64 @@
 
 #include <concepts>
 #include <cstdint>
-#include <stdexcept>
 
 namespace shared::util {
 
-class QueueFullException : public std::exception {
-public:
-    const char* what() const throw() {
-        return "Queue is full.";
-    }
-};
-
-class QueueEmptyException : public std::exception {
-public:
-    const char* what() const throw() {
-        return "Queue is empty.";
-    }
-};
-
-template <typename T, uint32_t length>
+template <typename T, size_t length>
+    requires(length > 0)
 class CircularQueue {
 public:
-    CircularQueue() : head_(0), tail_(0), full_flag(false) {}
+    CircularQueue() : head_(0), tail_(0), full_flag_(false) {}
 
+    /// @brief Adds an item to the back of the queue.
+    /// @param item
+    /// @note If the queue is full, no action is performed. Check `.is_full()`
+    /// before enqueuing
     void Enqueue(T item) {
-        if (full_flag) {
-            throw QueueFullException();
+        if (full_flag_) {
+            return;
         }
         buffer_[head_] = item;
         head_ = (head_ + 1) % length;
 
-        full_flag = (head_ == tail_);
+        empty_flag_ = false;
+        full_flag_ = (head_ == tail_);
     }
 
+    /// @brief Pop and return the item at the front of the queue.
+    /// @return The front item.
+    /// @note If the queue is empty, `0` is returned. Check `.is_empty()` before
+    /// dequeuing.
     T Dequeue() {
-        if (tail_ == head_ && !full_flag) {
-            throw QueueEmptyException();
+        if (tail_ == head_ && !full_flag_) {
+            return 0;
         }
 
         T item = buffer_[tail_];
         tail_ = (tail_ + 1) % length;
-        full_flag = false;
+
+        full_flag_ = false;
+        empty_flag_ = (head_ == tail_);
+
         return item;
+    }
+
+    /// @brief Returns `true` if the queue is full.
+    bool is_full() const {
+        return full_flag_;
+    }
+
+    /// @brief Returns `true` is the queue is empty.
+    bool is_empty() const {
+        return empty_flag_;
     }
 
 private:
     T buffer_[length];
-    int tail_;
-    int head_;
-    bool full_flag;
+    size_t head_;
+    size_t tail_;
+    bool full_flag_;
+    bool empty_flag_;
 };
 
 }  // namespace shared::util
