@@ -26,7 +26,7 @@ template <Numeric T, int array_length>
 T GetMinimum(T* array, int* idx_min) {
     // start minimum at greatest value
     T cur_min = std::numeric_limits<T>().max();
-    T temp_idx_min = -1;
+    int temp_idx_min = -1;
 
     for (int i = 0; i < array_length; i++) {
         if (array[i] < cur_min) {
