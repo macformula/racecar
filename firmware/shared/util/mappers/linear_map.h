@@ -1,26 +1,33 @@
 /// @author Blake Freer
 /// @date 2024-01-22
 
-#ifndef SHARED_UTIL_MAPPERS_LINEAR_MAP_H_
-#define SHARED_UTIL_MAPPERS_LINEAR_MAP_H_
+#pragma once
 
 #include "mapper.h"
 
 namespace shared::util {
 
-class LinearMap : public Mapper {
+/**
+ * @brief Evaluates a linear function of the form `m * x + b`
+ * @tparam T Ouput type.
+ * @tparam U Input type.
+ */
+template <typename T, typename U = T>
+class LinearMap : public Mapper<T, U> {
 public:
-    LinearMap(float m, float b) : m_(m), b_(b) {}
+    LinearMap(T m, T b) : m_(m), b_(b) {}
 
-    float Evaluate(float key) const override {
-        return key * m_ + b_;
+    static inline T Evaluate(U x, T m, T b) {
+        return m * x + b;
+    }
+
+    inline T Evaluate(U x) const override {
+        return LinearMap<T, U>::Evaluate(x, m_, b_);
     }
 
 private:
-    const float m_;
-    const float b_;
+    const T m_;
+    const T b_;
 };
 
 }  // namespace shared::util
-
-#endif

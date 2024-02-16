@@ -1,29 +1,55 @@
 /// @author Blake Freer
 /// @date 2024-01-22
 
-#ifndef SHARED_UTIL_MAPPERS_MAPPER_H_
-#define SHARED_UTIL_MAPPERS_MAPPER_H_
+#pragma once
+
+#include <concepts>
 
 namespace shared::util {
 
+/**
+ * @brief Evaulates a function.
+ * @tparam T Output type.
+ * @tparam U Input type, by default equal to `T`.
+ * @note `T` and `U` must be numeric types.
+ */
+template <typename T, typename U = T>
+    requires(std::is_arithmetic_v<T>)
 class Mapper {
 public:
-    virtual float Evaluate(float key) const = 0;
+    virtual T Evaluate(U x) const = 0;
 };
 
-class CompositeMap : public Mapper {
+/**
+ * @brief Evaluates composed functions
+ * @tparam Tf Output type of `f()`.
+ * @tparam Tg Output type of `g()`.
+ * @tparam U Input type to `g()`.
+ */
+template <typename Tf, typename Tg = Tf, typename U = Tg>
+class CompositeMap : public Mapper<Tf, U> {
 public:
-    CompositeMap(Mapper& f, Mapper& g) : f_(f), g_(g) {}
+    /**
+     * @param f Outer function.
+     * @param g Inner function.
+     * @note Evaulates `f(g(x))`, so `g` is applied before `f`.
+     */
+    CompositeMap(Mapper<Tf, Tg>& f, Mapper<Tg, U>& g) : f_(f), g_(g) {}
 
-    float Evaluate(float key) const override {
-        return f_.Evaluate(g_.Evaluate(key));
+    /**
+     * @brief Evaluates `f(g(x))`.
+     */
+    static inline Tf Evaulate(Tg x, Mapper<Tf, Tg>& f, Mapper<Tg, U>& g) {
+        return f.Evaluate(g.Evaluate(x));
+    }
+
+    inline Tf Evaluate(U x) const override {
+        CompositeMap::Evaluate(x, f_, g_);
     }
 
 private:
-    const Mapper& f_;
-    const Mapper& g_;
+    const Mapper<Tf, Tg>& f_;
+    const Mapper<Tg, U>& g_;
 };
 
 }  // namespace shared::util
-
-#endif

@@ -1,14 +1,18 @@
 /// @author Blake Freer
 /// @date 2024-01-22
 
-#ifndef SHARED_UTIL_MAPPERS_QUADRATIC_MAP_
-#define SHARED_UTIL_MAPPERS_QUADRATIC_MAP_
+#pragma once
 
 #include "mapper.h"
 
 namespace shared::util {
-
-class QuadraticMap : public Mapper {
+/**
+ * @brief Evaluates a quadratic function `f(x) = axx + bx + c`.
+ * @tparam T Ouptut type.
+ * @tparam U Input type.
+ */
+template <typename T, typename U = T>
+class QuadraticMap : public Mapper<T, U> {
 public:
     QuadraticMap(float a, float b, float c) : a_(a), b_(b), c_(c) {}
 
@@ -23,5 +27,3 @@ private:
 };
 
 }  // namespace shared::util
-
-#endif
