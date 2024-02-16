@@ -7,23 +7,27 @@
 
 namespace shared::util {
 /**
- * @brief Evaluates a quadratic function `f(x) = axx + bx + c`.
+ * @brief Evaluates the quadratic function `f(x) = axx + bx + c`.
  * @tparam T Ouptut type.
  * @tparam U Input type.
  */
 template <typename T, typename U = T>
 class QuadraticMap : public Mapper<T, U> {
 public:
-    QuadraticMap(float a, float b, float c) : a_(a), b_(b), c_(c) {}
+    QuadraticMap(T a, T b, T c) : a_(a), b_(b), c_(c) {}
 
-    float Evaluate(float key) const override {
-        return a_ * key * key + b_ * key + c_;
+    static inline T Evaluate(U x, T a, T b, T c) {
+        return a * x * x + b * x + c;
+    }
+
+    inline T Evaluate(U x) const override {
+        return QuadraticMap<T, U>::Evaluate(x, a_, b_, c_);
     }
 
 private:
-    const float a_;
-    const float b_;
-    const float c_;
+    const T a_;
+    const T b_;
+    const T c_;
 };
 
 }  // namespace shared::util

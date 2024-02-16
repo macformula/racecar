@@ -8,7 +8,7 @@
 namespace shared::util {
 
 /**
- * @brief Evaluates a linear function of the form `m * x + b`
+ * @brief Evaluates the linear function `f(x) = mx + b`.
  * @tparam T Ouput type.
  * @tparam U Input type.
  */

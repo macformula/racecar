@@ -8,21 +8,21 @@
 namespace shared::util {
 
 /**
- * @brief Constant function, always evaluates to the same value.
+ * @brief Evaluates the constant function `f(x) = c`.
  * @tparam T Output type.
  * @tparam U Input type.
- * @note Included for completeness.
+ * @note Always evaluates to the same value. Included for completeness.
  */
 template <typename T, typename U = T>
 class ConstantMap : public Mapper<T, T> {
 public:
     ConstantMap(T c) : c_(c) {}
 
-    static inline T Evaluate(T x, T c) {
+    static inline T Evaluate(U x, T c) {
         return c;
     }
 
-    inline T Evaluate(T x) const override {
+    inline T Evaluate(U x) const override {
         return c_;
     }
 
