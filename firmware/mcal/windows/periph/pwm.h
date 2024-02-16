@@ -14,7 +14,7 @@ namespace mcal::periph {
 
 class PWMOutput : public shared::periph::PWMOutput {
 public:
-    PWMOutput(std::string name) : name_(name), clamp_duty(0, 100) {}
+    PWMOutput(std::string name) : name_(name) {}
 
     void Start() override {
         std::cout << "Starting PWM " << name_ << std::endl;
@@ -25,8 +25,8 @@ public:
     }
 
     void SetDutyCycle(float duty_cycle) override {
-        // clamp duty cycle between 0, 100
-        duty_cycle_ = clamp_duty.Evaluate(duty_cycle);
+        duty_cycle_ =
+            shared::util::Clamper<float>::Evaluate(duty_cycle, 0, 100);
 
         std::cout << "Setting PWM " << name_ << " to " << duty_cycle_ << "%"
                   << std::endl;
@@ -40,7 +40,6 @@ public:
 private:
     std::string name_;
     float duty_cycle_;
-    shared::util::Clamper clamp_duty;
 };
 
 }  // namespace mcal::periph

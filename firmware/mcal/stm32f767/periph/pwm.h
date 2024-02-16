@@ -15,7 +15,7 @@ namespace mcal::periph {
 class PWMOutput : public shared::periph::PWMOutput {
 public:
     PWMOutput(TIM_HandleTypeDef* htim, uint32_t channel)
-        : htim_(htim), channel_(channel), clamp_duty(0, 100) {}
+        : htim_(htim), channel_(channel) {}
 
     void Start() override {
         HAL_TIM_PWM_Start(htim_, channel_);
@@ -25,8 +25,7 @@ public:
     }
 
     void SetDutyCycle(float duty_cycle) override {
-        // clamp duty cycle between 0 and 100
-        duty_cycle = clamp_duty.Evaluate(duty_cycle);
+        duty_cycle = shared::util::Clamper<float>::Evaluate(duty_cycle, 0, 100);
 
         uint32_t pulse = uint32_t(duty_cycle / 100.0f *
                                   float(__HAL_TIM_GetAutoreload(htim_)));
@@ -43,7 +42,6 @@ public:
 private:
     TIM_HandleTypeDef* htim_;
     uint32_t channel_;
-    shared::util::Clamper clamp_duty;
 };
 
 }  // namespace mcal::periph

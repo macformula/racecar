@@ -2,8 +2,7 @@
 /// @date 2023-11-18
 /// @brief Functions and types that will be used in TMS main
 
-#ifndef TMS_APP_H_
-#define TMS_APP_H_
+#pragma once
 
 #include <cstddef>
 #include <cstdint>
@@ -22,14 +21,15 @@
 
 class TempSensor {
 public:
-    TempSensor(shared::periph::ADCInput& adc, shared::util::Mapper& adc_to_temp)
+    TempSensor(shared::periph::ADCInput& adc,
+               shared::util::Mapper<float>& adc_to_temp)
         : adc_(adc), adc_to_temp_(adc_to_temp), rolling_temperature_() {}
 
 private:
     shared::periph::ADCInput& adc_;
 
     /// @brief Mapping from raw ADC value to temperature [degC]
-    shared::util::Mapper& adc_to_temp_;
+    shared::util::Mapper<float>& adc_to_temp_;
 
     shared::util::MovingAverage<float, 20> rolling_temperature_;
 
@@ -81,7 +81,7 @@ private:
 class FanContoller {
 public:
     FanContoller(shared::periph::PWMOutput& pwm,
-                 shared::util::Mapper& temp_to_pwm, float pwm_step_size)
+                 shared::util::Mapper<float>& temp_to_pwm, float pwm_step_size)
         : pwm_(pwm), temp_to_pwm_(temp_to_pwm), pwm_step_size_(pwm_step_size) {}
 
     void Update(float temperature) {
@@ -89,7 +89,7 @@ public:
         float current_pwm = pwm_.GetDutyCycle();
         float delta_pwm = desired_pwm - current_pwm;
 
-        float pwm_step = shared::util::Clamper::Evaluate(
+        float pwm_step = shared::util::Clamper<float>::Evaluate(
             delta_pwm, -pwm_step_size_, pwm_step_size_);
 
         pwm_.SetDutyCycle(current_pwm + pwm_step);
@@ -104,7 +104,7 @@ private:
     shared::periph::PWMOutput& pwm_;
 
     /// @brief Mapping from temperature [degC] to fan PWM
-    shared::util::Mapper& temp_to_pwm_;
+    shared::util::Mapper<float>& temp_to_pwm_;
 
     /// @brief Largest allowable PWM per Update() call.
     /// @todo Express pwm_step_size in pwm/second and use Update() frequency to
@@ -128,5 +128,3 @@ public:
         digital_output_.SetLow();
     }
 };
-
-#endif

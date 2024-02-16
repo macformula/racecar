@@ -95,6 +95,9 @@ TempSensor temp_sensors[] = {
 const int kSensorCount = 6;
 TempSensorManager<kSensorCount> ts_manager{temp_sensors};
 
+/***************************************************************
+    Program Logic
+***************************************************************/
 void UpdateTask() {
     static float temperature_buffer[kSensorCount];
 
@@ -122,6 +125,7 @@ int main(void) {
     fan_controller.StartPWM(0);
 
     while (true) {
+        UpdateTask();
     }
 
     return 0;
