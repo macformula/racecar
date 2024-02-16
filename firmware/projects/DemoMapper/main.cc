@@ -11,8 +11,8 @@
 
 using namespace shared::util;  // for demo only
 
-LinearMap double_plus_one{2, 1};
-Clamper zero_to_ten{5, 10};
+LinearMap<float, float> double_plus_one{2, 1};
+Clamper<float, float> zero_to_ten{5, 10};
 
 CompositeMap comp1{zero_to_ten, double_plus_one};
 CompositeMap comp2{double_plus_one, comp1};

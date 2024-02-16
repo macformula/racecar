@@ -44,7 +44,7 @@ public:
     }
 
     inline Tf Evaluate(U x) const override {
-        CompositeMap::Evaluate(x, f_, g_);
+        return CompositeMap<Tf, Tg, U>::Evaluate(x, f_, g_);
     }
 
 private:
