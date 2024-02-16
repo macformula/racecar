@@ -8,8 +8,8 @@
 namespace shared::util {
 
 /**
- * @brief Evaulates a function.
- * @tparam T Output type.
+ * @brief Evaluates a function.
+ * @tparam T Output type, by default `float`.
  * @tparam U Input type, by default equal to `T`.
  * @note `T` and `U` must be numeric types.
  */
@@ -39,7 +39,8 @@ public:
     /**
      * @brief Evaluates `f(g(x))`.
      */
-    static inline Tf Evaulate(Tg x, Mapper<Tf, Tg>& f, Mapper<Tg, U>& g) {
+    static inline Tf Evaluate(Tg x, const Mapper<Tf, Tg>& f,
+                              const Mapper<Tg, U>& g) {
         return f.Evaluate(g.Evaluate(x));
     }
 

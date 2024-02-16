@@ -11,14 +11,14 @@
 
 using namespace shared::util;  // for demo only
 
-LinearMap<float, float> double_plus_one{2, 1};
-Clamper<float, float> zero_to_ten{5, 10};
+LinearMap<float> double_plus_one{2, 1.0f};
+Clamper<float> zero_to_ten{5, 10};
 
 CompositeMap comp1{zero_to_ten, double_plus_one};
 CompositeMap comp2{double_plus_one, comp1};
 
 int main(void) {
-    for (int i = 0; i < 7; i++) {
+    for (float i = 0; i < 7; i += 0.7) {
         float v1 = double_plus_one.Evaluate(i);
         float v2 = comp1.Evaluate(i);
         float v3 = comp2.Evaluate(i);

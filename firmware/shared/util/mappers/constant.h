@@ -8,7 +8,7 @@
 namespace shared::util {
 
 /**
- * @brief Evaluates the constant function `f(x) = c`.
+ * @brief Evaluates the constant function `f(x) = c)`.
  * @tparam T Output type.
  * @tparam U Input type.
  * @note Always evaluates to the same value. Included for completeness.
