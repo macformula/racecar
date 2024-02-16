@@ -14,7 +14,8 @@
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Device/ST/STM32F7xx/Include",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Core/Include",
                 "${workspaceFolder}/firmware/drivers/stm32f767/",
-                "${workspaceFolder}/firmware/drivers/stm32f767/STM32F7xx_HAL_Driver/Inc"
+                "${workspaceFolder}/firmware/drivers/stm32f767/STM32F7xx_HAL_Driver/Inc",
+                "${workspaceFolder}/third-party/etl/include"
             ],
             "defines": [
                 "_DEBUG",
@@ -32,7 +33,9 @@
         {
             "name": "Raspi",
             "includePath": [
-                "/Users/sparent/Library/CloudStorage/OneDrive-McMasterUniversity/MACFE/macformula/racecar/firmware"
+                "${workspaceFolder}/firmware",
+                "${workspaceFolder}/third-party/etl/include",
+                "${workspaceFolder}/firmware/shared/comms/can"
             ],
             "defines": [
                 "_DEBUG",

@@ -79,5 +79,6 @@
 		"semaphore": "cpp",
 		"stop_token": "cpp"
 	},
-	"C_Cpp.default.compilerPath": "/usr/bin/aarch64-linux-gnu-g++"
+	"C_Cpp.default.compilerPath": "/usr/bin/aarch64-linux-gnu-g++",
+	"editor.formatOnSave": true
 }
