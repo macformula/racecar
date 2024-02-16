@@ -1,8 +1,7 @@
 /// @author Samuel Parent
 /// @date 2024-01-06
 
-#ifndef SHARED_PERIPH_ADC_H_
-#define SHARED_PERIPH_ADC_H_
+#pragma once
 
 #include <cstdint>
 #include <concepts>
@@ -12,14 +11,10 @@
 
 namespace shared::periph {
 
-template <typename T>
-concept CanBase = requires(T obj, shared::comms::can::RawCanMsg can_rx_msgs[], const shared::comms::can::RawCanMsg& can_tx_msg) {
-	{ obj.Send(can_tx_msg) } -> std::same_as<void>;
-	{ obj.ReadQueue(can_rx_msgs) } -> std::same_as<void>;
-
-	std::is_base_of_v<util::Peripheral, T>;
+class CanBase : public util::Peripheral {
+public:
+	virtual void Send(const RawCanMsg&) = 0;
+	virtual void ReadQueue(RawCanMsg[]) = 0;
 };
 
 } // namespace shared::periph
-
-#endif

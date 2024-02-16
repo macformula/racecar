@@ -1,20 +1,25 @@
 /// @author Samuel Parent
 /// @date 2024-01-06
 
-#ifndef SHARED_COMMS_CAN_CAN_MSG_H_
-#define SHARED_COMMS_CAN_CAN_MSG_H_
+#pragma once
 
 #include <cstdint>
-#include <concepts>
 
 #include "shared/comms/can/raw_can_msg.h"
 
 namespace shared::comms::can {
 
-class CanMsg {
+class CanMsg {};
+
+class CanRxMsg : public CanMsg {
 private:
-	RawCanMsg Pack();
-	void Unpack(const RawCanMsg& raw_msg);
+	virtual RawCanMsg Pack() = 0;;
+	virtual uint32_t GetId() = 0;
+};
+
+class CanTxMsg : public CanMsg {
+private:
+	virtual void Pack(RawCanMsg&) = 0;
 };
 
 } // namespace shared::comms::can

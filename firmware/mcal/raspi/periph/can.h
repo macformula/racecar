@@ -22,7 +22,7 @@
 
 namespace mcal::periph {
 
-class CanBase : public shared::util::Peripheral {
+class RaspiCanBase : public shared::periph::CanBase {
 private:
     struct sockaddr_can sock_addr_;
     struct ifreq ifreq_;
@@ -31,7 +31,7 @@ private:
     int sock_;
 
 public:
-	CanBase(std::string can_iface) : iface_(can_iface) {};
+	RaspiCanBase(std::string can_iface) : iface_(can_iface) {};
 
     void Setup() {
         // Create a socket
@@ -57,6 +57,7 @@ public:
 
         return;
     }
+    
 	void Send(const shared::comms::can::RawCanMsg& can_tx_msg) {
         frame_.can_id = can_tx_msg.header.id;
         frame_.can_dlc = can_tx_msg.header.data_len;
@@ -69,6 +70,7 @@ public:
         
         return;
     }
+
     void ReadQueue(shared::comms::can::RawCanMsg can_rx_msgs[]) {
         return;
     }
