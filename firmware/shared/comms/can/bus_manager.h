@@ -18,28 +18,28 @@ private:
     constexpr static int kMaxMsgQueueLen = 100;
 
     using CanId = uint32_t;
-    using RxMessageRegistry = etl::unordered_map<CanId, CanRxMsg, num_rx_messages>;
 
     shared::periph::CanBase& can_base_;
 
     RawCanMsg rx_queue_[kMaxMsgQueueLen] = {0};
 
-    RxMessageRegistry& rx_msg_registry_;
+    const etl::unordered_map<CanId, CanRxMsg, num_rx_messages>& rx_msg_registry_;
 public:
-    BusManager(CanBase& can_base, 
-        RxMessageRegistry& rx_msg_registry) : 
+    BusManager(
+        CanBase& can_base, 
+        const etl::unordered_map<CanId, CanRxMsg, num_rx_messages>& rx_msg_registry) : 
         can_base_(can_base),
         rx_msgs_registry_(rx_msg_registry) {};
 
-    void Send(CanTxMsg& msg) {
-        RawCanMsg raw_msg = 0;
+    void Send(CanTxMsg msg) {
+        RawCanMsg raw_msg;
 
         msg.Pack(raw_msg);
 
         can_base_.Send(raw_msg);
     }
 
-    void Update(CanRxMsg& rx_msg) {
+    void Update() {
         can_base_.ReadQueue(rx_queue_);
 
         for (const auto& raw_msg : rx_queue_) {
@@ -49,11 +49,9 @@ public:
         return;
     }
 
+    
     void Read(CanRxMsg& rx_msg) {
-        // TODO: Add mutex lock here.
         rx_msg = rx_msg_registry_[rx_msg.GetId()];
-        
-        return;
     }
 };
 

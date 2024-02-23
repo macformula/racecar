@@ -13,8 +13,8 @@ class CanMsg {};
 
 class CanRxMsg : public CanMsg {
 private:
-	virtual RawCanMsg Pack() = 0;;
-	virtual uint32_t GetId() = 0;
+	virtual Unpack(const RawCanMsg&) = 0;
+	virtual uint32_t Id() = 0;
 };
 
 class CanTxMsg : public CanMsg {

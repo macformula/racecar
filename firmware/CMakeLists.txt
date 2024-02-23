@@ -63,6 +63,7 @@ add_subdirectory(${DIR_PLATFORM})  # provides "bindings" (library)
 target_include_directories(main
 PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/third-party/etl/include/
 	${DIR_PLATFORM}  # provides the platform-specific bindings header
 )
 

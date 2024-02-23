@@ -34,8 +34,11 @@
             "name": "Raspi",
             "includePath": [
                 "${workspaceFolder}/firmware",
-                "${workspaceFolder}/third-party/etl/include",
-                "${workspaceFolder}/firmware/shared/comms/can"
+                "${workspaceFolder}/firmware/third-party/etl/include",
+                "${workspaceFolder}/firmware/shared/comms/can",
+                "${workspaceFolder}/firmware/projects/${PROJECT}/inc",
+                "${workspaceFolder}/firmware/projects/${PROJECT}/generated",
+                "${workspaceFolder}/firmware/projects/${PROJECT}/platforms/raspi"
             ],
             "defines": [
                 "_DEBUG",
