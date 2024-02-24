@@ -71,9 +71,19 @@ PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}  # provides app.h
 )
 
+target_include_directories(os
+PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}  # provides app.h
+)
+
 target_link_libraries(main
 PRIVATE
 	bindings
+)
+
+target_link_libraries(main
+PRIVATE
+	os
 )
 
 set(POSTBUILD_FILE ${DIR_MCAL_PLATFORM}/PostBuild.cmake)

@@ -4,6 +4,8 @@
 #pragma once
 
 #include "shared/periph/gpio.h"
+#include "shared/os/semaphore.h"
+#include "shared/util/os.h"
 
 class Button {
 private:
@@ -36,3 +38,22 @@ public:
         dig_output_.SetLow();
     }
 };
+
+// class Semaphore {
+// private:
+// public:
+//     Semaphore_& sem;
+//     Semaphore(Semaphore_& sem_) : sem(sem_) {}
+
+//     shared::util::osStatus Wait() {
+//         return sem.Wait();
+//     }
+
+//     shared::util::osStatus Post() {
+//         return sem.Post();
+//     }
+
+//     uint32_t GetCount() {
+//         return sem.GetCount();
+//     }
+// };
