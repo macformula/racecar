@@ -31,7 +31,9 @@ private:
     /// @brief Mapping from raw ADC value to temperature [degC]
     shared::util::Mapper<float>& adc_to_temp_;
 
-    shared::util::MovingAverage<float, 20> rolling_temperature_;
+    static constexpr int moving_average_length_ = 20;
+    shared::util::MovingAverage<float, moving_average_length_>
+        rolling_temperature_;
 
     float Read() {
         uint32_t adc_value = adc_.Read();
@@ -49,7 +51,7 @@ private:
         return rolling_temperature_.GetValue();
     }
 
-    template <int i>
+    template <int sensor_count_>
     friend class TempSensorManager;
 };
 
@@ -81,11 +83,16 @@ private:
 class FanContoller {
 public:
     FanContoller(shared::periph::PWMOutput& pwm,
-                 shared::util::Mapper<float>& temp_to_pwm, float pwm_step_size)
-        : pwm_(pwm), temp_to_pwm_(temp_to_pwm), pwm_step_size_(pwm_step_size) {}
+                 shared::util::Mapper<float>& temp_to_power,
+                 float pwm_step_size)
+        : pwm_(pwm),
+          temp_to_power_(temp_to_power),
+          pwm_step_size_(pwm_step_size) {}
 
     void Update(float temperature) {
-        static float desired_pwm = temp_to_pwm_.Evaluate(temperature);
+        // convert pwm = 100 - power since the fan runs on inverse logic
+        // ex. pwm=20% => fan is running at 80%
+        float desired_pwm = 100.0f - temp_to_power_.Evaluate(temperature);
         float current_pwm = pwm_.GetDutyCycle();
         float delta_pwm = desired_pwm - current_pwm;
 
@@ -104,7 +111,7 @@ private:
     shared::periph::PWMOutput& pwm_;
 
     /// @brief Mapping from temperature [degC] to fan PWM
-    shared::util::Mapper<float>& temp_to_pwm_;
+    shared::util::Mapper<float>& temp_to_power_;
 
     /// @brief Largest allowable PWM per Update() call.
     /// @todo Express pwm_step_size in pwm/second and use Update() frequency to

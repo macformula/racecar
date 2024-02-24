@@ -27,7 +27,7 @@ extern void Log(std::string);
 }  // namespace bindings
 
 // clang-format off
-const float temp_lut_data[33][2] = {
+const float temp_lut_data[][2] = {
     {2475, 120},
 	{2480, 115},
 	{2485, 110},
@@ -65,15 +65,20 @@ const float temp_lut_data[33][2] = {
 // clang-format on
 
 // clang-format off
-const float fan_lut_data[3][2] = {
+const float fan_lut_data[][2] = {
 	{-1,    0},
 	{ 0,   30},
 	{50,  100}
 };
 // clang-format on
 
-shared::util::LookupTable<33> temp_adc_lut{temp_lut_data};
-shared::util::LookupTable<3> fan_temp_lut{fan_lut_data};
+constexpr int temp_lut_length =
+    (sizeof(temp_lut_data)) / (sizeof(temp_lut_data[0]));
+shared::util::LookupTable<temp_lut_length> temp_adc_lut{temp_lut_data};
+
+constexpr int fan_lut_length =
+    (sizeof(fan_lut_data) / (sizeof(fan_lut_data[0])));
+shared::util::LookupTable<fan_lut_length> fan_temp_lut{fan_lut_data};
 
 /***************************************************************
     Create app objects
