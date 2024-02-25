@@ -1,1 +1,5 @@
 **/build/
+
+
+# ignore vscode configuration files: all future changes
+.vscode/
