@@ -1,14 +1,16 @@
 /// @author Blake Freer
 /// @date 2023-12-25
 
-#include "bindings.h"
-
 #include <iostream>
 
-namespace bindings {
+#include "mcal/windows/periph/adc.h"
+#include "mcal/windows/periph/gpio.h"
+#include "shared/periph/adc.h"
+#include "shared/periph/gpio.h"
 
-mcal::periph::DigitalInput button_di{"Button"};
-mcal::periph::DigitalOutput indicator_do{"Indicator"};
+namespace mcal {}  // namespace mcal
+
+namespace bindings {
 
 void Initialize() {
     std::cout << "Initializing Windows..." << std::endl;

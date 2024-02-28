@@ -13,6 +13,18 @@
 #include "mcal/stm32f767/periph/adc.h"
 #include "mcal/stm32f767/periph/gpio.h"
 
+namespace mcal {
+mcal::periph::DigitalOutput driver_speaker{RTDS_EN_GPIO_Port, RTDS_EN_Pin};
+mcal::periph::DigitalOutput brake_light{BRAKE_LIGHT_EN_GPIO_Port,
+                                        BRAKE_LIGHT_EN_Pin};
+mcal::periph::ADCInput accel_pedal_1{&hadc1, ADC_CHANNEL_10};
+mcal::periph::ADCInput accel_pedal_2{&hadc1, ADC_CHANNEL_11};
+mcal::periph::ADCInput steering_wheel{&hadc1, ADC_CHANNEL_12};
+mcal::periph::ADCInput brake_pedal{&hadc1, ADC_CHANNEL_13};
+mcal::periph::DigitalInput driver_button{START_BUTTON_N_GPIO_Port,
+                                         START_BUTTON_N_Pin};
+}  // namespace mcal
+
 extern "C" {
 /**
  * This requires extern since it is not declared in a header, only defined
@@ -23,15 +35,13 @@ void SystemClock_Config();
 
 namespace bindings {
 
-mcal::periph::DigitalOutput driver_speaker{RTDS_EN_GPIO_Port, RTDS_EN_Pin};
-mcal::periph::DigitalOutput brake_light{BRAKE_LIGHT_EN_GPIO_Port,
-                                        BRAKE_LIGHT_EN_Pin};
-mcal::periph::ADCInput accel_pedal_1{&hadc1, ADC_CHANNEL_10};
-mcal::periph::ADCInput accel_pedal_2{&hadc1, ADC_CHANNEL_11};
-mcal::periph::ADCInput steering_wheel{&hadc1, ADC_CHANNEL_12};
-mcal::periph::ADCInput brake_pedal{&hadc1, ADC_CHANNEL_13};
-mcal::periph::DigitalInput driver_button{START_BUTTON_N_GPIO_Port,
-                                         START_BUTTON_N_Pin};
+shared::periph::DigitalOutput& driver_speaker = mcal::driver_speaker;
+shared::periph::DigitalOutput& brake_light = mcal::brake_light;
+shared::periph::ADCInput& accel_pedal_1 = mcal::accel_pedal_1;
+shared::periph::ADCInput& accel_pedal_2 = mcal::accel_pedal_2;
+shared::periph::ADCInput& steering_wheel = mcal::steering_wheel;
+shared::periph::ADCInput& brake_pedal = mcal::brake_pedal;
+shared::periph::DigitalInput& driver_button = mcal::driver_button;
 
 void Initialize() {
     SystemClock_Config();
