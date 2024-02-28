@@ -19,5 +19,6 @@ The following dependecies must be installed __and added to your PATH variable.__
 * Java SE Runtime Environment 13.0.2 or newer - [link](https://www.oracle.com/java/technologies/javase/jdk13-archive-downloads.html)
   * Verify with `java --version`
 
-* STM32CubeMX - [link](https://www.st.com/content/st_com/en/stm32cubemx.html)
+* STM32CubeMX 6.8.1 - [link](https://www.st.com/en/development-tools/stm32cubemx)
+  * Select the 6.8.1 version in the __Get Software__ section.
   * Verify by running `stm32cubemx`. The application should open.
