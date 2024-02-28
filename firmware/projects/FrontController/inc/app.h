@@ -1,36 +1,107 @@
 /// @author Blake Freer
-/// @date 2023-12-25
+/// @date 2024-02-27
 
+#pragma once
+
+#include <cstdint>
+
+#include "shared/periph/adc.h"
 #include "shared/periph/gpio.h"
 
-class Button {
-private:
-    shared::periph::DigitalInput& di_;
-
+class Pedal {
 public:
-    Button(shared::periph::DigitalInput& di) : di_(di){};
+    Pedal(shared::periph::ADCInput& adc) : adc_(adc) {}
 
-    bool Read() {
-        return di_.Read();
+    uint16_t Update() {
+        /// @todo Map adc value to 0-100% range for standardization.
+        position_ = uint16_t(adc_.Read());
+        return GetPosition();
     }
+
+    /**
+     * @brief Get the position from the last `Update()` call.
+     */
+    inline uint16_t GetPosition() const {
+        return position_;
+    }
+
+private:
+    uint16_t position_ = 0;
+    shared::periph::ADCInput& adc_;
 };
 
-class Indicator {
-private:
+class SteeringWheel {
 public:
-    shared::periph::DigitalOutput& dig_output_;
-    Indicator(shared::periph::DigitalOutput& dig_output)
-        : dig_output_(dig_output) {}
+    SteeringWheel(shared::periph::ADCInput& adc) : adc_(adc) {}
 
-    void Set(bool value) {
-        dig_output_.Set(value);
+    uint16_t Update() {
+        /// @todo Map to range [-1, 1] or [-180 deg, +180 deg] etc
+        position_ = uint16_t(adc_.Read());
+        return GetPosition();
     }
 
-    void High() {
-        dig_output_.SetHigh();
+    /**
+     * @brief Get the position from the last `Update()` call.
+     */
+    inline uint16_t GetPosition() const {
+        return position_;
     }
 
-    void Low() {
-        dig_output_.SetLow();
+private:
+    uint16_t position_ = 0;
+    shared::periph::ADCInput& adc_;
+};
+
+class Speaker {
+public:
+    bool state;
+
+    Speaker(shared::periph::DigitalOutput& digital_output)
+        : digital_output_(digital_output), state(false) {}
+
+    void Update() const {
+        digital_output_.Set(state);
     }
+
+private:
+    shared::periph::DigitalOutput& digital_output_;
+};
+
+class BrakeLight {
+public:
+    bool state;
+
+    BrakeLight(shared::periph::DigitalOutput& digital_output)
+        : digital_output_(digital_output), state(false) {}
+
+    void Update() const {
+        digital_output_.Set(state);
+    }
+
+private:
+    shared::periph::DigitalOutput& digital_output_;
+};
+
+class Button {
+public:
+    Button(shared::periph::DigitalInput& digital_input)
+        : digital_input_(digital_input) {}
+
+    bool Read() const {
+        return digital_input_.Read();
+    }
+
+private:
+    shared::periph::DigitalInput& digital_input_;
+};
+
+class AMKMotor {
+public:
+    AMKMotor() {}
+
+    /**
+     * @brief NOT IMPLEMENTED
+     * @todo implement
+     */
+    void Transmit(void* placeholder) {}
 };
