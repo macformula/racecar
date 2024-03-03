@@ -125,6 +125,8 @@ int main(void)
   {
     /* USER CODE END WHILE */
 
+    //HAL Write Pin
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
