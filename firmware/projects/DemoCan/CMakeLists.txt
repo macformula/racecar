@@ -11,8 +11,8 @@ PRIVATE
 
 target_include_directories(main
 PRIVATE
-	${CMAKE_CURRENT_SOURCE_DIR}/inc
 	${CMAKE_CURRENT_SOURCE_DIR}/generated
+	${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
 
 # Notice that we don't include any mcal/ subdirectory in this CMake file.

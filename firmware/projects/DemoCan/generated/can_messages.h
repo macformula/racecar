@@ -5,17 +5,14 @@
 
 #include "shared/comms/can/can_msg.h"
 #include "shared/comms/can/raw_can_msg.h"
-#include "shared/comms/can/bus_manager.h"
 
 namespace generated::can {
 
-constexpr uint16_t kNumCanRxMesssages = 1;
-
 class TmsBroadcast : public shared::comms::can::CanTxMsg {
 private:
-    constexpr uint32_t kCanId = 0x1839F380;
-    constexpr uint8_t kDlc = 8;
-    constexpr bool kIsExtFrame = true;
+    static constexpr shared::comms::can::CanId kCanId = 0x1839F380;
+    static constexpr uint8_t kDlc = 8;
+    static constexpr bool kIsExtFrame = true;
 
     void Pack(shared::comms::can::RawCanMsg& raw_msg) {
         raw_msg.header.id = kCanId;
@@ -41,16 +38,21 @@ public:
     uint8_t high_therm_id = 0;
     uint8_t low_therm_id = 0;
     uint8_t checksum = 0;
-
-    template<uint16_t num_rx_messages>
-    class BusManager;
 };
 
 class DebugLedOverride : public shared::comms::can::CanRxMsg {
 private:
-    constexpr uint32_t kCanId = 0x645;
-    constexpr uint8_t kDlc = 1;
-    constexpr bool kIsExtFrame = true;
+    static constexpr shared::comms::can::CanId kCanId = 0x645;
+    static constexpr uint8_t kDlc = 1;
+    static constexpr bool kIsExtFrame = true;
+
+public:
+    void Clone(shared::comms::can::CanRxMsg& rx_msg) {
+        DebugLedOverride* p_rx_msg = static_cast<DebugLedOverride*>(&rx_msg);
+
+        p_rx_msg->set_green_led = set_green_led;
+        p_rx_msg->set_red_led = set_red_led;
+    }
 
     void Unpack(const shared::comms::can::RawCanMsg& raw_msg) {
         if (raw_msg.header.id == kCanId) {
@@ -58,16 +60,16 @@ private:
             set_red_led = static_cast<uint8_t>(raw_msg.data[0] & 0b00000010);
         }
     }
-    
-public:
+
+    shared::comms::can::CanId Id() {
+        return kCanId;
+    }
+
     DebugLedOverride(){};
     ~DebugLedOverride(){};
-    
+
     bool set_green_led = false;
     bool set_red_led = false;
-
-    template<uint16_t num_rx_messages>
-    class BusManager;
 };
 
-} // namespace generated::can
+}  // namespace generated::can

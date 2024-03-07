@@ -60,16 +60,19 @@ add_executable(main)
 add_subdirectory(${DIR_PROJECT})  # provides "main" (executable)
 add_subdirectory(${DIR_PLATFORM})  # provides "bindings" (library)
 
+set(DIR_ETL "${CMAKE_CURRENT_SOURCE_DIR}/third-party/etl/include")
 target_include_directories(main
 PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/third-party/etl/include/
+    ${DIR_ETL}
 	${DIR_PLATFORM}  # provides the platform-specific bindings header
 )
 
 target_include_directories(bindings
 PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}  # provides app.h
+	${DIR_GENERATED}
+    ${DIR_ETL}
 )
 
 target_link_libraries(main

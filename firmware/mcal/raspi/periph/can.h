@@ -18,11 +18,11 @@
 #include <linux/can/raw.h>
 
 #include "shared/comms/can/raw_can_msg.h"
-#include "shared/util/peripheral.h"
+#include "shared/periph/can.h"
 
 namespace mcal::periph {
 
-class RaspiCanBase : public shared::periph::CanBase {
+class CanBase : public shared::periph::CanBase {
 private:
     struct sockaddr_can sock_addr_;
     struct ifreq ifreq_;
@@ -31,7 +31,7 @@ private:
     int sock_;
 
 public:
-	RaspiCanBase(std::string can_iface) : iface_(can_iface) {};
+	CanBase(std::string can_iface) : iface_(can_iface) {};
 
     void Setup() {
         // Create a socket

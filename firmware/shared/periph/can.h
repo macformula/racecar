@@ -3,18 +3,18 @@
 
 #pragma once
 
-#include <cstdint>
 #include <concepts>
+#include <cstdint>
 
-#include "shared/util/peripheral.h"
 #include "shared/comms/can/raw_can_msg.h"
+#include "shared/util/peripheral.h"
 
 namespace shared::periph {
 
 class CanBase : public util::Peripheral {
 public:
-	virtual void Send(const RawCanMsg&) = 0;
-	virtual void ReadQueue(RawCanMsg[]) = 0;
+    virtual void Send(const shared::comms::can::RawCanMsg&) = 0;
+    virtual void ReadQueue(shared::comms::can::RawCanMsg[]) = 0;
 };
 
-} // namespace shared::periph
+}  // namespace shared::periph

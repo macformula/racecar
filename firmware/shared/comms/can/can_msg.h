@@ -9,19 +9,22 @@
 
 namespace shared::comms::can {
 
+class DemoCanVehMsgRegistry;
+
 class CanMsg {};
 
 class CanRxMsg : public CanMsg {
-private:
-	virtual Unpack(const RawCanMsg&) = 0;
-	virtual uint32_t Id() = 0;
+public:
+    virtual void Clone(CanRxMsg&) = 0;
+    virtual void Unpack(const RawCanMsg&) = 0;
+    virtual CanId Id() = 0;
 };
 
 class CanTxMsg : public CanMsg {
 private:
-	virtual void Pack(RawCanMsg&) = 0;
+    virtual void Pack(RawCanMsg&) = 0;
+
+    friend class CanBus;
 };
 
-} // namespace shared::comms::can
-
-#endif // SHARED_COMMS_CAN_CAN_MSG_H_
+}  // namespace shared::comms::can

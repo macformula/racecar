@@ -1,51 +1,57 @@
 /// @author Samuel Parent
 /// @date 2024-01-16
 
-#include "shared/comms/can/bus_manager.h"
-#include "generated/can_messages.h"
-
-#include "etl/unordered_map.h"
-
-#include <thread>
 #include <chrono>
 #include <iostream>
+#include <thread>
+
+#include "bindings.h"
+#include "generated/can_messages.h"
+#include "generated/msg_registry.h"
+#include "shared/comms/can/can_bus.h"
 
 namespace bindings {
+extern mcal::periph::CanBase veh_can_base;
 extern void Initialize();
-extern mcal::periph::CanBase veh_can;
 }  // namespace bindings
 
-namespace generated::can {
-extern etl::unordered_map rx_message_registry;
-} // namespace generated::can
+generated::can::DemoCanVehMsgRegistry veh_can_regitry{};
 
-shared::comms::can::BusManager<kNumCanRxMesssages> bus_manager{
-    bindings::veh_can,
-    generated::can::rx_message::registry,
+shared::comms::can::CanBus veh_can_bus{
+    bindings::veh_can_base,
+    veh_can_regitry,
 };
 
 int main(void) {
     bindings::Initialize();
     std::chrono::milliseconds duration(1000);
 
-    TmsBroadcast tms = {0};
+    generated::can::TmsBroadcast tms_msg;
+    generated::can::DebugLedOverride led_msg;
 
     int i = 0;
     while (1) {
         std::this_thread::sleep_for(duration);
 
-        tms.therm_module_num = i++;
-        tms.num_therm_enabled = i++;
-        tms.low_therm_value = i++;
-        tms.high_therm_value = i++;
-        tms.avg_therm_value = i++;
-        tms.high_therm_id = i++;
-        tms.low_therm_id = i++;
-        tms.checksum = i++;
-        
+        veh_can_bus.Update();
+
+        veh_can_bus.Read(led_msg);
+
+        std::cout << "led green: " << led_msg.set_green_led
+                  << "led red: " << led_msg.set_red_led << std::endl;
+
+        tms_msg.therm_module_num = i++;
+        tms_msg.num_therm_enabled = i++;
+        tms_msg.low_therm_value = i++;
+        tms_msg.high_therm_value = i++;
+        tms_msg.avg_therm_value = i++;
+        tms_msg.high_therm_id = i++;
+        tms_msg.low_therm_id = i++;
+        tms_msg.checksum = i++;
+
         std::cout << "Sending tms message" << std::endl;
 
-        bus_manager.Send(tms);
+        veh_can_bus.Send(tms_msg);
     }
 
     return 0;

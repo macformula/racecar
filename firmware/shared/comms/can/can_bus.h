@@ -1,0 +1,49 @@
+/// @author Samuel Parent
+/// @date 2024-02-09
+
+#pragma once
+
+#include "shared/comms/can/can_msg.h"
+#include "shared/comms/can/msg_registry.h"
+#include "shared/comms/can/raw_can_msg.h"
+#include "shared/periph/can.h"
+
+namespace shared::comms::can {
+
+class CanBus {
+private:
+    constexpr static int kMaxMsgQueueLen = 100;
+
+    shared::periph::CanBase& can_base_;
+    MsgRegistry& rx_msg_registry_;
+
+    RawCanMsg rx_queue_[kMaxMsgQueueLen] = {0};
+public:
+    CanBus(shared::periph::CanBase& can_base,
+               MsgRegistry& rx_msg_registry)
+        : can_base_(can_base), rx_msg_registry_(rx_msg_registry){};
+
+    void Send(CanTxMsg& msg) {
+        RawCanMsg raw_msg;
+
+        msg.Pack(raw_msg);
+
+        can_base_.Send(raw_msg);
+    }
+
+    void Update() {
+        can_base_.ReadQueue(rx_queue_);
+
+        for (const auto& raw_msg : rx_queue_) {
+            rx_msg_registry_.Unpack(raw_msg);
+        }
+
+        return;
+    }
+
+    void Read(CanRxMsg& rx_msg) {
+        rx_msg_registry_.Clone(rx_msg);
+    }
+};
+
+}  // namespace shared::comms::can

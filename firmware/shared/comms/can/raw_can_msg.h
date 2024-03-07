@@ -10,8 +10,10 @@ namespace shared::comms::can {
 
 constexpr uint8_t kMaxMsgBytes = 8;
 
+using CanId = uint32_t;
+
 struct CanHeader {
-    uint32_t id;
+    CanId id;
     uint8_t data_len;
     bool is_extended_frame;
 };
