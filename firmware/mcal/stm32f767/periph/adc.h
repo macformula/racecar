@@ -14,11 +14,20 @@ namespace mcal::periph {
 class ADCInput : public shared::periph::ADCInput {
 private:
     ADC_HandleTypeDef* hadc_;
+    uint32_t adc_channel_;
 
 public:
-    ADCInput(ADC_HandleTypeDef* hadc) : hadc_(hadc){};
+    ADCInput(ADC_HandleTypeDef* hadc, uint32_t adc_channel)
+        : hadc_(hadc), adc_channel_(adc_channel){};
 
     void Start() override {
+        ADC_ChannelConfTypeDef adc_config = {
+            .Channel = adc_channel_,
+            .Rank = ADC_REGULAR_RANK_1,
+            .SamplingTime = ADC_SAMPLETIME_28CYCLES,
+            .Offset = 0};
+
+        HAL_ADC_ConfigChannel(hadc_, &adc_config);
         HAL_ADC_Start(hadc_);
     }
 

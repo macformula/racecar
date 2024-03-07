@@ -5,17 +5,31 @@
 #include <string>
 
 #include "app.h"
-#include "bindings.h"
+#include "shared/periph/adc.h"
+#include "shared/periph/gpio.h"
+#include "shared/periph/pwm.h"
+#include "shared/util/algorithms/arrays.h"
+#include "shared/util/mappers/lookup_table.h"
 
 namespace bindings {
-extern mcal::periph::PWMOutput fan_controller_pwm;
-extern mcal::periph::ADCInput temp_sensor_adc;
+extern shared::periph::ADCInput& temp_sensor_adc_1;
+extern shared::periph::ADCInput& temp_sensor_adc_2;
+extern shared::periph::ADCInput& temp_sensor_adc_3;
+extern shared::periph::ADCInput& temp_sensor_adc_4;
+extern shared::periph::ADCInput& temp_sensor_adc_5;
+extern shared::periph::ADCInput& temp_sensor_adc_6;
+
+extern shared::periph::PWMOutput& fan_controller_pwm;
+
+extern shared::periph::DigitalOutput& debug_do_green;
+extern shared::periph::DigitalOutput& debug_do_red;
+
 extern void Initialize();
 extern void Log(std::string);
 }  // namespace bindings
 
 // clang-format off
-const float temp_lut_data[33][2] = {
+const float temp_lut_data[][2] = {
     {2475, 120},
 	{2480, 115},
 	{2485, 110},
@@ -52,20 +66,73 @@ const float temp_lut_data[33][2] = {
 };
 // clang-format on
 
-shared::util::LookupTable temp_lut{temp_lut_data, 33};
+// clang-format off
+const float fan_lut_data[][2] = {
+	{-1,    0},
+	{ 0,   30},
+	{50,  100}
+};
+// clang-format on
 
-FanContoller fan_controller{bindings::fan_controller_pwm};
-TempSensor temp_sensor{bindings::temp_sensor_adc, temp_lut};
+constexpr int temp_lut_length =
+    (sizeof(temp_lut_data)) / (sizeof(temp_lut_data[0]));
+shared::util::LookupTable<temp_lut_length> temp_adc_lut{temp_lut_data};
+
+constexpr int fan_lut_length =
+    (sizeof(fan_lut_data) / (sizeof(fan_lut_data[0])));
+shared::util::LookupTable<fan_lut_length> fan_temp_lut{fan_lut_data};
+
+/***************************************************************
+    Create app objects
+***************************************************************/
+FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut, 2.0f};
+
+DebugIndicator debug_green{bindings::debug_do_green};
+DebugIndicator debug_red{bindings::debug_do_red};
+
+TempSensor temp_sensors[] = {
+    TempSensor{bindings::temp_sensor_adc_1, temp_adc_lut},
+    TempSensor{bindings::temp_sensor_adc_2, temp_adc_lut},
+    TempSensor{bindings::temp_sensor_adc_3, temp_adc_lut},
+    TempSensor{bindings::temp_sensor_adc_4, temp_adc_lut},
+    TempSensor{bindings::temp_sensor_adc_5, temp_adc_lut},
+    TempSensor{bindings::temp_sensor_adc_6, temp_adc_lut},
+};
+
+const int kSensorCount = 6;
+TempSensorManager<kSensorCount> ts_manager{temp_sensors};
+
+/***************************************************************
+    Program Logic
+***************************************************************/
+void UpdateTask() {
+    static float temperature_buffer[kSensorCount];
+
+    ts_manager.Update();
+    ts_manager.GetTemperatures(temperature_buffer);
+
+    float temp_min =
+        shared::util::GetMinimum<float, kSensorCount>(temperature_buffer, NULL);
+
+    float temp_max =
+        shared::util::GetMaximum<float, kSensorCount>(temperature_buffer, NULL);
+
+    float temp_avg =
+        shared::util::GetAverage<float, kSensorCount>(temperature_buffer);
+
+    /// TODO: Pack & send CAN message
+
+    /// TODO: Needs PWM_Sweep_Nonblocking
+    fan_controller.Update(temp_avg);
+}
 
 int main(void) {
     bindings::Initialize();
 
-    fan_controller.StartPWM();
+    fan_controller.StartPWM(0);
 
     while (true) {
-        float temperature = temp_sensor.Read();
-        bindings::Log("Temperature: " + std::to_string(temperature));
-        fan_controller.Set(temperature);
+        UpdateTask();
     }
 
     return 0;

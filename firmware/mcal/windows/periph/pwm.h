@@ -5,40 +5,40 @@
 #define MCAL_WINDOWS_PERIPH_PWM_H_
 
 #include <iostream>
+#include <string>
 
 #include "shared/periph/pwm.h"
+#include "shared/util/mappers/clamper.h"
 
 namespace mcal::periph {
 
 class PWMOutput : public shared::periph::PWMOutput {
 public:
-    PWMOutput(int channel) : channel_(channel) {}
+    PWMOutput(std::string name) : name_(name) {}
 
     void Start() override {
-        std::cout << "Starting PWM " << channel_ << std::endl;
+        std::cout << "Starting PWM " << name_ << std::endl;
     }
 
     void Stop() override {
-        std::cout << "Stopping PWM " << channel_ << std::endl;
+        std::cout << "Stopping PWM " << name_ << std::endl;
     }
 
     void SetDutyCycle(float duty_cycle) override {
-        // clamp duty cycle between 0, 100
-        duty_cycle_ = (duty_cycle < 0.0f)     ? 0.0f
-                      : (duty_cycle > 100.0f) ? 100.0f
-                                              : duty_cycle;
+        duty_cycle_ =
+            shared::util::Clamper<float>::Evaluate(duty_cycle, 0, 100);
 
-        std::cout << "Setting PWM " << channel_ << " to " << duty_cycle_ << "%"
+        std::cout << "Setting PWM " << name_ << " to " << duty_cycle_ << "%"
                   << std::endl;
     }
     float GetDutyCycle() override {
-        std::cout << "PWM " << channel_ << " has duty cycle " << duty_cycle_
-                  << "%" << std::endl;
+        std::cout << "PWM " << name_ << " has duty cycle " << duty_cycle_ << "%"
+                  << std::endl;
         return duty_cycle_;
     }
 
 private:
-    int channel_;
+    std::string name_;
     float duty_cycle_;
 };
 

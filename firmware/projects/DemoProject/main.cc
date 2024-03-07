@@ -2,11 +2,10 @@
 /// @date 2023-12-25
 
 #include "app.h"
-#include "bindings.h"
 
 namespace bindings {
-extern mcal::periph::DigitalInput button_di;
-extern mcal::periph::DigitalOutput indicator_do;
+extern shared::periph::DigitalInput& button_di;
+extern shared::periph::DigitalOutput& indicator_do;
 extern void Initialize();
 }  // namespace bindings
 

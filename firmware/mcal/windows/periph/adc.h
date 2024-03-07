@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <string>
 
 #include "shared/periph/adc.h"
 
@@ -13,10 +14,10 @@ namespace mcal::periph {
 
 class ADCInput : public shared::periph::ADCInput {
 public:
-    ADCInput(int channel) : channel_(channel) {}
+    ADCInput(std::string name) : name_(name) {}
 
     void Start() override {
-        std::cout << "Reading ADC Channel " << channel_ << "..." << std::endl;
+        std::cout << "Reading ADC " << name_ << "..." << std::endl;
     }
 
     uint32_t Read() override {
@@ -29,7 +30,7 @@ public:
     }
 
 private:
-    int channel_;
+    std::string name_;
 };
 
 }  // namespace mcal::periph
