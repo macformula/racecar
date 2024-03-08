@@ -17,10 +17,8 @@ private:
     shared::periph::CanBase& can_base_;
     MsgRegistry& rx_msg_registry_;
 
-    RawCanMsg rx_queue_[kMaxMsgQueueLen] = {0};
 public:
-    CanBus(shared::periph::CanBase& can_base,
-               MsgRegistry& rx_msg_registry)
+    CanBus(shared::periph::CanBase& can_base, MsgRegistry& rx_msg_registry)
         : can_base_(can_base), rx_msg_registry_(rx_msg_registry){};
 
     void Send(CanTxMsg& msg) {
@@ -32,17 +30,23 @@ public:
     }
 
     void Update() {
-        can_base_.ReadQueue(rx_queue_);
+        RawCanMsg rx_queue[kMaxMsgQueueLen] = {0};
 
-        for (const auto& raw_msg : rx_queue_) {
-            rx_msg_registry_.Unpack(raw_msg);
+        std::cerr << "Reading queue" << std::endl;
+
+        can_base_.ReadQueue(rx_queue, kMaxMsgQueueLen);
+
+        std::cerr << "Unpacking messages" << std::endl;
+
+        for (const auto& raw_msg : rx_queue) {
+            rx_msg_registry_.SetMessage(raw_msg);
         }
 
         return;
     }
 
     void Read(CanRxMsg& rx_msg) {
-        rx_msg_registry_.Clone(rx_msg);
+        rx_msg_registry_.GetMessage(rx_msg);
     }
 };
 

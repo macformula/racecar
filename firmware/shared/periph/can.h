@@ -14,7 +14,7 @@ namespace shared::periph {
 class CanBase : public util::Peripheral {
 public:
     virtual void Send(const shared::comms::can::RawCanMsg&) = 0;
-    virtual void ReadQueue(shared::comms::can::RawCanMsg[]) = 0;
+    virtual void ReadQueue(shared::comms::can::RawCanMsg[], size_t len) = 0;
 };
 
 }  // namespace shared::periph

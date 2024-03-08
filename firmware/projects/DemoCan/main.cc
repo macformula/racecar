@@ -38,7 +38,7 @@ int main(void) {
         veh_can_bus.Read(led_msg);
 
         std::cout << "led green: " << led_msg.set_green_led
-                  << "led red: " << led_msg.set_red_led << std::endl;
+                  << " led red: " << led_msg.set_red_led << std::endl;
 
         tms_msg.therm_module_num = i++;
         tms_msg.num_therm_enabled = i++;
@@ -48,8 +48,6 @@ int main(void) {
         tms_msg.high_therm_id = i++;
         tms_msg.low_therm_id = i++;
         tms_msg.checksum = i++;
-
-        std::cout << "Sending tms message" << std::endl;
 
         veh_can_bus.Send(tms_msg);
     }

@@ -9,8 +9,8 @@ namespace shared::comms::can {
 
 class MsgRegistry {
 public:
-    virtual void Unpack(const RawCanMsg&) = 0;
-    virtual void Clone(CanRxMsg&) = 0;
+    virtual bool SetMessage(const RawCanMsg&) = 0;
+    virtual bool GetMessage(CanRxMsg&) = 0;
 };
 
 }  // namespace shared::comms::can
