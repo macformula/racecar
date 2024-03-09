@@ -12,9 +12,18 @@ clean: FORCE
 	rm $(BUILD_DIR) -rf
 
 deepclean: clean
-	@echo "Deleting generated files and directories in $(CUBEMX_DIR) that are ignored by Git"
+ifeq ($(findstring stm32,$(PLATFORM)),stm32)
+	@echo "Deleting files and directories in $(CUBEMX_DIR) that are ignored by Git"
 	@cd $(CUBEMX_DIR) && \
-		git check-ignore * | xargs -I{} rm -rf "{}"
+		for file in $$(ls -R); do \
+			if git check-ignore "$$file" >/dev/null; then \
+				echo "Deleting $$file"; \
+				rm -rf "$$file"; \
+			fi; \
+		done
+else
+	@echo "Skipping deepclean for platform $(PLATFORM)"
+endif
 
 st-flash: build
 	st-flash --reset write $(BUILD_DIR)/main.bin 0x08000000
