@@ -11,6 +11,8 @@
 
 namespace mcal::os {
 
+
+// TODO: Add comments and handle errors more robustly
 class Fifo final : public shared::osDataType::Fifo  {
 private:
     osMessageQueueId_t* fifo_id;
@@ -36,7 +38,7 @@ public:
     uint32_t GetMessageSize() override {
         return osMessageQueueGetMsgSize(*fifo_id);
     }
-    
+
     uint32_t GetCount() override {
         return osMessageQueueGetCount(*fifo_id);
     }

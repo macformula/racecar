@@ -12,6 +12,7 @@
 
 namespace mcal::os {
 
+// TODO: Add comments and handle errors more robustly
 class Semaphore final : public shared::osDataType::Semaphore  {
 private:
     osSemaphoreId_t* sem_id;

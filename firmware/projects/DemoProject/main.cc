@@ -30,10 +30,10 @@ Indicator indicator2{bindings::indicator2_do};
 bool btn_value;
 
 int main(void) {
-    os::InitializeKernel();
 
     bindings::Initialize();
 
+    os::InitializeKernel();
     os::StartKernel();
 
     for (;;)
@@ -44,8 +44,8 @@ int main(void) {
     return 0;
 }
 
-// TODO: 
 
+// TODO: try to convert this to interrupt based
 void StartTestTask(void *argument) {
     bool val = true;
     uint32_t delayTime = shared::os::GetTickCount();
