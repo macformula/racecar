@@ -29,6 +29,10 @@ PUBLIC
 	Drivers/STM32F7xx_HAL_Driver/Inc
 	Drivers/STM32F7xx_HAL_Driver/Inc/Legacy
 	Inc
+	Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
+	Middlewares/Third_Party/FreeRTOS/Source/include
+	Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1
+	Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang
 )
 
 # The rest of the file specifies parameters required to link the object files.

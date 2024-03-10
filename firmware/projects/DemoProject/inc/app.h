@@ -2,6 +2,12 @@
 /// @date 2023-12-25
 
 #include "shared/periph/gpio.h"
+#include "shared/os/semaphore.h"
+#include "shared/os/mutex.h"
+#include "shared/os/fifo.h"
+#include "shared/os/timer.h"
+#include "shared/os/tick.h"
+#include "shared/util/os.h"
 
 class Button {
 private:
@@ -34,3 +40,22 @@ public:
         dig_output_.SetLow();
     }
 };
+
+// class Semaphore {
+// private:
+// public:
+//     Semaphore_& sem;
+//     Semaphore(Semaphore_& sem_) : sem(sem_) {}
+
+//     shared::util::osStatus Wait() {
+//         return sem.Wait();
+//     }
+
+//     shared::util::osStatus Post() {
+//         return sem.Post();
+//     }
+
+//     uint32_t GetCount() {
+//         return sem.GetCount();
+//     }
+// };
