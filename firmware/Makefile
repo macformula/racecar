@@ -15,12 +15,7 @@ deepclean: clean
 ifeq ($(findstring stm32,$(PLATFORM)),stm32)
 	@echo "Deleting files and directories in $(CUBEMX_DIR) that are ignored by Git"
 	@cd $(CUBEMX_DIR) && \
-		for file in $$(ls -R); do \
-			if git check-ignore "$$file" >/dev/null; then \
-				echo "Deleting $$file"; \
-				rm -rf "$$file"; \
-			fi; \
-		done
+		find | xargs git check-ignore | xargs rm -rf
 else
 	@echo "Skipping deepclean for platform $(PLATFORM)"
 endif
