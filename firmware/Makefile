@@ -8,7 +8,7 @@ build: FORCE
 	cmake --build $(BUILD_DIR)
 
 clean: FORCE
-	rm $(BUILD_DIR) -rf
+	rm -rf $(BUILD_DIR)
 
 st-flash: build
 	st-flash --reset write $(BUILD_DIR)/main.bin 0x08000000
