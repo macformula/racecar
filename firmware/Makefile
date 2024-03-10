@@ -9,7 +9,7 @@ build: FORCE
 	cmake --build $(BUILD_DIR)
 
 clean: FORCE
-	rm $(BUILD_DIR) -rf
+	rm -rf $(BUILD_DIR)
 
 deepclean: clean
 ifeq ($(findstring stm32,$(PLATFORM)),stm32)
