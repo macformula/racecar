@@ -5,11 +5,9 @@
 
 #include <cstdint>
 
-// tried singleton, now will try function declaration
 namespace shared::os {
-
 void Tick(uint32_t ticks);
 void TickUntil(uint32_t ticks);
 uint32_t GetTickCount();
 
-}
+}   // namespace shared::os
