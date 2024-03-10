@@ -23,5 +23,5 @@ uint32_t GetTickCount() {
     return osKernelGetTickCount();
 }
 
-}
+}  // namespace shared::os
 
