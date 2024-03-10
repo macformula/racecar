@@ -11,6 +11,7 @@
 
 namespace mcal::os {
 
+// TODO: Add comments and handle errors more robustly
 class Mutex final : public shared::osDataType::Mutex  {
 private:
     osMutexId_t* mutex_id;

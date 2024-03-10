@@ -9,6 +9,7 @@
 #include "shared/os/tick.h"
 #include "cmsis_os2.h"
 
+// TODO: Add comments and handle errors more robustly
 namespace shared::os {
 void Tick(uint32_t ticks) {
     osDelay(ticks);
