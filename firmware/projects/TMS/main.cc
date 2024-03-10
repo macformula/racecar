@@ -10,6 +10,7 @@
 #include "shared/periph/pwm.h"
 #include "shared/util/algorithms/arrays.h"
 #include "shared/util/mappers/lookup_table.h"
+#include "shared/os/tick.h"
 
 namespace bindings {
 extern shared::periph::ADCInput& temp_sensor_adc_1;
@@ -27,6 +28,15 @@ extern shared::periph::DigitalOutput& debug_do_red;
 extern void Initialize();
 extern void Log(std::string);
 }  // namespace bindings
+
+namespace os {
+extern void InitializeKernel();
+extern void StartKernel();
+}   // namespace os
+
+extern "C" {
+void StartUpdateTask(void *argument);
+}
 
 // clang-format off
 const float temp_lut_data[][2] = {
@@ -129,11 +139,17 @@ void UpdateTask() {
 int main(void) {
     bindings::Initialize();
 
-    fan_controller.StartPWM(0);
-
-    while (true) {
-        UpdateTask();
-    }
+	os::InitializeKernel();
+    os::StartKernel();
 
     return 0;
+}
+
+void StartUpdateTask(void *argument) {
+	fan_controller.StartPWM(0);
+
+	for (;;) {
+		UpdateTask();
+		shared::os::Tick(100);
+	}
 }
