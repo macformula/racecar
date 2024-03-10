@@ -1,8 +1,7 @@
 /// @author Matteo Tullo
 /// @date 2024-02-02
 
-#ifndef MCAL_STM32F767_OS_SEMAPHORE_H_
-#define MCAL_STM32F767_OS_SEMAPHORE_H_
+#pragma once
 
 #include <cstdint>
 
@@ -36,5 +35,3 @@ public:
 };
 
 }  // namespace mcal::os
-
-#endif
