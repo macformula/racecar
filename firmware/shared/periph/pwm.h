@@ -18,5 +18,3 @@ public:
 };
 
 }  // namespace shared::periph
-
-#endif

@@ -22,5 +22,3 @@ private:
 };
 
 }  // namespace shared::util
-
-#endif

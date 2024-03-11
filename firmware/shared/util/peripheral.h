@@ -24,5 +24,3 @@ class Peripheral {
 };
 
 } // namespace shared::util
-
-#endif

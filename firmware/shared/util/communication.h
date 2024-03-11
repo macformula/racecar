@@ -11,5 +11,3 @@ namespace shared::util {
 class communication_base : private Noncopyable {};
 
 }  // namespace shared::util
-
-#endif
