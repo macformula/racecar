@@ -1,6 +1,8 @@
 /// @author Blake Freer
 /// @date 2023-12-25
 
+#pragma once
+
 #include "shared/periph/gpio.h"
 
 class Button {

@@ -1,8 +1,7 @@
 /// @author Blake Freer
 /// @date 2023-11-08
 
-#ifndef SHARED_PERIPH_GPIO_H_
-#define SHARED_PERIPH_GPIO_H_
+#pragma once
 
 #include "shared/util/peripheral.h"
 

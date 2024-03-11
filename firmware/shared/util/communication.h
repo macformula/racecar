@@ -1,8 +1,7 @@
 /// @author Blake Freer
 /// @date 2023-10-14
 
-#ifndef SHARED_UTIL_COMMUNICATION_H_
-#define SHARED_UTIL_COMMUNICATION_H_
+#pragma once
 
 #include "shared/util/noncopyable.h"
 

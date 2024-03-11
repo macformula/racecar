@@ -1,8 +1,7 @@
 /// @author Blake Freer
 /// @date 2023-12-10
 
-#ifndef MCAL_WINDOWS_PERIPH_ADC_H_
-#define MCAL_WINDOWS_PERIPH_ADC_H_
+#pragma once
 
 #include <cstdint>
 #include <iostream>

@@ -2,8 +2,7 @@
 /// @date 2023-10-14
 /// @note Taken from Christopher Kormanyos
 
-#ifndef SHARED_UTIL_NONCOPYABLE_H_
-#define SHARED_UTIL_NONCOPYABLE_H_
+#pragma once
 
 namespace shared::util {
 

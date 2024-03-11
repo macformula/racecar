@@ -1,8 +1,7 @@
 /// @author Blake Freer
 /// @date 2023-11-09
 
-#ifndef MCAL_STM32F767_PERIPH_ADC_H_
-#define MCAL_STM32F767_PERIPH_ADC_H_
+#pragma once
 
 #include <cstdint>
 
