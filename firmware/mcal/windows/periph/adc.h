@@ -33,5 +33,3 @@ private:
 };
 
 }  // namespace mcal::periph
-
-#endif

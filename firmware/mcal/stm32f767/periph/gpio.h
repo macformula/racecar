@@ -45,5 +45,3 @@ public:
 };
 
 }  // namespace mcal::periph
-
-#endif
