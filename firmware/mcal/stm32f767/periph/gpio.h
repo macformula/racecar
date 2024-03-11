@@ -1,8 +1,7 @@
 /// @author Blake Freer
 /// @date 2023-11-08
 
-#ifndef MCAL_STM32F767_PERIPH_GPIO_H_
-#define MCAL_STM32F767_PERIPH_GPIO_H_
+#pragma once
 
 #include <cstdint>
 

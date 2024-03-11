@@ -1,8 +1,7 @@
 /// @author Blake Freer
 /// @date 2023-11-08
 
-#ifndef SHARED_UTIL_PERIPHERAL_H_
-#define SHARED_UTIL_PERIPHERAL_H_
+#pragma once
 
 #include "shared/util/noncopyable.h"
 

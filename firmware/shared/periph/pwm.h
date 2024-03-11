@@ -1,8 +1,7 @@
 /// @author Blake Freer
 /// @date 2023-11-09
 
-#ifndef SHARED_PERIPH_PWM_H_
-#define SHARED_PERIPH_PWM_H_
+#pragma once
 
 #include <concepts>
 

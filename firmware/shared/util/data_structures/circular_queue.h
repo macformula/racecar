@@ -1,8 +1,7 @@
 /// @author Blake Freer
 /// @date 2023-12-02
 
-#ifndef SHARED_DATA_STRUCTURES_CIRCULAR_QUEUE_H_
-#define SHARED_DATA_STRUCTURES_CIRCULAR_QUEUE_H_
+#pragma once
 
 #include <concepts>
 #include <cstdint>

@@ -1,8 +1,7 @@
 /// @author Blake Freer
 /// @date 2023-12-02
 
-#ifndef SHARED_UTIL_MOVING_AVERAGE_H_
-#define SHARED_UTIL_MOVING_AVERAGE_H_
+#pragma once
 
 #include <concepts>
 
