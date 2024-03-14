@@ -7,7 +7,7 @@
 # Use the adjacent Makefile to call CMake. It handles the gritty details to ensure
 # options are properly set and the correct build directory is chosen.
 
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.22)
 
 # Get PROJECT option and ensure the folder exists
 
@@ -60,15 +60,19 @@ add_executable(main)
 add_subdirectory(${DIR_PROJECT})  # provides "main" (executable)
 add_subdirectory(${DIR_PLATFORM})  # provides "bindings" (library)
 
+set(DIR_ETL "${CMAKE_CURRENT_SOURCE_DIR}/third-party/etl/include")
 target_include_directories(main
 PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${DIR_ETL}
 	${DIR_PLATFORM}  # provides the platform-specific bindings header
 )
 
 target_include_directories(bindings
 PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}  # provides app.h
+	${DIR_GENERATED}
+    ${DIR_ETL}
 )
 
 target_link_libraries(main
