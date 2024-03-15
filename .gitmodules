@@ -1,0 +1,3 @@
+[submodule "firmware/projects/FrontController/vehicle_control_system"]
+	path = firmware/projects/FrontController/vehicle_control_system
+	url = https://github.com/macformula/vehicle_control_system.git
