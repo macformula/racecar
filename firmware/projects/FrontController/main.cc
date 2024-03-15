@@ -38,7 +38,8 @@ AMKMotor motor_right{};
     Globals
 ***************************************************************/
 
-struct SimulinkInput simulink_buffer_input;
+SimulinkInput simulink_buffer_input;
+SimulinkOutput simulink_buffer_output;
 
 /***************************************************************
     Task Functions
@@ -59,14 +60,14 @@ void TakeInput_Task() {
  * @brief Copy values to the simulink input struct.
  */
 void SetControlSystemInputs_Task() {
-    auto controller_autogen_U = simulink_buffer_input;
+    simulink_buffer_output = ControlSystem::Update(simulink_buffer_input);
 }
 
 void ControllerAutogenStep_Task() {}
 
 void GetControlSystemOutputs_Task() {
-    driver_speaker.state = false;  // replace with ctrl output
-    brake_light.state = false;     // replace with ctrl output
+    driver_speaker.state = simulink_buffer_output.DI_b_driverSpeaker;
+    brake_light.state = simulink_buffer_output.DI_b_brakeLightEn;
 }
 
 void TransmitToAMKMotors_Task() {
@@ -85,6 +86,7 @@ void SetPWMOutputs_Task() {}
 
 int main(void) {
     bindings::Initialize();
+    ControlSystem::Initialize();
 
     while (1) {
     }
