@@ -14,5 +14,26 @@ PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
 
+add_library(controls)
+
+target_link_directories(controls
+PUBLIC
+	${CMAKE_SOURCE_DIR}/vehicle_control_system/src/vehicle_control_system-autogen/controller_autogen_ert_rtw
+)
+
+FILE(GLOB SRC_CONTROLS CONFIGURE_DEPENDS
+	"vehicle_control_system/src/vehicle_control_system-autogen/controller_autogen_ert_rtw/*.c"
+)
+
+message(STATUS ${SRC_CONTROLS})
+
+target_sources(controls
+PUBLIC
+	${SRC_CONTROLS}
+)
+
+target_link_libraries(main PUBLIC controls)
+
+
 # Notice that we don't include any mcal/ subdirectory in this CMake file.
 # The master CMakeLists handles platform selection and library linking.

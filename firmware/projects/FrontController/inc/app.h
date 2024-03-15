@@ -57,7 +57,7 @@ public:
     bool state;
 
     Speaker(shared::periph::DigitalOutput& digital_output)
-        : digital_output_(digital_output), state(false) {}
+        : state(false), digital_output_(digital_output) {}
 
     void Update() const {
         digital_output_.Set(state);
@@ -72,7 +72,7 @@ public:
     bool state;
 
     BrakeLight(shared::periph::DigitalOutput& digital_output)
-        : digital_output_(digital_output), state(false) {}
+        : state(false), digital_output_(digital_output) {}
 
     void Update() const {
         digital_output_.Set(state);
