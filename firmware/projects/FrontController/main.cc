@@ -63,7 +63,6 @@ void SetControlSystemInputs_Task() {
     simulink_buffer_output = ControlSystem::Update(simulink_buffer_input);
 }
 
-void ControllerAutogenStep_Task() {}
 
 void GetControlSystemOutputs_Task() {
     driver_speaker.state = simulink_buffer_output.DI_b_driverSpeaker;
