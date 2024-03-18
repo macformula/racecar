@@ -1,7 +1,7 @@
 /// @author Blake Freer
 /// @date 2024-03-14
 
-#include "../vehicle_control_system/src/vehicle_control_system-autogen/controller_autogen_ert_rtw/controller_autogen.h"
+#include "controller_autogen.h"
 
 typedef ExtU SimulinkInput;
 typedef ExtY SimulinkOutput;

@@ -16,9 +16,9 @@ PRIVATE
 
 add_library(controls)
 
-target_link_directories(controls
+target_include_directories(controls
 PUBLIC
-	${CMAKE_SOURCE_DIR}/vehicle_control_system/src/vehicle_control_system-autogen/controller_autogen_ert_rtw
+	${CMAKE_CURRENT_SOURCE_DIR}/vehicle_control_system/src/vehicle_control_system-autogen/controller_autogen_ert_rtw
 )
 
 FILE(GLOB SRC_CONTROLS CONFIGURE_DEPENDS
