@@ -1,7 +1,9 @@
 /// @author Blake Freer
 /// @date 2024-03-14
 
+extern "C" {  // required since simulink generates c, not c++
 #include "controller_autogen.h"
+}
 
 typedef ExtU SimulinkInput;
 typedef ExtY SimulinkOutput;

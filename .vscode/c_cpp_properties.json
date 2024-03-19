@@ -1,6 +1,6 @@
 {
     "env": {
-        "PROJECT" : "TMS"
+        "PROJECT" : "FrontController"
     },
     "configurations": [
         {
@@ -8,7 +8,7 @@
             "includePath": [
                 "${workspaceFolder}/firmware",
                 "${workspaceFolder}/firmware/projects/${PROJECT}/inc",
-                "${workspaceFolder}/firmware/projects/${PROJECT}/platforms/stm32f767",
+                "${workspaceFolder}/firmware/projects/FrontController/vehicle_control_system/src/vehicle_control_system-autogen/controller_autogen_ert_rtw",
                 "${workspaceFolder}/firmware/projects/${PROJECT}/platforms/stm32f767/cubemx/Inc",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Device",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Device/ST/STM32F7xx/Include",
@@ -33,8 +33,7 @@
             "name": "Windows",
             "includePath": [
                 "${workspaceFolder}/firmware",
-                "${workspaceFolder}/firmware/projects/${PROJECT}/inc",
-                "${workspaceFolder}/firmware/projects/${PROJECT}/platforms/windows"
+                "${workspaceFolder}/firmware/projects/${PROJECT}/inc"
             ],
             "defines": [
                 "_DEBUG",
