@@ -44,6 +44,14 @@
             "cStandard": "c17",
             "cppStandard": "c++20",
             "intelliSenseMode": "windows-gcc-x64"
+        },
+        {
+            "name" : "Test",
+            "includePath": [
+                "${workspaceFolder}/firmware",
+                "${workspaceFolder}/firmware/tests/googletest/googletest/include"
+            ],
+            "cppStandard": "c++20"
         }
     ],
     "version": 4
