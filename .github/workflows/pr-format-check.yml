@@ -1,0 +1,31 @@
+name: Clang Format Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  clang_format_check:
+    name: Check Clang Format
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Set up clang-format
+        run: sudo apt-get install clang-format
+        
+      - name: Check code formatting
+        run: |
+          git-clang-format --style=firmware/.clang-format --binary=clang-format --diff $(git merge-base origin/main HEAD) HEAD -- '*.cpp' '*.h'
+          
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --exit-code || (echo "Code is not formatted properly. Please run clang-format and commit the changes." && exit 1)
+          
+      - name: Complete
+        if: steps.check_changes.outcome == 'success'
+        run: echo "Code is properly formatted."
