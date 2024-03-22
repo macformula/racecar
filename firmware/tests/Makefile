@@ -1,5 +1,5 @@
 test: build
-	ctest --test-dir build
+	ctest --test-dir build --output-on-failure
 
 build: FORCE
 	cmake -Bbuild -S. -Wno-dev
