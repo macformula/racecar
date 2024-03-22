@@ -49,9 +49,12 @@
             "name" : "Test",
             "includePath": [
                 "${workspaceFolder}/firmware",
-                "${workspaceFolder}/firmware/tests/googletest/googletest/include"
+                "${workspaceFolder}/firmware/tests/googletest/googletest/include",
+                "${workspaceFolder}/firmware/projects/${PROJECT}/inc",
             ],
-            "cppStandard": "c++20"
+            "cppStandard": "c++20",
+            "configurationProvider": "ms-vscode.cpptools",
+            "intelliSenseMode": "windows-gcc-x64"
         }
     ],
     "version": 4
