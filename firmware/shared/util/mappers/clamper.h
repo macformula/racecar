@@ -25,7 +25,7 @@ public:
         } else if (value >= upper) {
             return upper;
         } else {
-            return value;
+            return T(value);
         }
     }
 
@@ -34,8 +34,8 @@ public:
     }
 
 private:
-    const float lower_;
-    const float upper_;
+    const T lower_;
+    const T upper_;
 };
 
 }  // namespace shared::util
