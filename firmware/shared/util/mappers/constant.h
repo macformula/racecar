@@ -14,7 +14,7 @@ namespace shared::util {
  * @note Always evaluates to the same value. Included for completeness.
  */
 template <typename T, typename U = T>
-class ConstantMap : public Mapper<T, T> {
+class ConstantMap : public Mapper<T, U> {
 public:
     ConstantMap(T c) : c_(c) {}
 
