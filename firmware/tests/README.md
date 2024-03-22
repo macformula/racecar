@@ -28,4 +28,6 @@ git submodule update --init googletest/
 
 On Window, googletest cannot be compiled with the `Unix Makefiles` CMake generator. I spent several hours trying to solve this with no success, so the tests will be compiled separately by the device's native compiler.
 
-This means that, for now, we cannot test code using the platform-specific compilers. this mostly limits our testing to `shared` code until this is fixed.
+- This means that, for now, we cannot test code using the platform-specific compilers. this mostly limits our testing to `shared` code until this is fixed.
+
+In a similar manner, since `tests` uses a separate build system, it cannot rely on `.cc` files from outside of `tests`; it can only include headers from outside. This would be fixed if the `tests` target was compiled in the regular CMakeLists.txt.
