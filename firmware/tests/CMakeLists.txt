@@ -6,7 +6,6 @@ project(fw_test)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-
 add_subdirectory(googletest)
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
@@ -21,6 +20,12 @@ add_executable(
 	fw_test
 	${ALL_CC_SOURCES}
 )
+
+target_include_directories(fw_test
+	PUBLIC
+	${CMAKE_CURRENT_SOURCE_DIR}/../
+)
+
 target_link_libraries(
 	fw_test
 	gtest_main
