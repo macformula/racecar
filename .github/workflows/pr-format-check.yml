@@ -19,7 +19,8 @@ jobs:
         
       - name: Check code formatting
         run: |
-          git clang-format --style=firmware/.clang-format --diff $(git merge-base main HEAD)..HEAD
+          git clang-format --style=firmware/.clang-format --diff $(git merge-base origin/main HEAD)..HEAD
+
           
       - name: Check for changes
         id: check_changes
