@@ -17,9 +17,14 @@ jobs:
       - name: Set up clang-format
         run: sudo apt-get install clang-format
         
+      - name: Get commit ID of main branch
+        run: |
+          MAIN_COMMIT=$(git rev-parse main)
+          echo "Commit ID of main branch: $MAIN_COMMIT"
+          
       - name: Check code formatting
         run: |
-          git clang-format --style=firmware/.clang-format --diff $(git rev-parse main)..HEAD
+          git clang-format --style=firmware/.clang-format --diff $MAIN_COMMIT..HEAD '*.cpp' '*.h'
           
       - name: Check for changes
         id: check_changes
