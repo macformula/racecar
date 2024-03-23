@@ -12,7 +12,7 @@
 namespace mcal::os {
 
 // TODO: Add comments and handle errors more robustly
-class Mutex final : public shared::osDataType::Mutex  {
+class Mutex final : public shared::os::Mutex  {
 private:
     osMutexId_t* mutex_id;
 
@@ -20,14 +20,14 @@ public:
     Mutex(osMutexId_t* mutex_id_)
         : mutex_id(mutex_id_) {}
 
-    shared::util::osStatus Acquire() override {
+    shared::util::OsStatus Acquire() override {
         // TODO: Make this nonblocking
         osMutexAcquire(*mutex_id, osWaitForever);
-        return shared::util::osStatus::osOk;
+        return shared::util::OsStatus::kOsOk;
     }
-    shared::util::osStatus Release() override {
+    shared::util::OsStatus Release() override {
         osMutexRelease(*mutex_id);
-        return shared::util::osStatus::osOk;
+        return shared::util::OsStatus::kOsOk;
     }
 };
 

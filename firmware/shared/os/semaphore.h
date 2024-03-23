@@ -6,12 +6,12 @@
 #include <cstdint>
 #include "shared/util/os.h"
 
-namespace shared::osDataType {
+namespace shared::os {
 
 class Semaphore {
 public:
-    virtual shared::util::osStatus Acquire() = 0;
-    virtual shared::util::osStatus Release() = 0;
+    virtual shared::util::OsStatus Acquire() = 0;
+    virtual shared::util::OsStatus Release() = 0;
     virtual uint32_t GetCount() = 0;
 };
 

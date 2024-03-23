@@ -13,7 +13,7 @@ namespace mcal::os {
 
 
 // TODO: Add comments and handle errors more robustly
-class Fifo final : public shared::osDataType::Fifo  {
+class Fifo final : public shared::os::Fifo  {
 private:
     osMessageQueueId_t* fifo_id;
 
@@ -21,14 +21,14 @@ public:
     Fifo(osMessageQueueId_t* fifo_id_)
         : fifo_id(fifo_id_) {}
     
-    shared::util::osStatus Put(const void * msg_ptr, uint8_t priority) override {
+    shared::util::OsStatus Put(const void * msg_ptr, uint8_t priority) override {
         osMessageQueuePut(*fifo_id, msg_ptr, priority, 0u);
-        return shared::util::osStatus::osOk;
+        return shared::util::OsStatus::kOsOk;
     }
 
-    shared::util::osStatus Get(void * msg_buff, uint8_t * prio_buff) override {
+    shared::util::OsStatus Get(void * msg_buff, uint8_t * prio_buff) override {
         int ret = osMessageQueueGet(*fifo_id, msg_buff, prio_buff, 0u);
-        return ret == 0 ? shared::util::osStatus::osOk : shared::util::osStatus::osError;
+        return ret == 0 ? shared::util::OsStatus::kOsOk : shared::util::OsStatus::kOsError;
     }
 
     uint32_t GetCapacity() override {
