@@ -10,8 +10,8 @@ namespace shared::osDataType {
 
 class EventFlags {
 public:
-    virtual shared::util::osStatus Acquire() = 0;
-    virtual shared::util::osStatus Release() = 0;
+    virtual shared::util::OsStatus Acquire() = 0;
+    virtual shared::util::OsStatus Release() = 0;
 };
 
 } // namespace shared::os

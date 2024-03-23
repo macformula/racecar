@@ -1,9 +1,7 @@
 /// @author Blake Freer
 /// @date 2023-11-08
 
-// #pragma once
-#ifndef SHARED_UTIL_OS_H_
-#define SHARED_UTIL_OS_H_
+#pragma once
 
 #include "shared/util/noncopyable.h"
 
@@ -15,11 +13,9 @@ class os {
 };
 
 // TODO: Add more verbose error cases
-enum class osStatus : int {
-    osOk = 0,
-    osError
+enum class OsStatus : int {
+    kOsOk = 0,
+    kOsError
 };
 
 } // namespace shared::util
-
-#endif

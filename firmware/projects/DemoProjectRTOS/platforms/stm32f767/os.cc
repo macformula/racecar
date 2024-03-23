@@ -30,10 +30,10 @@ os::Timer timer_test{&messageTimerHandle};
 }   // namespace mcal
 
 namespace os {
-const shared::osDataType::Semaphore& sem_test = mcal::sem_test;
-const shared::osDataType::Mutex& mutex_test = mcal::mutex_test;
-const shared::osDataType::Fifo& message_queue_test = mcal::message_queue_test;
-const shared::osDataType::Timer& timer_test = mcal::timer_test;
+const shared::os::Semaphore& sem_test = mcal::sem_test;
+const shared::os::Mutex& mutex_test = mcal::mutex_test;
+const shared::os::Fifo& message_queue_test = mcal::message_queue_test;
+const shared::os::Timer& timer_test = mcal::timer_test;
 
 void InitializeKernel(void) {
     // TODO: Implement error handling

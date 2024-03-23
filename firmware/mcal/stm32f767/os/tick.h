@@ -6,11 +6,10 @@
 #include <cstdint>
 
 #include "shared/util/os.h"
-#include "shared/os/tick.h"
 #include "cmsis_os2.h"
 
 // TODO: Add comments and handle errors more robustly
-namespace shared::os {
+namespace os {
 void Tick(uint32_t ticks) {
     osDelay(ticks);
 }
@@ -23,5 +22,5 @@ uint32_t GetTickCount() {
     return osKernelGetTickCount();
 }
 
-}  // namespace shared::os
+}  // namespace mcal::os
 

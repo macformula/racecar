@@ -12,7 +12,7 @@
 namespace mcal::os {
 
 // TODO: Add comments and handle errors more robustly
-class Semaphore final : public shared::osDataType::Semaphore  {
+class Semaphore final : public shared::os::Semaphore  {
 private:
     osSemaphoreId_t* sem_id;
 
@@ -20,14 +20,14 @@ public:
     Semaphore(osSemaphoreId_t* sem_id_)
         : sem_id(sem_id_) {}
 
-    shared::util::osStatus Acquire() override {
+    shared::util::OsStatus Acquire() override {
         // TODO: Make this nonblocking
         osSemaphoreAcquire(*sem_id, osWaitForever);
-        return shared::util::osStatus::osOk;
+        return shared::util::OsStatus::kOsOk;
     }
-    shared::util::osStatus Release() override {
+    shared::util::OsStatus Release() override {
         osSemaphoreRelease(*sem_id);
-        return shared::util::osStatus::osOk;
+        return shared::util::OsStatus::kOsOk;
     }
     uint32_t GetCount() override {
         return osSemaphoreGetCount(*sem_id);

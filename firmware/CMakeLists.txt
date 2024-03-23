@@ -71,20 +71,25 @@ PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}  # provides app.h
 )
 
-target_include_directories(os
-PRIVATE
-	${CMAKE_CURRENT_SOURCE_DIR}  # provides app.h
-)
-
 target_link_libraries(main
 PRIVATE
 	bindings
 )
 
-target_link_libraries(main
-PRIVATE
-	os
-)
+# Only link/include RTOS if the project supports RTOS
+# The project needs to provide an underlying OS target
+# in the platform/${PLATFORM_NAME}/CMakeLists.txt
+if(TARGET os)
+	target_include_directories(os
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}
+	)
+
+	target_link_libraries(main
+	PRIVATE
+		os
+	)
+endif()
 
 set(POSTBUILD_FILE ${DIR_MCAL_PLATFORM}/PostBuild.cmake)
 if(EXISTS "${POSTBUILD_FILE}" AND NOT IS_DIRECTORY "${POSTBUILD_FILE}")
@@ -92,24 +97,4 @@ if(EXISTS "${POSTBUILD_FILE}" AND NOT IS_DIRECTORY "${POSTBUILD_FILE}")
 else()
 	message(FATAL_ERROR "${POSTBUILD_FILE} does not exist. If no postbuild actions are required, create the file and leave it empty.")
 endif()
-
-# FreeRTOS code - hack for now
-set(FREERTOS_INCLUDE_DIRECTORIES
-	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
-	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/include
-	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1
-)
-
-set(FREERTOS_SOURCES
-	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/croutine.c
-	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/event_groups.c
-	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/list.c
-	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/queue.c
-	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c
-	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/tasks.c
-	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/timers.c
-	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
-	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1/port.c
-	${CMAKE_CURRENT_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c
-)
 
