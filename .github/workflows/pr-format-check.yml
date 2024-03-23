@@ -1,5 +1,3 @@
-name: Clang Format Check
-
 on:
   pull_request:
     branches:
@@ -13,13 +11,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
         
       - name: Set up clang-format
         run: sudo apt-get install clang-format
         
+      - name: Fetch main branch
+        run: git fetch origin main:main
+        
       - name: Get commit ID of main branch
         run: |
-          MAIN_COMMIT=$(git rev-parse main)
+          MAIN_COMMIT=$(git rev-parse origin/main)
           echo "Commit ID of main branch: $MAIN_COMMIT"
           
       - name: Check code formatting
