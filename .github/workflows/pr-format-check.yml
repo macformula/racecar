@@ -19,7 +19,7 @@ jobs:
         
       - name: Check code formatting
         run: |
-          git-clang-format --style=firmware/.clang-format --binary=clang-format --diff $(git merge-base origin/main HEAD) HEAD -- '*.cpp' '*.h'
+          git-clang-format --style=firmware/.clang-format --binary=clang-format --diff $(git rev-list --ancestry-path origin/main..HEAD | tail -n 1) HEAD -- '*.cpp' '*.h'
           
       - name: Check for changes
         id: check_changes
