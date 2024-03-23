@@ -6,7 +6,9 @@
 
 
 extern "C" {
+
 void SystemClock_Config();
+
 }
 namespace bindings {
 
@@ -17,7 +19,6 @@ void Initialize() {
     HAL_Init();
     MX_CAN_Init();
     veh_can_base.Setup();
-    std::cout << "Initializing STM32..." << std::endl;
 }
 
 } // namespace bindings
