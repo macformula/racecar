@@ -3,15 +3,14 @@
 
 #pragma once
 
-#include <cstdint>
-#include "shared/util/os.h"
+#include "shared/os/os.h"
 
-namespace shared::osDataType {
+namespace shared::os {
 
 class EventFlags {
 public:
-    virtual shared::util::OsStatus Acquire() = 0;
-    virtual shared::util::OsStatus Release() = 0;
+    virtual OsStatus Acquire() = 0;
+    virtual OsStatus Release() = 0;
 };
 
-} // namespace shared::os
+}  // namespace shared::os

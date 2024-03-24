@@ -4,18 +4,19 @@
 #pragma once
 
 #include <cstdint>
-#include "shared/util/os.h"
+
+#include "shared/os/os.h"
 
 namespace shared::os {
 
 class Fifo {
 public:
-    virtual shared::util::OsStatus Put(const void * msg_ptr, uint8_t priority) = 0;
-    virtual shared::util::OsStatus Get(void * msg_buff, uint8_t * prio_buff) = 0;
-    virtual uint32_t GetCapacity() = 0;
-    virtual uint32_t GetMessageSize() = 0;
-    virtual uint32_t GetCount() = 0;
-    virtual uint32_t GetSpaceAvailable() = 0;
+    virtual OsStatus Put(const void* msg_ptr, uint8_t priority) = 0;
+    virtual OsStatus Get(void* msg_buff, uint8_t* prio_buff) = 0;
+    virtual size_t GetCapacity() = 0;
+    virtual size_t GetMessageSize() = 0;
+    virtual size_t GetCount() = 0;
+    virtual size_t GetSpaceAvailable() = 0;
 };
 
-} // namespace shared::os
+}  // namespace shared::os
