@@ -4,15 +4,16 @@
 #pragma once
 
 #include <cstdint>
-#include "shared/util/os.h"
+
+#include "shared/os/os.h"
 
 namespace shared::os {
 
 class Timer {
 public:
-    virtual shared::util::OsStatus Start(uint32_t ticks) = 0;
-    virtual shared::util::OsStatus Stop() = 0;
-    virtual uint32_t IsRunning() = 0;
+    virtual OsStatus Start(uint32_t ticks) = 0;
+    virtual OsStatus Stop() = 0;
+    virtual bool IsRunning() = 0;
 };
 
-} // namespace shared::os
+}  // namespace shared::os

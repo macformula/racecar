@@ -3,16 +3,17 @@
 
 #pragma once
 
-#include <cstdint>
-#include "shared/util/os.h"
+#include <cstddef>
+
+#include "shared/os/os.h"
 
 namespace shared::os {
 
 class Semaphore {
 public:
-    virtual shared::util::OsStatus Acquire() = 0;
-    virtual shared::util::OsStatus Release() = 0;
-    virtual uint32_t GetCount() = 0;
+    virtual OsStatus Acquire() = 0;
+    virtual OsStatus Release() = 0;
+    virtual size_t GetCount() = 0;
 };
 
-} // namespace shared::os
+}  // namespace shared::os
