@@ -2,12 +2,11 @@
 /// @date 2024-02-01
 
 #include "cmsis_os2.h"
-
-#include "mcal/stm32f767/os/semaphore.h"
-#include "mcal/stm32f767/os/mutex.h"
 #include "mcal/stm32f767/os/fifo.h"
-#include "mcal/stm32f767/os/timer.h"
+#include "mcal/stm32f767/os/mutex.h"
+#include "mcal/stm32f767/os/semaphore.h"
 #include "mcal/stm32f767/os/tick.h"
+#include "mcal/stm32f767/os/timer.h"
 
 extern "C" {
 /**
@@ -27,7 +26,7 @@ os::Semaphore sem_test{&testBinarySemaphoreHandle};
 os::Mutex mutex_test{&testMutexHandle};
 os::Fifo message_queue_test{&myTestQueueHandle};
 os::Timer timer_test{&messageTimerHandle};
-}   // namespace mcal
+}  // namespace mcal
 
 namespace os {
 const shared::os::Semaphore& sem_test = mcal::sem_test;
@@ -46,4 +45,4 @@ void StartKernel(void) {
     osKernelStart();
 }
 
-}   // namespace os
+}  // namespace os
