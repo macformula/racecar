@@ -5,8 +5,9 @@
 
 #include <cstdint>
 
-#include "shared/util/os.h"
 #include "cmsis_os2.h"
+#include "shared/os/os.h"
+#include "shared/os/tick.h"
 
 // TODO: Add comments and handle errors more robustly
 namespace os {
@@ -22,5 +23,4 @@ uint32_t GetTickCount() {
     return osKernelGetTickCount();
 }
 
-}  // namespace mcal::os
-
+}  // namespace os
