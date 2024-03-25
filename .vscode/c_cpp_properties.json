@@ -1,6 +1,6 @@
 {
     "env": {
-        "PROJECT" : "FrontController"
+        "PROJECT" : "DemoProjectRTOS"
     },
     "configurations": [
         {
@@ -14,7 +14,8 @@
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Device/ST/STM32F7xx/Include",
                 "${workspaceFolder}/firmware/drivers/stm32f767/CMSIS/Core/Include",
                 "${workspaceFolder}/firmware/drivers/stm32f767/",
-                "${workspaceFolder}/firmware/drivers/stm32f767/STM32F7xx_HAL_Driver/Inc"
+                "${workspaceFolder}/firmware/drivers/stm32f767/STM32F7xx_HAL_Driver/Inc",
+                "${workspaceFolder}/firmware/projects/${PROJECT}/platforms/stm32f767/cubemx/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2"
             ],
             "defines": [
                 "_DEBUG",
