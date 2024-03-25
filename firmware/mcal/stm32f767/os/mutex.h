@@ -3,32 +3,31 @@
 
 #pragma once
 
-#include <cstdint>
-
-#include "shared/util/os.h"
-#include "shared/os/mutex.h"
 #include "cmsis_os2.h"
+#include "shared/os/mutex.h"
+#include "shared/os/os.h"
 
 namespace mcal::os {
 
 // TODO: Add comments and handle errors more robustly
-class Mutex final : public shared::os::Mutex  {
-private:
-    osMutexId_t* mutex_id;
+class Mutex final : public shared::os::Mutex {
+    using OsStatus = shared::os::OsStatus;
 
 public:
-    Mutex(osMutexId_t* mutex_id_)
-        : mutex_id(mutex_id_) {}
+    Mutex(osMutexId_t* mutex_id) : mutex_id_(mutex_id) {}
 
-    shared::util::OsStatus Acquire() override {
+    OsStatus Acquire() override {
         // TODO: Make this nonblocking
-        osMutexAcquire(*mutex_id, osWaitForever);
-        return shared::util::OsStatus::kOsOk;
+        auto status = osMutexAcquire(*mutex_id_, osWaitForever);
+        return status == osOK ? OsStatus::kOk : OsStatus::kError;
     }
-    shared::util::OsStatus Release() override {
-        osMutexRelease(*mutex_id);
-        return shared::util::OsStatus::kOsOk;
+    OsStatus Release() override {
+        auto status = osMutexRelease(*mutex_id_);
+        return status == osOK ? OsStatus::kOk : OsStatus::kError;
     }
+
+private:
+    osMutexId_t* mutex_id_;
 };
 
 }  // namespace mcal::os

@@ -3,35 +3,34 @@
 
 #pragma once
 
-#include <cstdint>
-
-#include "shared/util/os.h"
-#include "shared/os/semaphore.h"
 #include "cmsis_os2.h"
+#include "shared/os/os.h"
+#include "shared/os/semaphore.h"
 
 namespace mcal::os {
 
 // TODO: Add comments and handle errors more robustly
-class Semaphore final : public shared::os::Semaphore  {
-private:
-    osSemaphoreId_t* sem_id;
+class Semaphore final : public shared::os::Semaphore {
+    using OsStatus = shared::os::OsStatus;
 
 public:
-    Semaphore(osSemaphoreId_t* sem_id_)
-        : sem_id(sem_id_) {}
+    Semaphore(osSemaphoreId_t* sem_id) : sem_id_(sem_id) {}
 
-    shared::util::OsStatus Acquire() override {
+    OsStatus Acquire() override {
         // TODO: Make this nonblocking
-        osSemaphoreAcquire(*sem_id, osWaitForever);
-        return shared::util::OsStatus::kOsOk;
+        auto status = osSemaphoreAcquire(*sem_id_, osWaitForever);
+        return status == osOK ? OsStatus::kOk : OsStatus::kError;
     }
-    shared::util::OsStatus Release() override {
-        osSemaphoreRelease(*sem_id);
-        return shared::util::OsStatus::kOsOk;
+    OsStatus Release() override {
+        auto status = osSemaphoreRelease(*sem_id_);
+        return status == osOK ? OsStatus::kOk : OsStatus::kError;
     }
-    uint32_t GetCount() override {
-        return osSemaphoreGetCount(*sem_id);
+    size_t GetCount() override {
+        return osSemaphoreGetCount(*sem_id_);
     }
+
+private:
+    osSemaphoreId_t* sem_id_;
 };
 
 }  // namespace mcal::os

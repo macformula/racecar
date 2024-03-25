@@ -5,33 +5,33 @@
 
 #include <cstdint>
 
-#include "shared/util/os.h"
-#include "shared/os/timer.h"
 #include "cmsis_os2.h"
+#include "shared/os/os.h"
+#include "shared/os/timer.h"
 
 namespace mcal::os {
 
-
 // TODO: Add comments and handle errors more robustly
-class Timer final : public shared::os::Timer  {
-private:
-    osTimerId_t* timer_id;
+class Timer final : public shared::os::Timer {
+    using OsStatus = shared::os::OsStatus;
 
 public:
-    Timer(osTimerId_t* timer_id_)
-        : timer_id(timer_id_) {}
-    
-    shared::util::OsStatus Start(uint32_t ticks) override {
-        int ret = osTimerStart(*timer_id, ticks);
-        return ret == 0 ? shared::util::OsStatus::kOsOk : shared::util::OsStatus::kOsError;
+    Timer(osTimerId_t* timer_id) : timer_id_(timer_id) {}
+
+    OsStatus Start(uint32_t ticks) override {
+        auto ret = osTimerStart(*timer_id_, ticks);
+        return ret == osOK ? OsStatus::kOk : OsStatus::kError;
     }
-    shared::util::OsStatus Stop() override {
-        int ret = osTimerStop(*timer_id);
-        return ret == 0 ? shared::util::OsStatus::kOsOk : shared::util::OsStatus::kOsError;
+    OsStatus Stop() override {
+        auto ret = osTimerStop(*timer_id_);
+        return ret == osOK ? OsStatus::kOk : OsStatus::kError;
     }
-    uint32_t IsRunning() override {
-        return osTimerIsRunning(*timer_id);
+    bool IsRunning() override {
+        return osTimerIsRunning(*timer_id_);
     }
+
+private:
+    osTimerId_t* timer_id_;
 };
 
 }  // namespace mcal::os
