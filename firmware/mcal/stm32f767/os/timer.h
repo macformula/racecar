@@ -27,7 +27,7 @@ public:
         return ret == osOK ? OsStatus::kOk : OsStatus::kError;
     }
     bool IsRunning() override {
-        return osTimerIsRunning(*timer_id_);
+        return static_cast<bool>(osTimerIsRunning(*timer_id_));
     }
 
 private:
