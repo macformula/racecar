@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <cstdint>
-
 #include "shared/comms/can/raw_can_msg.h"
 
 namespace shared::comms::can {

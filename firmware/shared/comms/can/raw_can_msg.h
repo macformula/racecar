@@ -1,8 +1,7 @@
 /// @author Samuel Parent
 /// @date 2024-01-13
 
-#ifndef SHARED_COMMS_CAN_RAW_CAN_MSG_H_
-#define SHARED_COMMS_CAN_RAW_CAN_MSG_H_
+#pragma once
 
 #include <stdint.h>
 
@@ -23,6 +22,4 @@ struct RawCanMsg {
     uint8_t data[kMaxMsgBytes];
 };
 
-} // namespace shared::comms::can
-
-#endif  // SHARED_COMMS_CAN_RAW_CAN_MSG_H_
+}  // namespace shared::comms::can

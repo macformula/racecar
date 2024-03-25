@@ -11,12 +11,6 @@
 namespace shared::comms::can {
 
 class CanBus {
-private:
-    constexpr static int kMaxMsgQueueLen = 100;
-
-    shared::periph::CanBase& can_base_;
-    MsgRegistry& rx_msg_registry_;
-
 public:
     CanBus(shared::periph::CanBase& can_base, MsgRegistry& rx_msg_registry)
         : can_base_(can_base), rx_msg_registry_(rx_msg_registry){};
@@ -48,6 +42,12 @@ public:
     void Read(CanRxMsg& rx_msg) {
         rx_msg_registry_.GetMessage(rx_msg);
     }
+
+private:
+    constexpr static int kMaxMsgQueueLen = 100;
+
+    shared::periph::CanBase& can_base_;
+    MsgRegistry& rx_msg_registry_;
 };
 
 }  // namespace shared::comms::can
