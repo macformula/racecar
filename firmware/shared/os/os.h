@@ -1,5 +1,5 @@
-/// @author Blake Freer
-/// @date 2023-11-08
+/// @author Matteo Tullo
+/// @date 2024-02-24
 
 #pragma once
 
