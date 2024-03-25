@@ -5,13 +5,12 @@
 # We only need to add the source code files and include directories.
 
 target_sources(main
-PRIVATE
+	PRIVATE
 	main.cc
 )
 
 target_include_directories(main
-PRIVATE
-	${CMAKE_CURRENT_SOURCE_DIR}/generated
+	PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
 

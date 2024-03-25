@@ -15,7 +15,7 @@ extern mcal::periph::CanBase veh_can_base;
 extern void Initialize();
 }  // namespace bindings
 
-generated::can::DemoCanVehMsgRegistry veh_can_regitry{};
+generated::can::DemoCanVehMsgRegistry veh_can_registry{};
 
 shared::comms::can::CanBus veh_can_bus{
     bindings::veh_can_base,
