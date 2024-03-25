@@ -3,49 +3,47 @@
 
 #pragma once
 
-#include <cstdint>
-
-#include "shared/util/os.h"
-#include "shared/os/fifo.h"
 #include "cmsis_os2.h"
+#include "shared/os/fifo.h"
+#include "shared/os/os.h"
 
 namespace mcal::os {
 
-
 // TODO: Add comments and handle errors more robustly
-class Fifo final : public shared::os::Fifo  {
-private:
-    osMessageQueueId_t* fifo_id;
+class Fifo final : public shared::os::Fifo {
+    using OsStatus = shared::os::OsStatus;
 
 public:
-    Fifo(osMessageQueueId_t* fifo_id_)
-        : fifo_id(fifo_id_) {}
-    
-    shared::util::OsStatus Put(const void * msg_ptr, uint8_t priority) override {
-        osMessageQueuePut(*fifo_id, msg_ptr, priority, 0u);
-        return shared::util::OsStatus::kOsOk;
+    Fifo(osMessageQueueId_t* fifo_id) : fifo_id_(fifo_id) {}
+
+    shared::os::OsStatus Put(const void* msg_ptr, uint8_t priority) override {
+        auto status = osMessageQueuePut(*fifo_id_, msg_ptr, priority, 0u);
+        return status == osOK ? OsStatus::kOk : OsStatus::kError;
     }
 
-    shared::util::OsStatus Get(void * msg_buff, uint8_t * prio_buff) override {
-        int ret = osMessageQueueGet(*fifo_id, msg_buff, prio_buff, 0u);
-        return ret == 0 ? shared::util::OsStatus::kOsOk : shared::util::OsStatus::kOsError;
+    OsStatus Get(void* msg_buff, uint8_t* prio_buff) override {
+        auto status = osMessageQueueGet(*fifo_id_, msg_buff, prio_buff, 0u);
+        return status == osOK ? OsStatus::kOk : OsStatus::kError;
     }
 
-    uint32_t GetCapacity() override {
-        return osMessageQueueGetCapacity(*fifo_id);
+    size_t GetCapacity() override {
+        return osMessageQueueGetCapacity(*fifo_id_);
     }
 
-    uint32_t GetMessageSize() override {
-        return osMessageQueueGetMsgSize(*fifo_id);
+    size_t GetMessageSize() override {
+        return osMessageQueueGetMsgSize(*fifo_id_);
     }
 
-    uint32_t GetCount() override {
-        return osMessageQueueGetCount(*fifo_id);
+    size_t GetCount() override {
+        return osMessageQueueGetCount(*fifo_id_);
     }
 
-    uint32_t GetSpaceAvailable() override {
-        return osMessageQueueGetSpace(*fifo_id);
+    size_t GetSpaceAvailable() override {
+        return osMessageQueueGetSpace(*fifo_id_);
     }
+
+private:
+    osMessageQueueId_t* fifo_id_;
 };
 
 }  // namespace mcal::os
