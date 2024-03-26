@@ -16,6 +16,11 @@ jobs:
         
       - name: Set up clang-format
         run: sudo apt-get install clang-format -y
+
+      - name: Check if git-clang-format is installed
+        run: |
+          echo "Running git clang-format help..."
+          git clang-format -h
         
       - name: Fetch main branch
         run: git fetch origin main:main
