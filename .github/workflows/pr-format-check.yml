@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 0
         
       - name: Set up clang-format
-        run: sudo apt-get install clang-format
+        run: sudo apt-get install clang-format -y
         
       - name: Fetch main branch
         run: git fetch origin main:main
@@ -27,7 +27,7 @@ jobs:
           
       - name: Check code formatting
         run: |
-          git clang-format --style=firmware/.clang-format --diff $MAIN_COMMIT..HEAD '*.cpp' '*.h'
+          git clang-format --style=firmware/.clang-format --diff $MAIN_COMMIT..HEAD
           
       - name: Check for changes
         id: check_changes
