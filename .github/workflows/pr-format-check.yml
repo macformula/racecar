@@ -27,7 +27,7 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
-          git diff --exit-code || (echo "Code is not formatted properly. Please run clang-format and commit the changes." && exit 1)
+          git diff -v --exit-code -- '*.cpp' '*.h' || (echo "Code is not formatted properly. Please run clang-format and commit the changes." && exit 1)
           
       - name: Complete
         if: steps.check_changes.outcome == 'success'
