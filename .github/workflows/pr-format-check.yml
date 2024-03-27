@@ -22,7 +22,7 @@ jobs:
           
       - name: Check code formatting
         run: |
-          git clang-format --style=file --style=file=firmware/.clang-format --diff $(git merge-base HEAD main) -v
+          git clang-format --style=file:firmware/.clang-format --diff $(git merge-base HEAD main) -v
           
       - name: Check for changes
         id: check_changes
