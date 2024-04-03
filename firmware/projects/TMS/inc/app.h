@@ -90,6 +90,11 @@ public:
           temp_to_power_(temp_to_power),
           pwm_step_size_(pwm_step_size) {}
 
+    void Start(float initial_power) {
+        pwm_.Start();
+        pwm_.SetDutyCycle(power_to_pwm_.Evaluate(initial_power));
+    }
+
     void Update(float temperature) {
         // convert pwm = 100 - power since the fan runs on inverse logic
         // ex. pwm=20% => fan is running at 80%
@@ -102,11 +107,6 @@ public:
             delta_pwm, -pwm_step_size_, pwm_step_size_);
 
         pwm_.SetDutyCycle(current_pwm + pwm_step);
-    }
-
-    void Start(float initial_power) {
-        pwm_.Start();
-        pwm_.SetDutyCycle(power_to_pwm_.Evaluate(initial_power));
     }
 
 private:
