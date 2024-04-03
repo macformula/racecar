@@ -22,3 +22,9 @@ The following dependecies must be installed __and added to your PATH variable.__
 * STM32CubeMX 6.8.1 - [link](https://www.st.com/en/development-tools/stm32cubemx)
   * Select the 6.8.1 version in the __Get Software__ section.
   * Verify by running `stm32cubemx`. The application should open.
+
+* clangd - [link](https://clangd.llvm.org/installation)
+  * This is our "official" C/C++ language server.
+  * You should also install the __clangd__ extension for your IDE.
+    * If you have the Microsoft __C/C++__ extension installed, disable it for the `racecar` workspace.
+  * Verify with ``clangd --version``.
