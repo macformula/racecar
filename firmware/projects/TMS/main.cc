@@ -21,12 +21,22 @@ extern shared::periph::ADCInput& temp_sensor_adc_6;
 
 extern shared::periph::PWMOutput& fan_controller_pwm;
 
-extern shared::periph::DigitalOutput& debug_do_green;
+extern shared::periph::DigitalOutput& debug_do_blue;
 extern shared::periph::DigitalOutput& debug_do_red;
 
 extern void Initialize();
 extern void Log(std::string);
 }  // namespace bindings
+
+namespace os {
+extern void Tick(uint32_t ticks);
+extern void InitializeKernel();
+extern void StartKernel();
+}  // namespace os
+
+extern "C" {
+void UpdateTask(void* argument);
+}
 
 // clang-format off
 const float temp_lut_data[][2] = {
@@ -87,7 +97,7 @@ shared::util::LookupTable<fan_lut_length> fan_temp_lut{fan_lut_data};
 ***************************************************************/
 FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut, 2.0f};
 
-DebugIndicator debug_green{bindings::debug_do_green};
+DebugIndicator debug_blue{bindings::debug_do_blue};
 DebugIndicator debug_red{bindings::debug_do_red};
 
 TempSensor temp_sensors[] = {
@@ -105,7 +115,8 @@ TempSensorManager<kSensorCount> ts_manager{temp_sensors};
 /***************************************************************
     Program Logic
 ***************************************************************/
-void UpdateTask() {
+
+void Update() {
     static float temperature_buffer[kSensorCount];
 
     ts_manager.Update();
@@ -122,18 +133,25 @@ void UpdateTask() {
 
     /// TODO: Pack & send CAN message
 
-    /// TODO: Needs PWM_Sweep_Nonblocking
     fan_controller.Update(temp_avg);
+}
+
+void UpdateTask(void* argument) {
+    fan_controller.Start(0);
+    while (true) {
+        Update();
+        debug_blue.Toggle();  // toggling indicates the loop is running
+        os::Tick(100);
+    }
 }
 
 int main(void) {
     bindings::Initialize();
+    os::InitializeKernel();
 
-    fan_controller.StartPWM(0);
+    os::StartKernel();
 
-    while (true) {
-        UpdateTask();
-    }
+    while (true) continue;
 
     return 0;
 }
