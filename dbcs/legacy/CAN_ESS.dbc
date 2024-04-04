@@ -1,0 +1,179 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: VCU_03 ELP_ElithionPack
+VAL_TABLE_ ELP_WarningFlags_ENUMDEF 7 "Isolation Fault" 6 "Low SOH" 5 "Hot Temp" 4 "Cold Temp" 3 "Discharge overcurrent" 2 "Charge overcurrent" 1 "High voltage" 0 "Low voltage" ;
+VAL_TABLE_ ELP_LevelFaultFlags_ENUMDEF 7 "Over Voltage" 6 "Under Voltage" 5 "Over Temperature" 4 "Discharge Overcurrent" 3 "Charge Overcurrent" 2 "Communication Fault with bank" 1 "Interlock Tripped" 0 "Driving Off while plugged in" ;
+VAL_TABLE_ ELP_State_ENUMDEF 3 "K3" 2 "K2" 1 "K1" 0 "FaultState" ;
+VAL_TABLE_ ELP_BmsState_ENUMDEF 15 "PLUGGED_ON" 14 "PLUGGED_RESERVED" 13 "PLUGGED_DISCHRG2HOME" 12 "PLUGGED_DISCHRG2GRID" 11 "PLUGGED_PREPTODISCHRG" 10 "PLUGGED_CHRGGRID" 9 "PLUGGED_PREPTOCHRG" 8 "PLUGGED_IDLE" 7 "UNPLUGGED_RESERVED" 6 "UNPLUGGED_RESERVED" 5 "UNPLUGGED_RESERVED" 4 "UNPLUGGED_OFF_CHRGDEPLETE" 3 "UNPLUGGED_OFF_CHRGSUSTAINED" 2 "UNPLUGGED_OFF_RELAYOFF" 1 "UNPLUGGED_OFF_CHRGOFFGRID" 0 "UNPLUGGED_OFF" ;
+
+
+BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
+ SG_ ELP_ContactorRequest_bool : 0|8@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ ELP_FaultCode : 0|8@0- (1,0) [0|0] "" Vector__XXX
+ SG_ ELP_FltFlags_uint8 : 0|8@0- (1,0) [0|0] "" Vector__XXX
+ SG_ ELP_BmsTractionBattState_enum : 0|8@0+ (1,0) [0|15] "enum" Vector__XXX
+ SG_ ELP_AcEnergyOut_Wh : 0|32@0+ (1,0) [0|4294967295] "Wh" Vector__XXX
+ SG_ ELP_AcEnergyIn_Wh : 0|32@0+ (1,0) [0|4294967295] "Wh" Vector__XXX
+ SG_ ELP_AcPower_W : 0|16@0- (1,0) [0|32700] "W" Vector__XXX
+ SG_ ELP_AcDischargeCurrentMax_Arms : 0|8@0+ (1,0) [0|255] "Arms" Vector__XXX
+ SG_ ELP_AcChargeCurrentMax_Arms : 0|8@0+ (1,0) [0|255] "Arms" Vector__XXX
+ SG_ ELP_AcLineCurrent_Arms : 0|16@0- (0.00390625,0) [0|127] "Arms" Vector__XXX
+ SG_ ELP_AcLineVoltage_Vrms : 0|16@0+ (1,0) [0|65500] "Vrms" Vector__XXX
+ SG_ ELP_AirTemp_degC : 0|8@0- (1,0) [-128|127] "degC" Vector__XXX
+ SG_ ELP_RESERVED : 0|4@0- (1,0) [0|0] "" Vector__XXX
+
+BO_ 1586 ELP_ContactorRequest: 1 VCU_03
+ SG_ ELP_Contactor : 7|8@0+ (1,0) [0|0] ""  VCU_03,ELP_ElithionPack
+
+BO_ 1573 ELP_BattEnergyInfo: 8 ELP_ElithionPack
+ SG_ ELP_BattEnergyOut_KWh : 39|32@0+ (1,0) [0|0] ""  VCU_03
+ SG_ ELP_BattEnergyIn_KWh : 7|32@0+ (1,0) [0|0] ""  VCU_03
+
+BO_ 1569 ELP_RevLvl: 8 ELP_ElithionPack
+ SG_ ELP_RESERVED : 7|64@0- (1,0) [0|0] ""  VCU_03
+
+BO_ 1568 ELP_CompanyName: 8 ELP_ElithionPack
+ SG_ ELP_RESERVED : 7|64@0- (1,0) [0|0] ""  VCU_03
+
+BO_ 1570 ELP_StateInfo: 7 ELP_ElithionPack
+ SG_ ELP_RelayFault : 4|1@0+ (1,0) [0|1] "" Vector__XXX
+ SG_ ELP_WarningFlags : 55|8@0+ (1,0) [0|0] ""  VCU_03
+ SG_ ELP_LevelFaultFlags : 47|8@0+ (1,0) [0|0] ""  VCU_03
+ SG_ ELP_FltCodeStored_uint8 : 39|8@0+ (1,0) [0|0] ""  VCU_03
+ SG_ ELP_Flags_uint8 : 31|8@0+ (1,0) [0|0] ""  VCU_03
+ SG_ ELP_CountdownTm_s : 15|16@0+ (1,0) [0|65535] ""  VCU_03
+ SG_ ELP_ContactorK3 : 3|1@0+ (1,0) [0|0] ""  VCU_03
+ SG_ ELP_ContactorK2 : 2|1@0+ (1,0) [0|0] ""  VCU_03
+ SG_ ELP_ContactorK1 : 1|1@0+ (1,0) [0|0] ""  VCU_03
+ SG_ ELP_BmsFault : 0|1@0+ (1,0) [0|1] ""  VCU_03
+
+BO_ 1576 ELP_ResistanceInfo: 6 ELP_ElithionPack
+ SG_ ELP_CellResistanceMax_mOhm : 39|8@0+ (0.1,0) [0|25.5] "mOhm"  VCU_03
+ SG_ ELP_CellIdResistanceMax_num : 47|8@0+ (1,0) [0|254] "num"  VCU_03
+ SG_ ELP_CellIdResistanceMin_num : 31|8@0+ (1,0) [0|254] "num"  VCU_03
+ SG_ ELP_CellResistanceMin_mOhm : 23|8@0+ (0.1,0) [0|25.5] "mOhm"  VCU_03
+ SG_ ELP_PackResistance_Ohm : 7|16@0+ (0.001,0) [0|6553.5] "mOhm"  VCU_03
+
+BO_ 1575 ELP_TemperatureInfo: 6 ELP_ElithionPack
+ SG_ ELP_CellIdTempMax_num : 47|8@0+ (1,0) [0|254] "num"  VCU_03
+ SG_ ELP_SensorTempMax_degC : 39|8@0- (1,0) [-127|127] "degC"  VCU_03
+ SG_ ELP_CellIdMinTemp_num : 31|8@0+ (1,0) [1|254] "num"  VCU_03
+ SG_ ELP_SensorTempMin_degC : 23|8@0- (1,0) [-128|127] "degC"  VCU_03
+ SG_ ELP_PackAvgTemp_degC : 7|8@0- (1,0) [-127|127] "degC"  VCU_03
+
+BO_ 1571 ELP_VoltageInfo: 6 ELP_ElithionPack
+ SG_ ELP_CellVoltageMin_V : 23|8@0+ (0.1,0) [0|25.5] "V"  VCU_03
+ SG_ ELP_PackVoltage_V : 7|16@0+ (1,0) [0|65000] "V"  VCU_03
+ SG_ ELP_CellIdVoltageMax_num : 47|8@0+ (1,0) [0|254] "num"  VCU_03
+ SG_ ELP_CellIdVoltageMin_num : 31|8@0+ (1,0) [0|254] "num"  VCU_03
+ SG_ ELP_CellVoltageMax_V : 39|8@0+ (0.1,0) [0|25.5] "V"  VCU_03
+
+BO_ 1574 ELP_SOCInfo: 7 ELP_ElithionPack
+ SG_ ELP_SOH_pc : 55|8@0- (1,0) [0|100] "pc"  VCU_03
+ SG_ ELP_SOC2_pc : 47|8@0- (1,0) [0|100] "pc"  VCU_03
+ SG_ ELP_Capacity_Ah : 31|16@0+ (1,0) [0|65000] "Ah"  VCU_03
+ SG_ ELP_DOD_Ah : 15|16@0+ (1,0) [0|65535] "Ah"  VCU_03
+ SG_ ELP_SOC_pc : 7|8@0+ (1,0) [0|100] "pc"  VCU_03
+
+BO_ 1572 ELP_CurrentInfo: 6 ELP_ElithionPack
+ SG_ ELP_DischargeCurrentMax_A : 39|16@0+ (1,0) [0|65000] "A"  VCU_03
+ SG_ ELP_ChargeCurrentMax_A : 23|16@0+ (1,0) [0|65000] "A"  VCU_03
+ SG_ ELP_PackCurrent_A : 7|16@0- (1,0) [-32000|32000] "A"  VCU_03
+
+
+
+CM_ BO_ 3221225472 "This is a message for not used signals, created by Vector CANdb++ DBC OLE DB Provider.";
+CM_ SG_ 3221225472 ELP_FltFlags_uint8 "Fault bit flags. Fault type on each bit (see eLithion documentation) ";
+CM_ SG_ 3221225472 ELP_BmsTractionBattState_enum "State of Traction battery system
+";
+CM_ SG_ 3221225472 ELP_AcEnergyOut_Wh "AC charger power out  [Wh] since manufacture";
+CM_ SG_ 3221225472 ELP_AcEnergyIn_Wh "AC charger power in [Wh] since manufacture";
+CM_ SG_ 3221225472 ELP_AcPower_W "AC line real power [W]";
+CM_ SG_ 3221225472 ELP_AcDischargeCurrentMax_Arms "AC discharge current maximum available (A)";
+CM_ SG_ 3221225472 ELP_AcChargeCurrentMax_Arms "AC charge current mximum acceptable (A)";
+CM_ SG_ 3221225472 ELP_AcLineCurrent_Arms "AC Line current (Arms)";
+CM_ SG_ 3221225472 ELP_AcLineVoltage_Vrms "AC line voltage [Vrms]";
+CM_ SG_ 3221225472 ELP_AirTemp_degC " Air intake temperature [°C]";
+CM_ SG_ 1570 ELP_FltCodeStored_uint8 "Fault code, stored (see eLithion documenation0";
+CM_ SG_ 1570 ELP_Flags_uint8 "Bit flags of operation (see eLithion documentation)";
+CM_ SG_ 1570 ELP_CountdownTm_s "Countdown time (s) to next state change";
+CM_ SG_ 1576 ELP_CellResistanceMax_mOhm "Resistances [100 microohm] of highest resistance cells (or block of cells)";
+CM_ SG_ 1576 ELP_CellIdResistanceMax_num "ID of the cell (or block of cells) that has the highest resistance";
+CM_ SG_ 1576 ELP_CellIdResistanceMin_num "ID of the cell (or block of cells) that has the lowest resistance";
+CM_ SG_ 1576 ELP_CellResistanceMin_mOhm "Resistances [100 microohm] of lowest cells (or block of cells)";
+CM_ SG_ 1576 ELP_PackResistance_Ohm "Resistance of pack [ohm]";
+CM_ SG_ 1575 ELP_CellIdTempMax_num "ID of the cell (or block of cells) that has the highest temperature";
+CM_ SG_ 1575 ELP_SensorTempMax_degC "Temperatures [°C] of hottest sensors";
+CM_ SG_ 1575 ELP_CellIdMinTemp_num "ID of the cell (or block of cells) that has the lowest temperature";
+CM_ SG_ 1575 ELP_SensorTempMin_degC "Temperatures [°C] of coldest sensors";
+CM_ SG_ 1575 ELP_PackAvgTemp_degC " Average pack temperature,e [°C]";
+CM_ SG_ 1571 ELP_CellVoltageMin_V "Voltages [V] of least charged  cells or blocks of cells";
+CM_ SG_ 1571 ELP_PackVoltage_V "Total voltage of pack [V]";
+CM_ SG_ 1571 ELP_CellIdVoltageMax_num "ID of the cell (or block of cells) that has the highest voltage";
+CM_ SG_ 1571 ELP_CellIdVoltageMin_num "ID of the cell (or block of cells) that has the lowest voltage";
+CM_ SG_ 1571 ELP_CellVoltageMax_V "Voltages [V] of  most charged cells or blocks of cells,";
+CM_ SG_ 1574 ELP_SOH_pc "State Of Charge of 2nd pack (such as the vehicle's original pack) [%], 
+ When deeply discharged, its value does not go below 0";
+CM_ SG_ 1574 ELP_SOC2_pc "State Of Charge of 2nd pack (such as the vehicle's original pack) [%],
+When deeply discharged, its value does not go below 0";
+CM_ SG_ 1574 ELP_Capacity_Ah "Actual capacity of the pack, (Ah)";
+CM_ SG_ 1574 ELP_DOD_Ah "Depth of discharge, when deeply discharged its value may exceed capacity (Ah)";
+CM_ SG_ 1574 ELP_SOC_pc "State of Charge";
+CM_ SG_ 1572 ELP_DischargeCurrentMax_A "Maximum current available for discharging";
+CM_ SG_ 1572 ELP_ChargeCurrentMax_A "Maximum current acceptable for charging";
+CM_ SG_ 1572 ELP_PackCurrent_A "Peak current +Ve is out of pack";
+BA_DEF_ SG_  "GenSigSendType" ENUM  "Cyclic","OnWrite","OnWriteWithRepetition","OnChange","OnChangeWithRepetition","IfActive","IfActiveWithRepetition","NoSigSendType";
+BA_DEF_ SG_  "GenSigInactiveValue" INT 0 0;
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 0;
+BA_DEF_ BO_  "GenMsgSendType" ENUM  "Cyclic","not_used","not_used","not_used","not_used","Cyclic","not_used","IfActive","NoMsgSendType";
+BA_DEF_ BU_  "NmStationAddress" HEX 0 0;
+BA_DEF_  "DBName" STRING ;
+BA_DEF_  "BusType" STRING ;
+BA_DEF_DEF_  "GenSigSendType" "Cyclic";
+BA_DEF_DEF_  "GenSigInactiveValue" 0;
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_DEF_DEF_  "GenMsgSendType" "NoMsgSendType";
+BA_DEF_DEF_  "NmStationAddress" 0;
+BA_DEF_DEF_  "DBName" "";
+BA_DEF_DEF_  "BusType" "CAN";
+BA_ "BusType" "CAN";
+BA_ "DBName" "CAN_PTC_J1";
+BA_ "NmStationAddress" BU_ ELP_ElithionPack 1568;
+VAL_ 3221225472 ELP_BmsTractionBattState_enum 15 "PLUGGED_ON" 14 "PLUGGED_RESERVED" 13 "PLUGGED_DISCHRG2HOME" 12 "PLUGGED_DISCHRG2GRID" 11 "PLUGGED_PREPTODISCHRG" 10 "PLUGGED_CHRGGRID" 9 "PLUGGED_PREPTOCHRG" 8 "PLUGGED_IDLE" 7 "UNPLUGGED_RESERVED" 6 "UNPLUGGED_RESERVED" 5 "UNPLUGGED_RESERVED" 4 "UNPLUGGED_OFF_CHRGDEPLETE" 3 "UNPLUGGED_OFF_CHRGSUSTAINED" 2 "UNPLUGGED_OFF_RELAYOFF" 1 "UNPLUGGED_OFF_CHRGOFFGRID" 0 "UNPLUGGED_OFF" ;
+VAL_ 1586 ELP_Contactor 1 "on" 0 "off" ;
+VAL_ 1570 ELP_WarningFlags 7 "Isolation Fault" 6 "Low SOH" 5 "Hot Temp" 4 "Cold Temp" 3 "Discharge overcurrent" 2 "Charge overcurrent" 1 "High voltage" 0 "Low voltage" ;
+VAL_ 1570 ELP_LevelFaultFlags 7 "Over Voltage" 6 "Under Voltage" 5 "Over Temperature" 4 "Discharge Overcurrent" 3 "Charge Overcurrent" 2 "Communication Fault with bank" 1 "Interlock Tripped" 0 "Driving Off while plugged in" ;
+

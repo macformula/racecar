@@ -1,0 +1,50 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: Dash FC
+VAL_TABLE_ status_enum 7 "motor_run_error" 6 "hv_run_error" 5 "driver_interface_error" 4 "motor_startup_error" 3 "hv_startup_error" 2 "running" 1 "starting_up" 0 "init" ;
+
+
+BO_ 255 Gov_e_diagSts: 1 FC
+ SG_ control_status : 7|8@0+ (1,0) [0|255] ""  Dash
+
+
+
+BA_DEF_  "MultiplexExtEnabled" ENUM  "No","Yes";
+BA_DEF_  "BusType" STRING ;
+BA_DEF_DEF_  "MultiplexExtEnabled" "No";
+BA_DEF_DEF_  "BusType" "CAN";
+VAL_ 255 control_status 7 "motor_run_error" 6 "hv_run_error" 5 "driver_interface_error" 4 "motor_startup_error" 3 "hv_startup_error" 2 "running" 1 "starting_up" 0 "init" ;
+
