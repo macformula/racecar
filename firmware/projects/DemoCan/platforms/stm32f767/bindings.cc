@@ -17,7 +17,7 @@ mcal::periph::CanBase veh_can_base{"vcan0"};
 void Initialize() {
     SystemClock_Config();
     HAL_Init();
-    MX_CAN_Init();
+    MX_CAN1_Init();
     veh_can_base.Setup();
 }
 
