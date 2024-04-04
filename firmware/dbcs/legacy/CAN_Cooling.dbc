@@ -1,0 +1,84 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_:
+
+
+BO_ 1792 CCU_Ready: 1 Vector__XXX
+ SG_ CCU_Ready : 0|1@1- (1,0) [0|0] "" Vector__XXX
+
+BO_ 1536 CCU_StatusWords: 5 Vector__XXX
+ SG_ VCU_PWMPmpMtr : 32|8@1- (1,0) [0|0] "" Vector__XXX
+ SG_ VCU_PWMPmpInvtr : 24|8@1- (1,0) [0|0] "" Vector__XXX
+ SG_ VCU_PWMFanMtrR : 16|8@1- (1,0) [0|0] "" Vector__XXX
+ SG_ VCU_PWMFanMtrL : 8|8@1- (1,0) [0|0] "" Vector__XXX
+ SG_ VCU_PWMFanInvtr : 0|8@1- (1,0) [0|0] "" Vector__XXX
+
+BO_ 1280 CCU_ControlWords: 6 Vector__XXX
+ SG_ CCU_TmpCltMtrR : 40|8@1- (1,0) [0|0] "" Vector__XXX
+ SG_ CCU_TmpCltMtrL : 32|8@1- (1,0) [0|0] "" Vector__XXX
+ SG_ CCU_TmpCltMtrC : 24|8@1- (1,0) [0|0] "" Vector__XXX
+ SG_ CCU_TmpCltInvtr : 16|8@1- (1,0) [0|0] "" Vector__XXX
+ SG_ CCU_PssrPmpTmr : 8|8@1- (1,0) [0|0] "" Vector__XXX
+ SG_ CCU_PssrPmpInvtr : 0|8@1- (1,0) [0|0] "PSI" Vector__XXX
+
+
+
+CM_ SG_ 1536 VCU_PWMPmpMtr "Voltage or %";
+CM_ SG_ 1536 VCU_PWMPmpInvtr "Voltage or %";
+CM_ SG_ 1536 VCU_PWMFanMtrR "Voltage or %";
+CM_ SG_ 1536 VCU_PWMFanMtrL "Voltage or %";
+CM_ SG_ 1536 VCU_PWMFanInvtr "Voltage or %";
+CM_ SG_ 1280 CCU_TmpCltMtrR "Does not exist";
+CM_ SG_ 1280 CCU_TmpCltMtrL "Does not exist";
+CM_ SG_ 1280 CCU_TmpCltMtrC "Temperature Sensor for Motor Loop Centre";
+CM_ SG_ 1280 CCU_TmpCltInvtr "Temperature Sensor for Inverter Loop";
+CM_ SG_ 1280 CCU_PssrPmpTmr "Pressure Sensor for Motor Loop";
+CM_ SG_ 1280 CCU_PssrPmpInvtr "Pressure Sensor for Inverter Loop";
+BA_DEF_  "BusType" STRING ;
+BA_DEF_ BU_  "NodeLayerModules" STRING ;
+BA_DEF_ BU_  "ECU" STRING ;
+BA_DEF_ BU_  "CANoeJitterMax" INT 0 0;
+BA_DEF_ BU_  "CANoeJitterMin" INT 0 0;
+BA_DEF_ BU_  "CANoeDrift" INT 0 0;
+BA_DEF_ BU_  "CANoeStartDelay" INT 0 0;
+BA_DEF_DEF_  "BusType" "";
+BA_DEF_DEF_  "NodeLayerModules" "";
+BA_DEF_DEF_  "ECU" "";
+BA_DEF_DEF_  "CANoeJitterMax" 0;
+BA_DEF_DEF_  "CANoeJitterMin" 0;
+BA_DEF_DEF_  "CANoeDrift" 0;
+BA_DEF_DEF_  "CANoeStartDelay" 0;
+
