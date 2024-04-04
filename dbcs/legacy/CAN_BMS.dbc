@@ -1,0 +1,68 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: BMS FC
+
+
+BO_ 1570 Contactor_States: 3 FC
+ SG_ Pack_Positive : 0|8@1+ (1,0) [0|0] ""  BMS
+ SG_ Pack_Precharge : 8|8@1+ (1,0) [0|0] ""  BMS
+ SG_ Pack_Negative : 16|8@1+ (1,0) [0|0] ""  BMS
+
+BO_ 1572 Pack_State: 7 BMS
+ SG_ Pack_Current : 0|16@1+ (0.1,0) [0|0] "Amps"  FC
+ SG_ Pack_Inst_Voltage : 16|16@1+ (0.1,0) [0|0] "Volts"  FC
+ SG_ Avg_Cell_Voltage : 32|16@1+ (0.0001,0) [0|0] "Volts"  FC
+ SG_ Populated_Cells : 48|8@1+ (1,0) [0|0] "Num"  FC
+
+BO_ 1571 Pack_Current_Limits: 4 BMS
+ SG_ Pack_CCL : 0|16@1+ (1,0) [0|0] "Amps"  FC
+ SG_ Pack_DCL : 16|16@1+ (1,0) [0|0] "Amps"  FC
+
+BO_ 1573 Pack_SOC: 3 BMS
+ SG_ Pack_SOC : 0|8@1+ (0.5,0) [0|0] "Percent"  FC
+ SG_ Maximum_Pack_Voltage : 8|16@1+ (0.1,0) [0|0] "Volts"  FC
+
+BO_ 1574 Contactor_Feedback: 1 BMS
+ SG_ Pack_Precharge_Feedback : 0|1@1+ (1,0) [0|1] ""  FC
+ SG_ Pack_Negative_Feedback : 1|1@1+ (1,0) [0|1] ""  FC
+ SG_ Pack_Positive_Feedback : 2|1@1+ (1,0) [0|1] ""  FC
+
+
+CM_ BO_ 1572 "This ID Transmits at 8 ms.";
+CM_ BO_ 1571 "This ID Transmits at 8 ms.";
+CM_ BO_ 1573 "This ID Transmits at 8 ms.";
+CM_ BO_ 1574 "This ID Transmits at 8 ms.";
+
