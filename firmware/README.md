@@ -46,6 +46,13 @@ The following dependecies must be installed __and added to your PATH variable.__
         Add: --target=x86_64-w64-mingw64
       ```
 
+   * On Mac M series chips, the following configuration should be used.
+
+      ```yaml
+        CompileFlags:
+          Add: --target=arm64-apple-darwin22.6.0
+      ```
+
 ### Using __clangd__
 
 Whenever you build a project with the Makefile, __clangd__ will see the new `build/compile_commands.json` and immediately update the IDE's include paths. This means that, when switching which project or platform you are developing for, simply build the project and your development environment will be automatically prepared.
