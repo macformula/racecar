@@ -1,7 +1,6 @@
 # Blake Freer
 # January 8, 2024
 
-add_library(bindings)
 add_library(os)
 
 target_sources(bindings

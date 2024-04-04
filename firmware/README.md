@@ -42,9 +42,6 @@ The following dependecies must be installed __and added to your PATH variable.__
    * On windows, I had to use the following configuration to help __clangd__ find system header files.
 
       ```yaml
-      If:
-        PathMatch: .*/windows/.*
-
       CompileFlags:
         Add: --target=x86_64-w64-mingw64
       ```
