@@ -54,21 +54,23 @@ set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTOR
 set(CMAKE_CXX_EXTENSIONS ON)
 
 project("${PROJECT}-${PLATFORM}")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES OFF) # this doesn't seem to do anything yet
 
 add_executable(main)
+add_library(bindings)
 
-add_subdirectory(${DIR_PROJECT})  # provides "main" (executable)
-add_subdirectory(${DIR_PLATFORM})  # provides "bindings" (library)
+add_subdirectory(${DIR_PROJECT})  # modifies "main" (executable)
+add_subdirectory(${DIR_PLATFORM})  # modifies "bindings" (library)
 
 target_include_directories(main
 PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
-	${DIR_PLATFORM}  # provides the platform-specific bindings header
 )
 
 target_include_directories(bindings
 PRIVATE
-	${CMAKE_CURRENT_SOURCE_DIR}  # provides app.h
+	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_link_libraries(main

@@ -1,15 +1,27 @@
 PLATFORM =
 PROJECT = 
 
-BUILD_DIR = build/$(PROJECT)/$(PLATFORM)
+BUILD = build
+BUILD_DIR = $(BUILD)/$(PROJECT)/$(PLATFORM)
 CUBEMX_DIR := projects/$(PROJECT)/platforms/$(PLATFORM)/cubemx
+GENERATOR = -G"Unix Makefiles"
 
-build: FORCE
-	cmake -B $(BUILD_DIR) -S. -G"Unix Makefiles" -DPROJECT=$(PROJECT) -DPLATFORM=$(PLATFORM) 
+COMPILE_COMMANDS_DEST = $(BUILD)/compile_commands.json
+
+build: config
 	cmake --build $(BUILD_DIR)
+
+config: FORCE
+	cmake -B $(BUILD_DIR) -S. $(GENERATOR) -DPROJECT=$(PROJECT) -DPLATFORM=$(PLATFORM) $(COMPILE_COMMANDS_FLAGS)
+
+	@echo Copying compile_commands.json to $(BUILD) for clangd.
+	cp $(BUILD_DIR)/compile_commands.json $(COMPILE_COMMANDS_DEST)
+	@# Ensure the .clangd file exists
+	touch .clangd 
 
 clean: FORCE
 	rm -rf $(BUILD_DIR)
+	rm -f $(COMPILE_COMMANDS_DEST)
 
 deepclean: clean
 ifeq ($(findstring stm32,$(PLATFORM)),stm32)

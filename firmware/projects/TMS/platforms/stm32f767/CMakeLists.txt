@@ -1,8 +1,6 @@
 # Blake Freer
 # January 8, 2024
 
-add_library(bindings)
-
 target_sources(bindings
 PUBLIC
 	bindings.cc
