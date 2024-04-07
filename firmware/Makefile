@@ -32,6 +32,6 @@ else
 endif
 
 st-flash: build
-	st-flash --reset write $(BUILD_DIR)/main.bin 0x08000000
+	st-flash --reset write $(BUILD_DIR)/$(PROJECT).bin 0x08000000
 
 FORCE:
