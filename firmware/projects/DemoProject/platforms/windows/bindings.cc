@@ -7,8 +7,10 @@
 #include "shared/periph/gpio.h"
 
 namespace mcal {
-periph::DigitalInput button_di{"Button"};
-periph::DigitalOutput indicator_do{"Indicator"};
+using namespace windows::periph;
+
+DigitalInput button_di{"Button"};
+DigitalOutput indicator_do{"Indicator"};
 }  // namespace mcal
 
 namespace bindings {
