@@ -8,7 +8,7 @@
 #include "shared/periph/gpio.h"
 #include "stm32f7xx_hal.h"
 
-namespace stm32f767::periph {
+namespace mcal::stm32f767::periph {
 
 class DigitalInput : public shared::periph::DigitalInput {
 private:
@@ -44,4 +44,4 @@ public:
     }
 };
 
-}  // namespace stm32f767::periph
+}  // namespace mcal::stm32f767::periph

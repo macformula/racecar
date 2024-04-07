@@ -9,7 +9,7 @@
 #include "shared/util/mappers/clamper.h"
 #include "stm32f7xx_hal.h"
 
-namespace stm32f767::periph {
+namespace mcal::stm32f767::periph {
 
 class PWMOutput : public shared::periph::PWMOutput {
 public:
@@ -43,4 +43,4 @@ private:
     uint32_t channel_;
 };
 
-}  // namespace stm32f767::periph
+}  // namespace mcal::stm32f767::periph

@@ -8,7 +8,7 @@
 
 #include "shared/periph/gpio.h"
 
-namespace windows::periph {
+namespace mcal::windows::periph {
 
 class DigitalInput : public shared::periph::DigitalInput {
 private:
@@ -48,4 +48,4 @@ public:
     }
 };
 
-}  // namespace windows::periph
+}  // namespace mcal::windows::periph
