@@ -34,9 +34,10 @@ periph::ADCInput temp_sensor_adc_5{&hadc1, SENS_5_UC_IN_CHANNEL};
 periph::ADCInput temp_sensor_adc_6{&hadc1, SENS_6_UC_IN_CHANNEL};
 
 periph::PWMOutput fan_controller_pwm{&htim4, TIM_CHANNEL_1};
-periph::DigitalOutput debug_do_green{DEBUG_LED_GREEN_GPIO_Port,
-                                     DEBUG_LED_GREEN_Pin};
-periph::DigitalOutput debug_do_red{DEBUG_LED_RED_GPIO_Port, DEBUG_LED_RED_Pin};
+periph::DigitalOutput debug_do_blue{NUCLEO_BLUE_LED_GPIO_Port,
+                                    NUCLEO_BLUE_LED_Pin};
+periph::DigitalOutput debug_do_red{NUCLEO_RED_LED_GPIO_Port,
+                                   NUCLEO_RED_LED_Pin};
 
 }  // namespace mcal
 
@@ -49,7 +50,7 @@ const shared::periph::ADCInput& temp_sensor_adc_5 = mcal::temp_sensor_adc_5;
 const shared::periph::ADCInput& temp_sensor_adc_6 = mcal::temp_sensor_adc_6;
 
 const shared::periph::PWMOutput& fan_controller_pwm = mcal::fan_controller_pwm;
-const shared::periph::DigitalOutput& debug_do_green = mcal::debug_do_green;
+const shared::periph::DigitalOutput& debug_do_blue = mcal::debug_do_blue;
 const shared::periph::DigitalOutput& debug_do_red = mcal::debug_do_red;
 
 void Initialize() {

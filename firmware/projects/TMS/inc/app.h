@@ -12,6 +12,7 @@
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
 #include "shared/util/mappers/clamper.h"
+#include "shared/util/mappers/linear_map.h"
 #include "shared/util/mappers/mapper.h"
 #include "shared/util/moving_average.h"
 
@@ -89,10 +90,16 @@ public:
           temp_to_power_(temp_to_power),
           pwm_step_size_(pwm_step_size) {}
 
+    void Start(float initial_power) {
+        pwm_.Start();
+        pwm_.SetDutyCycle(power_to_pwm_.Evaluate(initial_power));
+    }
+
     void Update(float temperature) {
         // convert pwm = 100 - power since the fan runs on inverse logic
         // ex. pwm=20% => fan is running at 80%
-        float desired_pwm = 100.0f - temp_to_power_.Evaluate(temperature);
+        float desired_pwm =
+            power_to_pwm_.Evaluate(temp_to_power_.Evaluate(temperature));
         float current_pwm = pwm_.GetDutyCycle();
         float delta_pwm = desired_pwm - current_pwm;
 
@@ -102,36 +109,46 @@ public:
         pwm_.SetDutyCycle(current_pwm + pwm_step);
     }
 
-    void StartPWM(float initial_duty_cycle) {
-        pwm_.Start();
-        pwm_.SetDutyCycle(initial_duty_cycle);
-    }
-
 private:
     shared::periph::PWMOutput& pwm_;
 
-    /// @brief Mapping from temperature [degC] to fan PWM
+    /// @brief Mapping from temperature [degC] to fan power
     shared::util::Mapper<float>& temp_to_power_;
 
+    /// @brief Fan pwm signal is inverted (high duty = low power)
+    const shared::util::LinearMap<float> power_to_pwm_{-1.0f, 100.0f};
+
     /// @brief Largest allowable PWM per Update() call.
-    /// @todo Express pwm_step_size in pwm/second and use Update() frequency to
-    /// determine it.
+    /// @todo Express pwm_step_size in pwm/second and use Update() frequency
+    /// to determine it.
     float pwm_step_size_;
 };
 
 class DebugIndicator {
-private:
-    shared::periph::DigitalOutput& digital_output_;
-
 public:
     DebugIndicator(shared::periph::DigitalOutput& digital_output)
         : digital_output_(digital_output) {}
 
     void Set() {
-        digital_output_.SetHigh();
+        state_ = true;
+        UpdateDO();
     }
 
     void Reset() {
-        digital_output_.SetLow();
+        state_ = false;
+        UpdateDO();
+    }
+
+    void Toggle() {
+        state_ = !state_;
+        UpdateDO();
+    }
+
+private:
+    shared::periph::DigitalOutput& digital_output_;
+    bool state_ = false;
+
+    inline void UpdateDO() {
+        digital_output_.Set(state_);
     }
 };
