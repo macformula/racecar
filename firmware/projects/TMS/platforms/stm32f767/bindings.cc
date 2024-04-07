@@ -26,18 +26,18 @@ void SystemClock_Config();
 }
 
 namespace mcal {
-periph::ADCInput temp_sensor_adc_1{&hadc1, SENS_1_UC_IN_CHANNEL};
-periph::ADCInput temp_sensor_adc_2{&hadc1, SENS_2_UC_IN_CHANNEL};
-periph::ADCInput temp_sensor_adc_3{&hadc1, SENS_3_UC_IN_CHANNEL};
-periph::ADCInput temp_sensor_adc_4{&hadc1, SENS_4_UC_IN_CHANNEL};
-periph::ADCInput temp_sensor_adc_5{&hadc1, SENS_5_UC_IN_CHANNEL};
-periph::ADCInput temp_sensor_adc_6{&hadc1, SENS_6_UC_IN_CHANNEL};
 
-periph::PWMOutput fan_controller_pwm{&htim4, TIM_CHANNEL_1};
-periph::DigitalOutput debug_do_blue{NUCLEO_BLUE_LED_GPIO_Port,
-                                    NUCLEO_BLUE_LED_Pin};
-periph::DigitalOutput debug_do_red{NUCLEO_RED_LED_GPIO_Port,
-                                   NUCLEO_RED_LED_Pin};
+using namespace stm32f767::periph;
+ADCInput temp_sensor_adc_1{&hadc1, SENS_1_UC_IN_CHANNEL};
+ADCInput temp_sensor_adc_2{&hadc1, SENS_2_UC_IN_CHANNEL};
+ADCInput temp_sensor_adc_3{&hadc1, SENS_3_UC_IN_CHANNEL};
+ADCInput temp_sensor_adc_4{&hadc1, SENS_4_UC_IN_CHANNEL};
+ADCInput temp_sensor_adc_5{&hadc1, SENS_5_UC_IN_CHANNEL};
+ADCInput temp_sensor_adc_6{&hadc1, SENS_6_UC_IN_CHANNEL};
+
+PWMOutput fan_controller_pwm{&htim4, TIM_CHANNEL_1};
+DigitalOutput debug_do_blue{NUCLEO_BLUE_LED_GPIO_Port, NUCLEO_BLUE_LED_Pin};
+DigitalOutput debug_do_red{NUCLEO_RED_LED_GPIO_Port, NUCLEO_RED_LED_Pin};
 
 }  // namespace mcal
 

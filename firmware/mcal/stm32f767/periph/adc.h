@@ -8,7 +8,7 @@
 #include "shared/periph/adc.h"
 #include "stm32f7xx_hal.h"
 
-namespace mcal::periph {
+namespace stm32f767::periph {
 
 class ADCInput : public shared::periph::ADCInput {
 private:
@@ -45,4 +45,4 @@ public:
     }
 };
 
-}  // namespace mcal::periph
+}  // namespace stm32f767::periph

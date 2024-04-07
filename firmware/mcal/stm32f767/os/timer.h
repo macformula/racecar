@@ -9,7 +9,7 @@
 #include "shared/os/os.h"
 #include "shared/os/timer.h"
 
-namespace mcal::os {
+namespace stm32f767::os {
 
 // TODO: Add comments and handle errors more robustly
 class Timer final : public shared::os::Timer {
@@ -34,4 +34,4 @@ private:
     osTimerId_t* timer_id_;
 };
 
-}  // namespace mcal::os
+}  // namespace stm32f767::os

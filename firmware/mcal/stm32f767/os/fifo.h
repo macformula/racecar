@@ -7,7 +7,7 @@
 #include "shared/os/fifo.h"
 #include "shared/os/os.h"
 
-namespace mcal::os {
+namespace stm32f767::os {
 
 // TODO: Add comments and handle errors more robustly
 class Fifo final : public shared::os::Fifo {
@@ -46,4 +46,4 @@ private:
     osMessageQueueId_t* fifo_id_;
 };
 
-}  // namespace mcal::os
+}  // namespace stm32f767::os
