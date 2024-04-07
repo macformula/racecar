@@ -5,6 +5,7 @@
 #include <string>
 
 #include "app.h"
+#include "shared/os/tick.h"
 #include "shared/periph/adc.h"
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
@@ -38,8 +39,8 @@ extern "C" {
 void UpdateTask(void* argument);
 }
 
-// clang-format off
 const float temp_lut_data[][2] = {
+    // clang-format off
     {2475, 120},
 	{2480, 115},
 	{2485, 110},
@@ -73,16 +74,16 @@ const float temp_lut_data[][2] = {
 	{3056, -30},
 	{3066, -35},
     {3077, -40},
+    // clang-format on
 };
-// clang-format on
 
-// clang-format off
 const float fan_lut_data[][2] = {
+    // clang-format off
 	{-1,    0},
 	{ 0,   30},
 	{50,  100}
+    // clang-format on
 };
-// clang-format on
 
 constexpr int temp_lut_length =
     (sizeof(temp_lut_data)) / (sizeof(temp_lut_data[0]));
@@ -137,11 +138,14 @@ void Update() {
 }
 
 void UpdateTask(void* argument) {
+    const static uint32_t kTaskPeriodMs = 100;
+
     fan_controller.Start(0);
     while (true) {
+        uint32_t start_time_ms = os::GetTickCount();
         Update();
         debug_blue.Toggle();  // toggling indicates the loop is running
-        os::Tick(100);
+        os::TickUntil(start_time_ms + kTaskPeriodMs);
     }
 }
 
