@@ -26,8 +26,8 @@ void SystemClock_Config();
 }
 
 namespace mcal {
-
 using namespace stm32f767::periph;
+
 ADCInput temp_sensor_adc_1{&hadc1, SENS_1_UC_IN_CHANNEL};
 ADCInput temp_sensor_adc_2{&hadc1, SENS_2_UC_IN_CHANNEL};
 ADCInput temp_sensor_adc_3{&hadc1, SENS_3_UC_IN_CHANNEL};

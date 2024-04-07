@@ -22,10 +22,12 @@ extern osTimerId_t messageTimerHandle;
 }
 
 namespace mcal {
-os::Semaphore sem_test{&testBinarySemaphoreHandle};
-os::Mutex mutex_test{&testMutexHandle};
-os::Fifo message_queue_test{&myTestQueueHandle};
-os::Timer timer_test{&messageTimerHandle};
+using namespace stm32f767::os;
+
+Semaphore sem_test{&testBinarySemaphoreHandle};
+Mutex mutex_test{&testMutexHandle};
+Fifo message_queue_test{&myTestQueueHandle};
+Timer timer_test{&messageTimerHandle};
 }  // namespace mcal
 
 namespace os {
