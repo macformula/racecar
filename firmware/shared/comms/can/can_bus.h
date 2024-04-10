@@ -8,7 +8,7 @@
 #include "shared/comms/can/raw_can_msg.h"
 #include "shared/periph/can.h"
 
-namespace shared::comms::can {
+namespace shared::can {
 
 class CanBus {
 public:
@@ -26,17 +26,11 @@ public:
     void Update() {
         RawCanMsg rx_queue[kMaxMsgQueueLen] = {0};
 
-        std::cerr << "Reading queue" << std::endl;
-
         can_base_.ReadQueue(rx_queue, kMaxMsgQueueLen);
-
-        std::cerr << "Unpacking messages" << std::endl;
 
         for (const auto& raw_msg : rx_queue) {
             rx_msg_registry_.SetMessage(raw_msg);
         }
-
-        return;
     }
 
     void Read(CanRxMsg& rx_msg) {
@@ -50,4 +44,4 @@ private:
     MsgRegistry& rx_msg_registry_;
 };
 
-}  // namespace shared::comms::can
+}  // namespace shared::can

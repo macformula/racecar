@@ -5,7 +5,10 @@
 
 #include <stdint.h>
 
-namespace shared::comms::can {
+#include <algorithm>
+#include <iostream>
+
+namespace shared::can {
 
 constexpr uint8_t kMaxMsgBytes = 8;
 
@@ -19,7 +22,18 @@ struct CanHeader {
 
 struct RawCanMsg {
     CanHeader header;
-    uint8_t data[kMaxMsgBytes];
+    uint8_t data[kMaxMsgBytes] = {0};
+
+    void Copy(
+        const shared::can::RawCanMsg& other) noexcept {
+                    
+        header.id = other.header.id;
+        header.data_len = other.header.data_len;
+        header.is_extended_frame = other.header.is_extended_frame;
+
+        std::copy(std::begin(other.data), std::end(other.data),
+                  std::begin(data));
+    }
 };
 
-}  // namespace shared::comms::can
+}  // namespace shared::can

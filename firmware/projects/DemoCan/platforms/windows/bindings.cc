@@ -1,7 +1,7 @@
 /// @author Samuel Parent
 /// @date 2024-01-16
 
-#include "mcal/raspi/periph/can.h"
+#include "mcal/windows/periph/can.h"
 #include "shared/periph/can.h"
 
 namespace mcal {
@@ -13,6 +13,6 @@ shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
 
 void Initialize() {
     mcal::veh_can_base.Setup();
-    std::cout << "Initializing raspi..." << std::endl;
+    std::cout << "Initializing windows..." << std::endl;
 }
 }  // namespace bindings

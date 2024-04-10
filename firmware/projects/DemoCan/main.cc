@@ -5,29 +5,28 @@
 #include <iostream>
 #include <thread>
 
-#include "bindings.h"
-#include "generated/can_messages.h"
-#include "generated/msg_registry.h"
+#include "generated/can/can_messages.h"
+#include "generated/can/msg_registry.h"
 #include "shared/comms/can/can_bus.h"
 
 namespace bindings {
-extern mcal::periph::CanBase veh_can_base;
+extern shared::periph::CanBase& veh_can_base;
 extern void Initialize();
 }  // namespace bindings
 
-generated::can::DemoCanVehMsgRegistry veh_can_registry{};
+generated::can::VehMsgRegistry veh_can_registry{};
 
-shared::comms::can::CanBus veh_can_bus{
+shared::can::CanBus veh_can_bus{
     bindings::veh_can_base,
-    veh_can_regitry,
+    veh_can_registry,
 };
 
 int main(void) {
     bindings::Initialize();
-    std::chrono::milliseconds duration(1000);
+    std::chrono::milliseconds duration(100);
 
-    generated::can::TmsBroadcast tms_msg;
-    generated::can::DebugLedOverride led_msg;
+    generated::can::TempSensors temp_sens_msg;
+    generated::can::VehicleInfo veh_info_msg;
 
     int i = 0;
     while (1) {
@@ -35,21 +34,19 @@ int main(void) {
 
         veh_can_bus.Update();
 
-        veh_can_bus.Read(led_msg);
+        veh_can_bus.Read(veh_info_msg);
 
-        std::cout << "led green: " << led_msg.set_green_led
-                  << " led red: " << led_msg.set_red_led << std::endl;
+        std::cout << "requested speed: " << veh_info_msg.requested_speed
+                  << " actual speed: " << veh_info_msg.wheel_speed << std::endl;
 
-        tms_msg.therm_module_num = i++;
-        tms_msg.num_therm_enabled = i++;
-        tms_msg.low_therm_value = i++;
-        tms_msg.high_therm_value = i++;
-        tms_msg.avg_therm_value = i++;
-        tms_msg.high_therm_id = i++;
-        tms_msg.low_therm_id = i++;
-        tms_msg.checksum = i++;
+        temp_sens_msg.sensor1 = i++;
+        temp_sens_msg.sensor2 = i++;
+        temp_sens_msg.sensor3 = i++;
+        temp_sens_msg.sensor4 = i++;
+        temp_sens_msg.sensor5 = i++;
+        temp_sens_msg.sensor6 = i++;
 
-        veh_can_bus.Send(tms_msg);
+        veh_can_bus.Send(temp_sens_msg);
     }
 
     return 0;

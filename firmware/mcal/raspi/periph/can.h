@@ -52,11 +52,9 @@ public:
         }
 
         reader_thread = std::thread(&CanBase::StartReading, this);
-
-        return;
     }
 
-    void Send(const shared::comms::can::RawCanMsg& can_tx_msg) {
+    void Send(const shared::can::RawCanMsg& can_tx_msg) {
         frame_.can_id = can_tx_msg.header.id;
         frame_.can_dlc = can_tx_msg.header.data_len;
         memcpy((uint8_t*)frame_.data, can_tx_msg.data, 8);
@@ -66,11 +64,9 @@ public:
             perror("Error writing to socket");
             close(sock_);
         }
-
-        return;
     }
 
-    void ReadQueue(shared::comms::can::RawCanMsg can_rx_msgs[], size_t len) {
+    void ReadQueue(shared::can::RawCanMsg can_rx_msgs[], size_t len) {
         uint16_t msg_idx = 0;
         {
             std::lock_guard<std::mutex> lock(queue_mtx_);
@@ -80,12 +76,10 @@ public:
                 msg_idx++;
             }
         }
-
-        return;
     }
 
 private:
-    using RawCanMsg = shared::comms::can::RawCanMsg;
+    using RawCanMsg = shared::can::RawCanMsg;
 
     static constexpr uint8_t kMaxMsgBytes = 8;
 

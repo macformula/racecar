@@ -7,7 +7,7 @@
 # Use the adjacent Makefile to call CMake. It handles the gritty details to
 # ensure options are properly set and the correct build directory is chosen.
 
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.27)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/functions.cmake)
 

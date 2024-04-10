@@ -3,14 +3,28 @@
 
 #pragma once
 
-#include "shared/comms/can/can_msg.h"
+#include "shared/comms/can/raw_can_msg.h"
 
-namespace shared::comms::can {
+namespace shared::can {
 
 class MsgRegistry {
 public:
     virtual bool SetMessage(const RawCanMsg&) = 0;
     virtual bool GetMessage(CanRxMsg&) = 0;
+
+protected:
+    static inline void Unpack(CanRxMsg* rx_msg, const RawCanMsg& raw_msg) {
+        rx_msg->Unpack(raw_msg);
+    }
+
+    static inline void Clone(const CanRxMsg* const srd_rx_msg,
+                             CanRxMsg& dst_rx_msg) {
+        srd_rx_msg->Clone(dst_rx_msg);
+    }
+
+    static inline CanId MsgId(const CanRxMsg* const rx_msg) {
+        return rx_msg->Id();
+    }
 };
 
-}  // namespace shared::comms::can
+}  // namespace shared::can
