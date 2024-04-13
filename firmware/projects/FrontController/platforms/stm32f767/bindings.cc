@@ -14,15 +14,16 @@
 #include "mcal/stm32f767/periph/gpio.h"
 
 namespace mcal {
-mcal::periph::DigitalOutput driver_speaker{RTDS_EN_GPIO_Port, RTDS_EN_Pin};
-mcal::periph::DigitalOutput brake_light{BRAKE_LIGHT_EN_GPIO_Port,
-                                        BRAKE_LIGHT_EN_Pin};
-mcal::periph::ADCInput accel_pedal_1{&hadc1, ADC_CHANNEL_10};
-mcal::periph::ADCInput accel_pedal_2{&hadc1, ADC_CHANNEL_11};
-mcal::periph::ADCInput steering_wheel{&hadc1, ADC_CHANNEL_12};
-mcal::periph::ADCInput brake_pedal{&hadc1, ADC_CHANNEL_13};
-mcal::periph::DigitalInput driver_button{START_BUTTON_N_GPIO_Port,
-                                         START_BUTTON_N_Pin};
+using namespace stm32f767::periph;
+
+DigitalOutput driver_speaker{RTDS_EN_GPIO_Port, RTDS_EN_Pin};
+DigitalOutput brake_light{BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin};
+ADCInput accel_pedal_1{&hadc1, ADC_CHANNEL_10};
+ADCInput accel_pedal_2{&hadc1, ADC_CHANNEL_11};
+ADCInput steering_wheel{&hadc1, ADC_CHANNEL_12};
+ADCInput brake_pedal{&hadc1, ADC_CHANNEL_13};
+DigitalInput driver_button{START_BUTTON_N_GPIO_Port, START_BUTTON_N_Pin};
+
 }  // namespace mcal
 
 extern "C" {

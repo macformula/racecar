@@ -12,15 +12,19 @@
 #include "shared/periph/pwm.h"
 
 namespace mcal {
-periph::ADCInput temp_sensor_adc_1{"Temperature Sensor 1"};
-periph::ADCInput temp_sensor_adc_2{"Temperature Sensor 2"};
-periph::ADCInput temp_sensor_adc_3{"Temperature Sensor 3"};
-periph::ADCInput temp_sensor_adc_4{"Temperature Sensor 4"};
-periph::ADCInput temp_sensor_adc_5{"Temperature Sensor 5"};
-periph::ADCInput temp_sensor_adc_6{"Temperature Sensor 6"};
-periph::PWMOutput fan_controller_pwm{"Fan Controller"};
-periph::DigitalOutput debug_do_blue{"Debug: Blue"};
-periph::DigitalOutput debug_do_red{"Debug: Red"};
+using namespace windows::periph;
+
+ADCInput temp_sensor_adc_1{"Temperature Sensor 1"};
+ADCInput temp_sensor_adc_2{"Temperature Sensor 2"};
+ADCInput temp_sensor_adc_3{"Temperature Sensor 3"};
+ADCInput temp_sensor_adc_4{"Temperature Sensor 4"};
+ADCInput temp_sensor_adc_5{"Temperature Sensor 5"};
+ADCInput temp_sensor_adc_6{"Temperature Sensor 6"};
+
+PWMOutput fan_controller_pwm{"Fan Controller"};
+DigitalOutput debug_do_blue{"Debug: Blue"};
+DigitalOutput debug_do_red{"Debug: Red"};
+
 }  // namespace mcal
 
 namespace bindings {

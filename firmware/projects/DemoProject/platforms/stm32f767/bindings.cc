@@ -18,8 +18,10 @@ void SystemClock_Config();
 }
 
 namespace mcal {
-periph::DigitalInput button_di{ButtonPin_GPIO_Port, ButtonPin_Pin};
-periph::DigitalOutput indicator_do{LedPin_GPIO_Port, LedPin_Pin};
+using namespace stm32f767::periph;
+
+DigitalInput button_di{ButtonPin_GPIO_Port, ButtonPin_Pin};
+DigitalOutput indicator_do{LedPin_GPIO_Port, LedPin_Pin};
 }  // namespace mcal
 
 namespace bindings {

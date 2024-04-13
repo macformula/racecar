@@ -9,7 +9,7 @@
 #include "shared/periph/pwm.h"
 #include "shared/util/mappers/clamper.h"
 
-namespace mcal::periph {
+namespace mcal::windows::periph {
 
 class PWMOutput : public shared::periph::PWMOutput {
 public:
@@ -41,4 +41,4 @@ private:
     float duty_cycle_;
 };
 
-}  // namespace mcal::periph
+}  // namespace mcal::windows::periph

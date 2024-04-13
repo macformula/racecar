@@ -9,7 +9,7 @@
 
 #include "shared/periph/adc.h"
 
-namespace mcal::periph {
+namespace mcal::windows::periph {
 
 class ADCInput : public shared::periph::ADCInput {
 public:
@@ -32,4 +32,4 @@ private:
     std::string name_;
 };
 
-}  // namespace mcal::periph
+}  // namespace mcal::windows::periph
