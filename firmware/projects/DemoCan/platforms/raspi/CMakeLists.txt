@@ -3,4 +3,4 @@ target_sources(bindings
 	bindings.cc
 )
 
-target_include_libraries(bindings PUBLIC ${CMAKE_SOURCE_DIR})
+target_include_directories(bindings PUBLIC ${CMAKE_SOURCE_DIR})
