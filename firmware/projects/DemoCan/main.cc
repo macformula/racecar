@@ -29,7 +29,7 @@ int main(void) {
     generated::can::VehicleInfo veh_info_msg;
 
     int i = 0;
-    while (1) {
+    while (true) {
         std::this_thread::sleep_for(duration);
 
         veh_can_bus.Update();

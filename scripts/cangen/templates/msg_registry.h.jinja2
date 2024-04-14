@@ -15,11 +15,9 @@ namespace generated::can {
 class {{ reg_class_name }} : public shared::can::MsgRegistry {
 public:
     bool SetMessage(const shared::can::RawCanMsg& raw_msg) {
-        bool msg_found = false;
+        bool msg_found = (rx_msg_map_.count(raw_msg.header.id) > 0);
 
-        if (rx_msg_map_.count(raw_msg.header.id) > 0) {
-            msg_found = true;
-
+        if (msg_found) {
             Unpack(rx_msg_map_[raw_msg.header.id], raw_msg);
         }
 
@@ -27,13 +25,11 @@ public:
     }
 
     bool GetMessage(shared::can::CanRxMsg& rx_msg) {
-        bool msg_found = false;
-
         shared::can::CanId mid = MsgId(&rx_msg);
 
-        if (rx_msg_map_.count(mid) > 0) {
-            msg_found = true;
+        bool msg_found = (rx_msg_map_.count(mid) > 0);
 
+        if (msg_found) {
             Clone(rx_msg_map_[mid], rx_msg);
         }
 
