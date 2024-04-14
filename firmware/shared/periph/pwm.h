@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <concepts>
-
 #include "shared/util/peripheral.h"
 
 namespace shared::periph {

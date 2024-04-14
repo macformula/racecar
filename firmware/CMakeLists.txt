@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.27)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/functions.cmake)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
-	set(CMAKE_BUILD_TYPE Debug)
+    set(CMAKE_BUILD_TYPE Debug)
 endif()
 
 message("Build type: ${CMAKE_BUILD_TYPE}")
@@ -39,11 +39,13 @@ set(DIR_PROJECT "${CMAKE_CURRENT_SOURCE_DIR}/projects/${PROJECT}")
 set(DIR_PLATFORM "${DIR_PROJECT}/platforms/${PLATFORM}")
 
 directory_exists(out ${DIR_PROJECT})
+
 if(NOT ${out})
     message(FATAL_ERROR "Invalid project \"${PROJECT}\".")
 endif()
 
 directory_exists(out ${DIR_PLATFORM})
+
 if(NOT ${out})
     message(FATAL_ERROR "Invalid platform \"${PLATFORM}\".")
 endif()
@@ -53,11 +55,13 @@ endif()
 set(MCAL_CONF_FILE ${DIR_PLATFORM}/mcal_conf.cmake)
 
 file_exists(out ${MCAL_CONF_FILE})
+
 if(NOT ${out})
     message(FATAL_ERROR "Expected to find \"${MCAL_CONF_FILE}\".")
 endif()
 
 include(${MCAL_CONF_FILE}) # Should define MCAL
+
 if(NOT DEFINED MCAL)
     message(FATAL_ERROR
         "Expected MCAL to be defined in \"${MCAL_CONF_FILE}\".")
@@ -66,6 +70,7 @@ endif()
 set(DIR_MCAL ${CMAKE_CURRENT_SOURCE_DIR}/mcal/${MCAL})
 
 directory_exists(out ${DIR_MCAL})
+
 if(NOT ${out})
     string(CONCAT errmsg
         "Invalid mcal \"${MCAL}\". "
@@ -100,11 +105,17 @@ set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
 add_executable(main)
 add_library(bindings)
 
-add_subdirectory(shared)            # provides "shared" (library)
-add_subdirectory(${DIR_MCAL})       # provides "mcal-<name>" (library)
+add_subdirectory(shared) # provides "shared" (library)
+add_subdirectory(${DIR_MCAL}) # provides "mcal-<name>" (library)
 
-add_subdirectory(${DIR_PROJECT})    # modifies "main" (executable)
-add_subdirectory(${DIR_PLATFORM})   # modifies "bindings" (library)
+add_subdirectory(${DIR_PROJECT}) # modifies "main" (executable)
+add_subdirectory(${DIR_PLATFORM}) # modifies "bindings" (library)
+
+set(DIR_ETL "${CMAKE_CURRENT_SOURCE_DIR}/third-party/etl/include")
+target_include_directories(main
+    PUBLIC
+    ${DIR_ETL}
+)
 
 target_link_libraries(main PRIVATE shared)
 target_link_libraries(main PRIVATE bindings)
@@ -113,7 +124,7 @@ target_link_libraries(main PRIVATE bindings)
 # The project needs to provide an underlying OS target
 # in the platform/${PLATFORM_NAME}/CMakeLists.txt
 if(TARGET os)
-	target_link_libraries(main PRIVATE os)
+    target_link_libraries(main PRIVATE os)
 endif()
 
 set(POSTBUILD_FILE ${DIR_MCAL}/PostBuild.cmake)
