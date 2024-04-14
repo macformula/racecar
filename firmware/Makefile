@@ -8,18 +8,20 @@ GENERATOR = -G"Unix Makefiles"
 
 COMPILE_COMMANDS_DEST = $(BUILD)/compile_commands.json
 
+.PHONY: build config clean deepclean st-flash
+
 build: config
 	cmake --build $(BUILD_DIR)
 
-config: FORCE
-	cmake -B $(BUILD_DIR) -S. $(GENERATOR) -DPROJECT=$(PROJECT) -DPLATFORM=$(PLATFORM) $(COMPILE_COMMANDS_FLAGS)
+config:
+	cmake -B $(BUILD_DIR) -S. $(GENERATOR) -D PROJECT=$(PROJECT) -D PLATFORM=$(PLATFORM)
 
 	@echo Copying compile_commands.json to $(BUILD) for clangd.
 	cp $(BUILD_DIR)/compile_commands.json $(COMPILE_COMMANDS_DEST)
-	@# Ensure the .clangd file exists
+	@# Ensure the .clangd file exists.
 	touch .clangd 
 
-clean: FORCE
+clean:
 	rm -rf $(BUILD_DIR)
 	rm -f $(COMPILE_COMMANDS_DEST)
 
@@ -33,5 +35,3 @@ endif
 
 st-flash: build
 	st-flash --reset write $(BUILD_DIR)/$(PROJECT).bin 0x08000000
-
-FORCE:
