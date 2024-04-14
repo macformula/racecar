@@ -22,7 +22,7 @@
 #include "shared/periph/can.h"
 #include "third-party/etl/include/etl/queue.h"
 
-namespace mcal::periph {
+namespace mcal::raspi::periph {
 
 class CanBase : public shared::periph::CanBase {
 public:
@@ -81,8 +81,6 @@ public:
     }
 
 private:
-    using RawCanMsg = shared::can::RawCanMsg;
-
     static constexpr uint8_t kMaxMsgBytes = 8;
 
     struct sockaddr_can sock_addr_;
@@ -91,7 +89,7 @@ private:
     std::string iface_;
     int sock_;
 
-    std::queue<RawCanMsg> can_queue_;
+    std::queue<shared::can::RawCanMsg> can_queue_;
     std::mutex queue_mtx_;
     std::thread reader_thread_;
 
@@ -106,7 +104,7 @@ private:
                 continue;
             }
 
-            RawCanMsg rawMsg;
+            shared::can::RawCanMsg rawMsg;
             rawMsg.header.id = frame.can_id;
             rawMsg.header.data_len = frame.can_dlc;
             rawMsg.header.is_extended_frame = frame.can_id & CAN_EFF_FLAG;

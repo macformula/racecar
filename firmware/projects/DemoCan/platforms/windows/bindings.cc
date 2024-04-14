@@ -5,7 +5,9 @@
 #include "shared/periph/can.h"
 
 namespace mcal {
-periph::CanBase veh_can_base{"vcan0"};
+using namespace periph::windows;
+
+CanBase veh_can_base{"vcan0"};
 }  // namespace mcal
 
 namespace bindings {
