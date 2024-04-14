@@ -30,7 +30,7 @@ public:
 
     void Setup() {
         // Create a socket
-        if ((sock_ = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
+        sock_ = socket(PF_CAN, SOCK_RAW, CAN_RAW) if (sock_ < 0) {
             perror("Error creating socket");
             return;
         }
@@ -45,13 +45,15 @@ public:
         // Bind the socket to the can interface
         sock_addr_.can_family = AF_CAN;
         sock_addr_.can_ifindex = ifreq_.ifr_ifindex;
-        if (bind(sock_, (struct sockaddr*)&sock_addr_, sizeof(sock_addr_)) <
-            0) {
+
+        int bind_status =
+            bind(sock_, (struct sockaddr*)&sock_addr_, sizeof(sock_addr_));
+        if (bind_status < 0) {
             perror("Error binding socket");
             close(sock_);
         }
 
-        reader_thread = std::thread(&CanBase::StartReading, this);
+        reader_thread_ = std::thread(&CanBase::StartReading, this);
     }
 
     void Send(const shared::can::RawCanMsg& can_tx_msg) {
@@ -91,7 +93,7 @@ private:
 
     std::queue<RawCanMsg> can_queue_;
     std::mutex queue_mtx_;
-    std::thread reader_thread;
+    std::thread reader_thread_;
 
     void StartReading() {
         struct can_frame frame;
