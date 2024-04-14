@@ -273,6 +273,7 @@ class CanGenerator:
         rendered_code = template.render(**context_dict)
 
         # Write the rendered code to a file
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, "w") as output_file:
             output_file.write(rendered_code)
 
