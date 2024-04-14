@@ -13,7 +13,7 @@ The following dependecies must be installed __and added to your PATH variable.__
 * CMake 3.27 or newer - [link](https://cmake.org/download/)
   * Verify with `cmake --version`
 
-* arm-none-eabi toolchain 10.3-2021.10 - [link](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)
+* arm-none-eabi toolchain 13.2.Rel1 - [link](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)
   * Verify with `arm-none-eabi-gcc --version`
 
 * Java SE Runtime Environment 13.0.2 or newer - [link](https://www.oracle.com/java/technologies/javase/jdk13-archive-downloads.html)
