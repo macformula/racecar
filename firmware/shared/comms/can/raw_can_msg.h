@@ -24,9 +24,7 @@ struct RawCanMsg {
     CanHeader header;
     uint8_t data[kMaxMsgBytes] = {0};
 
-    void Copy(
-        const shared::can::RawCanMsg& other) noexcept {
-                    
+    void Copy(const shared::can::RawCanMsg& other) noexcept {
         header.id = other.header.id;
         header.data_len = other.header.data_len;
         header.is_extended_frame = other.header.is_extended_frame;

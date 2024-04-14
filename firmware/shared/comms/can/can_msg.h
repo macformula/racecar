@@ -3,9 +3,6 @@
 
 #pragma once
 
-#include <concepts>
-#include <type_traits>
-
 #include "shared/comms/can/raw_can_msg.h"
 
 namespace shared::can {
@@ -23,18 +20,21 @@ private:
 
 protected:
     template <typename T>
-    static inline T unpack_right_shift(uint8_t value, uint8_t shift, uint8_t mask) {
+    static inline T unpack_right_shift(uint8_t value, uint8_t shift,
+                                       uint8_t mask) {
         return static_cast<T>(static_cast<T>(value & mask) >> shift);
     }
 
     template <typename T>
-    static inline T unpack_left_shift(uint8_t value, uint8_t shift, uint8_t mask)
-    {
+    static inline T unpack_left_shift(uint8_t value, uint8_t shift,
+                                      uint8_t mask) {
         return static_cast<T>(static_cast<T>(value & mask) << shift);
     }
 
     friend class MsgRegistry;
 };
+
+class CanBus;
 
 class CanTxMsg : public CanMsg {
 private:
@@ -50,7 +50,7 @@ protected:
 
     template <typename T>
     static inline uint8_t pack_right_shift(T value, uint8_t shift,
-                                          uint8_t mask) {
+                                           uint8_t mask) {
         return static_cast<uint8_t>(static_cast<uint8_t>(value >> shift) &
                                     mask);
     }

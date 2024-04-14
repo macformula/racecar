@@ -123,4 +123,4 @@ private:
     }
 };
 
-}  // namespace mcal::periph
+}  // namespace mcal::raspi::periph

@@ -1,4 +1,9 @@
-from can_gen import CanGen
+"""
+Author: Samuel Parent
+Date: 2024-04-13
+"""
+
+from can_generator import CanGenerator
 import yaml
 import argparse
 import logging
@@ -54,7 +59,7 @@ if __name__ == "__main__":
         this_script_dir, SCRIPTS_TO_TEMPLATES_DIR, MSG_REGISTRY_FILENAME
     )
 
-    can_generator = CanGen(
+    can_generator = CanGenerator(
         can_messages_template_path=can_msg_template_path,
         msg_registry_template_path=msg_registry_template_path,
     )

@@ -1,3 +1,8 @@
+"""
+Author: Samuel Parent
+Date: 2024-04-13
+"""
+
 import os
 import logging
 import math
@@ -10,7 +15,7 @@ from jinja2 import Environment
 logger = logging.getLogger(__name__)
 
 
-class CanGen:
+class CanGenerator:
     """
     This class provides functionalities for CAN code generation based on DBC files.
     """
