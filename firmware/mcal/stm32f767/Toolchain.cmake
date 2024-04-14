@@ -4,12 +4,12 @@
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR arm)
 
-set(TOOLCHAIN_PREFIX arm-none-eabi-)
 set(CMAKE_C_FLAGS_INIT
-    "-fdata-sections -ffunction-sections --specs=nano.specs -Wl,--gc-sections")
+    "-fdata-sections -ffunction-sections -Wl,--gc-sections")
 set(CMAKE_CXX_FLAGS_INIT
-    "${CMAKE_C_FLAGS_INIT} -fno-rtti -fno-exceptions -fno-threadsafe-statics --specs=nosys.specs")
+    "${CMAKE_C_FLAGS_INIT} -fno-rtti -fno-exceptions -fno-threadsafe-statics")
 
+set(TOOLCHAIN_PREFIX arm-none-eabi-)
 set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}gcc)
 set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
 set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}g++)
