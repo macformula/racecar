@@ -31,8 +31,8 @@ add_dependencies(main generated_can)
 
 
 target_include_directories(main
-PRIVATE
-${CMAKE_CURRENT_SOURCE_DIR}/inc
+	PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
 
 # Link ETL which is needed for generated/can/msg_registry.h
