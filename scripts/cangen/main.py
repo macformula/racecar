@@ -19,6 +19,7 @@ MSG_REGISTRY_FILENAME = "msg_registry.h.jinja2"
 
 logging.basicConfig(level="INFO", format="%(levelname)-8s| (%(name)s) %(message)s")
 
+print("RUNNING PYHTON")
 
 def read_yaml_file(yaml_file):
     with open(yaml_file, "r") as file:
