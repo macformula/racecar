@@ -29,10 +29,15 @@ target_sources(main
 )
 add_dependencies(main generated_can)
 
+
 target_include_directories(main
 	PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
+
+# Link ETL which is needed for generated/can/msg_registry.h
+add_subdirectory(${CMAKE_SOURCE_DIR}/third-party/etl ${CMAKE_BINARY_DIR}/third-party)
+target_link_libraries(main PRIVATE etl)
 
 # Notice that we don't include any mcal/ subdirectory in this CMake file.
 # The master CMakeLists handles platform selection and library linking.

@@ -15,7 +15,7 @@
 #include "shared/comms/can/raw_can_msg.h"
 #include "shared/periph/can.h"
 
-namespace mcal::periph {
+namespace mcal::windows::periph {
 
 class CanBase : public shared::periph::CanBase {
 public:
@@ -48,4 +48,4 @@ private:
     std::string iface_;
 };
 
-}  // namespace mcal::periph
+}  // namespace mcal::windows::periph

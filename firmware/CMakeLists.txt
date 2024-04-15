@@ -111,12 +111,6 @@ add_subdirectory(${DIR_MCAL}) # provides "mcal-<name>" (library)
 add_subdirectory(${DIR_PROJECT}) # modifies "main" (executable)
 add_subdirectory(${DIR_PLATFORM}) # modifies "bindings" (library)
 
-set(DIR_ETL "${CMAKE_CURRENT_SOURCE_DIR}/third-party/etl/include")
-target_include_directories(main
-    PUBLIC
-    ${DIR_ETL}
-)
-
 target_link_libraries(main PRIVATE shared)
 target_link_libraries(main PRIVATE bindings)
 

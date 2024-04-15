@@ -30,7 +30,8 @@ public:
 
     void Setup() {
         // Create a socket
-        sock_ = socket(PF_CAN, SOCK_RAW, CAN_RAW) if (sock_ < 0) {
+        sock_ = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+        if (sock_ < 0) {
             perror("Error creating socket");
             return;
         }
