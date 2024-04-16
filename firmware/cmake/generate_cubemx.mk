@@ -14,7 +14,9 @@ CUBEMX_GEN_SCRIPT = cubemx_script.txt
 # Makefile, i.e. whenever IOC_FILE has been updated but new code has not been
 # generated.
 
-Makefile: $(IOC_FILE)
+.PHONY: Makefile
+
+GenerateCubeMx: $(IOC_FILE)
 # Create an file containing commands to generate the cubemx code.
 	echo "config load \"$(IOC_FILE)\"" > $(CUBEMX_GEN_SCRIPT)
 	echo "project generate ./" >> $(CUBEMX_GEN_SCRIPT)
@@ -25,6 +27,7 @@ Makefile: $(IOC_FILE)
 
 	rm $(CUBEMX_GEN_SCRIPT)
 
+Makefile: $(IOC_FILE)
 # Add a recipe for building the sources to objects without linking them.
 # This is used by build_cubemx.cmake
 	echo "" >> Makefile
@@ -34,4 +37,4 @@ Makefile: $(IOC_FILE)
 # This is used by build_cubemx.cmake
 	echo "" >> Makefile
 	echo "%.value:" >> Makefile
-	echo -e "\t@echo \$$(\$$*)" >> Makefile
+	echo "\t@echo \$$(\$$*)" >> Makefile
