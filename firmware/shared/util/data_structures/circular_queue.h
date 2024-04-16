@@ -35,7 +35,7 @@ public:
     /// dequeuing.
     T Dequeue() {
         if (tail_ == head_ && !full_flag_) {
-            return 0;
+            return T{};
         }
 
         T item = buffer_[tail_];

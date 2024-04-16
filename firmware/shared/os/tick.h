@@ -6,6 +6,7 @@ namespace os {
 
 void Tick(uint32_t ticks);
 void TickUntil(uint32_t ticks);
+void TickBlocking(uint32_t ticks);
 uint32_t GetTickCount();
 
 }  // namespace os

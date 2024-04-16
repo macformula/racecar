@@ -16,16 +16,16 @@ CUBEMX_GEN_SCRIPT = cubemx_script.txt
 
 .PHONY: Makefile
 
-GenerateCubeMx: $(IOC_FILE)
-# Create an file containing commands to generate the cubemx code.
-	echo "config load \"$(IOC_FILE)\"" > $(CUBEMX_GEN_SCRIPT)
-	echo "project generate ./" >> $(CUBEMX_GEN_SCRIPT)
-	echo "exit" >> $(CUBEMX_GEN_SCRIPT)
+# GenerateCubeMx: $(IOC_FILE)
+# # Create an file containing commands to generate the cubemx code.
+# 	echo "config load \"$(IOC_FILE)\"" > $(CUBEMX_GEN_SCRIPT)
+# 	echo "project generate ./" >> $(CUBEMX_GEN_SCRIPT)
+# 	echo "exit" >> $(CUBEMX_GEN_SCRIPT)
 
-# Run the cubemx program to generate code.
-	java -jar "$(CUBEMX_PATH)" -q "$(CUBEMX_GEN_SCRIPT)"
+# # Run the cubemx program to generate code.
+# 	java -jar "$(CUBEMX_PATH)" -q "$(CUBEMX_GEN_SCRIPT)"
 
-	rm $(CUBEMX_GEN_SCRIPT)
+# 	rm $(CUBEMX_GEN_SCRIPT)
 
 Makefile: $(IOC_FILE)
 # Add a recipe for building the sources to objects without linking them.
