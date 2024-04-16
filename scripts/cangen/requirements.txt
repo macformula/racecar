@@ -8,7 +8,6 @@ MarkupSafe==2.1.5
 numpy==1.26.4
 packaging==24.0
 python-can==4.3.1
-pywin32==306
 PyYAML==6.0.1
 textparser==0.24.0
 typing_extensions==4.11.0
