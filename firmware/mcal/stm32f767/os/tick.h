@@ -18,10 +18,6 @@ void Tick(uint32_t ticks) {
     osDelay(ticks);
 }
 
-void TickBlocking(uint32_t ticks) {
-    HAL_Delay(ticks);
-}
-
 void TickUntil(uint32_t ticks) {
     osDelayUntil(ticks);
 }
