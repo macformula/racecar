@@ -110,9 +110,6 @@ private:
             rawMsg.header.data_len = frame.can_dlc;
             rawMsg.header.is_extended_frame = frame.can_id & CAN_EFF_FLAG;
 
-            std::cout << "Can base frame " << std::hex << rawMsg.header.id
-                      << " data len " << rawMsg.header.data_len << std::endl;
-
             std::copy(frame.data, frame.data + kMaxMsgBytes, rawMsg.data);
 
             // Add to the queue
