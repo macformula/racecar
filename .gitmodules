@@ -7,3 +7,6 @@
 [submodule "firmware/third-party/etl"]
 	path = firmware/third-party/etl
 	url = https://github.com/ETLCPP/etl.git
+[submodule "firmware/third-party/RaspberryPi-FreeRTOS"]
+	path = firmware/third-party/RaspberryPi-FreeRTOS
+	url = https://github.com/jameswalmsley/RaspberryPi-FreeRTOS.git
