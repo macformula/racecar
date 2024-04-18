@@ -7,6 +7,9 @@
 [submodule "firmware/third-party/etl"]
 	path = firmware/third-party/etl
 	url = https://github.com/ETLCPP/etl.git
+[submodule "firmware/third-party/RaspberryPi-FreeRTOS"]
+	path = firmware/third-party/RaspberryPi-FreeRTOS
+	url = https://github.com/jameswalmsley/RaspberryPi-FreeRTOS.git
 [submodule "firmware/projects/FrontControllerSimple/vehicle_control_system"]
 	path = firmware/projects/FrontControllerSimple/vehicle_control_system
 	url = https://github.com/macformula/vehicle_control_system.git
