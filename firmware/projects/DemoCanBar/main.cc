@@ -6,7 +6,6 @@
 #include "generated/can/can_messages.h"
 #include "generated/can/msg_registry.h"
 #include "shared/comms/can/can_bus.h"
-#include "shared/os/tick.h"
 
 namespace bindings {
 extern shared::periph::CanBase& veh_can_base;
