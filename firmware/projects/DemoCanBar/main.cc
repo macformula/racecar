@@ -2,7 +2,6 @@
 /// @date 2024-01-16
 
 #include <cstdint>
-#include <iostream>
 
 #include "generated/can/can_messages.h"
 #include "generated/can/msg_registry.h"
