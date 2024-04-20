@@ -35,8 +35,6 @@ int main(void) {
         veh_can_bus.Update();
         veh_can_bus.Read(temp_sens_msg);
 
-        std::cout << "last received: " << temp_sens_msg.tick_timestamp << std::endl;
-
         temp_sens_msg_reply.sensor1 = temp_sens_msg.sensor1;
         temp_sens_msg_reply.sensor2 = temp_sens_msg.sensor2;
         temp_sens_msg_reply.sensor3 = temp_sens_msg.sensor3;
