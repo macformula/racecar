@@ -3,6 +3,7 @@
 
 #include <sys/_stdint.h>
 #include <cstdint>
+#include <iostream>
 
 #include "generated/can/can_messages.h"
 #include "generated/can/msg_registry.h"
@@ -34,6 +35,8 @@ int main(void) {
 
         veh_can_bus.Update();
         veh_can_bus.Read(temp_sens_msg);
+
+        std::cout << "last received: " << temp_sens_msg.tick_timestamp << std::endl;
 
         temp_sens_msg_reply.sensor1 = temp_sens_msg.sensor1;
         temp_sens_msg_reply.sensor2 = temp_sens_msg.sensor2;
