@@ -3,22 +3,29 @@
 # This file is included in the cubemx/CMakeLists.txt file of all projects'
 # platforms that use the stm32f767 mcal
 
-message(STATUS "Building CubeMX objects with the auto-generated Makefile")
 
-execute_process(
-    # Calls generate_cubemx.mk in the context of this file, which is adjacent to
-    # the board_config.ioc file.
-	COMMAND ${CMAKE_MAKE_PROGRAM} "--file" "${CMAKE_SOURCE_DIR}/cmake/generate_cubemx.mk"
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
+if (AUTOGEN_CUBEMX)
+    message(STATUS "Building CubeMX objects with the auto-generated Makefile")
+    execute_process(
+        # Calls generate_cubemx.mk in the context of this file, which is adjacent to
+        # the board_config.ioc file.
+        COMMAND ${CMAKE_MAKE_PROGRAM} "--file" "${CMAKE_SOURCE_DIR}/cmake/generate_cubemx.mk"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+else()
+    string(CONCAT msg
+    "Not autogenerating from CubeMX. You must manually call 'Generate "
+    "Code' and append the custom_cubemx_targets to the resulting Makefile."
+    )
+    message(WARNING ${msg})
+endif()
+
 execute_process(
     # Build all cubemx sources to their objects. This target is added to the
     # cubemx Makefile by generate_cubemx.mk.
 	COMMAND ${CMAKE_MAKE_PROGRAM} "objects"
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
-
-# Get variables from makefile
 
 function(extract_make_variable output makefile var_name)
     # Get a variable from a Makefile
@@ -28,6 +35,7 @@ function(extract_make_variable output makefile var_name)
     #     @echo $($*)
     # 
     # generate_cubemx.mk appends this to the cubemx Makefile
+    # See custom_cubemx_targets.mk
     execute_process(
         COMMAND ${CMAKE_MAKE_PROGRAM} "--file=${makefile}" "${var_name}.value" "--no-print-directory"
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}

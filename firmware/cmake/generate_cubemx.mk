@@ -10,31 +10,24 @@ IOC_FILE = board_config.ioc
 
 CUBEMX_GEN_SCRIPT = cubemx_script.txt
 
+# Get the directory of this file since it is called from other locations
+MAKEFILE_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+CUSTOM_TARGETS_FILE = $(MAKEFILE_DIR)/custom_cubemx_targets.mk
+
 # This recipe will execute whenever IOC_FILE has a newer timestamp than the
 # Makefile, i.e. whenever IOC_FILE has been updated but new code has not been
 # generated.
 
-.PHONY: Makefile
-
-# GenerateCubeMx: $(IOC_FILE)
-# # Create an file containing commands to generate the cubemx code.
-# 	echo "config load \"$(IOC_FILE)\"" > $(CUBEMX_GEN_SCRIPT)
-# 	echo "project generate ./" >> $(CUBEMX_GEN_SCRIPT)
-# 	echo "exit" >> $(CUBEMX_GEN_SCRIPT)
-
-# # Run the cubemx program to generate code.
-# 	java -jar "$(CUBEMX_PATH)" -q "$(CUBEMX_GEN_SCRIPT)"
-
-# 	rm $(CUBEMX_GEN_SCRIPT)
-
 Makefile: $(IOC_FILE)
-# Add a recipe for building the sources to objects without linking them.
-# This is used by build_cubemx.cmake
-	echo "" >> Makefile
-	echo 'objects: $$(OBJECTS)' >> Makefile
+# Create an file containing commands to generate the cubemx code.
+	printf 'config load "%s"\n' $(IOC_FILE) > $(CUBEMX_GEN_SCRIPT)
+	printf 'project generate ./\n' >> $(CUBEMX_GEN_SCRIPT)
+	printf 'exit\n' >> $(CUBEMX_GEN_SCRIPT)
 
-# Add a recipe for printing any Makefile variable to stdout
-# This is used by build_cubemx.cmake
-	echo "" >> Makefile
-	echo "%.value:" >> Makefile
-	echo "\t@echo \$$(\$$*)" >> Makefile
+# Run the cubemx program to generate code.
+	java -jar "$(CUBEMX_PATH)" -q "$(CUBEMX_GEN_SCRIPT)"
+
+	rm $(CUBEMX_GEN_SCRIPT)
+
+# Copy extra targets
+	cat $(CUSTOM_TARGETS_FILE) >> Makefile
