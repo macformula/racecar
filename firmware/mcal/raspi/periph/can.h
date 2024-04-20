@@ -102,7 +102,7 @@ private:
 
     inline uint32_t get_tick() {
         std::chrono::milliseconds elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now() - start);
+            std::chrono::steady_clock::now() - program_start_);
         return static_cast<uint32_t>(elapsed_ms.count());
     }
 
