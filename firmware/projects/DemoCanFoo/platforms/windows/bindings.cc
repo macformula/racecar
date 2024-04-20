@@ -1,11 +1,11 @@
 /// @author Samuel Parent
 /// @date 2024-01-16
 
-#include "mcal/windows/periph/can.h"
-#include "shared/periph/can.h"
-
 #include <chrono>
 #include <thread>
+
+#include "mcal/windows/periph/can.h"
+#include "shared/periph/can.h"
 
 namespace mcal {
 using namespace windows::periph;
@@ -15,7 +15,6 @@ CanBase veh_can_base{"vcan0"};
 
 namespace bindings {
 shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
-
 
 void TickBlocking(uint32_t ticks) {
     std::chrono::milliseconds duration(ticks);

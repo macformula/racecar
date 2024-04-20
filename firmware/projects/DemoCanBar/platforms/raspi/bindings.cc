@@ -1,11 +1,11 @@
 /// @author Samuel Parent
 /// @date 2024-01-16
 
-#include "mcal/raspi/periph/can.h"
-#include "shared/periph/can.h"
-
 #include <chrono>
 #include <thread>
+
+#include "mcal/raspi/periph/can.h"
+#include "shared/periph/can.h"
 
 namespace mcal {
 using namespace raspi::periph;

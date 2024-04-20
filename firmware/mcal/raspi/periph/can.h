@@ -28,7 +28,7 @@ namespace mcal::raspi::periph {
 
 class CanBase : public shared::periph::CanBase {
 public:
-    CanBase(std::string can_iface) : iface_(can_iface){
+    CanBase(std::string can_iface) : iface_(can_iface) {
         program_start_ = std::chrono::steady_clock::now();
     };
 
@@ -101,8 +101,9 @@ private:
     std::chrono::steady_clock::time_point program_start_;
 
     inline uint32_t get_tick() {
-        std::chrono::milliseconds elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now() - program_start_);
+        std::chrono::milliseconds elapsed_ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now() - program_start_);
         return static_cast<uint32_t>(elapsed_ms.count());
     }
 

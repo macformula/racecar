@@ -65,7 +65,7 @@ public:
 
         CAN_RxHeaderTypeDef stm_rx_header;
         shared::can::RawCanMsg raw_rx_msg;
-        
+
         raw_rx_msg.tick_timestamp = get_tick_ms();
 
         HAL_CAN_GetRxMessage(hcan_, kCanRxFifo0, &stm_rx_header,
