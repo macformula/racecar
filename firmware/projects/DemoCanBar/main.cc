@@ -1,7 +1,6 @@
 /// @author Samuel Parent
 /// @date 2024-01-16
 
-#include <sys/_stdint.h>
 #include <cstdint>
 #include <iostream>
 
