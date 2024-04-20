@@ -8,13 +8,10 @@
 #include "shared/comms/can/can_bus.h"
 #include "shared/os/tick.h"
 
-namespace os {
-extern void TickBlocking(uint32_t ticks);
-}
-
 namespace bindings {
 extern shared::periph::CanBase& veh_can_base;
 extern void Initialize();
+extern void TickBlocking(uint32_t);
 }  // namespace bindings
 
 generated::can::VehMsgRegistry veh_can_registry{};
@@ -31,7 +28,7 @@ int main(void) {
     generated::can::TempSensors temp_sens_msg{};
 
     while (true) {
-        os::TickBlocking(tick_duration);
+        bindings::TickBlocking(tick_duration);
 
         veh_can_bus.Update();
 

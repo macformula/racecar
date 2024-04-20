@@ -35,6 +35,11 @@ void Initialize() {
     mcal::veh_can_base.Setup();
 }
 
+void TickBlocking(uint32_t ticks) {
+    HAL_Delay(ticks);
+}
+
+
 extern "C" {
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
     if (hcan == &hcan3) {
