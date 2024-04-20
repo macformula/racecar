@@ -65,6 +65,8 @@ public:
 
         CAN_RxHeaderTypeDef stm_rx_header;
         shared::can::RawCanMsg raw_rx_msg;
+        
+        raw_rx_msg.tick_timestamp = get_tick_ms();
 
         HAL_CAN_GetRxMessage(hcan_, kCanRxFifo0, &stm_rx_header,
                              raw_rx_msg.data);
@@ -118,6 +120,10 @@ private:
         ret_rx_header.data_len = static_cast<uint8_t>(stm_rx_header.DLC);
 
         return ret_rx_header;
+    }
+
+    inline uint32_t get_tick_ms() {
+        return HAL_GetTick() * HAL_GetTickFreq();
     }
 
     /// @todo broadcast these over a can message
