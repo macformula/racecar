@@ -4,7 +4,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <sys/_stdint.h>
 
 #include <algorithm>
 #include <iostream>
