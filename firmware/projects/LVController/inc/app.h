@@ -116,8 +116,12 @@ private:
 
 class DCDC : public Subsystem {
 public:
-    DCDC(shared::periph::DigitalOutput enable_output, bool invert_enable,
-         shared::periph::DigitalInput valid_input, bool inve);
+    DCDC(shared::periph::DigitalOutput& enable_output, bool invert_enable,
+         shared::periph::DigitalInput& valid_input, bool invert_valid)
+        : Subsystem(enable_output, invert_enable),
+          valid_input_(valid_input),
+          valid_state_(!invert_valid){};
+
     bool IsValid() const {
         return valid_input_.Read() == valid_state_;
     }
