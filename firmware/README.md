@@ -16,14 +16,17 @@ The following dependecies must be installed __and added to your PATH variable.__
 * arm-none-eabi toolchain 13.2.Rel1 - [link](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)
   * Verify with `arm-none-eabi-gcc --version`
 
-* Java SE Runtime Environment 13.0.2 or newer - [link](https://www.oracle.com/java/technologies/javase/jdk13-archive-downloads.html)
-  * Verify with `java --version`
-
-* STM32CubeMX 6.8.1 - [link](https://www.st.com/en/development-tools/stm32cubemx)
-  * Select the 6.8.1 version in the __Get Software__ section.
+* STM32CubeMX 6.11.0 - [link](https://www.st.com/en/development-tools/stm32cubemx#get-software)
   * Verify by running `stm32cubemx`. The application should open.
 
+* Java SE Runtime Environment 17 or newer - [link](https://www.oracle.com/java/technologies/java-se-glance.html)
+  * This is a dependency of CubeMX.
+  * If you don't already have a compliant version installed, get the latest version.
+  * Verify java with `java --version`.
+  * Ensure `java -jar <path/to/STM32CubeMX.exe` opens CubeMX.
+
 * clangd 16.0.2 - [link](https://github.com/clangd/clangd/releases/tag/16.0.2)
+  * You must use this exact version.
   * Download and extract `clang-<platform>-16.0.2.zip`
   * This is our "official" C/C++ language server.
   * Verify with ``clangd --version``.
