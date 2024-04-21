@@ -28,8 +28,6 @@ extern shared::periph::DigitalOutput& powertrain_fan_en;
 extern shared::periph::PWMOutput& powertrain_fan_pwm;
 extern shared::util::Mapper<float>& powertrain_fan_power_to_duty;
 
-extern Status dcdc_status;
-
 extern void Initialize();
 }  // namespace bindings
 
