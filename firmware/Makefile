@@ -1,9 +1,6 @@
 PLATFORM =
 PROJECT = 
 
-# Pass `AUTOGEN_CUBEMX=OFF` to `make` to disable cubmx generation
-AUTOGEN_CUBEMX = ON
-
 BUILD = build
 BUILD_DIR = $(BUILD)/$(PROJECT)/$(PLATFORM)
 CUBEMX_DIR := projects/$(PROJECT)/platforms/$(PLATFORM)/cubemx
@@ -17,7 +14,7 @@ build: config
 	cmake --build $(BUILD_DIR)
 
 config:
-	cmake -B $(BUILD_DIR) -S. $(GENERATOR) -D PROJECT=$(PROJECT) -D PLATFORM=$(PLATFORM) -D AUTOGEN_CUBEMX=$(AUTOGEN_CUBEMX)
+	cmake -B $(BUILD_DIR) -S. $(GENERATOR) -D PROJECT=$(PROJECT) -D PLATFORM=$(PLATFORM)
 
 	@echo Copying compile_commands.json to $(BUILD) for clangd.
 	cp $(BUILD_DIR)/compile_commands.json $(COMPILE_COMMANDS_DEST)

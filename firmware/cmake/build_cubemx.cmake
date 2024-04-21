@@ -3,27 +3,29 @@
 # This file is included in the cubemx/CMakeLists.txt file of all projects'
 # platforms that use the stm32f767 mcal
 
+message(STATUS "Generating from CubeMX and adding custom targets.")
+execute_process(
+    # Calls generate_cubemx.mk in the context of this file, which is adjacent to
+    # the board_config.ioc file.
+    COMMAND ${CMAKE_MAKE_PROGRAM} "--file=${CMAKE_SOURCE_DIR}/cmake/generate_cubemx.mk"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    RESULT_VARIABLE status
+)
 
-if (AUTOGEN_CUBEMX)
-    message(STATUS "Building CubeMX objects with the auto-generated Makefile")
-    execute_process(
-        # Calls generate_cubemx.mk in the context of this file, which is adjacent to
-        # the board_config.ioc file.
-        COMMAND ${CMAKE_MAKE_PROGRAM} "--file" "${CMAKE_SOURCE_DIR}/cmake/generate_cubemx.mk"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+if(status AND NOT status EQUAL 0)
+    message(FATAL_ERROR
+    "Failed to generate from CubeMX. You should manually 'Generate Code' \
+    before building."
     )
-else()
-    string(CONCAT msg
-    "Not autogenerating from CubeMX. You must manually call 'Generate "
-    "Code' and append the custom_cubemx_targets to the resulting Makefile."
-    )
-    message(WARNING ${msg})
 endif()
 
+set(CUSTOM_MAKEFILE "${CMAKE_CURRENT_SOURCE_DIR}/CustomMakefile.mk")
+
+message(STATUS "Building CubeMX objects with the auto-generated Makefile")
 execute_process(
     # Build all cubemx sources to their objects. This target is added to the
     # cubemx Makefile by generate_cubemx.mk.
-	COMMAND ${CMAKE_MAKE_PROGRAM} "objects"
+	COMMAND ${CMAKE_MAKE_PROGRAM} "objects" "--file=${CUSTOM_MAKEFILE}"
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -34,7 +36,7 @@ function(extract_make_variable output makefile var_name)
     # %.value:
     #     @echo $($*)
     # 
-    # generate_cubemx.mk appends this to the cubemx Makefile
+    # generate_cubemx.mk appends this target to the cubemx Makefile
     # See custom_cubemx_targets.mk
     execute_process(
         COMMAND ${CMAKE_MAKE_PROGRAM} "--file=${makefile}" "${var_name}.value" "--no-print-directory"
@@ -48,22 +50,22 @@ function(extract_make_variable output makefile var_name)
 endfunction()
 
 # Get C_INCLUDES, split string to a list, and remove the -I prefix
-extract_make_variable(include_str "${CMAKE_CURRENT_SOURCE_DIR}/Makefile" "C_INCLUDES")
+extract_make_variable(include_str "${CUSTOM_MAKEFILE}" "C_INCLUDES")
 separate_arguments(C_INCLUDES NATIVE_COMMAND ${include_str})
 list(TRANSFORM C_INCLUDES REPLACE "^-I" "")
 
 # Get Global #defines
-extract_make_variable(c_def_str "${CMAKE_CURRENT_SOURCE_DIR}/Makefile" "C_DEFS")
+extract_make_variable(c_def_str "${CUSTOM_MAKEFILE}" "C_DEFS")
 separate_arguments(C_DEFS NATIVE_COMMAND ${c_def_str})
 list(TRANSFORM C_DEFS REPLACE "^-D" "")
 
 # Get MCU which includes the CPU name (cortex-m7), floating point unit, etc
-extract_make_variable(MCU "${CMAKE_CURRENT_SOURCE_DIR}/Makefile" "MCU")
+extract_make_variable(MCU "${CUSTOM_MAKEFILE}" "MCU")
 separate_arguments(MCU NATIVE_COMMAND ${MCU})
 
 # Get the linker flags. These are needed since we manually link the objects
 # instead of using the cubemx Makefile.
-extract_make_variable(ldflags_str "${CMAKE_CURRENT_SOURCE_DIR}/Makefile" "LDFLAGS")
+extract_make_variable(ldflags_str "${CUSTOM_MAKEFILE}" "LDFLAGS")
 separate_arguments(LDFLAGS NATIVE_COMMAND ${ldflags_str})
 # Need to fully specify the link script path
 list(TRANSFORM LDFLAGS REPLACE "^-T" "-T${CMAKE_CURRENT_SOURCE_DIR}/")

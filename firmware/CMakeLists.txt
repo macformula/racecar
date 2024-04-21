@@ -17,7 +17,6 @@ endif()
 
 message("Build type: ${CMAKE_BUILD_TYPE}")
 
-option(AUTOGEN_CUBEMX "Set to OFF to disable CubeMX generation" ON)
 # Get PROJECT and PLATFORM options
 # Note that the neither can be called "OFF" as CMake will think the variable is
 # unset.
