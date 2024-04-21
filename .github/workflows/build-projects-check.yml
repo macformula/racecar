@@ -13,10 +13,21 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    # Install ARM compiler
+    - name: Install ARM compiler
+      run: sudo apt-get install -y gcc-arm-none-eabi
+
+    # Set environment variables for ARM compiler
+    - name: Set ARM compiler environment variables
+      run: |
+        export CC=arm-none-eabi-gcc
+        export CXX=arm-none-eabi-g++
+        export ASM=arm-none-eabi-gcc
+
     # Change directory to firmware
     - name: Change directory to firmware
-      run: cd firmware && ls
+      run: cd firmware
 
     # Build DemoProject
     - name: Build DemoProject
-      run: make -C firmware PLATFORM=stm32f767 PROJECT=DemoProject
+      run: make PLATFORM=stm32f767 PROJECT=DemoProject
