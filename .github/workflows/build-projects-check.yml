@@ -17,6 +17,9 @@ jobs:
     - name: Change directory to firmware
       run: cd firmware
 
+    - name: List contents of firmware directory
+      run: ls -la
+
     # Build DemoProject
     - name: Build DemoProject
       run: make PLATFORM=stm32f767 PROJECT=DemoProject
