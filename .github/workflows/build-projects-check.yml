@@ -26,7 +26,7 @@ jobs:
 
     # Change directory to firmware
     - name: Change directory to firmware
-      run: cd firmware
+      run: cd firmware && ls
 
     # Build DemoProject
     - name: Build DemoProject
