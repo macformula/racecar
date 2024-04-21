@@ -12,5 +12,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    # Change directory to firmware
+    - name: Change directory to firmware
+      run: cd firmware
+
+    # Build DemoProject
     - name: Build DemoProject
       run: make PLATFORM=stm32f767 PROJECT=DemoProject
