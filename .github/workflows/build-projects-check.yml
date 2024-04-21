@@ -30,4 +30,4 @@ jobs:
 
     # Build DemoProject
     - name: Build DemoProject
-      run: make PLATFORM=stm32f767 PROJECT=DemoProject
+      run: pwd && make PLATFORM=stm32f767 PROJECT=DemoProject
