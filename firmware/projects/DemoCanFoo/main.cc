@@ -27,8 +27,6 @@ int main(void) {
     generated::can::TempSensors temp_sens_msg{};
 
     while (true) {
-        bindings::TickBlocking(tick_duration);
-
         veh_can_bus.Update();
 
         temp_sens_msg.sensor1++;
@@ -39,6 +37,8 @@ int main(void) {
         temp_sens_msg.sensor6++;
 
         veh_can_bus.Send(temp_sens_msg);
+
+        bindings::TickBlocking(tick_duration);
     }
 
     return 0;

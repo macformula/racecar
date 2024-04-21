@@ -28,8 +28,6 @@ int main(void) {
     generated::can::TempSensorsReply temp_sens_msg_reply{};
 
     while (true) {
-        bindings::TickBlocking(tick_duration);
-
         veh_can_bus.Update();
         veh_can_bus.Read(temp_sens_msg);
 
@@ -41,6 +39,8 @@ int main(void) {
         temp_sens_msg_reply.sensor6 = temp_sens_msg.sensor6;
 
         veh_can_bus.Send(temp_sens_msg_reply);
+
+        bindings::TickBlocking(tick_duration);
     }
 
     return 0;
