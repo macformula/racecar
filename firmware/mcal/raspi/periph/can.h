@@ -10,8 +10,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/types.h>
 #include <unistd.h>
 
+#include <chrono>
 #include <cstdint>
 #include <cstring>
 #include <iostream>
@@ -26,7 +28,9 @@ namespace mcal::raspi::periph {
 
 class CanBase : public shared::periph::CanBase {
 public:
-    CanBase(std::string can_iface) : iface_(can_iface){};
+    CanBase(std::string can_iface) : iface_(can_iface) {
+        program_start_ = std::chrono::steady_clock::now();
+    };
 
     void Setup() {
         // Create a socket
@@ -94,6 +98,15 @@ private:
     std::mutex queue_mtx_;
     std::thread reader_thread_;
 
+    std::chrono::steady_clock::time_point program_start_;
+
+    inline uint32_t get_tick() {
+        std::chrono::milliseconds elapsed_ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now() - program_start_);
+        return static_cast<uint32_t>(elapsed_ms.count());
+    }
+
     void StartReading() {
         struct can_frame frame;
 
@@ -109,9 +122,7 @@ private:
             rawMsg.header.id = frame.can_id;
             rawMsg.header.data_len = frame.can_dlc;
             rawMsg.header.is_extended_frame = frame.can_id & CAN_EFF_FLAG;
-
-            std::cout << "Can base frame " << std::hex << rawMsg.header.id
-                      << " data len " << rawMsg.header.data_len << std::endl;
+            rawMsg.tick_timestamp = get_tick();
 
             std::copy(frame.data, frame.data + kMaxMsgBytes, rawMsg.data);
 

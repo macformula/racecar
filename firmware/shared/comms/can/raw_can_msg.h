@@ -23,11 +23,13 @@ struct CanHeader {
 struct RawCanMsg {
     CanHeader header;
     uint8_t data[kMaxMsgBytes] = {0};
+    uint32_t tick_timestamp = 0;
 
     void Copy(const shared::can::RawCanMsg& other) noexcept {
         header.id = other.header.id;
         header.data_len = other.header.data_len;
         header.is_extended_frame = other.header.is_extended_frame;
+        tick_timestamp = other.tick_timestamp;
 
         std::copy(std::begin(other.data), std::end(other.data),
                   std::begin(data));

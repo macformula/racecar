@@ -27,6 +27,9 @@ public:
     {{ signal_types[msg.name][sig.name] }} {{ sig.name | camel_to_snake }} = 0;
     {% endfor %}
 
+    // Measured in ms since program start
+    uint32_t tick_timestamp = 0;
+
 private:
     // Message properties
     static constexpr shared::can::CanId kCanId = {{ msg.frame_id | decimal_to_hex }};
@@ -50,12 +53,15 @@ private:
     {% set sig_var = sig.name | camel_to_snake %}
         p_rx_msg->{{ sig_var }} = {{ sig_var }};
     {% endfor %}
+        p_rx_msg->tick_timestamp = tick_timestamp;
     }
 
     void Unpack(const shared::can::RawCanMsg& raw_msg) override {
         if (raw_msg.header.id != kCanId) {
             return;
         }
+
+        tick_timestamp = raw_msg.tick_timestamp;
 
         // temporary signal variables
     {% for sig in msg.signals %}

@@ -3,11 +3,14 @@
 
 #pragma once
 
+#include <sys/types.h>
+
 #include <cstdint>
 
 #include "cmsis_os2.h"
 #include "shared/os/os.h"
 #include "shared/os/tick.h"
+#include "stm32f7xx_hal.h"
 
 // TODO: Add comments and handle errors more robustly
 namespace os {

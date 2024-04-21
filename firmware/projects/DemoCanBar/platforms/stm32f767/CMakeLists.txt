@@ -1,6 +1,3 @@
-# Blake Freer
-# January 8, 2024
-
 add_subdirectory(cubemx)
 
 target_sources(bindings PUBLIC bindings.cc)
