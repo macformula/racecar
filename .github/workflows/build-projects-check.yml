@@ -26,8 +26,8 @@ jobs:
 
     # Change directory to firmware
     - name: Change directory to firmware
-      run: cd firmware && ls
+      run: cd $GITHUB_WORKSPACE/firmware && ls
 
     # Build DemoProject
     - name: Build DemoProject
-      run: pwd && make PLATFORM=stm32f767 PROJECT=DemoProject
+      run: make -C $GITHUB_WORKSPACE/firmware PLATFORM=stm32f767 PROJECT=DemoProject
