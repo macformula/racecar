@@ -23,7 +23,7 @@ The following dependecies must be installed __and added to your PATH variable.__
   * This is a dependency of CubeMX.
   * If you don't already have a compliant version installed, get the latest version.
   * Verify java with `java --version`.
-  * Ensure `java -jar <path/to/STM32CubeMX.exe` opens CubeMX.
+  * Ensure `java -jar <path/to/STM32CubeMX.exe>` opens CubeMX.
 
 ## clangd
 
