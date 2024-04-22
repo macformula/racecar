@@ -7,6 +7,7 @@
 #include <thread>
 
 #include "mcal/windows/periph/gpio.h"
+#include "mcal/windows/periph/pwm.h"
 #include "shared/periph/gpio.h"
 #include "shared/util/mappers/identity.h"
 
@@ -22,7 +23,13 @@ DigitalOutput motor_ctrl_precharge_en{"MOTOR CTRL LV PRECHARGE Enable"};
 DigitalOutput motor_ctrl_en{"MOTOR CTRL LV Enable"};
 DigitalOutput imu_gps_en{"IMU GPS Enable"};
 
-shared::util::IdentityMap<float> powertrain_fan_power_to_duty{};
+DigitalOutput shutdown_circuit_en{"SHUTDOWN CIRCUIT Enable"};
+DigitalOutput dcdc_en{"DCDC Enable"};
+DigitalInput dcdc_valid{"DCDC Valid"};
+DigitalOutput dcdc_led_en{"DCDC LED Enable"};
+DigitalOutput powertrain_fan_en{"POWERTRAIN FAN Enable"};
+DigitalOutput powertrain_pump_en{"POWERTRAIN PUMP Enable"};
+PWMOutput powertrain_fan_pwm{"POWERTRAIN FAN PWM"};
 
 }  // namespace mcal
 
@@ -37,9 +44,15 @@ shared::periph::DigitalOutput& motor_ctrl_precharge_en =
     mcal::motor_ctrl_precharge_en;
 shared::periph::DigitalOutput& motor_ctrl_en = mcal::motor_ctrl_en;
 shared::periph::DigitalOutput& imu_gps_en = mcal::imu_gps_en;
+shared::periph::DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 
-shared::util::Mapper<float>& powertrain_fan_power_to_duty =
-    mcal::powertrain_fan_power_to_duty;
+shared::periph::DigitalOutput& dcdc_en = mcal::dcdc_en;
+shared::periph::DigitalInput& dcdc_valid = mcal::dcdc_valid;
+shared::periph::DigitalOutput& dcdc_led_en = mcal::dcdc_led_en;
+
+shared::periph::DigitalOutput& powertrain_fan_en = mcal::powertrain_fan_en;
+shared::periph::DigitalOutput& powertrain_pump_en = mcal::powertrain_pump_en;
+shared::periph::PWMOutput& powertrain_fan_pwm = mcal::powertrain_fan_pwm;
 
 void Initialize() {
     std::cout << "Initializing Windows..." << std::endl;

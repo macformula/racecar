@@ -6,14 +6,23 @@
 
 #include <chrono>
 
+// CubeMX
+#include "adc.h"
 #include "gpio.h"
-#include "inc/app.h"
 #include "main.h"
+#include "stm32f767xx.h"
+#include "stm32f7xx_hal.h"
+#include "stm32f7xx_hal_tim.h"
+#include "tim.h"
+
+// Firmware
+#include "inc/app.h"
 #include "mcal/stm32f767/periph/gpio.h"
+#include "mcal/stm32f767/periph/pwm.h"
 #include "shared/periph/gpio.h"
+#include "shared/periph/pwm.h"
 #include "shared/util/mappers/identity.h"
 #include "shared/util/mappers/mapper.h"
-#include "stm32f7xx_hal.h"
 
 extern "C" {
 /**
@@ -37,11 +46,19 @@ DigitalOutput motor_ctrl_precharge_en{MOTOR_CONTROLLER_PRECHARGE_EN_GPIO_Port,
 DigitalOutput motor_ctrl_en{MOTOR_CONTROLLER_EN_GPIO_Port,
                             MOTOR_CONTROLLER_EN_Pin};
 DigitalOutput imu_gps_en{IMU_GPS_EN_GPIO_Port, IMU_GPS_EN_Pin};
+DigitalOutput shutdown_circuit_en{SHUTDOWN_CIRCUIT_EN_GPIO_Port,
+                                  SHUTDOWN_CIRCUIT_EN_Pin};
 
-DigitalOutput dcdc_en DigitalInput dcdc_valid{MUX_DCDC_VALID_GPIO_Port,
-                                              MUX_DCDC_VALID_Pin};
+DigitalOutput dcdc_en{DCDC_EN_GPIO_Port, DCDC_EN_Pin};
+DigitalInput dcdc_valid{MUX_DCDC_VALID_GPIO_Port, MUX_DCDC_VALID_Pin};
+DigitalOutput dcdc_led_en{DCDC_ON_LED_EN_GPIO_Port, DCDC_ON_LED_EN_Pin};
 
-shared::util::IdentityMap<float> powertrain_fan_power_to_duty{};
+DigitalOutput powertrain_fan_en{POWERTRAIN_FAN_EN_GPIO_Port,
+                                POWERTRAIN_FAN_EN_Pin};
+DigitalOutput powertrain_pump_en{POWERTRAIN_PUMP_EN_GPIO_Port,
+                                 POWERTRAIN_PUMP_EN_Pin};
+
+PWMOutput powertrain_fan_pwm{&htim2, HAL_TIM_ACTIVE_CHANNEL_1};
 
 }  // namespace mcal
 
@@ -56,11 +73,15 @@ shared::periph::DigitalOutput& motor_ctrl_precharge_en =
     mcal::motor_ctrl_precharge_en;
 shared::periph::DigitalOutput& motor_ctrl_en = mcal::motor_ctrl_en;
 shared::periph::DigitalOutput& imu_gps_en = mcal::imu_gps_en;
+shared::periph::DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 
 shared::periph::DigitalOutput& dcdc_en = mcal::dcdc_en;
-Status dcdc_valid{mcal::dcdc_valid, true};
-shared::util::Mapper<float>& powertrain_fan_power_to_duty =
-    mcal::powertrain_fan_power_to_duty;
+shared::periph::DigitalInput& dcdc_valid = mcal::dcdc_valid;
+shared::periph::DigitalOutput& dcdc_led_en = mcal::dcdc_led_en;
+
+shared::periph::DigitalOutput& powertrain_fan_en = mcal::powertrain_fan_en;
+shared::periph::DigitalOutput& powertrain_pump_en = mcal::powertrain_pump_en;
+shared::periph::PWMOutput& powertrain_fan_pwm = mcal::powertrain_fan_pwm;
 
 void Initialize() {
     SystemClock_Config();
