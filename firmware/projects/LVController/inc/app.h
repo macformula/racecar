@@ -9,7 +9,7 @@
 #include "shared/util/mappers/mapper.h"
 
 /**
- * @brief A Subsytem which can be enabled / disabled.
+ * @brief A Subsystem which can be enabled / disabled.
  */
 class Subsystem {
 public:
@@ -17,49 +17,49 @@ public:
      * @brief Construct a new Subsystem object
      *
      * @param enable_output Digital Output which enables the subsystem.
-     * @param invert_output Set to true for inverse logic (output low =
      * enabled).
      */
-    Subsystem(shared::periph::DigitalOutput& enable_output, bool invert_output)
-        : enable_output_(enable_output), high_is_enable_(!invert_output) {}
+    Subsystem(shared::periph::DigitalOutput& enable_output)
+        : enable_output_(enable_output) {}
 
     inline void Enable() const {
-        enable_output_.Set(high_is_enable_);
+        enable_output_.SetHigh();
     }
 
     inline void Disable() const {
-        enable_output_.Set(!high_is_enable_);
+        enable_output_.SetLow();
     }
 
 private:
     shared::periph::DigitalOutput& enable_output_;
-    bool high_is_enable_;
 };
 
 class Indicator {
 public:
-    Indicator(shared::periph::DigitalOutput& output, bool invert_output)
-        : output_(output), high_is_on_(!invert_output) {}
+    Indicator(shared::periph::DigitalOutput& output) : output_(output) {}
 
     inline void TurnOn() {
-        output_.Set(high_is_on_);
+        output_.SetHigh();
     }
 
     inline void TurnOff() {
-        output_.Set(!high_is_on_);
+        output_.SetLow();
+    }
+
+    inline void SetState(bool value) {
+        output_.Set(value);
     }
 
 private:
     shared::periph::DigitalOutput& output_;
-    bool high_is_on_;
 };
 
 class Fan : public Subsystem {
 public:
-    Fan(shared::periph::DigitalOutput& enable_output, bool invert_enable,
+    Fan(shared::periph::DigitalOutput& enable_output,
         shared::periph::PWMOutput& pwm_output,
         shared::util::Mapper<float>& power_to_duty)
-        : Subsystem(enable_output, invert_enable),
+        : Subsystem(enable_output),
           pwm_output_(pwm_output),
           power_to_duty_(power_to_duty) {}
 
@@ -73,14 +73,29 @@ public:
         Subsystem::Disable();
     }
 
-    void SetTargetPower(float power) {
+    void SetTargetPower(float power, float max_duty_per_second) {
         target_duty_ = power_to_duty_.Evaluate(power);
+        duty_per_second_ = max_duty_per_second;
     }
 
-    void Update() const {
+    /**
+     * @brief Set the Power Now.
+     * @warning THIS IS DANGEROUS as large jumps can caused significant current
+     * rushes. Prefer SetTargetPower() and Update()
+     *
+     * @param power
+     */
+    void Dangerous_SetPowerNow(float power) {
+        SetPower(power);
+    }
+
+    void Update(float interval_sec) const {
+        float max_duty_step = duty_per_second_ * interval_sec;
+
         float current_duty = pwm_output_.GetDutyCycle();
         float duty_step = shared::util::Clamper<float>::Evaluate(
-            target_duty_ - current_duty, -duty_step_size_, +duty_step_size_);
+            target_duty_ - current_duty, -max_duty_step, +max_duty_step);
+
         pwm_output_.SetDutyCycle(current_duty + duty_step);
     }
 
@@ -93,40 +108,29 @@ private:
     shared::periph::PWMOutput& pwm_output_;
     shared::util::Mapper<float>& power_to_duty_;
     float target_duty_ = 0.0f;
-    float duty_step_size_ = 1.0f;
+    float duty_per_second_ = 0.0f;
 
     void SetPower(float power) {
         pwm_output_.SetDutyCycle(power_to_duty_.Evaluate(power));
     }
 };
 
-class Status {
-public:
-    Status(shared::periph::DigitalInput& input, bool valid_state)
-        : input_(input), valid_state_(valid_state) {}
-
-    bool IsValid() {
-        return input_.Read() == valid_state_;
-    }
-
-private:
-    shared::periph::DigitalInput& input_;
-    bool valid_state_;
-};
-
 class DCDC : public Subsystem {
 public:
-    DCDC(shared::periph::DigitalOutput& enable_output, bool invert_enable,
-         shared::periph::DigitalInput& valid_input, bool invert_valid)
-        : Subsystem(enable_output, invert_enable),
+    DCDC(shared::periph::DigitalOutput& enable_output,
+         shared::periph::DigitalInput& valid_input,
+         shared::periph::DigitalOutput& led_output)
+        : Subsystem(enable_output),
           valid_input_(valid_input),
-          valid_state_(!invert_valid){};
+          led_(led_output){};
 
-    bool IsValid() const {
-        return valid_input_.Read() == valid_state_;
+    bool IsValid() {
+        bool is_valid = valid_input_.Read();
+        led_.SetState(is_valid);
+        return is_valid;
     }
 
 private:
     shared::periph::DigitalInput& valid_input_;
-    bool valid_state_;
+    Indicator led_;
 };
