@@ -16,20 +16,30 @@ The following dependecies must be installed __and added to your PATH variable.__
 * arm-none-eabi toolchain 13.2.Rel1 - [link](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)
   * Verify with `arm-none-eabi-gcc --version`
 
-* Java SE Runtime Environment 13.0.2 or newer - [link](https://www.oracle.com/java/technologies/javase/jdk13-archive-downloads.html)
-  * Verify with `java --version`
-
-* STM32CubeMX 6.8.1 - [link](https://www.st.com/en/development-tools/stm32cubemx)
-  * Select the 6.8.1 version in the __Get Software__ section.
+* STM32CubeMX 6.11.0 - [link](https://www.st.com/en/development-tools/stm32cubemx#get-software)
   * Verify by running `stm32cubemx`. The application should open.
 
-* clangd 16.0.2 - [link](https://github.com/clangd/clangd/releases/tag/16.0.2)
-  * Download and extract `clang-<platform>-16.0.2.zip`
-  * This is our "official" C/C++ language server.
-  * Verify with ``clangd --version``.
+* Java SE Runtime Environment 17 or newer - [link](https://www.oracle.com/java/technologies/java-se-glance.html)
+  * This is a dependency of CubeMX.
+  * If you don't already have a compliant version installed, get the latest version.
+  * Verify java with `java --version`.
+  * Ensure `java -jar <path/to/STM32CubeMX.exe>` opens CubeMX.
 
-## __clangd__ Setup
+## clangd
 
+This is our official C/C++ language server. It is not required but will make your development experience _much_ nicer. We have configured CMake to autogenerate the build configuration so that you never need to configure include paths or compiler flags.
+
+Whenever you build a project with the Makefile, __clangd__ will see the new `build/compile_commands.json` and immediately update the IDE's include paths. This means that when you switch which project or platform you are developing for, simply build the project and your development environment will be automatically prepared.
+
+Install clangd 16.0.2 - [link](https://github.com/clangd/clangd/releases/tag/16.0.2)
+
+* You must use this exact version.
+* Download and extract `clang-<platform>-16.0.2.zip`
+* Verify with ``clangd --version``.
+
+### clangd Setup (VS Code)
+
+0. Install clangd (see above).
 1. Install the __clangd__ vscode extension.
 
    * If you have the Microsoft __C/C++__ extension installed, disable it for the `racecar` workspace.
@@ -52,7 +62,3 @@ The following dependecies must be installed __and added to your PATH variable.__
         CompileFlags:
           Add: --target=arm64-apple-darwin22.6.0
       ```
-
-### Using __clangd__
-
-Whenever you build a project with the Makefile, __clangd__ will see the new `build/compile_commands.json` and immediately update the IDE's include paths. This means that, when switching which project or platform you are developing for, simply build the project and your development environment will be automatically prepared.
