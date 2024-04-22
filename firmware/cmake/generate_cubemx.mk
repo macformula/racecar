@@ -33,5 +33,3 @@ Makefile: $(IOC_FILE)
 
 # Run the cubemx program to generate code.
 	java -jar "$(CUBEMX_PATH)" -q "$(CUBEMX_GEN_SCRIPT)"
-
-	rm $(CUBEMX_GEN_SCRIPT)
