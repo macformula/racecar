@@ -3,8 +3,7 @@ ifeq ($(OS),Windows_NT)
     # Convert path to Windows-style and add .exe extension
     CUBEMX_PATH := $(subst \,\\,$(CUBEMX_PATH))
 else
-    CUBEMX_PATH := $(shell which STM32CubeMX)
-	@echo "getting it from unix"
+    CUBEMX_PATH := "sharukhs/left/cheek"
 endif
 
 IOC_FILE = board_config.ioc
