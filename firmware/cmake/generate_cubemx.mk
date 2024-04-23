@@ -4,7 +4,11 @@ ifeq ($(OS),Windows_NT)
     CUBEMX_PATH := $(subst \,\\,$(CUBEMX_PATH))
 else
     CUBEMX_PATH := $(shell which STM32CubeMX)
+	echo "getting it from unix"
 endif
+
+echo "here is the path found $(CUBEMX_PATH)"
+
 
 IOC_FILE = board_config.ioc
 AUTOGEN_CUBEMX = ON
