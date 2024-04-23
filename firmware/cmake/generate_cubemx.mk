@@ -3,7 +3,7 @@ ifeq ($(OS),Windows_NT)
     # Convert path to Windows-style and add .exe extension
     CUBEMX_PATH := $(subst \,\\,$(CUBEMX_PATH))
 else
-    CUBEMX_PATH := /usr/local/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX
+    CUBEMX_PATH := $(shell which STM32CubeMX)
 endif
 
 IOC_FILE = board_config.ioc
@@ -28,7 +28,7 @@ Makefile: $(IOC_FILE)
 	@echo "Autogenerating from CubeMX. If you don't want to do this, you must manually 'Generate Code' before building."
 # Create an file containing commands to generate the cubemx code.
 	@printf 'config load "%s"\n' $(IOC_FILE) > $(CUBEMX_GEN_SCRIPT)
-	@printf 'project generate ./\n' >> $(CUBEMX_GEN_SCRIPT)
+	@printf 'generate code ./\n' >> $(CUBEMX_GEN_SCRIPT)
 	@printf 'exit\n' >> $(CUBEMX_GEN_SCRIPT)
 
 # Run the cubemx program to generate code.
