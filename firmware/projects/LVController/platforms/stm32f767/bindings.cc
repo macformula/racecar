@@ -14,7 +14,6 @@
 #include "tim.h"
 
 // Firmware
-#include "inc/app.h"
 #include "mcal/stm32f767/periph/gpio.h"
 #include "mcal/stm32f767/periph/pwm.h"
 #include "shared/periph/gpio.h"
@@ -30,56 +29,69 @@ extern "C" {
 void SystemClock_Config();
 }
 
-namespace mcal {
-using namespace stm32f767::periph;
-
-DigitalOutput tsal_on_enable_en{TSAL_EN_GPIO_Port, TSAL_EN_Pin};
-DigitalOutput raspberry_pi_en{RASPI_EN_GPIO_Port, RASPI_EN_Pin};
-DigitalOutput front_controller_en{FRONT_CONTROLLER_EN_GPIO_Port,
-                                  FRONT_CONTROLLER_EN_Pin};
-DigitalOutput speedgoat_en{SPEEDGOAT_EN_GPIO_Port, SPEEDGOAT_EN_Pin};
-DigitalOutput accumulator_en{ACCUMULATOR_EN_GPIO_Port, ACCUMULATOR_EN_Pin};
-DigitalOutput motor_ctrl_precharge_en{MOTOR_CONTROLLER_PRECHARGE_EN_GPIO_Port,
-                                      MOTOR_CONTROLLER_PRECHARGE_EN_Pin};
-DigitalOutput motor_ctrl_en{MOTOR_CONTROLLER_EN_GPIO_Port,
-                            MOTOR_CONTROLLER_EN_Pin};
-DigitalOutput imu_gps_en{IMU_GPS_EN_GPIO_Port, IMU_GPS_EN_Pin};
-DigitalOutput shutdown_circuit_en{SHUTDOWN_CIRCUIT_EN_GPIO_Port,
-                                  SHUTDOWN_CIRCUIT_EN_Pin};
-
-DigitalOutput dcdc_en{DCDC_EN_GPIO_Port, DCDC_EN_Pin};
-DigitalInput dcdc_valid{MUX_DCDC_VALID_GPIO_Port, MUX_DCDC_VALID_Pin};
-DigitalOutput dcdc_led_en{DCDC_ON_LED_EN_GPIO_Port, DCDC_ON_LED_EN_Pin};
-
-DigitalOutput powertrain_fan_en{POWERTRAIN_FAN_EN_GPIO_Port,
-                                POWERTRAIN_FAN_EN_Pin};
-DigitalOutput powertrain_pump_en{POWERTRAIN_PUMP_EN_GPIO_Port,
-                                 POWERTRAIN_PUMP_EN_Pin};
-
-PWMOutput powertrain_fan_pwm{&htim2, HAL_TIM_ACTIVE_CHANNEL_1};
-
-}  // namespace mcal
-
 namespace bindings {
+using namespace mcal::stm32f767::periph;
 
-shared::periph::DigitalOutput& tsal_en = mcal::tsal_on_enable_en;
-shared::periph::DigitalOutput& raspberry_pi_en = mcal::raspberry_pi_en;
-shared::periph::DigitalOutput& front_controller_en = mcal::front_controller_en;
-shared::periph::DigitalOutput& speedgoat_en = mcal::speedgoat_en;
-shared::periph::DigitalOutput& accumulator_en = mcal::accumulator_en;
-shared::periph::DigitalOutput& motor_ctrl_precharge_en =
-    mcal::motor_ctrl_precharge_en;
-shared::periph::DigitalOutput& motor_ctrl_en = mcal::motor_ctrl_en;
-shared::periph::DigitalOutput& imu_gps_en = mcal::imu_gps_en;
-shared::periph::DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
-
-shared::periph::DigitalOutput& dcdc_en = mcal::dcdc_en;
-shared::periph::DigitalInput& dcdc_valid = mcal::dcdc_valid;
-shared::periph::DigitalOutput& dcdc_led_en = mcal::dcdc_led_en;
-
-shared::periph::DigitalOutput& powertrain_fan_en = mcal::powertrain_fan_en;
-shared::periph::DigitalOutput& powertrain_pump_en = mcal::powertrain_pump_en;
-shared::periph::PWMOutput& powertrain_fan_pwm = mcal::powertrain_fan_pwm;
+shared::periph::DigitalOutput&& tsal_en = DigitalOutput{
+    TSAL_EN_GPIO_Port,
+    TSAL_EN_Pin,
+};
+shared::periph::DigitalOutput&& raspberry_pi_en = DigitalOutput{
+    RASPI_EN_GPIO_Port,
+    RASPI_EN_Pin,
+};
+shared::periph::DigitalOutput&& front_controller_en = DigitalOutput{
+    FRONT_CONTROLLER_EN_GPIO_Port,
+    FRONT_CONTROLLER_EN_Pin,
+};
+shared::periph::DigitalOutput&& speedgoat_en = DigitalOutput{
+    SPEEDGOAT_EN_GPIO_Port,
+    SPEEDGOAT_EN_Pin,
+};
+shared::periph::DigitalOutput&& accumulator_en = DigitalOutput{
+    ACCUMULATOR_EN_GPIO_Port,
+    ACCUMULATOR_EN_Pin,
+};
+shared::periph::DigitalOutput&& motor_ctrl_precharge_en = DigitalOutput{
+    MOTOR_CONTROLLER_PRECHARGE_EN_GPIO_Port,
+    MOTOR_CONTROLLER_PRECHARGE_EN_Pin,
+};
+shared::periph::DigitalOutput&& motor_ctrl_en = DigitalOutput{
+    MOTOR_CONTROLLER_EN_GPIO_Port,
+    MOTOR_CONTROLLER_EN_Pin,
+};
+shared::periph::DigitalOutput&& imu_gps_en = DigitalOutput{
+    IMU_GPS_EN_GPIO_Port,
+    IMU_GPS_EN_Pin,
+};
+shared::periph::DigitalOutput&& shutdown_circuit_en = DigitalOutput{
+    SHUTDOWN_CIRCUIT_EN_GPIO_Port,
+    SHUTDOWN_CIRCUIT_EN_Pin,
+};
+shared::periph::DigitalOutput&& dcdc_en = DigitalOutput{
+    DCDC_EN_GPIO_Port,
+    DCDC_EN_Pin,
+};
+shared::periph::DigitalInput&& dcdc_valid = DigitalInput{
+    MUX_DCDC_VALID_GPIO_Port,
+    MUX_DCDC_VALID_Pin,
+};
+shared::periph::DigitalOutput&& dcdc_led_en = DigitalOutput{
+    DCDC_ON_LED_EN_GPIO_Port,
+    DCDC_ON_LED_EN_Pin,
+};
+shared::periph::DigitalOutput&& powertrain_fan_en = DigitalOutput{
+    POWERTRAIN_FAN_EN_GPIO_Port,
+    POWERTRAIN_FAN_EN_Pin,
+};
+DigitalOutput powertrain_pump_en{
+    POWERTRAIN_PUMP_EN_GPIO_Port,
+    POWERTRAIN_PUMP_EN_Pin,
+};
+shared::periph::PWMOutput&& powertrain_fan_pwm = PWMOutput{
+    &htim2,
+    HAL_TIM_ACTIVE_CHANNEL_1,
+};
 
 void Initialize() {
     SystemClock_Config();
@@ -87,8 +99,7 @@ void Initialize() {
     MX_GPIO_Init();
 }
 
-}  // namespace bindings
-
 void DelayMS(uint32_t milliseconds) {
     HAL_Delay(milliseconds);
 }
+}  // namespace bindings
