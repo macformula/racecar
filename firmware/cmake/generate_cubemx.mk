@@ -29,7 +29,7 @@ Makefile: $(IOC_FILE)
 	@echo "Autogenerating from CubeMX. If you don't want to do this, you must manually 'Generate Code' before building."
 # Create an file containing commands to generate the cubemx code.
 	@printf 'config load "%s"\n' $(IOC_FILE) > $(CUBEMX_GEN_SCRIPT)
-	@printf 'generate code ./\n' >> $(CUBEMX_GEN_SCRIPT)
+	@printf 'project generate ./\n' >> $(CUBEMX_GEN_SCRIPT)
 	@printf 'exit\n' >> $(CUBEMX_GEN_SCRIPT)
 
 # Run the cubemx program to generate code.
