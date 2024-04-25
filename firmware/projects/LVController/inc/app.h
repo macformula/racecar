@@ -22,11 +22,11 @@ public:
     Subsystem(shared::periph::DigitalOutput& enable_output)
         : enable_output_(enable_output) {}
 
-    inline void Enable() const {
+    inline virtual void Enable() const {
         enable_output_.SetHigh();
     }
 
-    inline void Disable() const {
+    inline virtual void Disable() const {
         enable_output_.SetLow();
     }
 
@@ -63,12 +63,12 @@ public:
           pwm_output_(pwm_output),
           power_to_duty_(power_to_duty) {}
 
-    void Enable() {
+    void Enable() const override {
         SetPower(0.0f);
         Subsystem::Enable();
     }
 
-    void Disable() {
+    void Disable() const override {
         SetPower(0.0f);
         Subsystem::Disable();
     }
@@ -89,6 +89,13 @@ public:
         SetPower(power);
     }
 
+    /**
+     * @brief Update the duty cycle towards the target duty cycle. The argument
+     * is the elapsed time between calls which is required to adjust the duty
+     * cycle by the rate specified in SetTargetPower.
+     *
+     * @param interval_sec
+     */
     void Update(float interval_sec) const {
         float max_duty_step = duty_per_second_ * interval_sec;
 
@@ -100,8 +107,9 @@ public:
     }
 
     bool IsAtTarget() {
+        constexpr float kDutyEqualTolerance = 0.1f;
         float error = std::abs(pwm_output_.GetDutyCycle() - target_duty_);
-        return error < 0.1f;
+        return error < kDutyEqualTolerance;
     }
 
 private:
@@ -110,7 +118,7 @@ private:
     float target_duty_ = 0.0f;
     float duty_per_second_ = 0.0f;
 
-    void SetPower(float power) {
+    void SetPower(float power) const {
         pwm_output_.SetDutyCycle(power_to_duty_.Evaluate(power));
     }
 };
@@ -124,7 +132,7 @@ public:
           valid_input_(valid_input),
           led_(led_output){};
 
-    bool IsValid() {
+    bool CheckValid() {
         bool is_valid = valid_input_.Read();
         led_.SetState(is_valid);
         return is_valid;

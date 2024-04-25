@@ -87,7 +87,7 @@ void DoPowerupSequence() {
 void DoPowertrainEnableSequence() {
     dcdc.Enable();
 
-    while (!dcdc.IsValid()) continue;
+    while (!dcdc.CheckValid()) continue;
     DelayMS(50);
     powertrain_pump.Enable();
     DelayMS(100);
@@ -129,7 +129,7 @@ int main(void) {
 
         DoPowertrainEnableSequence();
 
-        while (dcdc.IsValid()) continue;
+        while (dcdc.CheckValid()) continue;
 
         DoPowertrainDisableSequence();
     }
