@@ -6,7 +6,7 @@ PUBLIC
 	bindings.cc
 )
 
-target_include_directories(bindings PUBLIC ${DIR_PROJECT}) # access to app.h
+target_include_directories(bindings PUBLIC ${DIR_PROJECT}/inc) # access to app.h
 
 add_subdirectory(cubemx)
 

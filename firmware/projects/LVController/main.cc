@@ -5,34 +5,11 @@
 #include <regex>
 
 #include "app.h"
+#include "bindings.h"
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
 #include "shared/util/mappers/identity.h"
 #include "shared/util/mappers/mapper.h"
-
-namespace bindings {
-
-extern shared::periph::DigitalOutput& tsal_en;
-extern shared::periph::DigitalOutput& raspberry_pi_en;
-extern shared::periph::DigitalOutput& front_controller_en;
-extern shared::periph::DigitalOutput& speedgoat_en;
-extern shared::periph::DigitalOutput& accumulator_en;
-extern shared::periph::DigitalOutput& motor_ctrl_precharge_en;
-extern shared::periph::DigitalOutput& motor_ctrl_en;
-extern shared::periph::DigitalOutput& imu_gps_en;
-extern shared::periph::DigitalOutput& shutdown_circuit_en;
-
-extern shared::periph::DigitalOutput& dcdc_en;
-extern shared::periph::DigitalInput& dcdc_valid;
-extern shared::periph::DigitalOutput& dcdc_led_en;
-extern shared::periph::DigitalOutput& powertrain_pump_en;
-extern shared::periph::DigitalOutput& powertrain_fan_en;
-extern shared::periph::PWMOutput& powertrain_fan_pwm;
-
-extern void Initialize();
-}  // namespace bindings
-
-extern void DelayMS(uint32_t ms);
 
 Subsystem tsal{bindings::tsal_en};
 Subsystem raspberry_pi{bindings::raspberry_pi_en};
@@ -68,19 +45,19 @@ Subsystem all_subsystems[] = {
 
 void DoPowerupSequence() {
     tsal.Enable();
-    DelayMS(50);
+    bindings::DelayMS(50);
     raspberry_pi.Enable();
-    DelayMS(50);
+    bindings::DelayMS(50);
     front_controller.Enable();
-    DelayMS(100);
+    bindings::DelayMS(100);
     speedgoat.Enable();
-    DelayMS(100);
+    bindings::DelayMS(100);
     motor_ctrl_precharge.Enable();
-    DelayMS(2000);
+    bindings::DelayMS(2000);
     motor_ctrl.Enable();
-    DelayMS(50);
+    bindings::DelayMS(50);
     motor_ctrl_precharge.Disable();
-    DelayMS(50);
+    bindings::DelayMS(50);
     imu_gps.Enable();
 }
 
@@ -88,17 +65,17 @@ void DoPowertrainEnableSequence() {
     dcdc.Enable();
 
     while (!dcdc.CheckValid()) continue;
-    DelayMS(50);
+    bindings::DelayMS(50);
     powertrain_pump.Enable();
-    DelayMS(100);
+    bindings::DelayMS(100);
     powertrain_fan.Enable();
-    DelayMS(50);
+    bindings::DelayMS(50);
     powertrain_fan.Dangerous_SetPowerNow(30);
     powertrain_fan.SetTargetPower(100, 14);
 
     float _update_period_sec = 0.1f;
     while (!powertrain_fan.IsAtTarget()) {
-        DelayMS(uint32_t(_update_period_sec * 1000));
+        bindings::DelayMS(uint32_t(_update_period_sec * 1000));
         powertrain_fan.Update(_update_period_sec);
     }
 }
