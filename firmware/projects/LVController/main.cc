@@ -6,10 +6,19 @@
 
 #include "app.h"
 #include "bindings.h"
+#include "generated/can/can_messages.h"
+#include "generated/can/msg_registry.h"
+#include "shared/os/os.h"
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
 #include "shared/util/mappers/identity.h"
 #include "shared/util/mappers/mapper.h"
+
+namespace os {
+extern void Tick(uint32_t ticks);
+extern void InitializeKernel();
+extern void StartKernel();
+}  // namespace os
 
 Subsystem tsal{bindings::tsal_en};
 Subsystem raspberry_pi{bindings::raspberry_pi_en};
@@ -62,6 +71,13 @@ void DoPowerupSequence() {
 }
 
 void DoPowertrainEnableSequence() {
+    constexpr float kDutyInitial = 30.0f;
+    constexpr float kDutyFinal = 100.0f;
+    constexpr float kSweepPeriodSec = 5.0f;
+    constexpr float kMaxDutyRate =
+        (kDutyFinal - kDutyInitial) / kSweepPeriodSec;
+    constexpr float kUpdatePeriodSec = 0.05f;
+
     dcdc.Enable();
 
     while (!dcdc.CheckValid()) continue;
@@ -70,13 +86,12 @@ void DoPowertrainEnableSequence() {
     bindings::DelayMS(100);
     powertrain_fan.Enable();
     bindings::DelayMS(50);
-    powertrain_fan.Dangerous_SetPowerNow(30);
-    powertrain_fan.SetTargetPower(100, 14);
+    powertrain_fan.Dangerous_SetPowerNow(kDutyInitial);
+    powertrain_fan.SetTargetPower(kDutyFinal, kMaxDutyRate);
 
-    float _update_period_sec = 0.1f;
     while (!powertrain_fan.IsAtTarget()) {
-        bindings::DelayMS(uint32_t(_update_period_sec * 1000));
-        powertrain_fan.Update(_update_period_sec);
+        bindings::DelayMS(uint32_t(kUpdatePeriodSec * 1000));
+        powertrain_fan.Update(kUpdatePeriodSec);
     }
 }
 
@@ -85,8 +100,32 @@ void DoPowertrainDisableSequence() {
     powertrain_fan.Disable();
 }
 
+void TaskCheckDCDC(void* arg) {
+    while (true) {
+        dcdc.CheckValid();
+        os::Tick(10);
+    }
+}
+void TaskMainLoop(void* arg) {
+    while (true) {
+        /// Start: Sam code
+        // wait for"Read VEHICLE_CAN Bus for MC+ and MC- Closed and Precharge
+        // Open"
+        bool waiting_for_vehicle_can = true;
+        while (waiting_for_vehicle_can) continue;
+        /// End: Sam code
+
+        DoPowertrainEnableSequence();
+
+        while (dcdc.CheckValid()) continue;
+
+        DoPowertrainDisableSequence();
+    }
+}
+
 int main(void) {
     bindings::Initialize();
+    os::InitializeKernel();
 
     // Ensure all subsystems are disabled to start.
     for (auto sys : all_subsystems) {
@@ -96,20 +135,17 @@ int main(void) {
     // Powerup sequence
     DoPowerupSequence();
 
+    /// Start: Sam code
+    // Wait for "Read VEHICLE_CAN bus for BMS Close Contactor Command Low"
     bool waiting_for_bms = true;
     while (waiting_for_bms) continue;
+    /// End: Sam code
+
     shutdown_circuit.Enable();
 
-    while (true) {
-        bool waiting_for_vehicle_can = true;
-        while (waiting_for_vehicle_can) continue;
+    os::StartKernel();
 
-        DoPowertrainEnableSequence();
-
-        while (dcdc.CheckValid()) continue;
-
-        DoPowertrainDisableSequence();
-    }
+    while (true) continue;  // all logic is now handled in the RTOS tasks.
 
     return 0;
 }

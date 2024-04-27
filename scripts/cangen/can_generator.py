@@ -216,7 +216,7 @@ def _generate_from_jinja2_template(
     with open(output_path, "w") as output_file:
         output_file.write(rendered_code)
 
-    logger.info(f"Rendered code written to '{output_path}'")
+    logger.info(f"Rendered code written to '{os.path.abspath(output_path)}'")
 
 
 def generate_code(

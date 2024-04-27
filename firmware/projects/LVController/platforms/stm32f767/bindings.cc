@@ -6,6 +6,7 @@
 
 // CubeMX
 #include "adc.h"
+#include "can.h"
 #include "gpio.h"
 #include "main.h"
 #include "stm32f767xx.h"
@@ -97,6 +98,10 @@ void Initialize() {
     SystemClock_Config();
     HAL_Init();
     MX_GPIO_Init();
+    MX_ADC1_Init();
+    MX_CAN1_Init();
+    MX_TIM1_Init();
+    MX_TIM2_Init();
 }
 
 void DelayMS(uint32_t milliseconds) {
