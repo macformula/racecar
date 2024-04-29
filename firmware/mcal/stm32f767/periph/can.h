@@ -11,7 +11,6 @@
 #include "shared/comms/can/raw_can_msg.h"
 #include "shared/periph/can.h"
 #include "shared/util/data_structures/circular_queue.h"
-#include "stm32f767xx.h"
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx_hal_can.h"
 
@@ -40,33 +39,6 @@ public:
 
         HAL_CAN_AddTxMessage(hcan_, &stm_tx_header, can_tx_msg.data,
                              &tx_mailbox_addr_);
-    }
-
-    void SendDebugMsg() {
-        shared::can::CanHeader hdr = {
-            .id=0x123, 
-            .data_len=8, 
-            .is_extended_frame=false
-        };
-
-        uint32_t time = get_tick_ms();
-
-        shared::can::RawCanMsg raw_msg{
-            .header=hdr,  
-             .data = {
-            0xDE,
-            0xAD,
-            0xBE,
-            0xEF,
-            static_cast<uint8_t>((time>>3)),
-            static_cast<uint8_t>((time>>2)),
-            static_cast<uint8_t>((time>>1)),
-            static_cast<uint8_t>((time>>0)),
-            },
-            .tick_timestamp=get_tick_ms(),
-        };
-        
-        Send(raw_msg);
     }
 
     void ReadQueue(shared::can::RawCanMsg can_rx_msgs[], size_t len) override {
@@ -116,13 +88,14 @@ private:
     static constexpr uint32_t kDefaultFilterIdLow = 0x0000;
     static constexpr uint32_t kDefaultFilterMaskIdHigh = 0x0000;
     static constexpr uint32_t kDefaultFilterMaskIdLow = 0x0000;
+
     static constexpr uint32_t kFilterScale = CAN_FILTERSCALE_32BIT;
     static constexpr uint32_t kFilterEnable = CAN_FILTER_ENABLE;
     static constexpr uint32_t kFilterMode = CAN_FILTERMODE_IDMASK;
-    static constexpr uint32_t kNumFilters = 14;
-    static constexpr uint32_t kDeaultSlaveStartFilterBank = 14;
-    static constexpr uint32_t kFilterBankCan1Can3 = 0;
+    
+    static constexpr uint32_t kDefaultSlaveStartFilterBank = 14;
     static constexpr uint32_t kFilterBankCan2 = 14;
+    static constexpr uint32_t kFilterBankCan1Can3 = 0;
 
     static constexpr CAN_TxHeaderTypeDef pack_stm_tx_header(
         const shared::can::CanHeader& header) {
@@ -170,16 +143,17 @@ private:
     void ConfigFilters() {
         CAN_FilterTypeDef filter_config;
 
-        filter_config.FilterFIFOAssignment = kCanRxFifo0;
         filter_config.FilterIdHigh = kDefaultFilterIdHigh;
         filter_config.FilterIdLow = kDefaultFilterIdLow;
         filter_config.FilterMaskIdHigh = kDefaultFilterMaskIdHigh;
         filter_config.FilterMaskIdLow = kDefaultFilterMaskIdLow;
+
+        filter_config.FilterFIFOAssignment = kCanRxFifo0;
         filter_config.FilterScale = kFilterScale;
         filter_config.FilterActivation = kFilterEnable;
         filter_config.FilterMode = kFilterMode;
-        filter_config.SlaveStartFilterBank = kDeaultSlaveStartFilterBank;
-
+        
+        filter_config.SlaveStartFilterBank = kDefaultSlaveStartFilterBank;
         if (hcan_->Instance == CAN2) {
             filter_config.FilterBank = kFilterBankCan2;
         } else { // CAN1, CAN3
