@@ -21,8 +21,9 @@ public:
     CanBase(CAN_HandleTypeDef* hcan) : hcan_(hcan){};
 
     void Setup() {
-        HAL_CAN_ActivateNotification(hcan_, kCanRxActiveInterruptFifo0);
+        ConfigFilters();
         HAL_CAN_Start(hcan_);
+        HAL_CAN_ActivateNotification(hcan_, kCanRxActiveInterruptFifo0);
     }
 
     void Send(const shared::can::RawCanMsg& can_tx_msg) override {
@@ -38,6 +39,33 @@ public:
 
         HAL_CAN_AddTxMessage(hcan_, &stm_tx_header, can_tx_msg.data,
                              &tx_mailbox_addr_);
+    }
+
+    void SendDebugMsg() {
+        shared::can::CanHeader hdr = {
+            .id=0x123, 
+            .data_len=8, 
+            .is_extended_frame=false
+        };
+
+        uint32_t time = get_tick_ms();
+
+        shared::can::RawCanMsg raw_msg{
+            .header=hdr,  
+             .data = {
+            0xDE,
+            0xAD,
+            0xBE,
+            0xEF,
+            static_cast<uint8_t>((time>>3)),
+            static_cast<uint8_t>((time>>2)),
+            static_cast<uint8_t>((time>>1)),
+            static_cast<uint8_t>((time>>0)),
+            },
+            .tick_timestamp=get_tick_ms(),
+        };
+        
+        Send(raw_msg);
     }
 
     void ReadQueue(shared::can::RawCanMsg can_rx_msgs[], size_t len) override {
@@ -124,6 +152,23 @@ private:
 
     inline uint32_t get_tick_ms() {
         return HAL_GetTick() * HAL_GetTickFreq();
+    }
+
+    void ConfigFilters() {
+        CAN_FilterTypeDef filter_config;
+
+        filter_config.FilterFIFOAssignment=CAN_RX_FIFO0;
+        filter_config.FilterIdHigh = 0x0000;
+        filter_config.FilterIdLow = 0x0000;
+        filter_config.FilterMaskIdHigh = 0x0000;
+        filter_config.FilterMaskIdLow = 0x0000;
+        filter_config.FilterScale=CAN_FILTERSCALE_32BIT;
+        filter_config.FilterActivation=ENABLE;
+        filter_config.FilterBank = 0;
+        filter_config.FilterMode = CAN_FILTERMODE_IDMASK;
+        filter_config.SlaveStartFilterBank = 14;
+
+        HAL_CAN_ConfigFilter(hcan_, &filter_config);
     }
 
     /// @todo broadcast these over a can message

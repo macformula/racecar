@@ -46,9 +46,9 @@ BO_ 940 TempSensors: 8 FOO
     SG_ Sensor6 : 4|10@1- (0.2,0) [0|0] "degC" BAR
 
 BO_ 941 TempSensorsReply: 8 BAR
-    SG_ Sensor1 : 54|10@1- (0.2,0) [0|0] "degC" FOO
-    SG_ Sensor2 : 44|10@1- (0.2,0) [0|0] "degC" FOO
-    SG_ Sensor3 : 34|10@1- (0.2,0) [0|0] "degC" FOO
+    SG_ Sensor1 : 56|8@1- (1,0) [0|0] "degC" FOO
+    SG_ Sensor2 : 48|8@1- (1,0) [0|0] "degC" FOO
+    SG_ Sensor3 : 40|8@1- (1,0) [0|0] "degC" FOO
     SG_ Sensor4 : 24|10@1- (0.2,0) [0|0] "degC" FOO
     SG_ Sensor5 : 14|10@1- (0.2,0) [0|0] "degC" FOO
     SG_ Sensor6 : 4|10@1- (0.2,0) [0|0] "degC" FOO
