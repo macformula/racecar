@@ -11,6 +11,7 @@
 #include "shared/comms/can/raw_can_msg.h"
 #include "shared/periph/can.h"
 #include "shared/util/data_structures/circular_queue.h"
+#include "stm32f767xx.h"
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx_hal_can.h"
 
@@ -110,6 +111,18 @@ private:
     static constexpr uint32_t kCanRxFifo0 = CAN_RX_FIFO0;
     static constexpr uint32_t kCanRxActiveInterruptFifo0 =
         CAN_IT_RX_FIFO0_MSG_PENDING;
+    
+    static constexpr uint32_t kDefaultFilterIdHigh = 0x0000;
+    static constexpr uint32_t kDefaultFilterIdLow = 0x0000;
+    static constexpr uint32_t kDefaultFilterMaskIdHigh = 0x0000;
+    static constexpr uint32_t kDefaultFilterMaskIdLow = 0x0000;
+    static constexpr uint32_t kFilterScale = CAN_FILTERSCALE_32BIT;
+    static constexpr uint32_t kFilterEnable = CAN_FILTER_ENABLE;
+    static constexpr uint32_t kFilterMode = CAN_FILTERMODE_IDMASK;
+    static constexpr uint32_t kNumFilters = 14;
+    static constexpr uint32_t kDeaultSlaveStartFilterBank = 14;
+    static constexpr uint32_t kFilterBankCan1Can3 = 0;
+    static constexpr uint32_t kFilterBankCan2 = 14;
 
     static constexpr CAN_TxHeaderTypeDef pack_stm_tx_header(
         const shared::can::CanHeader& header) {
@@ -157,16 +170,21 @@ private:
     void ConfigFilters() {
         CAN_FilterTypeDef filter_config;
 
-        filter_config.FilterFIFOAssignment=CAN_RX_FIFO0;
-        filter_config.FilterIdHigh = 0x0000;
-        filter_config.FilterIdLow = 0x0000;
-        filter_config.FilterMaskIdHigh = 0x0000;
-        filter_config.FilterMaskIdLow = 0x0000;
-        filter_config.FilterScale=CAN_FILTERSCALE_32BIT;
-        filter_config.FilterActivation=ENABLE;
-        filter_config.FilterBank = 0;
-        filter_config.FilterMode = CAN_FILTERMODE_IDMASK;
-        filter_config.SlaveStartFilterBank = 14;
+        filter_config.FilterFIFOAssignment = kCanRxFifo0;
+        filter_config.FilterIdHigh = kDefaultFilterIdHigh;
+        filter_config.FilterIdLow = kDefaultFilterIdLow;
+        filter_config.FilterMaskIdHigh = kDefaultFilterMaskIdHigh;
+        filter_config.FilterMaskIdLow = kDefaultFilterMaskIdLow;
+        filter_config.FilterScale = kFilterScale;
+        filter_config.FilterActivation = kFilterEnable;
+        filter_config.FilterMode = kFilterMode;
+        filter_config.SlaveStartFilterBank = kDeaultSlaveStartFilterBank;
+
+        if (hcan_->Instance == CAN2) {
+            filter_config.FilterBank = kFilterBankCan2;
+        } else { // CAN1, CAN3
+            filter_config.FilterBank = kFilterBankCan1Can3;
+        }
 
         HAL_CAN_ConfigFilter(hcan_, &filter_config);
     }
