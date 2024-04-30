@@ -21,9 +21,9 @@ public:
     CanBase(CAN_HandleTypeDef* hcan) : hcan_(hcan){};
 
     void Setup() {
+        HAL_CAN_ActivateNotification(hcan_, kCanRxActiveInterruptFifo0);
         ConfigFilters();
         HAL_CAN_Start(hcan_);
-        HAL_CAN_ActivateNotification(hcan_, kCanRxActiveInterruptFifo0);
     }
 
     void Send(const shared::can::RawCanMsg& can_tx_msg) override {
