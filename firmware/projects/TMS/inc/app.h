@@ -173,6 +173,8 @@ public:
         bms_broadcast_.num_therm_en = num_thermistors_;
         bms_broadcast_.therm_module_num = kThermistorModuleNumber;
         bms_broadcast_.checksum = CalculateBmsBroadcastChecksum(bms_broadcast_);
+
+        can_bus_.Send(bms_broadcast_);
     }
 
 private:
