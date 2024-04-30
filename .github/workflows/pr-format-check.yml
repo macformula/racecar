@@ -25,8 +25,8 @@ jobs:
         run: |
           git clang-format --style=file:firmware/.clang-format --diff $(git merge-base HEAD main) -v > clang_format_output.txt
           if grep -q "clang-format did not modify any files" clang_format_output.txt; then
-            echo "Code formatting is already correct."
-          elif grep -q ".github/workflows/pr-format-check.ymlRunning clang-format on the following files" clang_format_output.txt; then
+            echo "Code formatti.github/workflows/pr-format-check.ymlng is already correct."
+          elif grep -q "Running clang-format on the following files" clang_format_output.txt; then
             echo "Code formatting changes detected."
             exit 1
           fi
