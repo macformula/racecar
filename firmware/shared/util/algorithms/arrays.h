@@ -21,9 +21,9 @@ concept Numeric = requires { std::is_arithmetic_v<T>; };
 /// of the minimum value, the least index is returned.
 /// @return Minimum value of the array.
 /// @note Returns a large value if `array_length = 0`.
-template <Numeric T, int array_length>
+template <Numeric T, int array_length, Numeric I>
     requires(array_length >= 0)
-T GetMinimum(T* array, int* idx_min) {
+T GetMinimum(T* array, I* idx_min) {
     // start minimum at greatest value
     T cur_min = std::numeric_limits<T>().max();
     int temp_idx_min = -1;
@@ -52,9 +52,9 @@ T GetMinimum(T* array, int* idx_min) {
 /// of the maximum value, the least index is used.
 /// @return Maximum value of the array.
 /// @note Returns a low value if `array_length = 0`.
-template <Numeric T, int array_length>
+template <Numeric T, int array_length, Numeric I>
     requires(array_length >= 0)
-T GetMaximum(T* array, int* idx_max) {
+T GetMaximum(T* array, I* idx_max) {
     // start maximum at lowest value
     T cur_max = std::numeric_limits<T>().min();
     int temp_idx_max = -1;

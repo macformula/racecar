@@ -1,12 +1,17 @@
 /// @author Blake Freer
 /// @date 2023-12-25
 
+#include <complex.h>
+
 #include <string>
 
 // cubemx files
 #include "adc.h"
+#include "can.h"
 #include "gpio.h"
 #include "main.h"
+#include "mcal/stm32f767/periph/can.h"
+#include "shared/comms/can/can_msg.h"
 #include "tim.h"
 
 // fw imports
@@ -39,6 +44,8 @@ PWMOutput fan_controller_pwm{&htim4, TIM_CHANNEL_1};
 DigitalOutput debug_do_blue{NUCLEO_BLUE_LED_GPIO_Port, NUCLEO_BLUE_LED_Pin};
 DigitalOutput debug_do_red{NUCLEO_RED_LED_GPIO_Port, NUCLEO_RED_LED_Pin};
 
+CanBase veh_can_base{&hcan1};
+
 }  // namespace mcal
 
 namespace bindings {
@@ -52,6 +59,8 @@ const shared::periph::ADCInput& temp_sensor_adc_6 = mcal::temp_sensor_adc_6;
 const shared::periph::PWMOutput& fan_controller_pwm = mcal::fan_controller_pwm;
 const shared::periph::DigitalOutput& debug_do_blue = mcal::debug_do_blue;
 const shared::periph::DigitalOutput& debug_do_red = mcal::debug_do_red;
+
+const shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
 
 void Initialize() {
     SystemClock_Config();

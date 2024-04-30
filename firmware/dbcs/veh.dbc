@@ -84,7 +84,7 @@ BO_ 1574 Contactor_Feedback: 3 BMS
  SG_ Pack_Negative_Feedback : 8|1@1+ (1,0) [0|1] ""  FC
  SG_ Pack_Positive_Feedback : 0|1@1+ (1,0) [0|1] ""  FC
 
-BO_ 2553934720 BMSBroadcast: 8 TMS
+BO_ 2553934720 BmsBroadcast: 8 TMS
  SG_ ThermModuleNum : 0|8@1+ (1,0) [0|0] ""  BMS
  SG_ LowThermValue : 8|8@1- (1,0) [0|0] " C"  BMS
  SG_ HighThermValue : 16|8@1- (1,0) [0|0] " C"  BMS
@@ -92,7 +92,7 @@ BO_ 2553934720 BMSBroadcast: 8 TMS
  SG_ NumThermEn : 32|8@1+ (1,0) [0|0] ""  BMS
  SG_ HighThermID : 40|8@1+ (1,0) [0|0] ""  BMS
  SG_ LowThermID : 48|8@1+ (1,0) [0|0] ""  BMS
- SG_ Checksum : 56|8@1- (1,0) [0|0] ""  BMS
+ SG_ Checksum : 56|8@1+ (1,0) [0|0] ""  BMS
 
 BO_ 2566844926 ThermistorBroadcast: 8 TMS
  SG_ RelThermID : 0|16@1+ (1,0) [0|0] ""  BMS
