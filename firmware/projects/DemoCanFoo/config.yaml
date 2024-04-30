@@ -2,4 +2,4 @@ canGen:
   ourNode: foo
   busName: veh
   dbcFiles:
-    - "DEMO_CAN.dbc"
+    - "demo.dbc"
