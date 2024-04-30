@@ -7,26 +7,27 @@ jobs:
   clang_format_check:
     name: Check Clang Format
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-        
+
       - name: Set up clang-format
         run: sudo apt-get install clang-format -y
-        
+
       - name: Fetch main branch
         run: git fetch origin main:main
-          
+
       - name: Check code formatting
         id: check_formatting
         run: |
           git clang-format --style=file:firmware/.clang-format --diff $(git merge-base HEAD main) -v > clang_format_output.txt
           if grep -q "clang-format did not modify any files" clang_format_output.txt; then
             echo "Code formatting is already correct."
-          elif grep -q "Running clang-format on the following files" clang_format_output.txt; then
+          elif grep -q ".github/workflows/pr-format-check.ymlRunning clang-format on the following files" clang_format_output.txt; then
             echo "Code formatting changes detected."
+            cat clang_format_output.txt
             exit 1
           fi
