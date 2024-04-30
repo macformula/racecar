@@ -14,6 +14,20 @@
 namespace generated::can {
 
 {% set reg_class_name = bus_name + "MsgRegistry" %}
+
+{% if rx_msgs | length == 0 %}
+// Dummy class - there are no rx messages for this ecu.
+class {{ reg_class_name }} : public shared::can::MsgRegistry {
+public:
+    bool SetMessage(const shared::can::RawCanMsg& raw_msg) override {
+        return false;
+    }
+
+    bool GetMessage(shared::can::CanRxMsg& rx_msg) override {
+        return false;
+    }
+}; 
+{% else %}
 class {{ reg_class_name }} : public shared::can::MsgRegistry {
 public:
     bool SetMessage(const shared::can::RawCanMsg& raw_msg) override {
@@ -66,5 +80,6 @@ private:
     {% endfor %}
     };
 };
+{% endif %}
 
 }  // namespace generated::can

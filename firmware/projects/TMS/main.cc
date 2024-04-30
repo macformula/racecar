@@ -1,6 +1,8 @@
 /// @author Blake Freer
 /// @date 2023-11-18
 
+#include <sys/_stdint.h>
+
 #include <cstdint>
 #include <string>
 
@@ -154,8 +156,9 @@ void Update() {
     float temp_avg =
         shared::util::GetAverage<float, kSensorCount>(temperature_buffer);
 
-    bms_broadcaster.SendBmsBroadcast(high_thermistor_idx, temp_max,
-                                     low_thermistor_idx, temp_min, temp_avg);
+    bms_broadcaster.SendBmsBroadcast(
+        high_thermistor_idx, static_cast<int8_t>(temp_max), low_thermistor_idx,
+        static_cast<int8_t>(temp_min), static_cast<int8_t>(temp_avg));
 
     fan_controller.Update(temp_avg);
 }
