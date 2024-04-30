@@ -28,6 +28,5 @@ jobs:
             echo "Code formatting is already correct."
           elif grep -q ".github/workflows/pr-format-check.ymlRunning clang-format on the following files" clang_format_output.txt; then
             echo "Code formatting changes detected."
-            cat clang_format_output.txt
             exit 1
           fi
