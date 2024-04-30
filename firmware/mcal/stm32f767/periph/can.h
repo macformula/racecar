@@ -22,6 +22,7 @@ public:
 
     void Setup() {
         HAL_CAN_ActivateNotification(hcan_, kCanRxActiveInterruptFifo0);
+        ConfigFilters();
         HAL_CAN_Start(hcan_);
     }
 
@@ -83,6 +84,19 @@ private:
     static constexpr uint32_t kCanRxActiveInterruptFifo0 =
         CAN_IT_RX_FIFO0_MSG_PENDING;
 
+    static constexpr uint32_t kDefaultFilterIdHigh = 0x0000;
+    static constexpr uint32_t kDefaultFilterIdLow = 0x0000;
+    static constexpr uint32_t kDefaultFilterMaskIdHigh = 0x0000;
+    static constexpr uint32_t kDefaultFilterMaskIdLow = 0x0000;
+
+    static constexpr uint32_t kFilterScale = CAN_FILTERSCALE_32BIT;
+    static constexpr uint32_t kFilterEnable = CAN_FILTER_ENABLE;
+    static constexpr uint32_t kFilterMode = CAN_FILTERMODE_IDMASK;
+
+    static constexpr uint32_t kDefaultSlaveStartFilterBank = 14;
+    static constexpr uint32_t kFilterBankCan2 = 14;
+    static constexpr uint32_t kFilterBankCan1Can3 = 0;
+
     static constexpr CAN_TxHeaderTypeDef pack_stm_tx_header(
         const shared::can::CanHeader& header) {
         CAN_TxHeaderTypeDef ret_stm_tx_header;
@@ -124,6 +138,29 @@ private:
 
     inline uint32_t get_tick_ms() {
         return HAL_GetTick() * HAL_GetTickFreq();
+    }
+
+    void ConfigFilters() {
+        CAN_FilterTypeDef filter_config;
+
+        filter_config.FilterIdHigh = kDefaultFilterIdHigh;
+        filter_config.FilterIdLow = kDefaultFilterIdLow;
+        filter_config.FilterMaskIdHigh = kDefaultFilterMaskIdHigh;
+        filter_config.FilterMaskIdLow = kDefaultFilterMaskIdLow;
+
+        filter_config.FilterFIFOAssignment = kCanRxFifo0;
+        filter_config.FilterScale = kFilterScale;
+        filter_config.FilterActivation = kFilterEnable;
+        filter_config.FilterMode = kFilterMode;
+
+        filter_config.SlaveStartFilterBank = kDefaultSlaveStartFilterBank;
+        if (hcan_->Instance == CAN2) {
+            filter_config.FilterBank = kFilterBankCan2;
+        } else {  // CAN1, CAN3
+            filter_config.FilterBank = kFilterBankCan1Can3;
+        }
+
+        HAL_CAN_ConfigFilter(hcan_, &filter_config);
     }
 
     /// @todo broadcast these over a can message
