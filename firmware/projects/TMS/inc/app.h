@@ -4,9 +4,6 @@
 
 #pragma once
 
-#include <sys/_stdint.h>
-#include <sys/types.h>
-
 #include <cstddef>
 #include <cstdint>
 #include <string>

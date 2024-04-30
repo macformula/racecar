@@ -1,8 +1,6 @@
 /// @author Blake Freer
 /// @date 2023-11-18
 
-#include <sys/_stdint.h>
-
 #include <cstdint>
 #include <string>
 
