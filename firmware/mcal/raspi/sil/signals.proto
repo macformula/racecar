@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package signals;
+
+option go_package = ".sil";
+
+service Signals {
+  rpc EnumerateRegisteredSignals (EnumerateRegisteredSignalsRequest) returns (EnumerateRegisteredSignalsResponse) {}
+  rpc WriteSignal(WriteSignalRequest) returns (WriteSignalResponse) {}
+  rpc ReadSignal(ReadSignalRequest) returns (ReadSignalResponse) {}
+  rpc RegisterSignal(RegisterSignalRequest) returns (RegisterSignalResponse) {}
+}
+
+enum SignalAccess {
+    SIGNAL_ACCESS_UNKNOWN = 0;
+    SIGNAL_ACCESS_READONLY = 1;
+    SIGNAL_ACCESS_WRITEONLY = 2;
+    SIGNAL_ACCESS_READWRITE = 3;
+}
+
+enum SignalType {
+    SIGNAL_TYPE_UNKNOWN = 0;
+    SIGNAL_TYPE_ADC = 1;
+    SIGNAL_TYPE_DIGITAL = 2;
+    SIGNAL_TYPE_PWM = 3;
+}
+
+message AdcSignal {
+    double voltage = 1;
+}
+
+message PwmSignal {
+    uint32 duty_cycle = 1;
+    uint32 frequency = 2;
+}
+
+message DigitalSignal {
+    bool level = 1;
+}
+
+message SignalInfo {
+    string ecu_name = 1;
+    string signal_name = 2;
+    SignalAccess signal_access = 3;
+    SignalType signal_type = 4;
+}
+
+message EnumerateRegisteredSignalsRequest {}
+
+message EnumerateRegisteredSignalsResponse {
+  bool status = 1;
+  string error = 2;
+  repeated SignalInfo signals = 3;
+}
+
+message WriteSignalRequest {
+    string ecu_name = 1;
+    string signal_name = 2;
+    oneof value {
+        AdcSignal value_adc = 3;
+        DigitalSignal value_digital = 4;
+        PwmSignal value_pwm = 5;
+    }
+}
+
+message WriteSignalResponse {
+    bool status = 1;
+    string error = 2;
+}
+
+message ReadSignalRequest {
+    string ecu_name = 1;
+    string signal_name = 2;
+}
+
+message ReadSignalResponse {
+    bool status = 1;
+    string error = 2;
+    oneof value {
+        AdcSignal value_adc = 3;
+        DigitalSignal value_digital = 4;
+        PwmSignal value_pwm = 5;
+    }
+}
+
+message RegisterSignalRequest {
+    string ecu_name = 1;
+    string signal_name = 2;
+    SignalAccess signal_access = 3;
+    oneof initial_value {
+        AdcSignal initial_value_adc = 4;
+        DigitalSignal initial_value_digital = 5;
+        PwmSignal initial_value_pwm = 6;
+    }
+}
+
+message RegisterSignalResponse {
+    bool status = 1;
+    string error = 2;
+}
