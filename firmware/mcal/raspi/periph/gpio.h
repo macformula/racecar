@@ -17,7 +17,7 @@ public:
         : ecu_name_(ecu_name), sig_name_(sig_name), sil_client_(sil_client) {}
 
     bool Read() override {
-        return sil_client_.ReadDigitalSignal(ecu_name_, sig_name_);
+        return sil_client_.ReadDigitalLevel(ecu_name_, sig_name_);
     }
 
 private:
@@ -26,9 +26,9 @@ private:
     mcal::raspi::sil::SilClient& sil_client_;
 };
 
-class DigitalInput : public shared::periph::DigitalInput {
+class DigitalOutput : public shared::periph::DigitalOutput {
 public:
-    DigitalInput(std::string ecu_name, std::string sig_name,
+    DigitalOutput(std::string ecu_name, std::string sig_name,
                  mcal::raspi::sil::SilClient& sil_client)
         : ecu_name_(ecu_name), sig_name_(sig_name), sil_client_(sil_client) {}
 

@@ -14,8 +14,8 @@ using namespace raspi::sil;
 
 SilClient sil_client(server_addr);
 
-DigitalInput button_di{ecu_name, "button1"};
-DigitalOutput indicator_do{ecu_name, "indicator1"};
+DigitalInput button_di{ecu_name, "button1", sil_client};
+DigitalOutput indicator_do{ecu_name, "indicator1", sil_client};
 }  // namespace mcal
 
 namespace bindings {

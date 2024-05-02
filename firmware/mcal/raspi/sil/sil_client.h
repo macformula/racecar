@@ -13,7 +13,8 @@
 #include "signals.pb.h"
 
 namespace mcal::raspi::sil {
-class SilClient final {
+
+class SilClient {
 public:
     SilClient(std::string server_addr) {
         channel_ = grpc::CreateChannel(server_addr,
@@ -30,4 +31,5 @@ private:
     std::shared_ptr<grpc::Channel> channel_;
     std::unique_ptr<signals::Signals::Stub> stub_;
 };
+
 }  // namespace mcal::raspi::sil
