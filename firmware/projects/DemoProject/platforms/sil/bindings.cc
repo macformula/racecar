@@ -5,7 +5,7 @@
 #include "mcal/raspi/sil/sil_client.h"
 #include "shared/periph/gpio.h"
 
-const std::string ecu_name = "test_ecu";
+const std::string ecu_name = "DemoProject";
 const std::string server_addr = "localhost:31522";
 
 namespace mcal {
@@ -14,8 +14,8 @@ using namespace raspi::sil;
 
 SilClient sil_client(server_addr);
 
-DigitalInput button_di{ecu_name, "button1", sil_client};
-DigitalOutput indicator_do{ecu_name, "indicator1", sil_client};
+DigitalInput button_di{ecu_name, "IndicatorButton", sil_client};
+DigitalOutput indicator_do{ecu_name, "IndicatorLed", sil_client};
 }  // namespace mcal
 
 namespace bindings {
@@ -26,6 +26,8 @@ const shared::periph::DigitalOutput& indicator_do = mcal::indicator_do;
 void Initialize() {
     std::cout << "Initializing SIL..." << std::endl;
     std::cout << "Server address: " << server_addr << std::endl;
+    mcal::button_di.Register();
+    mcal::indicator_do.Register();
 }
 
 }  // namespace bindings

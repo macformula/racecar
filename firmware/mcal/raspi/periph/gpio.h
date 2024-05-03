@@ -16,6 +16,10 @@ public:
                  mcal::raspi::sil::SilClient& sil_client)
         : ecu_name_(ecu_name), sig_name_(sig_name), sil_client_(sil_client) {}
 
+    void Register() {
+        sil_client_.RegisterDigitalInput(ecu_name_, sig_name_);
+    }
+
     bool Read() override {
         return sil_client_.ReadDigitalLevel(ecu_name_, sig_name_);
     }
@@ -29,8 +33,12 @@ private:
 class DigitalOutput : public shared::periph::DigitalOutput {
 public:
     DigitalOutput(std::string ecu_name, std::string sig_name,
-                 mcal::raspi::sil::SilClient& sil_client)
+                  mcal::raspi::sil::SilClient& sil_client)
         : ecu_name_(ecu_name), sig_name_(sig_name), sil_client_(sil_client) {}
+
+    void Register() {
+        sil_client_.RegisterDigitalOutput(ecu_name_, sig_name_);
+    }
 
     void Set(bool level) override {
         return sil_client_.SetDigitalLevel(ecu_name_, sig_name_, level);

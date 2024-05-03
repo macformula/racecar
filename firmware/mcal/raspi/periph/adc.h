@@ -19,6 +19,10 @@ public:
              mcal::raspi::sil::SilClient sil_client)
         : ecu_name_(ecu_name), sig_name_(sig_name), sil_client_(sil_client) {}
 
+    void Register() {
+        sil_client_.RegisterAnalogInput(ecu_name_, sig_name_);
+    }
+
     void Start() override {}
 
     uint32_t Read() override {

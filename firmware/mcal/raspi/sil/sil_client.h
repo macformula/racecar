@@ -22,6 +22,10 @@ public:
         stub_ = signals::Signals::NewStub(channel_);
     }
 
+    void RegisterDigitalInput(std::string ecu_name, std::string sig_name);
+    void RegisterDigitalOutput(std::string ecu_name, std::string sig_name);
+    void RegisterAnalogInput(std::string ecu_name, std::string sig_name);
+
     bool ReadDigitalLevel(std::string ecu_name, std::string sig_name);
     double ReadAdcVoltage(std::string ecu_name, std::string sig_name);
     void SetDigitalLevel(std::string ecu_name, std::string sig_name,
