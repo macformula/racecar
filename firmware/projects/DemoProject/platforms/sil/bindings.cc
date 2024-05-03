@@ -25,7 +25,10 @@ const shared::periph::DigitalOutput& indicator_do = mcal::indicator_do;
 
 void Initialize() {
     std::cout << "Initializing SIL..." << std::endl;
-    std::cout << "Server address: " << server_addr << std::endl;
+    std::cout << "Using address: " << server_addr << std::endl;
+
+    mcal::sil_client.Connect();
+
     mcal::button_di.Register();
     mcal::indicator_do.Register();
 }

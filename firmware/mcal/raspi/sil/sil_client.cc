@@ -1,8 +1,11 @@
 /// @author Samuel Parent
 /// @date 2024-05-01
 
+#include <google/protobuf/stubs/port.h>
 #include <grpcpp/grpcpp.h>
+#include <grpcpp/support/time.h>
 
+#include <iostream>
 #include <string>
 
 #include "signals.grpc.pb.h"
@@ -10,6 +13,13 @@
 #include "sil_client.h"
 
 namespace mcal::raspi::sil {
+
+SilClient::SilClient(std::string addr) : addr_(addr) {}
+
+void SilClient::Connect() {
+    stub_ = signals::Signals::NewStub(
+        grpc::CreateChannel(addr_, grpc::InsecureChannelCredentials()));
+}
 
 void SilClient::RegisterDigitalInput(std::string ecu_name,
                                      std::string sig_name) {

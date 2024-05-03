@@ -5,6 +5,7 @@
 
 #include <grpcpp/grpcpp.h>
 
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -16,11 +17,9 @@ namespace mcal::raspi::sil {
 
 class SilClient {
 public:
-    SilClient(std::string server_addr) {
-        channel_ = grpc::CreateChannel(server_addr,
-                                       grpc::InsecureChannelCredentials());
-        stub_ = signals::Signals::NewStub(channel_);
-    }
+    SilClient(std::string server_addr);
+
+    void Connect();
 
     void RegisterDigitalInput(std::string ecu_name, std::string sig_name);
     void RegisterDigitalOutput(std::string ecu_name, std::string sig_name);
@@ -32,7 +31,7 @@ public:
                          bool level);
 
 private:
-    std::shared_ptr<grpc::Channel> channel_;
+    std::string addr_;
     std::unique_ptr<signals::Signals::Stub> stub_;
 };
 

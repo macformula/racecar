@@ -15,11 +15,11 @@ Indicator indicator{bindings::indicator_do};
 bool btn_value = true;
 
 int main(void) {
-    // bindings::Initialize();
+    bindings::Initialize();
 
     while (1) {
-        // btn_value = button.Read();
-        // indicator.Set(btn_value);
+        btn_value = button.Read();
+        indicator.Set(btn_value);
     }
 
     return 0;
