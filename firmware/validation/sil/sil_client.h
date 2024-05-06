@@ -13,7 +13,7 @@
 #include "signals.grpc.pb.h"
 #include "signals.pb.h"
 
-namespace mcal::raspi::sil {
+namespace val::sil {
 
 class SilClient {
 public:
@@ -35,4 +35,4 @@ private:
     std::unique_ptr<signals::Signals::Stub> stub_;
 };
 
-}  // namespace mcal::raspi::sil
+}  // namespace val::sil

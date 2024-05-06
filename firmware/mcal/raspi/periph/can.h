@@ -3,9 +3,9 @@
 
 #pragma once
 
-// #include <linux/can.h>
-// #include <linux/can/raw.h>
-// #include <net/if.h>
+#include <linux/can.h>
+#include <linux/can/raw.h>
+#include <net/if.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,7 +33,8 @@ public:
     };
 
     void Setup() {
-        Create a socket sock_ = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+        // Create a socket 
+        sock_ = socket(PF_CAN, SOCK_RAW, CAN_RAW);
         if (sock_ < 0) {
             perror("Error creating socket");
             return;

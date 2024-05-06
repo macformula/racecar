@@ -5,15 +5,15 @@
 
 #include <string>
 
-#include "mcal/raspi/sil/sil_client.h"
 #include "shared/periph/gpio.h"
+#include "validation/sil/sil_client.h"
 
 namespace mcal::raspi::periph {
 
 class DigitalInput : public shared::periph::DigitalInput {
 public:
     DigitalInput(std::string ecu_name, std::string sig_name,
-                 mcal::raspi::sil::SilClient& sil_client)
+                 val::sil::SilClient& sil_client)
         : ecu_name_(ecu_name), sig_name_(sig_name), sil_client_(sil_client) {}
 
     void Register() {
@@ -27,13 +27,13 @@ public:
 private:
     std::string ecu_name_;
     std::string sig_name_;
-    mcal::raspi::sil::SilClient& sil_client_;
+    val::sil::SilClient& sil_client_;
 };
 
 class DigitalOutput : public shared::periph::DigitalOutput {
 public:
     DigitalOutput(std::string ecu_name, std::string sig_name,
-                  mcal::raspi::sil::SilClient& sil_client)
+                  val::sil::SilClient& sil_client)
         : ecu_name_(ecu_name), sig_name_(sig_name), sil_client_(sil_client) {}
 
     void Register() {
@@ -55,7 +55,7 @@ public:
 private:
     std::string ecu_name_;
     std::string sig_name_;
-    mcal::raspi::sil::SilClient& sil_client_;
+    val::sil::SilClient& sil_client_;
 };
 
 }  // namespace mcal::raspi::periph

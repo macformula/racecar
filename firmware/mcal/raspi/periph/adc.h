@@ -3,20 +3,19 @@
 
 #pragma once
 
-#include <_types/_uint32_t.h>
-
 #include <cstdint>
 #include <string>
 
 #include "shared/periph/adc.h"
 #include "shared/util/mappers/linear_map.h"
+#include "validation/sil/sil_client.h"
 
 namespace mcal::raspi::periph {
 
 class ADCInput : public shared::periph::ADCInput {
 public:
     ADCInput(std::string ecu_name, std::string sig_name,
-             mcal::raspi::sil::SilClient sil_client)
+             val::sil::SilClient sil_client)
         : ecu_name_(ecu_name), sig_name_(sig_name), sil_client_(sil_client) {}
 
     void Register() {
@@ -41,7 +40,7 @@ private:
 
     std::string ecu_name_;
     std::string sig_name_;
-    mcal::raspi::sil::SilClient& sil_client_;
+    val::sil::SilClient& sil_client_;
 };
 
 }  // namespace mcal::raspi::periph
