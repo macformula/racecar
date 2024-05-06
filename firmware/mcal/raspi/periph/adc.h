@@ -15,7 +15,7 @@ namespace mcal::raspi::periph {
 class ADCInput : public shared::periph::ADCInput {
 public:
     ADCInput(std::string ecu_name, std::string sig_name,
-             val::sil::SilClient sil_client)
+             val::sil::SilClient& sil_client)
         : ecu_name_(ecu_name), sig_name_(sig_name), sil_client_(sil_client) {}
 
     void Register() {
@@ -36,7 +36,7 @@ private:
     static constexpr uint32_t kMaxAdcValue = (1 << kNumAdcBits) - 1;
     static constexpr double kVoltsToAdc = (kMaxAdcValue / kMaxVoltage);
 
-    shared::util::LinearMap<uint32_t, double> voltage_to_adc{kVoltsToAdc, 0};
+    shared::util::LinearMap<double, uint32_t> voltage_to_adc{kVoltsToAdc, 0};
 
     std::string ecu_name_;
     std::string sig_name_;
