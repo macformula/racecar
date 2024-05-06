@@ -68,6 +68,10 @@ shared::periph::DigitalOutput&& shutdown_circuit_en = DigitalOutput{
     SHUTDOWN_CIRCUIT_EN_GPIO_Port,
     SHUTDOWN_CIRCUIT_EN_Pin,
 };
+shared::periph::DigitalOutput&& inverter_en = DigitalOutput{
+    INVERTER_EN_GPIO_Port,
+    INVERTER_EN_Pin,
+};
 shared::periph::DigitalOutput&& dcdc_en = DigitalOutput{
     DCDC_EN_GPIO_Port,
     DCDC_EN_Pin,
