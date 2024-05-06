@@ -12,7 +12,7 @@
 #include "signals.pb.h"
 #include "sil_client.h"
 
-namespace mcal::raspi::sil {
+namespace val::sil {
 
 SilClient::SilClient(std::string addr) : addr_(addr) {}
 
