@@ -28,6 +28,13 @@ extern shared::periph::DigitalInput& wheel_speed_left_b;
 extern shared::periph::DigitalInput& wheel_speed_right_a;
 extern shared::periph::DigitalInput& wheel_speed_right_b;
 
+extern shared::periph::DigitalOutput& debug_led_en;
+extern shared::periph::DigitalOutput& dashboard_en;
+extern shared::periph::DigitalOutput& hvil_led_en;
+extern shared::periph::DigitalOutput& brake_light_en;
+extern shared::periph::DigitalOutput& status_led_en;
+extern shared::periph::DigitalOutput& rtds_en;
+
 extern void Initialize();
 extern void TickBlocking(uint32_t);
 }  // namespace bindings

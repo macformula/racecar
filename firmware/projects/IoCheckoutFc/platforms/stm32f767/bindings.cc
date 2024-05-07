@@ -4,6 +4,7 @@
 // cubemx files
 #include "adc.h"
 #include "can.h"
+#include "cubemx/Inc/main.h"
 #include "gpio.h"
 
 // fw imports
@@ -36,6 +37,13 @@ DigitalInput wheel_speed_right_a{WHEEL_SPEED_RIGHT_A_GPIO_Port,
 DigitalInput wheel_speed_right_b{WHEEL_SPEED_RIGHT_A_GPIO_Port,
                                  WHEEL_SPEED_RIGHT_A_Pin};
 
+DigitalOutput debug_led_en{DEBUG_LED_GPIO_Port, DEBUG_LED_Pin};
+DigitalOutput dashboard_en{DASHBOARD_HSD_EN_GPIO_Port, DASHBOARD_HSD_EN_Pin};
+DigitalOutput hvil_led_en{HVIL_LED_EN_GPIO_Port, HVIL_LED_EN_Pin};
+DigitalOutput brake_light_en{BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin};
+DigitalOutput status_led_en{STATUS_LED_EN_GPIO_Port, STATUS_LED_EN_Pin};
+DigitalOutput rtds_en{RTDS_EN_GPIO_Port, RTDS_EN_Pin};
+
 }  // namespace mcal
 
 extern "C" {
@@ -64,6 +72,13 @@ shared::periph::DigitalInput& wheel_speed_left_a = mcal::wheel_speed_left_a;
 shared::periph::DigitalInput& wheel_speed_left_b = mcal::wheel_speed_left_b;
 shared::periph::DigitalInput& wheel_speed_right_a = mcal::wheel_speed_right_a;
 shared::periph::DigitalInput& wheel_speed_right_b = mcal::wheel_speed_right_b;
+
+shared::periph::DigitalOutput& debug_led_en = mcal::debug_led_en;
+shared::periph::DigitalOutput& dashboard_en = mcal::dashboard_en;
+shared::periph::DigitalOutput& hvil_led_en = mcal::hvil_led_en;
+shared::periph::DigitalOutput& brake_light_en = mcal::brake_light_en;
+shared::periph::DigitalOutput& status_led_en = mcal::status_led_en;
+shared::periph::DigitalOutput& rtds_en = mcal::rtds_en;
 
 void Initialize() {
     SystemClock_Config();
