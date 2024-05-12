@@ -41,8 +41,8 @@ BO_ 257 speedGoat_tx: 1 speedgoat
  SG_ sg_brakeLightEn : 0|1@1- (1,0) [0|1] ""  front_controller
 
 BO_ 256 fc_tx: 8 front_controller
- SG_ vd_RFWheelSpeed : 60|12@1- (1,0) [-2048|2047] "" Vector__XXX
- SG_ vd_LFWheelSpeed : 48|12@1- (1,0) [-2048|2047] "" Vector__XXX
+ SG_ vd_RFWheelSpeed : 60|12@1- (1,0) [-2048|2047] ""  speedgoat
+ SG_ vd_LFWheelSpeed : 48|12@1- (1,0) [-2048|2047] ""  speedgoat
  SG_ fc_hvilStatus : 41|1@1- (1,0) [0|1] ""  speedgoat
  SG_ fc_startButton : 40|1@1- (1,0) [0|1] ""  speedgoat
  SG_ fc_steeringAngle : 32|8@1+ (0.005,0) [0|1] ""  speedgoat
