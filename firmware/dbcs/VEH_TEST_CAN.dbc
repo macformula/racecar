@@ -1,0 +1,60 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: speedgoat front_controller
+
+
+BO_ 257 speedGoat_tx: 1 speedgoat
+ SG_ sg_driverSpeaker : 1|1@1- (1,0) [0|1] ""  front_controller
+ SG_ sg_brakeLightEn : 0|1@1- (1,0) [0|1] ""  front_controller
+
+BO_ 256 fc_tx: 8 front_controller
+ SG_ vd_RFWheelSpeed : 60|12@1- (1,0) [-2048|2047] ""  speedgoat
+ SG_ vd_LFWheelSpeed : 48|12@1- (1,0) [-2048|2047] ""  speedgoat
+ SG_ fc_hvilStatus : 41|1@1- (1,0) [0|1] ""  speedgoat
+ SG_ fc_startButton : 40|1@1- (1,0) [0|1] ""  speedgoat
+ SG_ fc_steeringAngle : 32|8@1+ (0.005,0) [0|1] ""  speedgoat
+ SG_ fc_bpps2 : 24|8@1+ (0.005,0) [0|1] ""  speedgoat
+ SG_ fc_bpps1 : 16|8@1+ (0.005,0) [0|1] ""  speedgoat
+ SG_ fc_apps2 : 8|8@1+ (0.005,0) [0|1] ""  speedgoat
+ SG_ fc_apps1 : 0|8@1+ (0.005,0) [0|1] ""  speedgoat
+
+
+
+BA_DEF_  "MultiplexExtEnabled" ENUM  "No","Yes";
+BA_DEF_  "BusType" STRING ;
+BA_DEF_DEF_  "MultiplexExtEnabled" "No";
+BA_DEF_DEF_  "BusType" "CAN";
+
