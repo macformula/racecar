@@ -13,10 +13,10 @@
 namespace bindings {
 extern shared::periph::CanBase& io_can_base;
 
-extern shared::periph::ADCInput& accel_pedal_position_1;
-extern shared::periph::ADCInput& accel_pedal_position_2;
-extern shared::periph::ADCInput& brake_pedal_position_1;
-extern shared::periph::ADCInput& brake_pedal_position_2;
+extern shared::periph::ADCInput& accel_pedal_pos_1;
+extern shared::periph::ADCInput& accel_pedal_pos_2;
+extern shared::periph::ADCInput& brake_pedal_pos_1;
+extern shared::periph::ADCInput& brake_pedal_pos_2;
 extern shared::periph::ADCInput& suspension_travel_1;
 extern shared::periph::ADCInput& suspension_travel_2;
 extern shared::periph::ADCInput& hvil_feedback;
@@ -64,10 +64,10 @@ int main(void) {
     bool wheel_speed_right_b_value;
 
     // Adc values
-    uint32_t accel_pedal_position_1_value;
-    uint32_t accel_pedal_position_2_value;
-    uint32_t brake_pedal_position_1_value;
-    uint32_t brake_pedal_position_2_value;
+    uint32_t accel_pedal_pos_1_value;
+    uint32_t accel_pedal_pos_2_value;
+    uint32_t brake_pedal_pos_1_value;
+    uint32_t brake_pedal_pos_2_value;
     uint32_t suspension_travel_1_value;
     uint32_t suspension_travel_2_value;
     uint32_t hvil_feedback_value;
@@ -84,10 +84,10 @@ int main(void) {
         io_can_bus.Update();
 
         // Read all analog input
-        accel_pedal_position_1_value = bindings::accel_pedal_position_1.Read();
-        accel_pedal_position_2_value = bindings::accel_pedal_position_2.Read();
-        brake_pedal_position_1_value = bindings::brake_pedal_position_1.Read();
-        brake_pedal_position_2_value = bindings::brake_pedal_position_2.Read();
+        accel_pedal_pos_1_value = bindings::accel_pedal_pos_1.Read();
+        accel_pedal_pos_2_value = bindings::accel_pedal_pos_2.Read();
+        brake_pedal_pos_1_value = bindings::brake_pedal_pos_1.Read();
+        brake_pedal_pos_2_value = bindings::brake_pedal_pos_2.Read();
         suspension_travel_1_value = bindings::suspension_travel_1.Read();
         suspension_travel_2_value = bindings::suspension_travel_2.Read();
         hvil_feedback_value = bindings::hvil_feedback.Read();
@@ -102,13 +102,13 @@ int main(void) {
 
         // Pack Can messasges
         pedal_sensors_msg.apps1 =
-            adc_to_voltage.Evaluate(accel_pedal_position_1_value);
+            adc_to_voltage.Evaluate(accel_pedal_pos_1_value);
         pedal_sensors_msg.apps2 =
-            adc_to_voltage.Evaluate(accel_pedal_position_2_value);
+            adc_to_voltage.Evaluate(accel_pedal_pos_2_value);
         pedal_sensors_msg.bpps1 =
-            adc_to_voltage.Evaluate(brake_pedal_position_1_value);
+            adc_to_voltage.Evaluate(brake_pedal_pos_1_value);
         pedal_sensors_msg.bpps2 =
-            adc_to_voltage.Evaluate(brake_pedal_position_2_value);
+            adc_to_voltage.Evaluate(brake_pedal_pos_2_value);
 
         wheels_msg.wheel_speed_left_a = wheel_speed_left_a_value;
         wheels_msg.wheel_speed_left_b = wheel_speed_left_b_value;
