@@ -18,10 +18,10 @@ using namespace stm32f767::periph;
 
 CanBase io_can_base{&hcan3};
 
-ADCInput accel_pedal_position_1{&hadc1, ADC_CHANNEL_12};
-ADCInput accel_pedal_position_2{&hadc1, ADC_CHANNEL_13};
-ADCInput brake_pedal_position_1{&hadc1, ADC_CHANNEL_2};
-ADCInput brake_pedal_position_2{&hadc1, ADC_CHANNEL_1};
+ADCInput accel_pedal_pos_1{&hadc1, ADC_CHANNEL_12};
+ADCInput accel_pedal_pos_2{&hadc1, ADC_CHANNEL_13};
+ADCInput brake_pedal_pos_1{&hadc1, ADC_CHANNEL_2};
+ADCInput brake_pedal_pos_2{&hadc1, ADC_CHANNEL_1};
 ADCInput suspension_travel_1{&hadc1, ADC_CHANNEL_8};
 ADCInput suspension_travel_2{&hadc1, ADC_CHANNEL_9};
 ADCInput hvil_feedback{&hadc1, ADC_CHANNEL_5};
@@ -58,10 +58,10 @@ namespace bindings {
 
 shared::periph::CanBase& io_can_base = mcal::io_can_base;
 
-shared::periph::ADCInput& accel_pedal_position_1 = mcal::accel_pedal_position_1;
-shared::periph::ADCInput& accel_pedal_position_2 = mcal::accel_pedal_position_2;
-shared::periph::ADCInput& brake_pedal_position_1 = mcal::brake_pedal_position_1;
-shared::periph::ADCInput& brake_pedal_position_2 = mcal::brake_pedal_position_2;
+shared::periph::ADCInput& accel_pedal_pos_1 = mcal::accel_pedal_pos_1;
+shared::periph::ADCInput& accel_pedal_pos_2 = mcal::accel_pedal_pos_2;
+shared::periph::ADCInput& brake_pedal_pos_1 = mcal::brake_pedal_pos_1;
+shared::periph::ADCInput& brake_pedal_pos_2 = mcal::brake_pedal_pos_2;
 shared::periph::ADCInput& suspension_travel_1 = mcal::suspension_travel_1;
 shared::periph::ADCInput& suspension_travel_2 = mcal::suspension_travel_2;
 shared::periph::ADCInput& hvil_feedback = mcal::hvil_feedback;
