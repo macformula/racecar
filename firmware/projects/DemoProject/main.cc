@@ -12,7 +12,7 @@ extern void Initialize();
 Button button{bindings::button_di};
 Indicator indicator{bindings::indicator_do};
 
-bool btn_value;
+bool btn_value = true;
 
 int main(void) {
     bindings::Initialize();

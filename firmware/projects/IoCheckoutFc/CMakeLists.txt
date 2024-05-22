@@ -16,8 +16,8 @@ FILE(GLOB_RECURSE CAN_DEPENDENCIES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/../scr
 list(APPEND CAN_DEPENDENCIES "${CMAKE_CURRENT_SOURCE_DIR}/config.yaml")
 
 add_custom_target(
-    generated_can
-	COMMAND /home/parallels/macformula/racecar/scripts/cangen/.deb_venv/bin/python3.11 "${CMAKE_SOURCE_DIR}/../scripts/cangen/main.py" "--project=\"DemoCanFoo\""
+	generated_can
+	COMMAND ${Python3_EXECUTABLE} "${CMAKE_SOURCE_DIR}/../scripts/cangen/main.py" "--project=\"IoCheckoutFc\""
 	DEPENDS ${CAN_DEPENDENCIES}
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	COMMENT Generating CAN code from DBCs
@@ -28,7 +28,6 @@ target_sources(main
 	main.cc
 )
 add_dependencies(main generated_can)
-
 
 target_include_directories(main
 	PRIVATE

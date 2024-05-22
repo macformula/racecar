@@ -25,6 +25,14 @@ The following dependecies must be installed __and added to your PATH variable.__
   * Verify java with `java --version`.
   * Ensure `java -jar <path/to/STM32CubeMX.exe>` opens CubeMX.
 
+## sil
+
+* gRPC c++ dependancies - [link](https://grpc.io/docs/languages/cpp/quickstart/)
+  * Follow the guide to build the example project.
+  * Add the `CMAKE_PREFIX_PATH` environment variable to your machine
+    * `export CMAKE_PREFIX_PATH="$HOME/.local"`
+  
+
 ## clangd
 
 This is our official C/C++ language server. It is not required but will make your development experience _much_ nicer. We have configured CMake to autogenerate the build configuration so that you never need to configure include paths or compiler flags.
