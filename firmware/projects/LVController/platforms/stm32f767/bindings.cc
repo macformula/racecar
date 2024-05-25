@@ -9,6 +9,8 @@
 #include "can.h"
 #include "gpio.h"
 #include "main.h"
+#include "mcal/stm32f767/periph/can.h"
+#include "shared/periph/can.h"
 #include "stm32f767xx.h"
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx_hal_tim.h"
@@ -32,6 +34,8 @@ void SystemClock_Config();
 
 namespace bindings {
 using namespace mcal::stm32f767::periph;
+
+shared::periph::CanBase&& veh_can_base = CanBase{&hcan1};
 
 shared::periph::DigitalOutput&& tsal_en = DigitalOutput{
     TSAL_EN_GPIO_Port,
@@ -68,6 +72,10 @@ shared::periph::DigitalOutput&& imu_gps_en = DigitalOutput{
 shared::periph::DigitalOutput&& shutdown_circuit_en = DigitalOutput{
     SHUTDOWN_CIRCUIT_EN_GPIO_Port,
     SHUTDOWN_CIRCUIT_EN_Pin,
+};
+shared::periph::DigitalOutput&& inverter_switch_en = DigitalOutput{
+    INVERTER_SWITCH_EN_GPIO_Port,
+    INVERTER_SWITCH_EN_Pin,
 };
 shared::periph::DigitalOutput&& dcdc_en = DigitalOutput{
     DCDC_EN_GPIO_Port,

@@ -128,23 +128,18 @@ class DCDC : public Subsystem {
 public:
     DCDC(shared::periph::DigitalOutput& enable_output,
          shared::periph::DigitalInput& valid_input,
-         shared::periph::DigitalOutput& led_output,
-         shared::os::Mutex& state_lock)
+         shared::periph::DigitalOutput& led_output)
         : Subsystem(enable_output),
           valid_input_(valid_input),
-          led_(led_output),
-          lock_(state_lock){};
+          led_(led_output){};
 
     bool CheckValid() {
-        lock_.Acquire();
         bool is_valid = valid_input_.Read();
         led_.SetState(is_valid);
-        lock_.Release();
         return is_valid;
     }
 
 private:
     shared::periph::DigitalInput& valid_input_;
     Indicator led_;
-    shared::os::Mutex& lock_;
 };

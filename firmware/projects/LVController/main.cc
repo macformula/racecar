@@ -8,17 +8,18 @@
 #include "bindings.h"
 #include "generated/can/can_messages.h"
 #include "generated/can/msg_registry.h"
-#include "shared/os/os.h"
+#include "shared/comms/can/can_bus.h"
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
 #include "shared/util/mappers/identity.h"
 #include "shared/util/mappers/mapper.h"
 
-namespace os {
-extern void Tick(uint32_t ticks);
-extern void InitializeKernel();
-extern void StartKernel();
-}  // namespace os
+generated::can::VehMsgRegistry veh_msg_registry{};
+
+shared::can::CanBus veh_can = shared::can::CanBus{
+    bindings::veh_can_base,
+    veh_msg_registry,
+};
 
 Subsystem tsal{bindings::tsal_en};
 Subsystem raspberry_pi{bindings::raspberry_pi_en};
@@ -35,6 +36,7 @@ DCDC dcdc{
     bindings::dcdc_valid,
     bindings::dcdc_led_en,
 };
+
 Subsystem powertrain_pump{
     bindings::powertrain_pump_en,
 };
@@ -100,32 +102,43 @@ void DoPowertrainDisableSequence() {
     powertrain_fan.Disable();
 }
 
-void TaskCheckDCDC(void* arg) {
-    while (true) {
-        dcdc.CheckValid();
-        os::Tick(10);
-    }
+bool CheckContactorsOpen() {
+    generated::can::ContactorStates contactor_states;
+    veh_can.Update();
+    veh_can.Read(contactor_states);
+
+    return (contactor_states.tick_timestamp != 0 &&
+            contactor_states.pack_positive == 0 &&
+            contactor_states.pack_negative == 0 &&
+            contactor_states.pack_precharge == 0);
 }
-void TaskMainLoop(void* arg) {
-    while (true) {
-        /// Start: Sam code
-        // wait for"Read VEHICLE_CAN Bus for MC+ and MC- Closed and Precharge
-        // Open"
-        bool waiting_for_vehicle_can = true;
-        while (waiting_for_vehicle_can) continue;
-        /// End: Sam code
 
-        DoPowertrainEnableSequence();
+bool CheckContactorsClosed() {
+    generated::can::ContactorStates contactor_states;
+    veh_can.Update();
+    veh_can.Read(contactor_states);
 
-        while (dcdc.CheckValid()) continue;
+    return (contactor_states.tick_timestamp != 0 &&
+            contactor_states.pack_positive == 1 &&
+            contactor_states.pack_negative == 1 &&
+            contactor_states.pack_precharge == 0);
+}
 
-        DoPowertrainDisableSequence();
+void DoInverterSwitchCheck() {
+    generated::can::InverterCommand inverter_command;
+    veh_can.Update();
+    veh_can.Read(inverter_command);
+
+    if (inverter_command.tick_timestamp != 0 &&
+        inverter_command.enable_inverter == true) {
+        bindings::inverter_switch_en.SetHigh();
+    } else {
+        bindings::inverter_switch_en.SetLow();
     }
 }
 
 int main(void) {
     bindings::Initialize();
-    os::InitializeKernel();
 
     // Ensure all subsystems are disabled to start.
     for (auto sys : all_subsystems) {
@@ -135,17 +148,22 @@ int main(void) {
     // Powerup sequence
     DoPowerupSequence();
 
-    /// Start: Sam code
-    // Wait for "Read VEHICLE_CAN bus for BMS Close Contactor Command Low"
-    bool waiting_for_bms = true;
-    while (waiting_for_bms) continue;
-    /// End: Sam code
+    while (!CheckContactorsOpen()) continue;
 
     shutdown_circuit.Enable();
 
-    os::StartKernel();
+    while (true) {
+        while (!CheckContactorsClosed()) continue;
 
-    while (true) continue;  // all logic is now handled in the RTOS tasks.
+        DoPowertrainEnableSequence();
+
+        while (dcdc.CheckValid()) {
+            DoInverterSwitchCheck();
+        }
+
+        bindings::inverter_switch_en.SetLow();
+        DoPowertrainDisableSequence();
+    }
 
     return 0;
 }

@@ -1,6 +1,5 @@
 canGen:
-  ourNode: FC
+  ourNode: lvc
   busName: veh
   dbcFiles:
-    - "PT_CAN.dbc"
-    - "VEH_CAN.dbc"
+    - "veh.dbc"

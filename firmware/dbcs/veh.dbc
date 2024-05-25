@@ -33,7 +33,7 @@ NS_ :
 
 BS_:
 
-BU_: PC_SG BMS FC TMS CANmod
+BU_: PC_SG BMS FC TMS CANmod LVC
 
 
 BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
@@ -55,10 +55,13 @@ BO_ 256 FC_cmd: 1 PC_SG
  SG_ FC_readyToDriveSpeaker : 1|1@1+ (1,0) [0|1] ""  FC
  SG_ FC_brakeLight : 0|1@1+ (1,0) [0|1] ""  FC
 
-BO_ 1570 Contactor_States: 3 FC
- SG_ Pack_Positive : 0|8@1+ (1,0) [0|0] ""  BMS
- SG_ Pack_Precharge : 8|8@1+ (1,0) [0|0] ""  BMS
- SG_ Pack_Negative : 16|8@1+ (1,0) [0|0] ""  BMS
+BO_ 1560 InverterCommand: 1 FC
+ SG_ EnableInverter : 0|1@1+ (1,0) [0|0] ""  LVC
+
+BO_ 1570 ContactorStates: 3 FC
+ SG_ PackPositive : 0|8@1+ (1,0) [0|0] ""  BMS,LVC
+ SG_ PackPrecharge : 8|8@1+ (1,0) [0|0] ""  BMS,LVC
+ SG_ PackNegative : 16|8@1+ (1,0) [0|0] ""  BMS,LVC
 
 BO_ 1572 Pack_State: 7 BMS
  SG_ Pack_Current : 0|16@1+ (0.1,0) [0|0] "Amps"  FC

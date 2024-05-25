@@ -1,7 +1,5 @@
 /// @author Blake Freer
 /// @date 2023-12-25
-#include "bindings.h"
-
 #include <chrono>
 #include <cstdint>
 #include <iostream>
@@ -9,8 +7,10 @@
 #include <thread>
 
 #include "bindings.h"
+#include "mcal/windows/periph/can.h"
 #include "mcal/windows/periph/gpio.h"
 #include "mcal/windows/periph/pwm.h"
+#include "shared/periph/can.h"
 #include "shared/periph/gpio.h"
 #include "shared/util/mappers/identity.h"
 
@@ -27,6 +27,7 @@ shared::periph::DigitalOutput&& motor_ctrl_precharge_en = DigitalOutput{"MOTOR C
 shared::periph::DigitalOutput&& motor_ctrl_en = DigitalOutput{"MOTOR CTRL LV Enable"};
 shared::periph::DigitalOutput&& imu_gps_en = DigitalOutput{"IMU GPS Enable"};
 shared::periph::DigitalOutput&& shutdown_circuit_en = DigitalOutput{"SHUTDOWN CIRCUIT Enable"};
+shared::periph::DigitalOutput&& inverter_switch_en = DigitalOutput{"INVERTER SWITCH Enable"};
 
 shared::periph::DigitalOutput&& dcdc_en = DigitalOutput{"DCDC Enable"};
 shared::periph::DigitalInput&& dcdc_valid = DigitalInput{"DCDC Valid"};
@@ -34,6 +35,8 @@ shared::periph::DigitalOutput&& dcdc_led_en = DigitalOutput{"DCDC LED Enable"};
 shared::periph::DigitalOutput&& powertrain_fan_en = DigitalOutput{"POWERTRAIN FAN Enable"};
 shared::periph::DigitalOutput&& powertrain_pump_en = DigitalOutput{"POWERTRAIN PUMP Enable"};
 shared::periph::PWMOutput&& powertrain_fan_pwm = PWMOutput{"POWERTRAIN FAN PWM"};
+
+shared::periph::CanBase&& veh_can_base = CanBase{"can0"};
 // clang-format on
 
 void Initialize() {
