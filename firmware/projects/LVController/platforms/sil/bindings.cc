@@ -1,9 +1,12 @@
 /// @author Blake Freer
 /// @date 2023-12-25
+#include <sys/types.h>
+
 #include <chrono>
 #include <cstdint>
 #include <ctime>
 #include <iostream>
+#include <iterator>
 #include <string>
 #include <thread>
 
@@ -162,15 +165,9 @@ void Initialize() {
 
     // Let glvms go high, then low before starting
     std::cout << "waiting for glvms disable to go high" << std::endl;
-    while (mcal::glvms_disable.Read());
+    while (!mcal::glvms_disable.Read()) continue;
     std::cout << "waiting for glvms disable to go low" << std::endl;
-    while (!mcal::glvms_disable.Read()) {
-        auto current_time = std::chrono::steady_clock::now();
-        auto time_since =
-            std::chrono::duration<double>(current_time - start_time).count();
-        std::cout << "time waiting: " << std::to_string(time_since)
-                  << std::endl;
-    }
+    while (mcal::glvms_disable.Read()) continue;
 
     std::cout << "starting lv controller app" << std::endl;
 }
@@ -179,5 +176,18 @@ void DelayMS(uint32_t milliseconds) {
     std::cout << "[Delaying for " << milliseconds << " milliseconds]"
               << std::endl;
     std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+}
+
+uint32_t GetTick() {
+    static auto start = std::chrono::steady_clock::now();
+    auto current_time = std::chrono::steady_clock::now();
+    auto time_since =
+        std::chrono::duration<double>(current_time - start).count();
+    return time_since;
+}
+
+void Log(std::string log_msg) {
+    std::cout << std::to_string(GetTick()) << "[INFO] LvController: " << log_msg
+              << std::endl;
 }
 }  // namespace bindings

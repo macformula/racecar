@@ -32,10 +32,16 @@ extern "C" {
 void SystemClock_Config();
 }
 
+namespace mcal {
+using namespace mcal::stm32f767::periph;
+CanBase veh_can_base{&hcan3};
+
+}  // namespace mcal
+
 namespace bindings {
 using namespace mcal::stm32f767::periph;
 
-shared::periph::CanBase&& veh_can_base = CanBase{&hcan1};
+shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
 
 shared::periph::DigitalOutput&& tsal_en = DigitalOutput{
     TSAL_EN_GPIO_Port,
@@ -107,12 +113,20 @@ void Initialize() {
     HAL_Init();
     MX_GPIO_Init();
     MX_ADC1_Init();
-    MX_CAN1_Init();
+    MX_CAN3_Init();
     MX_TIM1_Init();
     MX_TIM2_Init();
 }
 
 void DelayMS(uint32_t milliseconds) {
     HAL_Delay(milliseconds);
+}
+
+extern "C" {
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
+    if (hcan == &hcan3) {
+        mcal::veh_can_base.AddRxMessageToQueue();
+    }
+}
 }
 }  // namespace bindings

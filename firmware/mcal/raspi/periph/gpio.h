@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <iostream>
 #include <string>
 
 #include "shared/periph/gpio.h"
@@ -41,14 +42,17 @@ public:
     }
 
     void Set(bool level) override {
+        std::cout << "setting " << ecu_name_ << "." << sig_name_ << " "
+                  << std::to_string(level) << std::endl;
         return sil_client_.SetDigitalLevel(ecu_name_, sig_name_, level);
     }
 
     void SetHigh() override {
-        return sil_client_.SetDigitalLevel(ecu_name_, sig_name_, true);
+        Set(true);
     }
 
     void SetLow() override {
+        
         return sil_client_.SetDigitalLevel(ecu_name_, sig_name_, true);
     }
 
