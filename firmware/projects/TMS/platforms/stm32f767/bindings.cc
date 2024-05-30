@@ -42,7 +42,7 @@ PWMOutput fan_controller_pwm{&htim4, TIM_CHANNEL_1};
 DigitalOutput debug_do_blue{NUCLEO_BLUE_LED_GPIO_Port, NUCLEO_BLUE_LED_Pin};
 DigitalOutput debug_do_red{NUCLEO_RED_LED_GPIO_Port, NUCLEO_RED_LED_Pin};
 
-CanBase veh_can_base{&hcan1};
+CanBase veh_can_base{&hcan2};
 
 }  // namespace mcal
 
@@ -66,6 +66,7 @@ void Initialize() {
     MX_ADC1_Init();
     MX_TIM4_Init();
     MX_GPIO_Init();
+    MX_CAN2_Init();
 }
 
 void Log(std::string s) {
