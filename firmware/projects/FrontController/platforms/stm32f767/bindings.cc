@@ -10,21 +10,9 @@
 #include "usart.h"
 
 // fw imports
+#include "bindings.h"
 #include "mcal/stm32f767/periph/adc.h"
 #include "mcal/stm32f767/periph/gpio.h"
-
-namespace mcal {
-using namespace stm32f767::periph;
-
-DigitalOutput driver_speaker{RTDS_EN_GPIO_Port, RTDS_EN_Pin};
-DigitalOutput brake_light{BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin};
-ADCInput accel_pedal_1{&hadc1, ADC_CHANNEL_10};
-ADCInput accel_pedal_2{&hadc1, ADC_CHANNEL_11};
-ADCInput steering_wheel{&hadc1, ADC_CHANNEL_12};
-ADCInput brake_pedal{&hadc1, ADC_CHANNEL_13};
-DigitalInput driver_button{START_BUTTON_N_GPIO_Port, START_BUTTON_N_Pin};
-
-}  // namespace mcal
 
 extern "C" {
 /**
@@ -35,14 +23,36 @@ void SystemClock_Config();
 }
 
 namespace bindings {
+using namespace mcal::stm32f767::periph;
 
-shared::periph::DigitalOutput& driver_speaker = mcal::driver_speaker;
-shared::periph::DigitalOutput& brake_light = mcal::brake_light;
-shared::periph::ADCInput& accel_pedal_1 = mcal::accel_pedal_1;
-shared::periph::ADCInput& accel_pedal_2 = mcal::accel_pedal_2;
-shared::periph::ADCInput& steering_wheel = mcal::steering_wheel;
-shared::periph::ADCInput& brake_pedal = mcal::brake_pedal;
-shared::periph::DigitalInput& driver_button = mcal::driver_button;
+shared::periph::DigitalOutput&& driver_speaker = DigitalOutput{
+    RTDS_EN_GPIO_Port,
+    RTDS_EN_Pin,
+};
+shared::periph::DigitalOutput&& brake_light = DigitalOutput{
+    BRAKE_LIGHT_EN_GPIO_Port,
+    BRAKE_LIGHT_EN_Pin,
+};
+shared::periph::ADCInput&& accel_pedal_1 = ADCInput{
+    &hadc1,
+    ADC_CHANNEL_10,
+};
+shared::periph::ADCInput&& accel_pedal_2 = ADCInput{
+    &hadc1,
+    ADC_CHANNEL_11,
+};
+shared::periph::ADCInput&& steering_wheel = ADCInput{
+    &hadc1,
+    ADC_CHANNEL_12,
+};
+shared::periph::ADCInput&& brake_pedal = ADCInput{
+    &hadc1,
+    ADC_CHANNEL_13,
+};
+shared::periph::DigitalInput&& driver_button = DigitalInput{
+    START_BUTTON_N_GPIO_Port,
+    START_BUTTON_N_Pin,
+};
 
 void Initialize() {
     SystemClock_Config();
