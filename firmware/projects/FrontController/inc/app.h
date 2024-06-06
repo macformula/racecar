@@ -54,12 +54,10 @@ private:
 
 class Speaker {
 public:
-    bool state;
-
     Speaker(shared::periph::DigitalOutput& digital_output)
-        : state(false), digital_output_(digital_output) {}
+        : digital_output_(digital_output) {}
 
-    void Update() const {
+    void Update(bool state) const {
         digital_output_.Set(state);
     }
 
@@ -69,12 +67,10 @@ private:
 
 class BrakeLight {
 public:
-    bool state;
-
     BrakeLight(shared::periph::DigitalOutput& digital_output)
-        : state(false), digital_output_(digital_output) {}
+        : digital_output_(digital_output) {}
 
-    void Update() const {
+    void Update(bool state) const {
         digital_output_.Set(state);
     }
 
@@ -101,7 +97,8 @@ public:
 
     /**
      * @brief NOT IMPLEMENTED
-     * @todo implement
+     * @todo sam - change the argument to take some information from the
+     * simulink output and construct and send a CAN message.
      */
     void Transmit(void* placeholder) {}
 };
