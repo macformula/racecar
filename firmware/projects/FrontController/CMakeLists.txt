@@ -14,18 +14,15 @@ PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/inc
 )
 
+# Compile and link the control system files.
+
 add_library(controls)
 
-target_include_directories(controls
-PUBLIC
-	${CMAKE_CURRENT_SOURCE_DIR}/vehicle_control_system/src/vehicle_control_system-autogen/controller_autogen_ert_rtw
-)
+set(CTRL_SYS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vehicle_control_system/src/vehicle_control_system-autogen/controller_autogen_ert_rtw")
+target_include_directories(controls PUBLIC ${CTRL_SYS_DIR})
 
-FILE(GLOB SRC_CONTROLS CONFIGURE_DEPENDS
-	"vehicle_control_system/src/vehicle_control_system-autogen/controller_autogen_ert_rtw/*.c"
-)
-
-message(STATUS ${SRC_CONTROLS})
+FILE(GLOB SRC_CONTROLS CONFIGURE_DEPENDS "${CTRL_SYS_DIR}/*.c")
+message(STATUS "Controls sources: ${SRC_CONTROLS}")
 
 target_sources(controls
 PUBLIC
