@@ -217,21 +217,7 @@ void SetCtrlSystemOutput(const SimulinkOutput& output) {
  *
  */
 void UpdateStatusLight() {
-    // status_light.DoSomething();
-
-    /* (SAM) what are we actually doing? I thought the status light had 3
-    states: off, on, and blinking at a (non-adjustable) frequency.
-
-    However, the vehicle_control_system/firmware_io/simulink_output.csv
-    document contains both a pwm for brightness and a frequency of flashing.
-
-    I am not sure how both of these can be accomplished together (either is
-    possible using a single timer) and why the brightness modulation is even
-    needed.
-
-    Also, 500 ms seems like a long period for updating a status light.
-    Why can't it be contained in the 5 ms task?
-    */
+    status_light.Toggle();
 }
 
 /***************************************************************

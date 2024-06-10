@@ -127,7 +127,9 @@ public:
      * @todo (SAM) construct and send a CAN message from the simulink output
      * values in `output`
      */
-    void Transmit(AMKOutput output) {}
+    void Transmit(AMKOutput output) {
+        
+    }
 
     /**
      * @brief Read the motor
@@ -210,10 +212,12 @@ public:
     StatusLight(shared::periph::DigitalOutput& digital_output)
         : digital_output_(digital_output) {}
 
-    void Update(double duty, double frequency) {
-        // TODO: Fill this in
+    void Toggle() {
+        digital_output_.Set(next_value_);
+        next_value_ = !next_value_;
     }
 
 private:
+    bool next_value_ = true;
     shared::periph::DigitalOutput& digital_output_;
 };
