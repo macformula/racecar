@@ -244,6 +244,7 @@ def generate_code(
     temp_signal_types = _get_signal_types(can_db, allow_floating_point=False)
 
     rx_msgs, tx_msgs = _filter_messages_by_node(can_db.messages, our_node)
+    all_msgs = rx_msgs + tx_msgs
 
     unpack_masks_shifts = _get_masks_shifts(rx_msgs)
     pack_masks_shifts = _get_masks_shifts(tx_msgs)
@@ -252,6 +253,7 @@ def generate_code(
         "date": time.strftime("%Y-%m-%d"),
         "rx_msgs": rx_msgs,
         "tx_msgs": tx_msgs,
+        "all_msgs": all_msgs,
         "signal_types": signal_types,
         "temp_signal_types": temp_signal_types,
         "unpack_info": unpack_masks_shifts,
