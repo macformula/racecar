@@ -1,6 +1,8 @@
 /// @author Blake Freer
 /// @date 2024-03-14
 
+#pragma once
+
 extern "C" {  // required since simulink generates c, not c++
 #include "controller_autogen.h"
 }
