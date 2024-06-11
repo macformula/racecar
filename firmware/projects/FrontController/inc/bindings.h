@@ -1,6 +1,8 @@
 /// @author Blake Freer
 /// @date 2024-05-29
 
+#pragma once
+
 #include "shared/periph/adc.h"
 #include "shared/periph/gpio.h"
 
