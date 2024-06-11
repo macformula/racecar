@@ -1,8 +1,6 @@
 /// @author Blake Freer
 /// @date 2024-02-24
 
-#include <sys/_stdint.h>
-
 #include "app.h"
 #include "bindings.h"
 #include "shared/os/os.h"
@@ -18,6 +16,7 @@
 
 Speaker driver_speaker{bindings::driver_speaker};
 BrakeLight brake_light{bindings::brake_light};
+StatusLight status_light{bindings::status_light};
 
 // See fc_docs/pedal_function and
 // vehicle_control_system/firmware_io/simulink_input.csv
@@ -59,8 +58,10 @@ AnalogInput steering_wheel{
 
 Button driver_button{bindings::driver_button};
 
-AMKMotor motor_left{};
-AMKMotor motor_right{};
+AMKMotor motor_left{bindings::motor_left_can};
+AMKMotor motor_right{bindings::motor_right_can};
+
+Contactors contactors{bindings::contactor_can};
 
 /***************************************************************
     Task Functions
@@ -92,60 +93,58 @@ void ReadContactorFeedback(SimulinkInput& input) {}
 SimulinkInput ReadCtrlSystemInput() {
     SimulinkInput input;
 
+    // Driver Input
     input.DI_V_SteeringAngle = steering_wheel.Update();
     input.DI_V_AccelPedalPos1 = accel_pedal_1.Update();
-
     input.DI_V_AccelPedalPos2 = accel_pedal_2.Update();
     input.DI_V_BrakePedalPos = brake_pedal.Update();
-
     input.DI_b_DriverButton = driver_button.Read();
 
-    /* Sam: Fill in the following template. You can create an app-level
-
-    // Contactor class&object if needed
-    auto contactor_states = CAN.ReadContactor();
+    // Contactors
+    auto contactor_states = contactors.ReadInput();
     input.BM_b_prechrgContactorSts = contactor_states.Pack_Precharge_Feedback;
     input.BM_b_HVposContactorSts = contactor_states.Pack_Negative_Feedback;
     input.BM_b_HVnegContactorSts = contactor_states.Pack_Positive_Feedback;
-    */
 
     // Right Motor Input
-    auto amk_r = motor_right.UpdateInputs();
-    input.AMK_bReserve_R = amk_r.bReserve;
-    input.AMK_bSystemReady_R = amk_r.bSystemReady;
-    input.AMK_bError_R = amk_r.bError;
-    input.AMK_bWarn_R = amk_r.bWarn;
-    input.AMK_bQuitDcOn_R = amk_r.bQuitDcOn;
-    input.AMK_bDcOn_R = amk_r.bDcOn;
-    input.AMK_bQuitInverterOn_R = amk_r.bQuitInverterOn;
-    input.AMK_bInverterOn_R = amk_r.bInverterOn;
-    input.AMK_bDerating_R = amk_r.bDerating;
-    input.AMK_ActualVelocity_R = amk_r.ActualVelocity;
-    input.AMK_TorqueCurrent_R = amk_r.TorqueCurrent;
-    input.AMK_MagnetizingCurrent_R = amk_r.MagnetizingCurrent;
-    input.AMK_TempMotor_R = amk_r.TempMotor;
-    input.AMK_TempInverter_R = amk_r.TempInverter;
-    input.AMK_ErrorInfo_R = amk_r.ErrorInfo;
-    input.AMK_TempIGBT_R = amk_r.TempIGBT;
+    auto amk_right_in = motor_right.UpdateInputs();
+    input.AMK_bReserve_R = amk_right_in.bReserve;
+    input.AMK_bSystemReady_R = amk_right_in.bSystemReady;
+    input.AMK_bError_R = amk_right_in.bError;
+    input.AMK_bWarn_R = amk_right_in.bWarn;
+    input.AMK_bQuitDcOn_R = amk_right_in.bQuitDcOn;
+    input.AMK_bDcOn_R = amk_right_in.bDcOn;
+    input.AMK_bQuitInverterOn_R = amk_right_in.bQuitInverterOn;
+    input.AMK_bInverterOn_R = amk_right_in.bInverterOn;
+    input.AMK_bDerating_R = amk_right_in.bDerating;
+    input.AMK_ActualVelocity_R = amk_right_in.ActualVelocity;
+    input.AMK_TorqueCurrent_R = amk_right_in.TorqueCurrent;
+    input.AMK_MagnetizingCurrent_R = amk_right_in.MagnetizingCurrent;
+    input.AMK_TempMotor_R = amk_right_in.TempMotor;
+    input.AMK_TempInverter_R = amk_right_in.TempInverter;
+    input.AMK_ErrorInfo_R = amk_right_in.ErrorInfo;
+    input.AMK_TempIGBT_R = amk_right_in.TempIGBT;
 
     // Left Motor Input
-    auto amk_l = motor_left.UpdateInputs();
-    input.AMK_bReserve_L = amk_l.bReserve;
-    input.AMK_bSystemReady_L = amk_l.bSystemReady;
-    input.AMK_bError_L = amk_l.bError;
-    input.AMK_bWarn_L = amk_l.bWarn;
-    input.AMK_bQuitDcOn_L = amk_l.bQuitDcOn;
-    input.AMK_bDcOn_L = amk_l.bDcOn;
-    input.AMK_bQuitInverterOn_L = amk_l.bQuitInverterOn;
-    input.AMK_bInverterOn_L = amk_l.bInverterOn;
-    input.AMK_bDerating_L = amk_l.bDerating;
-    input.AMK_ActualVelocity_L = amk_l.ActualVelocity;
-    input.AMK_TorqueCurrent_L = amk_l.TorqueCurrent;
-    input.AMK_MagnetizingCurrent_L = amk_l.MagnetizingCurrent;
-    input.AMK_TempMotor_L = amk_l.TempMotor;
-    input.AMK_TempInverter_L = amk_l.TempInverter;
-    input.AMK_ErrorInfo_L = amk_l.ErrorInfo;
-    input.AMK_TempIGBT_L = amk_l.TempIGBT;
+    auto amk_left_in = motor_left.UpdateInputs();
+    input.AMK_bReserve_L = amk_left_in.bReserve;
+    input.AMK_bSystemReady_L = amk_left_in.bSystemReady;
+    input.AMK_bError_L = amk_left_in.bError;
+    input.AMK_bWarn_L = amk_left_in.bWarn;
+    input.AMK_bQuitDcOn_L = amk_left_in.bQuitDcOn;
+    input.AMK_bDcOn_L = amk_left_in.bDcOn;
+    input.AMK_bQuitInverterOn_L = amk_left_in.bQuitInverterOn;
+    input.AMK_bInverterOn_L = amk_left_in.bInverterOn;
+    input.AMK_bDerating_L = amk_left_in.bDerating;
+    input.AMK_ActualVelocity_L = amk_left_in.ActualVelocity;
+    input.AMK_TorqueCurrent_L = amk_left_in.TorqueCurrent;
+    input.AMK_MagnetizingCurrent_L = amk_left_in.MagnetizingCurrent;
+    input.AMK_TempMotor_L = amk_left_in.TempMotor;
+    input.AMK_TempInverter_L = amk_left_in.TempInverter;
+    input.AMK_ErrorInfo_L = amk_left_in.ErrorInfo;
+    input.AMK_TempIGBT_L = amk_left_in.TempIGBT;
+
+    return input;
 
     /* These inputs are listed in simulink_input.csv but are not present in the
     simulink code, so we cannot possibly set them right now.
@@ -164,44 +163,50 @@ SimulinkInput ReadCtrlSystemInput() {
     input.VD_AngularRateZ = NULL;
     input.VD_ImuValid = NULL;
     */
-
-    return input;
 }
 
 /**
  * @brief Update output devices based on the results of the control system.
- * @note Replaces getControlSystemOutputs() and setDigitalOutputs()
+ * @note Replaces getControlSystemOutputs() setDigitalOutputs(),
+ * transmitToAMKMotors(), and transmitToBMS()
  *
  * @param output
  */
 void SetCtrlSystemOutput(const SimulinkOutput& output) {
     driver_speaker.Update(output.DI_b_driverSpeaker);
+
+    // why is DI_b_brakeLightEn from  simulink output a float? Should be bool
+    // since it is "enable?"
     brake_light.Update(output.DI_b_brakeLightEn);
-    // todo: blake - fill in the rest of the outputs
-}
 
-/**
- * @brief
- * @note Replaces transmitToAMKMotors()
- *
- * @param output
- * @todo sam - see AMKMotor.Transmit()
- */
-void TransmitToAMKMotors(const SimulinkOutput& output) {
-    motor_left.Transmit(nullptr);
-    motor_right.Transmit(nullptr);
-}
+    // This Update() is not implemented
+    status_light.Update(output.DI_p_PWMstatusLightCycle,
+                        output.DI_p_PWMstatusLightFreq);
 
-/**
- * @brief
- * @note Replaces transmitToBMS()
- *
- * @param output
- */
-void TransmitToBMS(const SimulinkOutput& output) {
-    // @todo - sam construct a message from the simulink output and send to
-    // BMS. You should create an app-level object to manage the BMS CAN
-    // peripheral.
+    motor_right.Transmit(AMKOutput{
+        .bInverterOn_tx = output.AMK_bInverterOn_tx_R,
+        .bDcOn_tx = output.AMK_bDcOn_tx_R,
+        .bEnable = output.AMK_bEnable_R,
+        .bErrorReset = output.AMK_bErrorReset_R,
+        .TargetVelocity = output.AMK_TargetVelocity_R,
+        .TorqueLimitPositiv = output.AMK_TorqueLimitPositiv_R,
+        .TorqueLimitNegativ = output.AMK_TorqueLimitNegativ_R,
+    });
+    motor_left.Transmit(AMKOutput{
+        .bInverterOn_tx = output.AMK_bInverterOn_tx_L,
+        .bDcOn_tx = output.AMK_bDcOn_tx_L,
+        .bEnable = output.AMK_bEnable_L,
+        .bErrorReset = output.AMK_bErrorReset_L,
+        .TargetVelocity = output.AMK_TargetVelocity_L,
+        .TorqueLimitPositiv = output.AMK_TorqueLimitPositiv_L,
+        .TorqueLimitNegativ = output.AMK_TorqueLimitNegativ_L,
+    });
+
+    contactors.Transmit(ContactorOutput{
+        .prechargeContactorCMD = output.BM_b_prechargeContactorCMD,
+        .HVposContactorCMD = output.BM_b_HVposContactorCMD,
+        .HVnegContactorCMD = output.BM_b_HVnegContactorCMD,
+    });
 }
 
 /**
@@ -210,7 +215,9 @@ void TransmitToBMS(const SimulinkOutput& output) {
  *
  */
 void UpdateStatusLight() {
-    /* to do -> what are we actually doing? I thought the status light had 3
+    // status_light.DoSomething();
+
+    /* (SAM) what are we actually doing? I thought the status light had 3
     states: off, on, and blinking at a (non-adjustable) frequency.
 
     However, the vehicle_control_system/firmware_io/simulink_output.csv
@@ -239,8 +246,6 @@ void Task_5ms(void* arg) {
         simulink_input = ReadCtrlSystemInput();
         simulink_output = ControlSystem::Update(simulink_input);
         SetCtrlSystemOutput(simulink_output);
-        TransmitToAMKMotors(simulink_output);
-        TransmitToBMS(simulink_output);
 
         // Repeat after another 5ms
         task_delay_ms += 5;
