@@ -62,9 +62,8 @@ shared::periph::DigitalInput&& start_button = DigitalInput{
 };
 
 // (SAM) idk if hcan1 is correct, change if necessary
-shared::periph::CanBase&& motor_left_can = CanBase{&hcan1};
-shared::periph::CanBase&& motor_right_can = CanBase{&hcan1};
-shared::periph::CanBase&& contactor_can = CanBase{&hcan1};
+shared::periph::CanBase&& veh_can_base = CanBase{&hcan3};
+shared::periph::CanBase&& pt_can_base = CanBase{&hcan2};
 
 void Initialize() {
     SystemClock_Config();

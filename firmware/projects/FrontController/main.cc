@@ -4,12 +4,33 @@
 #include "app.h"
 #include "bindings.h"
 #include "controller_autogen.h"
+#include "generated/can/pt_can_messages.h"
+#include "generated/can/pt_msg_registry.h"
+#include "generated/can/veh_can_messages.h"
+#include "generated/can/veh_msg_registry.h"
+#include "shared/comms/can/can_bus.h"
 #include "shared/os/os.h"
 #include "shared/periph/adc.h"
 #include "shared/periph/gpio.h"
 #include "shared/util/mappers/linear_map.h"
 #include "shared/util/mappers/mapper.h"
 #include "simulink.h"
+
+/***************************************************************
+    CAN
+***************************************************************/
+
+generated::can::VehMsgRegistry veh_can_registry{};
+shared::can::CanBus veh_can_bus{
+    bindings::veh_can_base,
+    veh_can_registry,
+};
+
+generated::can::PtMsgRegistry pt_can_registry{};
+shared::can::CanBus pt_can_bus{
+    bindings::pt_can_base,
+    pt_can_registry,
+};
 
 /***************************************************************
     Objects
@@ -60,10 +81,10 @@ AnalogInput steering_wheel{
 
 Button start_button{bindings::start_button};
 
-AMKMotor motor_left{bindings::motor_left_can};
-AMKMotor motor_right{bindings::motor_right_can};
+AMKMotor motor_left{pt_can_bus, 1};
+AMKMotor motor_right{pt_can_bus, 0};
 
-Contactors contactors{bindings::contactor_can};
+Contactors contactors{veh_can_bus};
 
 /***************************************************************
     Task Functions
