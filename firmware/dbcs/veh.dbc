@@ -164,8 +164,6 @@ BO_ 777 GnssImu: 8 CANmod
  SG_ AngularRateY : 42|11@1+ (0.25,-256) [-256|255.75] "deg/s"  FC
  SG_ AngularRateZ : 53|11@1+ (0.25,-256) [-256|255.75] "deg/s"  FC
 
-
-
 CM_ BO_ 3221225472 "This is a message for not used signals, created by Vector CANdb++ DBC OLE DB Provider.";
 CM_ BO_ 1572 "This ID Transmits at 8 ms.";
 CM_ BO_ 1571 "This ID Transmits at 8 ms.";
