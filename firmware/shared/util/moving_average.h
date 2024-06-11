@@ -4,16 +4,16 @@
 #pragma once
 
 #include <concepts>
+#include <cstddef>
 
 #include "shared/util/data_structures/circular_queue.h"
 
 namespace shared::util {
 
 template <typename T, size_t length>
-    requires(std::is_arithmetic_v<T>) && (length > 0)
-class MovingAverage {
+    requires(std::is_arithmetic_v<T>) && (length > 0) class MovingAverage {
 public:
-    MovingAverage() : sum_(0), count_(0), moving_average_value_(0) {}
+    MovingAverage() : sum_(0), count_(0) {}
 
     /// @brief Updates the moving average with a new value.
     void LoadValue(T new_value) {
@@ -24,20 +24,19 @@ public:
         }
         sum_ += new_value;
         buffer_.Enqueue(new_value);
-
-        moving_average_value_ = sum_ / (float)count_;
     }
 
     /// @brief Get the average of the last `length` values.
     T GetValue() {
-        return moving_average_value_;
+        return T(sum_ / float(count_));
     }
 
 private:
     CircularQueue<T, length> buffer_;
-    T sum_;
+    float sum_;  // using float is not ideal, it should be an integer type for
+                 // integer templates types, but using T does not guarantee a
+                 // sufficient dynamic range.
     int count_;
-    T moving_average_value_;
 };
 
 }  // namespace shared::util
