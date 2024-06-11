@@ -3,31 +3,38 @@
 
 #pragma once
 
+#include <stddef.h>
+#include <sys/_stdint.h>
+
 #include <cstdint>
 
 #include "shared/periph/adc.h"
 #include "shared/periph/gpio.h"
+#include "shared/util/moving_average.h"
 
 class Pedal {
+    static constexpr size_t kMovingAverageLength = 20;
+
 public:
     Pedal(shared::periph::ADCInput& adc) : adc_(adc) {}
 
     uint16_t Update() {
         /// @todo Map adc value to 0-100% range for standardization.
-        position_ = uint16_t(adc_.Read());
+        uint32_t position = adc_.Read();
+        moving_average_.LoadValue(uint16_t(position));
         return GetPosition();
     }
 
     /**
-     * @brief Get the position from the last `Update()` call.
+     * @brief Get the position from the moving average
      */
-    inline uint16_t GetPosition() const {
-        return position_;
+    inline uint16_t GetPosition() {
+        return moving_average_.GetValue();
     }
 
 private:
-    uint16_t position_ = 0;
     shared::periph::ADCInput& adc_;
+    shared::util::MovingAverage<uint16_t, kMovingAverageLength> moving_average_;
 };
 
 class SteeringWheel {
