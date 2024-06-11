@@ -3,18 +3,24 @@
 
 #pragma once
 
+#include <sys/_stdint.h>
+
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <utility>
 
 #include "app.h"
+#include "veh_can_messages.h"
+#include "shared/comms/can/can_bus.h"
+#include "shared/comms/can/can_msg.h"
 #include "shared/periph/adc.h"
 #include "shared/periph/can.h"
 #include "shared/periph/gpio.h"
 #include "shared/util/mappers/linear_map.h"
 #include "shared/util/mappers/mapper.h"
 #include "shared/util/moving_average.h"
+#include "veh_can_messages.h"
 
 class AnalogInput {
     static constexpr size_t kMovingAverageLength = 20;
@@ -120,16 +126,15 @@ struct AMKOutput {
 
 class AMKMotor {
 public:
-    AMKMotor(shared::periph::CanBase& can_base) : can_base_(can_base) {}
+    AMKMotor(shared::can::CanBus& can_bus, uint8_t amk_num)
+        : can_bus_(can_bus), amk_num_(amk_num) {}
 
     /**
      * @brief NOT IMPLEMENTED
      * @todo (SAM) construct and send a CAN message from the simulink output
      * values in `output`
      */
-    void Transmit(AMKOutput output) {
-        
-    }
+    void Transmit(AMKOutput output) {}
 
     /**
      * @brief Read the motor
@@ -142,7 +147,7 @@ public:
         // this is, so that you can properly
         auto amk_can_input = CAN.GetAMKData(this_amk_number_);
 
-        */
+            */
         return AMKInput{
             /* (SAM) populate from the CAN message
             .bReserve = amk_can_input.reserve, // sample
@@ -166,7 +171,8 @@ public:
     }
 
 private:
-    shared::periph::CanBase& can_base_;
+    shared::can::CanBus& can_bus_;
+    uint8_t amk_num_ = 0;
 };
 
 struct ContactorInput {
@@ -183,7 +189,7 @@ struct ContactorOutput {
 
 class Contactors {
 public:
-    Contactors(shared::periph::CanBase& can_base) : can_base_(can_base) {}
+    Contactors(shared::can::CanBus& can_bus) : can_bus_(can_bus) {}
 
     ContactorInput ReadInput() {
         /* (SAM) read from CAN and fill this struct */
@@ -199,12 +205,13 @@ public:
     }
 
     void Transmit(ContactorOutput output) {
-        /* (SAM) Send a CAN message using these simulink outputs */
-        // can_base.Send(...);
+        generated::can::Contactor_States contactor_states;
+
+        can_bus_.Send(contactor_states);
     }
 
 private:
-    shared::periph::CanBase& can_base_;
+    shared::can::CanBus& can_bus_;
 };
 
 class StatusLight {
