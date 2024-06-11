@@ -3,20 +3,18 @@
 
 #pragma once
 
-#include <stddef.h>
-#include <sys/_stdint.h>
-
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <utility>
 
 #include "app.h"
 #include "shared/periph/adc.h"
+#include "shared/periph/can.h"
 #include "shared/periph/gpio.h"
 #include "shared/util/mappers/linear_map.h"
 #include "shared/util/mappers/mapper.h"
 #include "shared/util/moving_average.h"
-#include "simulink.h"
 
 class AnalogInput {
     static constexpr size_t kMovingAverageLength = 20;
@@ -86,12 +84,12 @@ private:
 
 /**
  * @brief Struct containing all data required for each simulink AMK input
- * @note Sam: Do not edit this struct, even though it will be very similar to
+ * @note (SAM): Do not edit this struct, even though it will be very similar to
  * the raw CAN message. Just copy over the CAN message fields to this struct in
  * AMKMotor::UpdateInputs, then these values will be passed to the simulink
  * input in main.
  */
-struct AMKMotorData {
+struct AMKInput {
     bool bReserve;
     bool bSystemReady;
     bool bError;
@@ -110,33 +108,43 @@ struct AMKMotorData {
     int16_t TempIGBT;
 };
 
+struct AMKOutput {
+    uint8_t bInverterOn_tx;
+    uint8_t bDcOn_tx;
+    uint8_t bEnable;
+    uint8_t bErrorReset;
+    float TargetVelocity;
+    float TorqueLimitPositiv;
+    float TorqueLimitNegativ;
+};
+
 class AMKMotor {
 public:
-    AMKMotor() {}
+    AMKMotor(shared::periph::CanBase& can_base) : can_base_(can_base) {}
 
     /**
      * @brief NOT IMPLEMENTED
-     * @todo sam - change the argument to take some information from the
-     * simulink output and construct and send a CAN message.
+     * @todo (SAM) construct and send a CAN message from the simulink output
+     * values in `output`
      */
-    void Transmit(void* placeholder) {}
+    void Transmit(AMKOutput output) {}
 
     /**
      * @brief Read the motor
      *
      * @param input
      */
-    AMKMotorData UpdateInputs() {
-        /* SAM Fill in this section
+    AMKInput UpdateInputs() {
+        /* (SAM) Fill in this section
         // You will need to add an instance variable specifying which motor
         // this is, so that you can properly
         auto amk_can_input = CAN.GetAMKData(this_amk_number_);
 
         */
-        return AMKMotorData{
-            /* populate from the CAN message
-            .bReserve = amk_can_input.reserve,
-            .bSystemReady = amk_can_input.system_ready,
+        return AMKInput{
+            /* (SAM) populate from the CAN message
+            .bReserve = amk_can_input.reserve, // sample
+            .bSystemReady = amk_can_input.system_ready, // sample
             .bError = 0,
             .bWarn = 0,
             .bQuitDcOn = 0,
@@ -154,4 +162,58 @@ public:
             */
         };
     }
+
+private:
+    shared::periph::CanBase& can_base_;
+};
+
+struct ContactorInput {
+    bool Pack_Precharge_Feedback;
+    bool Pack_Negative_Feedback;
+    bool Pack_Positive_Feedback;
+};
+
+struct ContactorOutput {
+    double prechargeContactorCMD;
+    double HVposContactorCMD;
+    double HVnegContactorCMD;
+};
+
+class Contactors {
+public:
+    Contactors(shared::periph::CanBase& can_base) : can_base_(can_base) {}
+
+    ContactorInput ReadInput() {
+        /* (SAM) read from CAN and fill this struct */
+
+        // auto msg = can_base_.Read(...);
+
+        return ContactorInput{
+            // (SAM) populate from `msg`
+            .Pack_Precharge_Feedback = 0,
+            .Pack_Negative_Feedback = 0,
+            .Pack_Positive_Feedback = 0,
+        };
+    }
+
+    void Transmit(ContactorOutput output) {
+        /* (SAM) Send a CAN message using these simulink outputs */
+        // can_base.Send(...);
+    }
+
+private:
+    shared::periph::CanBase& can_base_;
+};
+
+class StatusLight {
+public:
+    StatusLight(shared::periph::DigitalOutput& digital_output)
+        : digital_output_(digital_output) {}
+
+    void Update(double duty, double frequency) {
+        // TODO: Fill this in
+    }
+
+private:
+    shared::periph::DigitalOutput& digital_output_;
 };
