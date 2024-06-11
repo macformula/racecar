@@ -52,11 +52,11 @@ shared::periph::ADCInput&& steering_wheel = ADCInput{
     &hadc1,
     ADC_CHANNEL_12,
 };
-shared::periph::ADCInput&& brake_pedal = ADCInput{
+shared::periph::ADCInput&& front_brake_pedal = ADCInput{
     &hadc1,
     ADC_CHANNEL_13,
 };
-shared::periph::DigitalInput&& driver_button = DigitalInput{
+shared::periph::DigitalInput&& start_button = DigitalInput{
     START_BUTTON_N_GPIO_Port,
     START_BUTTON_N_Pin,
 };

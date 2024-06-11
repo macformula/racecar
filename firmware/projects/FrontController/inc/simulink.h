@@ -3,12 +3,10 @@
 
 #pragma once
 
-extern "C" {  // required since simulink generates c, not c++
 #include "controller_autogen.h"
-}
 
-typedef ExtU SimulinkInput;
-typedef ExtY SimulinkOutput;
+typedef controller_autogen::ExtU SimulinkInput;
+typedef controller_autogen::ExtY SimulinkOutput;
 
 /**
  * @brief Provides an interface to the simulink model.
@@ -21,13 +19,17 @@ typedef ExtY SimulinkOutput;
  */
 class ControlSystem {
 public:
-    static void Initialize() {
-        controller_autogen_initialize();
+    ControlSystem() : controller_autogen_(controller_autogen{}) {}
+    void Initialize() {
+        controller_autogen_.initialize();
     }
 
-    static SimulinkOutput Update(SimulinkInput input) {
-        rtU = input;
-        controller_autogen_step();
-        return rtY;
+    SimulinkOutput Update(SimulinkInput* input) {
+        controller_autogen_.setExternalInputs(input);
+        controller_autogen_.step();
+        return controller_autogen_.getExternalOutputs();
     }
+
+private:
+    controller_autogen controller_autogen_;
 };

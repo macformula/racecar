@@ -3,6 +3,7 @@
 
 #include "app.h"
 #include "bindings.h"
+#include "controller_autogen.h"
 #include "shared/os/os.h"
 #include "shared/periph/adc.h"
 #include "shared/periph/gpio.h"
@@ -17,6 +18,7 @@
 Speaker driver_speaker{bindings::driver_speaker};
 BrakeLight brake_light{bindings::brake_light};
 StatusLight status_light{bindings::status_light};
+ControlSystem control_system{};
 
 // See fc_docs/pedal_function and
 // vehicle_control_system/firmware_io/simulink_input.csv
@@ -42,8 +44,8 @@ auto brake_pedal_map = shared::util::LinearMap<double, uint16_t>{
     730.125,
     -0.29412,
 };  // TODO: Check this, no function is given, copied from accel_pedal_1
-AnalogInput brake_pedal{
-    bindings::brake_pedal,
+AnalogInput front_brake_pedal{
+    bindings::front_brake_pedal,
     &brake_pedal_map,
 };
 
@@ -56,7 +58,7 @@ AnalogInput steering_wheel{
     &steering_wheel_map,
 };
 
-Button driver_button{bindings::driver_button};
+Button start_button{bindings::start_button};
 
 AMKMotor motor_left{bindings::motor_left_can};
 AMKMotor motor_right{bindings::motor_right_can};
@@ -94,55 +96,55 @@ SimulinkInput ReadCtrlSystemInput() {
     SimulinkInput input;
 
     // Driver Input
-    input.DI_V_SteeringAngle = steering_wheel.Update();
-    input.DI_V_AccelPedalPos1 = accel_pedal_1.Update();
-    input.DI_V_AccelPedalPos2 = accel_pedal_2.Update();
-    input.DI_V_BrakePedalPos = brake_pedal.Update();
-    input.DI_b_DriverButton = driver_button.Read();
+    input.DI_SteeringAngle = steering_wheel.Update();
+    input.DI_AccelPedalPosition1 = accel_pedal_1.Update();
+    input.DI_AccelPedalPosition2 = accel_pedal_2.Update();
+    input.DI_FrontBrakePressure = front_brake_pedal.Update();
+    input.DI_StartButton = start_button.Read();
 
     // Contactors
     auto contactor_states = contactors.ReadInput();
-    input.BM_b_prechrgContactorSts = contactor_states.Pack_Precharge_Feedback;
-    input.BM_b_HVposContactorSts = contactor_states.Pack_Negative_Feedback;
-    input.BM_b_HVnegContactorSts = contactor_states.Pack_Positive_Feedback;
+    input.BM_prechrgContactorSts = contactor_states.Pack_Precharge_Feedback;
+    input.BM_HVposContactorSts = contactor_states.Pack_Negative_Feedback;
+    input.BM_HVnegContactorSts = contactor_states.Pack_Positive_Feedback;
 
     // Right Motor Input
     auto amk_right_in = motor_right.UpdateInputs();
-    input.AMK_bReserve_R = amk_right_in.bReserve;
-    input.AMK_bSystemReady_R = amk_right_in.bSystemReady;
-    input.AMK_bError_R = amk_right_in.bError;
-    input.AMK_bWarn_R = amk_right_in.bWarn;
-    input.AMK_bQuitDcOn_R = amk_right_in.bQuitDcOn;
-    input.AMK_bDcOn_R = amk_right_in.bDcOn;
-    input.AMK_bQuitInverterOn_R = amk_right_in.bQuitInverterOn;
-    input.AMK_bInverterOn_R = amk_right_in.bInverterOn;
-    input.AMK_bDerating_R = amk_right_in.bDerating;
-    input.AMK_ActualVelocity_R = amk_right_in.ActualVelocity;
-    input.AMK_TorqueCurrent_R = amk_right_in.TorqueCurrent;
-    input.AMK_MagnetizingCurrent_R = amk_right_in.MagnetizingCurrent;
-    input.AMK_TempMotor_R = amk_right_in.TempMotor;
-    input.AMK_TempInverter_R = amk_right_in.TempInverter;
-    input.AMK_ErrorInfo_R = amk_right_in.ErrorInfo;
-    input.AMK_TempIGBT_R = amk_right_in.TempIGBT;
+    input.AMK0_bReserve = amk_right_in.bReserve;
+    input.AMK0_bSystemReady = amk_right_in.bSystemReady;
+    input.AMK0_bError = amk_right_in.bError;
+    input.AMK0_bWarn = amk_right_in.bWarn;
+    input.AMK0_bQuitDcOn = amk_right_in.bQuitDcOn;
+    input.AMK0_bDcOn = amk_right_in.bDcOn;
+    input.AMK0_bQuitInverterOn = amk_right_in.bQuitInverterOn;
+    input.AMK0_bInverterOn = amk_right_in.bInverterOn;
+    input.AMK0_bDerating = amk_right_in.bDerating;
+    input.AMK0_ActualVelocity = amk_right_in.ActualVelocity;
+    input.AMK0_TorqueCurrent = amk_right_in.TorqueCurrent;
+    input.AMK0_MagnetizingCurrent = amk_right_in.MagnetizingCurrent;
+    input.AMK0_TempMotor = amk_right_in.TempMotor;
+    input.AMK0_TempInverter = amk_right_in.TempInverter;
+    input.AMK0_ErrorInfo = amk_right_in.ErrorInfo;
+    input.AMK0_TempIGBT = amk_right_in.TempIGBT;
 
     // Left Motor Input
     auto amk_left_in = motor_left.UpdateInputs();
-    input.AMK_bReserve_L = amk_left_in.bReserve;
-    input.AMK_bSystemReady_L = amk_left_in.bSystemReady;
-    input.AMK_bError_L = amk_left_in.bError;
-    input.AMK_bWarn_L = amk_left_in.bWarn;
-    input.AMK_bQuitDcOn_L = amk_left_in.bQuitDcOn;
-    input.AMK_bDcOn_L = amk_left_in.bDcOn;
-    input.AMK_bQuitInverterOn_L = amk_left_in.bQuitInverterOn;
-    input.AMK_bInverterOn_L = amk_left_in.bInverterOn;
-    input.AMK_bDerating_L = amk_left_in.bDerating;
-    input.AMK_ActualVelocity_L = amk_left_in.ActualVelocity;
-    input.AMK_TorqueCurrent_L = amk_left_in.TorqueCurrent;
-    input.AMK_MagnetizingCurrent_L = amk_left_in.MagnetizingCurrent;
-    input.AMK_TempMotor_L = amk_left_in.TempMotor;
-    input.AMK_TempInverter_L = amk_left_in.TempInverter;
-    input.AMK_ErrorInfo_L = amk_left_in.ErrorInfo;
-    input.AMK_TempIGBT_L = amk_left_in.TempIGBT;
+    input.AMK1_bReserve = amk_left_in.bReserve;
+    input.AMK1_bSystemReady = amk_left_in.bSystemReady;
+    input.AMK1_bError = amk_left_in.bError;
+    input.AMK1_bWarn = amk_left_in.bWarn;
+    input.AMK1_bQuitDcOn = amk_left_in.bQuitDcOn;
+    input.AMK1_bDcOn = amk_left_in.bDcOn;
+    input.AMK1_bQuitInverterOn = amk_left_in.bQuitInverterOn;
+    input.AMK1_bInverterOn = amk_left_in.bInverterOn;
+    input.AMK1_bDerating = amk_left_in.bDerating;
+    input.AMK1_ActualVelocity = amk_left_in.ActualVelocity;
+    input.AMK1_TorqueCurrent = amk_left_in.TorqueCurrent;
+    input.AMK1_MagnetizingCurrent = amk_left_in.MagnetizingCurrent;
+    input.AMK1_TempMotor = amk_left_in.TempMotor;
+    input.AMK1_TempInverter = amk_left_in.TempInverter;
+    input.AMK1_ErrorInfo = amk_left_in.ErrorInfo;
+    input.AMK1_TempIGBT = amk_left_in.TempIGBT;
 
     return input;
 
@@ -173,39 +175,39 @@ SimulinkInput ReadCtrlSystemInput() {
  * @param output
  */
 void SetCtrlSystemOutput(const SimulinkOutput& output) {
-    driver_speaker.Update(output.DI_b_driverSpeaker);
+    driver_speaker.Update(output.DI_DriverSpeaker);
 
     // why is DI_b_brakeLightEn from  simulink output a float? Should be bool
     // since it is "enable?"
-    brake_light.Update(output.DI_b_brakeLightEn);
+    brake_light.Update(output.DI_BrakeLightEn);
 
-    // This Update() is not implemented
-    status_light.Update(output.DI_p_PWMstatusLightCycle,
-                        output.DI_p_PWMstatusLightFreq);
+    // @todo This Update() is not implemented
+    // status_light.Update(output.DI_p_PWMstatusLightCycle,
+    //                     output.DI_PWMstatusLightFreq);
 
     motor_right.Transmit(AMKOutput{
-        .bInverterOn_tx = output.AMK_bInverterOn_tx_R,
-        .bDcOn_tx = output.AMK_bDcOn_tx_R,
-        .bEnable = output.AMK_bEnable_R,
-        .bErrorReset = output.AMK_bErrorReset_R,
-        .TargetVelocity = output.AMK_TargetVelocity_R,
-        .TorqueLimitPositiv = output.AMK_TorqueLimitPositiv_R,
-        .TorqueLimitNegativ = output.AMK_TorqueLimitNegativ_R,
+        .bInverterOn_tx = output.AMK0_bInverterOn_tx,
+        .bDcOn_tx = output.AMK0_bDcOn_tx,
+        .bEnable = output.AMK0_bEnable,
+        .bErrorReset = output.AMK0_bErrorReset,
+        .TargetVelocity = output.AMK0_TargetVelocity,
+        .TorqueLimitPositiv = output.AMK0_TorqueLimitPositiv,
+        .TorqueLimitNegativ = output.AMK0_TorqueLimitNegativ,
     });
     motor_left.Transmit(AMKOutput{
-        .bInverterOn_tx = output.AMK_bInverterOn_tx_L,
-        .bDcOn_tx = output.AMK_bDcOn_tx_L,
-        .bEnable = output.AMK_bEnable_L,
-        .bErrorReset = output.AMK_bErrorReset_L,
-        .TargetVelocity = output.AMK_TargetVelocity_L,
-        .TorqueLimitPositiv = output.AMK_TorqueLimitPositiv_L,
-        .TorqueLimitNegativ = output.AMK_TorqueLimitNegativ_L,
+        .bInverterOn_tx = output.AMK1_bInverterOn_tx,
+        .bDcOn_tx = output.AMK1_bDcOn_tx,
+        .bEnable = output.AMK1_bEnable,
+        .bErrorReset = output.AMK1_bErrorReset,
+        .TargetVelocity = output.AMK1_TargetVelocity,
+        .TorqueLimitPositiv = output.AMK1_TorqueLimitPositiv,
+        .TorqueLimitNegativ = output.AMK1_TorqueLimitNegativ,
     });
 
     contactors.Transmit(ContactorOutput{
-        .prechargeContactorCMD = output.BM_b_prechargeContactorCMD,
-        .HVposContactorCMD = output.BM_b_HVposContactorCMD,
-        .HVnegContactorCMD = output.BM_b_HVnegContactorCMD,
+        .prechargeContactorCMD = output.BM_PrechargeContactorCmd,
+        .HVposContactorCMD = output.BM_HVposContactorCmd,
+        .HVnegContactorCMD = output.BM_HVnegContactorCmd,
     });
 }
 
@@ -244,7 +246,7 @@ void Task_5ms(void* arg) {
 
     while (true) {
         simulink_input = ReadCtrlSystemInput();
-        simulink_output = ControlSystem::Update(simulink_input);
+        simulink_output = control_system.Update(&simulink_input);
         SetCtrlSystemOutput(simulink_output);
 
         // Repeat after another 5ms
@@ -267,7 +269,7 @@ void Task_500ms(void* arg) {
 
 int main(void) {
     bindings::Initialize();
-    ControlSystem::Initialize();
+    control_system.Initialize();
 
     os::InitializeKernel();
 
