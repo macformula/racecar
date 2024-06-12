@@ -223,3 +223,4 @@ BA_DEF_DEF_  "BusType" "CAN";
 BA_DEF_DEF_  "MultiplexExtEnabled" "No";
 VAL_ 255 VC_govStatus 7 "motor_run_error" 6 "hv_run_error" 5 "driver_interface_error" 4 "motor_startup_error" 3 "hv_startup_error" 2 "gov_running" 1 "gov_startup" 0 "gov_init" ;
 VAL_ 111 LvControllerState 26 "DcdcEnabled" 25 "WaitingForOpenContactors" 24 "PowertrainFanPwmOff" 23 "PowertrainFanOff" 22 "PowertrainPumpOff" 21 "DisabledLed" 20 "LostDcdcValid" 19 "SequenceComplete" 18 "PowertrainFanSweeping" 17 "PowertrainFanEnabled" 16 "PowertrainPumpEnabled" 15 "DcdcLedEnabled" 14 "DcdcValid" 13 "WaitingForDcdcValid" 12 "WaitingForClosedContactors" 11 "ShutdownCircuitEnabled" 10 "ImuGpsEnabled" 9 "MotorControllerPrechargeDisabled" 8 "MotorControllerEnabled" 7 "MotorControllerPrechargeEnabled" 6 "AccumulatorEnabled" 5 "SpeedgoatEnabled" 4 "FrontControllerEnabled" 3 "RaspiEnabled" 2 "TsalEnabled" 1 "Startup" 0 "Unknown" ;
+

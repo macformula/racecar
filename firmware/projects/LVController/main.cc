@@ -9,7 +9,6 @@
 #include "generated/can/can_messages.h"
 #include "generated/can/msg_registry.h"
 #include "shared/comms/can/can_bus.h"
-#include "shared/os/tick.h"
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
 #include "shared/util/mappers/identity.h"
@@ -62,6 +61,7 @@ Subsystem all_subsystems[] = {
 
 void DoPowerupSequence() {
     tsal.Enable();
+  
     state_tx.UpdateState(LvControllerState::TsalEnabled);
 
     bindings::DelayMS(50);
