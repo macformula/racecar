@@ -3,7 +3,6 @@
 
 #include "app.h"
 #include "bindings.h"
-#include "controller_autogen.h"
 #include "generated/can/pt_can_messages.h"
 #include "generated/can/pt_msg_registry.h"
 #include "generated/can/veh_can_messages.h"

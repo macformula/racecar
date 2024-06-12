@@ -11,7 +11,6 @@
 #include <utility>
 
 #include "app.h"
-#include "veh_can_messages.h"
 #include "shared/comms/can/can_bus.h"
 #include "shared/comms/can/can_msg.h"
 #include "shared/periph/adc.h"
@@ -21,6 +20,7 @@
 #include "shared/util/mappers/mapper.h"
 #include "shared/util/moving_average.h"
 #include "veh_can_messages.h"
+
 
 class AnalogInput {
     static constexpr size_t kMovingAverageLength = 20;
