@@ -33,12 +33,15 @@ NS_ :
 
 BS_:
 
-BU_: PC_SG BMS FC TMS CANmod
+BU_: LVC PC_SG BMS FC TMS CANmod
 
 
 BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
  SG_ FC_userBtnL : 0|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ FC_userBtnR : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 257 MI_inverterEn: 1 FC
+ SG_ mi_inverterEn : 0|1@1+ (1,0) [0|1] ""  LVC
 
 BO_ 255 VC_Status: 8 PC_SG
  SG_ VC_govStatus : 0|3@1+ (1,0) [0|7] ""  FC
