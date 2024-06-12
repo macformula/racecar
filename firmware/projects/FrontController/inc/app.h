@@ -21,7 +21,6 @@
 #include "shared/util/moving_average.h"
 #include "veh_can_messages.h"
 
-
 class AnalogInput {
     static constexpr size_t kMovingAverageLength = 20;
 
@@ -179,6 +178,11 @@ struct ContactorInput {
     bool Pack_Precharge_Feedback;
     bool Pack_Negative_Feedback;
     bool Pack_Positive_Feedback;
+    bool HvilFeedback;
+    int8_t LowThermValue;
+    int8_t HighThermValue;
+    int8_t AvgThermValue;
+    double PackSOC;
 };
 
 struct ContactorOutput {
@@ -198,9 +202,10 @@ public:
 
         return ContactorInput{
             // (SAM) populate from `msg`
-            .Pack_Precharge_Feedback = 0,
-            .Pack_Negative_Feedback = 0,
-            .Pack_Positive_Feedback = 0,
+            .Pack_Precharge_Feedback = 0, .Pack_Negative_Feedback = 0,
+            .Pack_Positive_Feedback = 0,  .HvilFeedback = 0,
+            .LowThermValue = 0,           .HighThermValue = 0,
+            .AvgThermValue = 0,           .PackSOC = 0,
         };
     }
 
