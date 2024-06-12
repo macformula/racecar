@@ -79,6 +79,7 @@ int main(void) {
     generated::can::VehicleInfo vehilcle_info_msg;
     generated::can::Suspension suspension_msg;
 
+    bindings::brake_light_en.SetHigh();
     while (1) {
         // Update IO CAN bus
         io_can_bus.Update();
