@@ -35,10 +35,11 @@ shared::can::CanBus pt_can_bus{
     Objects
 ***************************************************************/
 
+ControlSystem control_system{};
+
 Speaker driver_speaker{bindings::driver_speaker};
 BrakeLight brake_light{bindings::brake_light};
 StatusLight status_light{bindings::status_light};
-ControlSystem control_system{};
 
 // See fc_docs/pedal_function and
 // vehicle_control_system/firmware_io/simulink_input.csv
@@ -60,13 +61,22 @@ AnalogInput accel_pedal_2{
     &accel_pedal_2_map,
 };
 
-auto brake_pedal_map = shared::util::LinearMap<double, uint16_t>{
+auto brake_pedal_front_map = shared::util::LinearMap<double, uint16_t>{
     730.125,
     -0.29412,
 };  // TODO: Check this, no function is given, copied from accel_pedal_1
-AnalogInput front_brake_pedal{
-    bindings::front_brake_pedal,
-    &brake_pedal_map,
+AnalogInput brake_pedal_front{
+    bindings::brake_pedal_front,
+    &brake_pedal_front_map,
+};
+
+auto brake_pedal_rear_map = shared::util::LinearMap<double, uint16_t>{
+    730.125,
+    -0.29412,
+};  // TODO: Check this, no function is given, copied from accel_pedal_1
+AnalogInput brake_pedal_rear{
+    bindings::brake_pedal_rear,
+    &brake_pedal_rear_map,
 };
 
 auto steering_wheel_map = shared::util::LinearMap<double, uint16_t>{
@@ -117,16 +127,26 @@ SimulinkInput ReadCtrlSystemInput() {
 
     // Driver Input
     input.DI_SteeringAngle = steering_wheel.Update();
+    input.DI_FrontBrakePressure = brake_pedal_front.Update();
+    input.DI_RearBrakePressure = brake_pedal_rear.Update();
+    input.DI_StartButton = start_button.Read();
     input.DI_AccelPedalPosition1 = accel_pedal_1.Update();
     input.DI_AccelPedalPosition2 = accel_pedal_2.Update();
-    input.DI_FrontBrakePressure = front_brake_pedal.Update();
-    input.DI_StartButton = start_button.Read();
+
+    // Wheel Speed Sensors
+    input.VD_LFWheelSpeed = NULL;
+    input.VD_RFWheelSpeed = NULL;
 
     // Contactors
     auto contactor_states = contactors.ReadInput();
     input.BM_prechrgContactorSts = contactor_states.Pack_Precharge_Feedback;
     input.BM_HVposContactorSts = contactor_states.Pack_Negative_Feedback;
     input.BM_HVnegContactorSts = contactor_states.Pack_Positive_Feedback;
+    input.BM_HvilFeedback = contactor_states.HvilFeedback;
+    input.BM_LowThermValue = contactor_states.LowThermValue;
+    input.BM_HighThermValue = contactor_states.HighThermValue;
+    input.BM_AvgThermValue = contactor_states.AvgThermValue;
+    input.BM_PackSOC = contactor_states.PackSOC;
 
     // Right Motor Input
     auto amk_right_in = motor_right.UpdateInputs();
@@ -167,24 +187,6 @@ SimulinkInput ReadCtrlSystemInput() {
     input.AMK1_TempIGBT = amk_left_in.TempIGBT;
 
     return input;
-
-    /* These inputs are listed in simulink_input.csv but are not present in the
-    simulink code, so we cannot possibly set them right now.
-
-    input.VD_FrtWheelSpd = NULL;
-    input.BM_HvilFeedback = NULL;
-    input.BM_PackSOC = NULL;
-    input.BM_LowThermValue = NULL;
-    input.BM_HighThermValue = NULL;
-    input.BM_AvgThermValue = NULL;
-    input.VD_AccelerationX = NULL;
-    input.VD_AccelerationY = NULL;
-    input.VD_AccelerationZ = NULL;
-    input.VD_AngularRateX = NULL;
-    input.VD_AngularRateY = NULL;
-    input.VD_AngularRateZ = NULL;
-    input.VD_ImuValid = NULL;
-    */
 }
 
 /**
@@ -197,13 +199,15 @@ SimulinkInput ReadCtrlSystemInput() {
 void SetCtrlSystemOutput(const SimulinkOutput& output) {
     driver_speaker.Update(output.DI_DriverSpeaker);
 
-    // why is DI_b_brakeLightEn from  simulink output a float? Should be bool
-    // since it is "enable?"
     brake_light.Update(output.DI_BrakeLightEn);
 
     // @todo This Update() is not implemented
     // status_light.Update(output.DI_p_PWMstatusLightCycle,
     //                     output.DI_PWMstatusLightFreq);
+
+    // TODO the following 2 outputs
+    auto foo = output.GOV_Status;
+    auto bar = output.MI_InverterEn;
 
     motor_right.Transmit(AMKOutput{
         .bInverterOn_tx = output.AMK0_bInverterOn_tx,
