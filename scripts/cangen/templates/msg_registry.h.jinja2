@@ -16,7 +16,7 @@ namespace generated::can {
 {% set reg_class_name = bus_name + "MsgRegistry" %}
 class {{ reg_class_name }} : public shared::can::MsgRegistry {
 public:
-    bool SetMessage(const shared::can::RawCanMsg& raw_msg) {
+    bool SetMessage(const shared::can::RawCanMsg& raw_msg) override {
         bool msg_found = (rx_msg_map_.count(raw_msg.header.id) > 0);
 
         if (msg_found) {
@@ -26,7 +26,7 @@ public:
         return msg_found;
     }
 
-    bool GetMessage(shared::can::CanRxMsg& rx_msg) {
+    bool GetMessage(shared::can::CanRxMsg& rx_msg) override {
         shared::can::CanId mid = MsgId(&rx_msg);
 
         bool msg_found = (rx_msg_map_.count(mid) > 0);
