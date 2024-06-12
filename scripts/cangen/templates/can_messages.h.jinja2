@@ -17,6 +17,19 @@
 
 namespace generated::can {
 
+/* -------------------- ENUMS -------------------- */
+{% for msg in all_msgs %}
+    {% for sig in msg.signals %}
+        {% if sig.choices %}  
+enum class {{ sig.name }} {
+            {% for value, name in sig.choices.items() | reverse %}
+    {{ name }} = {{ value }},
+            {% endfor %}
+};
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+
 /* -------------------- RX MESSAGES -------------------- */
 
 {% for msg in rx_msgs %}

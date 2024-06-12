@@ -9,6 +9,8 @@
 #include "can.h"
 #include "gpio.h"
 #include "main.h"
+#include "mcal/stm32f767/periph/can.h"
+#include "shared/periph/can.h"
 #include "stm32f767xx.h"
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx_hal_tim.h"
@@ -30,8 +32,16 @@ extern "C" {
 void SystemClock_Config();
 }
 
+namespace mcal {
+using namespace mcal::stm32f767::periph;
+CanBase veh_can_base{&hcan3};
+
+}  // namespace mcal
+
 namespace bindings {
 using namespace mcal::stm32f767::periph;
+
+shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
 
 shared::periph::DigitalOutput&& tsal_en = DigitalOutput{
     TSAL_EN_GPIO_Port,
@@ -69,6 +79,10 @@ shared::periph::DigitalOutput&& shutdown_circuit_en = DigitalOutput{
     SHUTDOWN_CIRCUIT_EN_GPIO_Port,
     SHUTDOWN_CIRCUIT_EN_Pin,
 };
+shared::periph::DigitalOutput&& inverter_switch_en = DigitalOutput{
+    INVERTER_SWITCH_EN_GPIO_Port,
+    INVERTER_SWITCH_EN_Pin,
+};
 shared::periph::DigitalOutput&& dcdc_en = DigitalOutput{
     DCDC_EN_GPIO_Port,
     DCDC_EN_Pin,
@@ -99,12 +113,20 @@ void Initialize() {
     HAL_Init();
     MX_GPIO_Init();
     MX_ADC1_Init();
-    MX_CAN1_Init();
+    MX_CAN3_Init();
     MX_TIM1_Init();
     MX_TIM2_Init();
 }
 
 void DelayMS(uint32_t milliseconds) {
     HAL_Delay(milliseconds);
+}
+
+extern "C" {
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
+    if (hcan == &hcan3) {
+        mcal::veh_can_base.AddRxMessageToQueue();
+    }
+}
 }
 }  // namespace bindings

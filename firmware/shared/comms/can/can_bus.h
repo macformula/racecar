@@ -37,6 +37,11 @@ public:
         rx_msg_registry_.GetMessage(rx_msg);
     }
 
+    void ReadWithUpdate(CanRxMsg& rx_msg) {
+        Update();
+        Read(rx_msg);
+    }
+
 private:
     constexpr static int kMaxMsgQueueLen = 100;
 

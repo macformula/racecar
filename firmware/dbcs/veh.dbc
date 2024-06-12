@@ -33,8 +33,10 @@ NS_ :
 
 BS_:
 
-BU_: PC_SG BMS FC TMS CANmod
+BU_: PC_SG BMS FC TMS CANmod LVC RPI
 
+BO_ 111 LvControllerStatus: 1 LVC
+ SG_ LvControllerState : 0|8@1+ (1,0) [0|1] "" RPI
 
 BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
  SG_ FC_userBtnL : 0|1@1+ (1,0) [0|1] "" Vector__XXX
@@ -55,10 +57,13 @@ BO_ 256 FC_cmd: 1 PC_SG
  SG_ FC_readyToDriveSpeaker : 1|1@1+ (1,0) [0|1] ""  FC
  SG_ FC_brakeLight : 0|1@1+ (1,0) [0|1] ""  FC
 
-BO_ 1570 Contactor_States: 3 FC
- SG_ Pack_Positive : 0|8@1+ (1,0) [0|0] ""  BMS
- SG_ Pack_Precharge : 8|8@1+ (1,0) [0|0] ""  BMS
- SG_ Pack_Negative : 16|8@1+ (1,0) [0|0] ""  BMS
+BO_ 1560 InverterCommand: 1 FC
+ SG_ EnableInverter : 0|1@1+ (1,0) [0|0] ""  LVC
+
+BO_ 1570 ContactorStates: 3 FC
+ SG_ PackPositive : 0|8@1+ (1,0) [0|0] ""  BMS,LVC
+ SG_ PackPrecharge : 8|8@1+ (1,0) [0|0] ""  BMS,LVC
+ SG_ PackNegative : 16|8@1+ (1,0) [0|0] ""  BMS,LVC
 
 BO_ 1572 Pack_State: 7 BMS
  SG_ Pack_Current : 0|16@1+ (0.1,0) [0|0] "Amps"  FC
@@ -217,4 +222,5 @@ BA_DEF_  "MultiplexExtEnabled" ENUM  "No","Yes";
 BA_DEF_DEF_  "BusType" "CAN";
 BA_DEF_DEF_  "MultiplexExtEnabled" "No";
 VAL_ 255 VC_govStatus 7 "motor_run_error" 6 "hv_run_error" 5 "driver_interface_error" 4 "motor_startup_error" 3 "hv_startup_error" 2 "gov_running" 1 "gov_startup" 0 "gov_init" ;
+VAL_ 111 LvControllerState 26 "DcdcEnabled" 25 "WaitingForOpenContactors" 24 "PowertrainFanPwmOff" 23 "PowertrainFanOff" 22 "PowertrainPumpOff" 21 "DisabledLed" 20 "LostDcdcValid" 19 "SequenceComplete" 18 "PowertrainFanSweeping" 17 "PowertrainFanEnabled" 16 "PowertrainPumpEnabled" 15 "DcdcLedEnabled" 14 "DcdcValid" 13 "WaitingForDcdcValid" 12 "WaitingForClosedContactors" 11 "ShutdownCircuitEnabled" 10 "ImuGpsEnabled" 9 "MotorControllerPrechargeDisabled" 8 "MotorControllerEnabled" 7 "MotorControllerPrechargeEnabled" 6 "AccumulatorEnabled" 5 "SpeedgoatEnabled" 4 "FrontControllerEnabled" 3 "RaspiEnabled" 2 "TsalEnabled" 1 "Startup" 0 "Unknown" ;
 
