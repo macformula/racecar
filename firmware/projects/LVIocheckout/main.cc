@@ -32,15 +32,15 @@ int main(void) {
             bindings::DelayMS(500);
         }
 
-        bindings::DelayMS(1000);
+        // bindings::DelayMS(1000);
 
-        for (int i = 0; i < 2; i++) {
-            bindings::front_controller_en.SetHigh();
-            bindings::DelayMS(1000);
-            bindings::front_controller_en.SetLow();
-            bindings::DelayMS(1000);
-        }
-        bindings::DelayMS(1000);
+        // for (int i = 0; i < 2; i++) {
+        //     bindings::front_controller_en.SetHigh();
+        //     bindings::DelayMS(1000);
+        //     bindings::front_controller_en.SetLow();
+        //     bindings::DelayMS(1000);
+        // }
+        // bindings::DelayMS(1000);
 
         // bindings::speedgoat_en.SetHigh();
         // bindings::motor_ctrl_precharge_en.SetHigh();

@@ -19,6 +19,7 @@ public:
         enable_output_.SetLow();
     }
 
-private:
     shared::periph::DigitalOutput& enable_output_;
+
+private:
 };
