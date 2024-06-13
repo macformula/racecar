@@ -5,8 +5,11 @@
 
 // cubemx files
 #include "adc.h"
+#include "can.h"
 #include "gpio.h"
 #include "main.h"
+#include "mcal/stm32f767/periph/can.h"
+#include "shared/comms/can/can_msg.h"
 #include "tim.h"
 
 // fw imports
@@ -39,6 +42,8 @@ PWMOutput fan_controller_pwm{&htim4, TIM_CHANNEL_1};
 DigitalOutput debug_do_blue{NUCLEO_BLUE_LED_GPIO_Port, NUCLEO_BLUE_LED_Pin};
 DigitalOutput debug_do_red{NUCLEO_RED_LED_GPIO_Port, NUCLEO_RED_LED_Pin};
 
+CanBase veh_can_base{&hcan2};
+
 }  // namespace mcal
 
 namespace bindings {
@@ -53,12 +58,15 @@ const shared::periph::PWMOutput& fan_controller_pwm = mcal::fan_controller_pwm;
 const shared::periph::DigitalOutput& debug_do_blue = mcal::debug_do_blue;
 const shared::periph::DigitalOutput& debug_do_red = mcal::debug_do_red;
 
+const shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
+
 void Initialize() {
     SystemClock_Config();
     HAL_Init();
     MX_ADC1_Init();
     MX_TIM4_Init();
     MX_GPIO_Init();
+    MX_CAN2_Init();
 }
 
 void Log(std::string s) {

@@ -7,19 +7,19 @@ jobs:
   clang_format_check:
     name: Check Clang Format
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-        
+
       - name: Set up clang-format
         run: sudo apt-get install clang-format -y
-        
+
       - name: Fetch main branch
         run: git fetch origin main:main
-          
+
       - name: Check code formatting
         id: check_formatting
         run: |

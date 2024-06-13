@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <concepts>
 #include <limits>
 
@@ -21,14 +22,14 @@ concept Numeric = requires { std::is_arithmetic_v<T>; };
 /// of the minimum value, the least index is returned.
 /// @return Minimum value of the array.
 /// @note Returns a large value if `array_length = 0`.
-template <Numeric T, int array_length>
-    requires(array_length >= 0)
-T GetMinimum(T* array, int* idx_min) {
+template <Numeric T, int array_length, Numeric I>
+    requires(array_length >= 0, array_length < std::numeric_limits<I>::max())
+T GetMinimum(T* array, I* idx_min) {
     // start minimum at greatest value
     T cur_min = std::numeric_limits<T>().max();
-    int temp_idx_min = -1;
+    I temp_idx_min = -1;
 
-    for (int i = 0; i < array_length; i++) {
+    for (I i = 0; i < array_length; i++) {
         if (array[i] < cur_min) {
             cur_min = array[i];
             temp_idx_min = i;
@@ -52,14 +53,14 @@ T GetMinimum(T* array, int* idx_min) {
 /// of the maximum value, the least index is used.
 /// @return Maximum value of the array.
 /// @note Returns a low value if `array_length = 0`.
-template <Numeric T, int array_length>
-    requires(array_length >= 0)
-T GetMaximum(T* array, int* idx_max) {
+template <Numeric T, int array_length, Numeric I>
+    requires(array_length >= 0, array_length < std::numeric_limits<I>::max())
+T GetMaximum(T* array, I* idx_max) {
     // start maximum at lowest value
     T cur_max = std::numeric_limits<T>().min();
-    int temp_idx_max = -1;
+    I temp_idx_max = -1;
 
-    for (int i = 0; i < array_length; i++) {
+    for (I i = 0; i < array_length; i++) {
         if (array[i] > cur_max) {
             cur_max = array[i];
             temp_idx_max = i;

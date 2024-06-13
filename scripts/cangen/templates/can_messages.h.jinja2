@@ -53,8 +53,8 @@ private:
     {% for sig in msg.signals %}
     {% set sig_var = sig.name | camel_to_snake %}
     {% set sig_var_type = signal_types[msg.name][sig.name] %}
-    static constexpr {{ sig_var_type }} k{{ sig.name }}Scale = {{ sig.scale }};
-    static constexpr {{ sig_var_type }} k{{ sig.name }}Offset = {{ sig.offset }};
+    static constexpr double k{{ sig.name }}Scale = {{ sig.scale }};
+    static constexpr double k{{ sig.name }}Offset = {{ sig.offset }};
     {% endfor %}
 
     shared::can::CanId Id() const override { return kCanId; } 
@@ -127,8 +127,8 @@ private:
     {% for sig in msg.signals %}
     {% set sig_var = sig.name | camel_to_snake %}
     {% set sig_var_type = signal_types[msg.name][sig.name] %}
-    static constexpr {{ sig_var_type }} k{{ sig.name }}Scale = {{ sig.scale }};
-    static constexpr {{ sig_var_type }} k{{ sig.name }}Offset = {{ sig.offset }};
+    static constexpr double k{{ sig.name }}Scale = {{ sig.scale }};
+    static constexpr double k{{ sig.name }}Offset = {{ sig.offset }};
     {% endfor %}
 
     void Pack(shared::can::RawCanMsg& raw_msg) const override {
@@ -147,7 +147,7 @@ private:
         {% set sig_var_offset = "k" + sig.name + "Offset" %}
         {% set temp_sig_var = "temp_" + (sig.name | camel_to_snake) %}
         {% set temp_sig_var_type = temp_signal_types[msg.name][sig.name] %}
-        {{ temp_sig_var_type }} {{ temp_sig_var }} = static_cast<{{ temp_sig_var_type }}>(static_cast<double>({{ sig_var }} - {{ sig_var_offset }}) / static_cast<double>({{ sig_var_scale }}));
+        {{ temp_sig_var_type }} {{ temp_sig_var }} = static_cast<{{ temp_sig_var_type }}>(static_cast<double>({{ sig_var }} - {{ sig_var_offset }}) / {{ sig_var_scale }});
     {% endfor %}
 
     {% for sig in msg.signals %}
