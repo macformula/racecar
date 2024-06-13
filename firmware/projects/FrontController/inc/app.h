@@ -184,9 +184,9 @@ struct ContactorInput {
 };
 
 struct ContactorOutput {
-    double prechargeContactorCMD;
-    double HVposContactorCMD;
-    double HVnegContactorCMD;
+    bool prechargeContactorCMD;
+    bool HVposContactorCMD;
+    bool HVnegContactorCMD;
 };
 
 class Contactors {
@@ -208,7 +208,11 @@ public:
     }
 
     void Transmit(ContactorOutput output) {
-        generated::can::Contactor_States contactor_states;
+        generated::can::ContactorStates contactor_states;
+
+        contactor_states.pack_negative = output.HVnegContactorCMD;
+        contactor_states.pack_positive = output.HVposContactorCMD;
+        contactor_states.pack_precharge = output.prechargeContactorCMD;
 
         can_bus_.Send(contactor_states);
     }
