@@ -100,7 +100,7 @@ private:
                 {% endif %}
             {% endif %}
         {% endfor %}
-        {{ sig_var }} = (static_cast<{{ sig_var_type }}>({{ temp_sig_var }}) * {{ sig_var_scale }}) + {{ sig_var_offset }};
+        {{ sig_var }} = static_cast<{{ sig_var_type }}>(static_cast<double>({{ temp_sig_var }}) * {{ sig_var_scale }} + {{ sig_var_offset }});
 
     {% endfor %}
     }
