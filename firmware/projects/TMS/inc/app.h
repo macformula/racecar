@@ -186,6 +186,9 @@ private:
 
     uint8_t CalculateBmsBroadcastChecksum(
         const generated::can::BmsBroadcast& bms_broadcast) {
+        // This is a constant defined by Orion. It was discovered by
+        // decoding the CAN traffic coming from the Orion Thermal Expansion
+        // Pack.
         constexpr int8_t kChecksumConstant = 0x41;
 
         return static_cast<uint8_t>(
