@@ -40,10 +40,13 @@ shared::periph::DigitalOutput&& raspberry_pi_en = DigitalOutput{
     RASPI_EN_GPIO_Port,
     RASPI_EN_Pin,
 };
-shared::periph::DigitalOutput&& front_controller_en = DigitalOutput{
-    FRONT_CONTROLLER_EN_GPIO_Port,
-    FRONT_CONTROLLER_EN_Pin,
+
+DigitalOutput fc{
+    RED_LED_GPIO_Port, RED_LED_Pin,
+    // FRONT_CONTROLLER_EN_GPIO_Port,
+    // FRONT_CONTROLLER_EN_Pin,
 };
+shared::periph::DigitalOutput& front_controller_en = fc;
 shared::periph::DigitalOutput&& speedgoat_en = DigitalOutput{
     SPEEDGOAT_EN_GPIO_Port,
     SPEEDGOAT_EN_Pin,
