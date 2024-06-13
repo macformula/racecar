@@ -3,9 +3,6 @@
 
 #pragma once
 
-#include <bits/ranges_base.h>
-#include <sys/_stdint.h>
-
 #include <cstddef>
 
 #include "shared/comms/can/raw_can_msg.h"
