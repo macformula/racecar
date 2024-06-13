@@ -189,7 +189,7 @@ private:
         // This is a constant defined by Orion. It was discovered by
         // decoding the CAN traffic coming from the Orion Thermal Expansion
         // Pack.
-        constexpr int8_t kChecksumConstant = 0x41;
+        constexpr uint8_t kChecksumConstant = 0x41;
 
         return static_cast<uint8_t>(
             bms_broadcast.high_therm_id + bms_broadcast.high_therm_value +
