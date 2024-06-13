@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <sys/_stdint.h>
-
 #include <cstddef>
 #include <cstdint>
 #include <memory>
