@@ -1,0 +1,9 @@
+canGen:
+  ourNode: fc
+  busses:
+    - busName: veh
+      dbcFiles:
+        - "veh.dbc"
+    - busName: pt
+      dbcFiles:
+        - "pt.dbc"
