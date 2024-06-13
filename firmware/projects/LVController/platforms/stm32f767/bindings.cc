@@ -38,64 +38,61 @@ CanBase veh_can_base{&hcan3};
 
 }  // namespace mcal
 
-namespace bindings {
-using namespace mcal::stm32f767::periph;
-
-shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
-
-shared::periph::DigitalOutput&& tsal_en = DigitalOutput{
+namespace mcal {
+using namespace stm32f767::periph;
+DigitalOutput tsal_en{
     TSAL_EN_GPIO_Port,
     TSAL_EN_Pin,
 };
-shared::periph::DigitalOutput&& raspberry_pi_en = DigitalOutput{
+DigitalOutput raspberry_pi_en{
     RASPI_EN_GPIO_Port,
     RASPI_EN_Pin,
 };
-shared::periph::DigitalOutput&& front_controller_en = DigitalOutput{
+DigitalOutput front_controller_en{
     FRONT_CONTROLLER_EN_GPIO_Port,
     FRONT_CONTROLLER_EN_Pin,
 };
-shared::periph::DigitalOutput&& speedgoat_en = DigitalOutput{
+DigitalOutput speedgoat_en{
     SPEEDGOAT_EN_GPIO_Port,
     SPEEDGOAT_EN_Pin,
 };
-shared::periph::DigitalOutput&& accumulator_en = DigitalOutput{
+DigitalOutput accumulator_en{
     ACCUMULATOR_EN_GPIO_Port,
     ACCUMULATOR_EN_Pin,
 };
-shared::periph::DigitalOutput&& motor_ctrl_precharge_en = DigitalOutput{
+DigitalOutput motor_ctrl_precharge_en{
     MOTOR_CONTROLLER_PRECHARGE_EN_GPIO_Port,
     MOTOR_CONTROLLER_PRECHARGE_EN_Pin,
 };
-shared::periph::DigitalOutput&& motor_ctrl_en = DigitalOutput{
+DigitalOutput motor_ctrl_en{
     MOTOR_CONTROLLER_EN_GPIO_Port,
     MOTOR_CONTROLLER_EN_Pin,
 };
-shared::periph::DigitalOutput&& imu_gps_en = DigitalOutput{
+DigitalOutput imu_gps_en{
     IMU_GPS_EN_GPIO_Port,
     IMU_GPS_EN_Pin,
 };
-shared::periph::DigitalOutput&& shutdown_circuit_en = DigitalOutput{
+DigitalOutput shutdown_circuit_en{
     SHUTDOWN_CIRCUIT_EN_GPIO_Port,
     SHUTDOWN_CIRCUIT_EN_Pin,
 };
-shared::periph::DigitalOutput&& inverter_switch_en = DigitalOutput{
-    INVERTER_SWITCH_EN_GPIO_Port,
-    INVERTER_SWITCH_EN_Pin,
+DigitalOutput inverter_switch_en{
+    INVERTER_EN_GPIO_Port,
+    INVERTER_EN_Pin,
 };
-shared::periph::DigitalOutput&& dcdc_en = DigitalOutput{
+DigitalOutput dcdc_en{
     DCDC_EN_GPIO_Port,
     DCDC_EN_Pin,
 };
-shared::periph::DigitalInput&& dcdc_valid = DigitalInput{
+DigitalInput dcdc_valid{
     MUX_DCDC_VALID_GPIO_Port,
     MUX_DCDC_VALID_Pin,
 };
-shared::periph::DigitalOutput&& dcdc_led_en = DigitalOutput{
+DigitalOutput dcdc_led_en{
     DCDC_ON_LED_EN_GPIO_Port,
     DCDC_ON_LED_EN_Pin,
 };
-shared::periph::DigitalOutput&& powertrain_fan_en = DigitalOutput{
+DigitalOutput powertrain_fan_en{
     POWERTRAIN_FAN_EN_GPIO_Port,
     POWERTRAIN_FAN_EN_Pin,
 };
@@ -103,10 +100,33 @@ DigitalOutput powertrain_pump_en{
     POWERTRAIN_PUMP_EN_GPIO_Port,
     POWERTRAIN_PUMP_EN_Pin,
 };
-shared::periph::PWMOutput&& powertrain_fan_pwm = PWMOutput{
+PWMOutput powertrain_fan_pwm{
     &htim2,
     HAL_TIM_ACTIVE_CHANNEL_1,
 };
+}  // namespace mcal
+
+namespace bindings {
+
+shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
+
+shared::periph::DigitalOutput& tsal_en = mcal::tsal_en;
+shared::periph::DigitalOutput& raspberry_pi_en = mcal::raspberry_pi_en;
+shared::periph::DigitalOutput& front_controller_en = mcal::front_controller_en;
+shared::periph::DigitalOutput& speedgoat_en = mcal::speedgoat_en;
+shared::periph::DigitalOutput& accumulator_en = mcal::accumulator_en;
+shared::periph::DigitalOutput& motor_ctrl_precharge_en =
+    mcal::motor_ctrl_precharge_en;
+shared::periph::DigitalOutput& motor_ctrl_en = mcal::motor_ctrl_en;
+shared::periph::DigitalOutput& imu_gps_en = mcal::imu_gps_en;
+shared::periph::DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
+shared::periph::DigitalOutput& inverter_switch_en = mcal::inverter_switch_en;
+shared::periph::DigitalOutput& dcdc_en = mcal::dcdc_en;
+shared::periph::DigitalInput& dcdc_valid = mcal::dcdc_valid;
+shared::periph::DigitalOutput& dcdc_led_en = mcal::dcdc_led_en;
+shared::periph::DigitalOutput& powertrain_fan_en = mcal::powertrain_fan_en;
+shared::periph::DigitalOutput& powertrain_pump_en = mcal::powertrain_pump_en;
+shared::periph::PWMOutput& powertrain_fan_pwm = mcal::powertrain_fan_pwm;
 
 void Initialize() {
     SystemClock_Config();
