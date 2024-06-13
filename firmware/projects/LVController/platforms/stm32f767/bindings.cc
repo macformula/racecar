@@ -136,6 +136,8 @@ void Initialize() {
     MX_CAN3_Init();
     MX_TIM1_Init();
     MX_TIM2_Init();
+
+    mcal::veh_can_base.Setup();
 }
 
 void DelayMS(uint32_t milliseconds) {
