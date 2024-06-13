@@ -25,104 +25,119 @@ extern "C" {
 void SystemClock_Config();
 }
 
-namespace bindings {
-using namespace mcal::stm32f767::periph;
+namespace mcal {
+using namespace stm32f767::periph;
 
-// peripherals are ordered as in Pin Mapping spreadsheet
-
-shared::periph::ADCInput&& brake_pedal_front = ADCInput{
+ADCInput brake_pedal_front{
     &hadc1,
     ADC_CHANNEL_2,  // TODO is front BPPS1 = chn 2?
 };
-shared::periph::ADCInput&& brake_pedal_rear = ADCInput{
+ADCInput brake_pedal_rear{
     &hadc1,
     ADC_CHANNEL_1,  // TODO is rear BPPS2 = chn 1?
 };
-
-shared::periph::DigitalOutput&& debug_led = DigitalOutput{
+DigitalOutput debug_led{
     DEBUG_LED_GPIO_Port,
     DEBUG_LED_Pin,
 };
-
-shared::periph::ADCInput&& hvil_feedback = ADCInput{
+ADCInput hvil_feedback{
     &hadc1,
     ADC_CHANNEL_5,
 };
-
-shared::periph::DigitalOutput&& dashboard_hsd = DigitalOutput{
+DigitalOutput dashboard_hsd{
     DASHBOARD_HSD_EN_GPIO_Port,
     DASHBOARD_HSD_EN_Pin,
 };
-
-shared::periph::DigitalOutput&& hvil_led = DigitalOutput{
+DigitalOutput hvil_led{
     HVIL_LED_EN_GPIO_Port,
     HVIL_LED_EN_Pin,
 };
-
-// (SAM) Confirm that PA11,PA12 is CAN1-powertrain and PA8,PA15 is CAN3-vehicle
-shared::periph::CanBase&& veh_can_base = CanBase{&hcan3};
-shared::periph::CanBase&& pt_can_base = CanBase{&hcan1};
-
-shared::periph::DigitalOutput&& driver_speaker = DigitalOutput{
+DigitalOutput driver_speaker{
     RTDS_EN_GPIO_Port,
     RTDS_EN_Pin,
 };
-
-shared::periph::DigitalInput&& start_button = DigitalInput{
+DigitalInput start_button{
     START_BUTTON_GPIO_Port,
     START_BUTTON_Pin,
 };
-
-shared::periph::DigitalOutput&& brake_light = DigitalOutput{
+DigitalOutput brake_light{
     BRAKE_LIGHT_EN_GPIO_Port,
     BRAKE_LIGHT_EN_Pin,
 };
-
-shared::periph::DigitalOutput&& status_light = DigitalOutput{
+DigitalOutput status_light{
     STATUS_LED_EN_GPIO_Port,
     STATUS_LED_EN_Pin,
 };
-
-shared::periph::ADCInput&& wheel_speed_right_b = ADCInput{
+ADCInput wheel_speed_right_b{
     &hadc1,
     ADC_CHANNEL_10,
 };
-shared::periph::ADCInput&& wheel_speed_right_a = ADCInput{
+ADCInput wheel_speed_right_a{
     &hadc1,
     ADC_CHANNEL_11,
 };
-
-shared::periph::ADCInput&& accel_pedal_1 = ADCInput{
+ADCInput accel_pedal_1{
     &hadc1,
     ADC_CHANNEL_12,
 };
-shared::periph::ADCInput&& accel_pedal_2 = ADCInput{
+ADCInput accel_pedal_2{
     &hadc1,
     ADC_CHANNEL_13,
 };
-
-shared::periph::ADCInput&& wheel_speed_left_b = ADCInput{
+ADCInput wheel_speed_left_b{
     &hadc1,
     ADC_CHANNEL_14,
 };
-shared::periph::ADCInput&& wheel_speed_left_a = ADCInput{
+ADCInput wheel_speed_left_a{
     &hadc1,
     ADC_CHANNEL_15,
 };
-
-shared::periph::ADCInput&& steering_wheel = ADCInput{
+ADCInput steering_wheel{
     &hadc1,
     ADC_CHANNEL_4,
 };
-
-shared::periph::ADCInput&& suspension_sensor_1 = ADCInput{
+ADCInput suspension_sensor_1{
     &hadc1,
     ADC_CHANNEL_8,
 };
-shared::periph::ADCInput&& suspension_sensor_2 = ADCInput{
+ADCInput suspension_sensor_2{
     &hadc1,
     ADC_CHANNEL_9,
 };
+
+CanBase veh_can_base{&hcan3};
+CanBase pt_can_base{&hcan1};
+
+}  // namespace mcal
+namespace bindings {
+
+// peripherals are ordered as in Pin Mapping spreadsheet
+
+shared::periph::ADCInput& brake_pedal_front = mcal::brake_pedal_front;
+shared::periph::ADCInput& brake_pedal_rear = mcal::brake_pedal_rear;
+shared::periph::DigitalOutput& debug_led = mcal::debug_led;
+shared::periph::ADCInput& hvil_feedback = mcal::hvil_feedback;
+shared::periph::DigitalOutput& dashboard_hsd = mcal::dashboard_hsd;
+shared::periph::DigitalOutput& hvil_led = mcal::hvil_led;
+
+// (SAM) Confirm that PA11,PA12 is CAN1-powertrain and
+// PA8,PA15 is CAN3-vehicle
+shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
+shared::periph::CanBase& pt_can_base = mcal::pt_can_base;
+
+shared::periph::DigitalOutput& driver_speaker = mcal::driver_speaker;
+shared::periph::DigitalInput& start_button = mcal::start_button;
+shared::periph::DigitalOutput& brake_light = mcal::brake_light;
+shared::periph::DigitalOutput& status_light = mcal::status_light;
+shared::periph::ADCInput& wheel_speed_right_b = mcal::wheel_speed_right_b;
+shared::periph::ADCInput& wheel_speed_right_a = mcal::wheel_speed_right_a;
+shared::periph::ADCInput& accel_pedal_1 = mcal::accel_pedal_1;
+shared::periph::ADCInput& accel_pedal_2 = mcal::accel_pedal_2;
+shared::periph::ADCInput& wheel_speed_left_b = mcal::wheel_speed_left_b;
+shared::periph::ADCInput& wheel_speed_left_a = mcal::wheel_speed_left_a;
+shared::periph::ADCInput& steering_wheel = mcal::steering_wheel;
+shared::periph::ADCInput& suspension_sensor_1 = mcal::suspension_sensor_1;
+shared::periph::ADCInput& suspension_sensor_2 = mcal::suspension_sensor_2;
 
 void Initialize() {
     SystemClock_Config();
@@ -133,6 +148,9 @@ void Initialize() {
     MX_ADC1_Init();
     MX_CAN1_Init();
     MX_CAN3_Init();
+
+    mcal::veh_can_base.Setup();
+    mcal::pt_can_base.Setup();
 }
 
 }  // namespace bindings
