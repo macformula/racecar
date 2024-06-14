@@ -229,9 +229,9 @@ void SetCtrlSystemOutput(const SimulinkOutput& output) {
     });
 
     contactors.Transmit(ContactorOutput{
-        // .prechargeContactorCMD = output.BM_PrechargeContactorCmd,
-        // .HVposContactorCMD = output.BM_HVposContactorCmd,
-        // .HVnegContactorCMD = output.BM_HVnegContactorCmd, // TODO uncomment
+        .prechargeContactorCMD = output.BM_PrechargeContactorCmd,
+        .HVposContactorCMD = output.BM_HVposContactorCmd,
+        .HVnegContactorCMD = output.BM_HVnegContactorCmd,  // TODO uncomment
     });
 }
 
