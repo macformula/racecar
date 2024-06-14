@@ -43,14 +43,12 @@ public:
         : enable_output_(enable_output) {}
 
     inline virtual void Enable() const {
-        bindings::DelayMS(1000);
+        bindings::DelayMS(10000);
 
-        return;  // disable gpio
         enable_output_.SetHigh();
     }
 
     inline virtual void Disable() const {
-        return;  // disable gpio
         enable_output_.SetLow();
     }
 
@@ -63,17 +61,14 @@ public:
     Indicator(shared::periph::DigitalOutput& output) : output_(output) {}
 
     inline void TurnOn() {
-        return;  // dsiable gpio
         output_.SetHigh();
     }
 
     inline void TurnOff() {
-        return;  // dsiable gpio
         output_.SetLow();
     }
 
     inline void SetState(bool value) {
-        return;  // dsiable gpio
         output_.Set(value);
     }
 
@@ -146,7 +141,6 @@ private:
     float duty_per_second_ = 0.0f;
 
     void SetPower(float power) const {
-        return;  // disable gpio
         pwm_output_.SetDutyCycle(power_to_duty_.Evaluate(power));
     }
 };
@@ -161,7 +155,6 @@ public:
           led_(led_output){};
 
     bool CheckValid() {
-        return false;  // disable gpio
         bool is_valid = valid_input_.Read();
         led_.SetState(is_valid);
         return is_valid;
