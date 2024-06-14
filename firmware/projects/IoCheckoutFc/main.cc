@@ -102,14 +102,10 @@ int main(void) {
         wheel_speed_right_b_value = bindings::wheel_speed_right_b.Read();
 
         // Pack Can messasges
-        pedal_sensors_msg.apps1 =
-            adc_to_voltage.Evaluate(accel_pedal_pos_1_value);
-        pedal_sensors_msg.apps2 =
-            adc_to_voltage.Evaluate(accel_pedal_pos_2_value);
-        pedal_sensors_msg.bpps1 =
-            adc_to_voltage.Evaluate(brake_pedal_pos_1_value);
-        pedal_sensors_msg.bpps2 =
-            adc_to_voltage.Evaluate(brake_pedal_pos_2_value);
+        pedal_sensors_msg.apps1 = accel_pedal_pos_1_value;
+        pedal_sensors_msg.apps2 = accel_pedal_pos_2_value;
+        pedal_sensors_msg.bpps1 = brake_pedal_pos_1_value;
+        pedal_sensors_msg.bpps2 = brake_pedal_pos_2_value;
 
         wheels_msg.wheel_speed_left_a = wheel_speed_left_a_value;
         wheels_msg.wheel_speed_left_b = wheel_speed_left_b_value;

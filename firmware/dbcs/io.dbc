@@ -38,10 +38,10 @@ BU_: FC PI
 
 
 BO_ 454 PedalSensors: 6 FC
-    SG_ Apps1 : 0|12@1+ (1.0000001,0) [0|3.3] "V" PI
-    SG_ Apps2 : 12|12@1+ (1.0000001,0) [0|3.3] "V" PI
-    SG_ Bpps1 : 24|12@1+ (1.0000001,0) [0|3.3] "V" PI
-    SG_ Bpps2 : 36|12@1+ (1.0000001,0) [0|3.3] "V" PI
+    SG_ Apps1 : 0|12@1+ (1,0) [0|3.3] "V" PI
+    SG_ Apps2 : 12|12@1+ (1,0) [0|3.3] "V" PI
+    SG_ Bpps1 : 24|12@1+ (1,0) [0|3.3] "V" PI
+    SG_ Bpps2 : 36|12@1+ (1,0) [0|3.3] "V" PI
 
 BO_ 898 Wheels: 2 FC
     SG_ WheelSpeedRightA : 0|1@1+ (1,0) [0|1] "" PI
