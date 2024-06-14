@@ -24,7 +24,7 @@ public:
     }
 
     void Update() {
-        RawCanMsg rx_queue[kMaxMsgQueueLen] = {0};
+        RawCanMsg rx_queue[kMaxMsgQueueLen] = {};
 
         can_base_.ReadQueue(rx_queue, kMaxMsgQueueLen);
 

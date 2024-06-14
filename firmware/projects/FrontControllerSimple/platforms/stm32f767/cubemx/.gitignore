@@ -1,0 +1,4 @@
+*
+!*.ioc
+!.gitignore
+!CMakeLists.txt
