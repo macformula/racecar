@@ -126,7 +126,7 @@ SimulinkInput ReadCtrlSystemInput() {
     SimulinkInput input;
 
     // Driver Input
-    input.DI_SteeringAngle = steering_wheel.Update();
+    // input.DI_SteeringAngle = steering_wheel.Update();
     input.DI_FrontBrakePressure = brake_pedal_front.Update();
     input.DI_RearBrakePressure = brake_pedal_rear.Update();
     input.DI_StartButton = start_button.Read();
@@ -134,8 +134,8 @@ SimulinkInput ReadCtrlSystemInput() {
     input.DI_AccelPedalPosition2 = accel_pedal_2.Update();
 
     // Wheel Speed Sensors
-    input.VD_LFWheelSpeed = NULL;
-    input.VD_RFWheelSpeed = NULL;
+    // input.VD_LFWheelSpeed = NULL;
+    // input.VD_RFWheelSpeed = NULL;
 
     // Contactors
     auto contactor_states = contactors.ReadInput();
@@ -143,10 +143,10 @@ SimulinkInput ReadCtrlSystemInput() {
     input.BM_HVposContactorSts = contactor_states.Pack_Negative_Feedback;
     input.BM_HVnegContactorSts = contactor_states.Pack_Positive_Feedback;
     input.BM_HvilFeedback = contactor_states.HvilFeedback;
-    input.BM_LowThermValue = contactor_states.LowThermValue;
-    input.BM_HighThermValue = contactor_states.HighThermValue;
-    input.BM_AvgThermValue = contactor_states.AvgThermValue;
-    input.BM_PackSOC = contactor_states.PackSOC;
+    // input.BM_LowThermValue = contactor_states.LowThermValue;
+    // input.BM_HighThermValue = contactor_states.HighThermValue;
+    // input.BM_AvgThermValue = contactor_states.AvgThermValue;
+    // input.BM_PackSOC = contactor_states.PackSOC;
 
     // Right Motor Input
     auto amk_right_in = motor_right.UpdateInputs();
