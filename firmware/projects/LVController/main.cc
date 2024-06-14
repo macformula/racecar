@@ -36,8 +36,11 @@ Subsystem imu_gps{bindings::imu_gps_en};
 Subsystem shutdown_circuit{bindings::shutdown_circuit_en};
 Subsystem inverter{bindings::inverter_switch_en};
 
+auto dcdc_en_inverted =
+    shared::periph::InvertedDigitalOutput(bindings::dcdc_en);
+
 DCDC dcdc{
-    bindings::dcdc_en,
+    dcdc_en_inverted,
     bindings::dcdc_valid,
     bindings::dcdc_led_en,
 };
@@ -61,12 +64,11 @@ Subsystem all_subsystems[] = {
 
 void DoPowerupSequence() {
     tsal.Enable();
-  
     state_tx.UpdateState(LvControllerState::TsalEnabled);
 
     bindings::DelayMS(50);
 
-    raspberry_pi.Enable();
+    // raspberry_pi.Enable();
     state_tx.UpdateState(LvControllerState::RaspiEnabled);
 
     bindings::DelayMS(50);
@@ -76,7 +78,7 @@ void DoPowerupSequence() {
 
     bindings::DelayMS(100);
 
-    speedgoat.Enable();
+    // speedgoat.Enable();
     state_tx.UpdateState(LvControllerState::SpeedgoatEnabled);
 
     bindings::DelayMS(100);
@@ -96,7 +98,7 @@ void DoPowerupSequence() {
 
     bindings::DelayMS(50);
 
-    imu_gps.Enable();
+    // imu_gps.Enable();
     state_tx.UpdateState(LvControllerState::ImuGpsEnabled);
 }
 
@@ -178,6 +180,8 @@ void DoInverterSwitchCheck() {
 int main(void) {
     bindings::Initialize();
 
+    bindings::DelayMS(10000);  // initial
+
     state_tx.UpdateState(LvControllerState::Startup);
 
     // Ensure all subsystems are disabled to start.
@@ -187,6 +191,8 @@ int main(void) {
 
     // Powerup sequence
     DoPowerupSequence();
+
+    while (true) continue;  // stop after fc enable debug
 
     do {
         state_tx.UpdateState(LvControllerState::WaitingForOpenContactors);
