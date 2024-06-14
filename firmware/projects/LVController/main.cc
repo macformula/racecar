@@ -180,8 +180,6 @@ void DoInverterSwitchCheck() {
 int main(void) {
     bindings::Initialize();
 
-    bindings::DelayMS(10000);  // initial
-
     state_tx.UpdateState(LvControllerState::Startup);
 
     // Ensure all subsystems are disabled to start.

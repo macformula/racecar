@@ -43,8 +43,6 @@ public:
         : enable_output_(enable_output) {}
 
     inline virtual void Enable() const {
-        bindings::DelayMS(10000);
-
         enable_output_.SetHigh();
     }
 
