@@ -205,13 +205,19 @@ void SetCtrlSystemOutput(const SimulinkOutput& output) {
     // status_light.Update(output.DI_p_PWMstatusLightCycle,
     //                     output.DI_PWMstatusLightFreq);
 
-    // TODO the following 2 outputs
-    auto foo = output.GOV_Status;
+    /* cannot send this msg, just receive
+    generated::can::VC_Status vc_status;
+    vc_status.vc_gov_status = output.GOV_Status;
+    vc_status.vc_bm_status = output.BM_Status;
+    vc_status.vc_mi_status = output.MI_Status;
+    vc_status.vc_di_status = output.Di_Status;
+    veh_can_bus.Send(vc_status);
+    */
 
-    generated::can::InverterCommand inverter_cmd {
-        .enable_inverter = output.MI_InverterEn;
-    }
-    veh_can_bus.Send(&inverter_cmd);
+    // send inverter cmd to LV
+    generated::can::InverterCommand inverter_cmd;
+    inverter_cmd.enable_inverter = output.MI_InverterEn;
+    veh_can_bus.Send(inverter_cmd);
 
     motor_right.Transmit(AMKOutput{
         .bInverterOn_tx = output.AMK0_bInverterOn_tx,
