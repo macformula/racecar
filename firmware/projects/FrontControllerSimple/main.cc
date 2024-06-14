@@ -207,7 +207,11 @@ void SetCtrlSystemOutput(const SimulinkOutput& output) {
 
     // TODO the following 2 outputs
     auto foo = output.GOV_Status;
-    auto bar = output.MI_InverterEn;
+
+    generated::can::InverterCommand inverter_cmd {
+        .enable_inverter = output.MI_InverterEn;
+    }
+    veh_can_bus.Send(&inverter_cmd);
 
     motor_right.Transmit(AMKOutput{
         .bInverterOn_tx = output.AMK0_bInverterOn_tx,
@@ -229,9 +233,11 @@ void SetCtrlSystemOutput(const SimulinkOutput& output) {
     });
 
     contactors.Transmit(ContactorOutput{
-        .prechargeContactorCMD = output.BM_PrechargeContactorCmd,
-        .HVposContactorCMD = output.BM_HVposContactorCmd,
-        .HVnegContactorCMD = output.BM_HVnegContactorCmd,  // TODO uncomment
+        .prechargeContactorCMD =
+            static_cast<bool>(output.BM_PrechargeContactorCmd),
+        .HVposContactorCMD = static_cast<bool>(output.BM_HVposContactorCmd),
+        .HVnegContactorCMD =
+            static_cast<bool>(output.BM_HVnegContactorCmd),  // TODO uncomment
     });
 }
 
