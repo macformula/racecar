@@ -12,8 +12,8 @@ AUTOGEN_CUBEMX = ON
 CUBEMX_GEN_SCRIPT = cubemx_script.txt
 
 # Get the directory of this file since it is called from other locations
-BUILD_SYS_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-CUSTOM_TARGETS_FILE = $(BUILD_SYS_DIR)/custom_cubemx_targets.mk
+BUILD_SYS_DIR:=$(dir $(MAKEFILE_LIST))
+CUSTOM_TARGETS_FILE = $(BUILD_SYS_DIR)custom_cubemx_targets.mk
 
 # Copy the CubeMX makefile and custom targets into a new makefile
 CustomMakefile.mk: Makefile $(CUSTOM_TARGETS_FILE)
