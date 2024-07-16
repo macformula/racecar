@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <sys/types.h>
-
 #include <cstdint>
 
 #include "cmsis_os2.h"

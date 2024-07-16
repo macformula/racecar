@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 EIGHT_BITS = 8
 EIGHT_BYTES = 8
 TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
-MSG_REGISTRY_FILE_NAME = "msg_registry.h"
-CAN_MESSAGES_FILE_NAME = "can_messages.h"
+MSG_REGISTRY_FILE_NAME = "_msg_registry.h"
+CAN_MESSAGES_FILE_NAME = "_can_messages.h"
 
 
 def _assert_valid_dbc(filename: str):
@@ -265,14 +265,14 @@ def generate_code(
     logger.info("Generating code for can messages")
     _generate_from_jinja2_template(
         can_messages_template_path,
-        os.path.join(output_dir, CAN_MESSAGES_FILE_NAME),
+        os.path.join(output_dir, bus_name.lower() + CAN_MESSAGES_FILE_NAME),
         context,
     )
 
     logger.info("Generating code for msg registry")
     _generate_from_jinja2_template(
         msg_registry_template_path,
-        os.path.join(output_dir, MSG_REGISTRY_FILE_NAME),
+        os.path.join(output_dir, bus_name.lower() + MSG_REGISTRY_FILE_NAME),
         context,
     )
 

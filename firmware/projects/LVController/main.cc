@@ -6,8 +6,7 @@
 
 #include "app.h"
 #include "bindings.h"
-#include "generated/can/can_messages.h"
-#include "generated/can/msg_registry.h"
+#include "generated/can/veh_msg_registry.h"
 #include "shared/comms/can/can_bus.h"
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
@@ -61,7 +60,7 @@ Subsystem all_subsystems[] = {
 
 void DoPowerupSequence() {
     tsal.Enable();
-  
+
     state_tx.UpdateState(LvControllerState::TsalEnabled);
 
     bindings::DelayMS(50);

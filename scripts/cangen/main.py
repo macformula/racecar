@@ -51,23 +51,29 @@ if __name__ == "__main__":
         config = yaml.safe_load(file)
 
     our_node = config["canGen"]["ourNode"].upper()
-    bus_name = config["canGen"]["busName"].capitalize()
-    dbc_files = config["canGen"]["dbcFiles"]
+    bus_list = config["canGen"]["busses"]
 
-    dbc_file_paths = [os.path.join(DIR_DBCS, dbc) for dbc in dbc_files]
+    for bus in bus_list:
+        # import pdb
 
-    can_messages_template_path = os.path.join(
-        DIR_TEMPLATES, CAN_MESSAGES_TEMPLATE_FILENAME
-    )
-    msg_registry_template_path = os.path.join(
-        DIR_TEMPLATES, MSG_REGISTRY_TEMPLATE_FILENAME
-    )
+        # pdb.set_trace()
+        bus_name = bus['busName'].capitalize()
+        dbc_files = bus['dbcFiles']
 
-    can_generator.generate_code(
-        dbc_file_paths,
-        our_node,
-        bus_name,
-        OUTPUT_DIR,
-        can_messages_template_path,
-        msg_registry_template_path,
-    )
+        dbc_file_paths = [os.path.join(DIR_DBCS, dbc) for dbc in dbc_files]
+
+        can_messages_template_path = os.path.join(
+            DIR_TEMPLATES, CAN_MESSAGES_TEMPLATE_FILENAME
+        )
+        msg_registry_template_path = os.path.join(
+            DIR_TEMPLATES, MSG_REGISTRY_TEMPLATE_FILENAME
+        )
+
+        can_generator.generate_code(
+            dbc_file_paths,
+            our_node,
+            bus_name,
+            OUTPUT_DIR,
+            can_messages_template_path,
+            msg_registry_template_path,
+        )

@@ -3,13 +3,13 @@
 
 #include <cmath>
 
-#include "can_messages.h"
 #include "shared/comms/can/can_bus.h"
 #include "shared/os/mutex.h"
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
 #include "shared/util/mappers/clamper.h"
 #include "shared/util/mappers/mapper.h"
+#include "veh_can_messages.h"
 
 class StateBroadcaster {
 public:

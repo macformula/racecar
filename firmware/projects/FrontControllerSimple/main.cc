@@ -126,7 +126,7 @@ SimulinkInput ReadCtrlSystemInput() {
     SimulinkInput input;
 
     // Driver Input
-    input.DI_SteeringAngle = steering_wheel.Update();
+    // input.DI_SteeringAngle = steering_wheel.Update();
     input.DI_FrontBrakePressure = brake_pedal_front.Update();
     input.DI_RearBrakePressure = brake_pedal_rear.Update();
     input.DI_StartButton = start_button.Read();
@@ -134,8 +134,8 @@ SimulinkInput ReadCtrlSystemInput() {
     input.DI_AccelPedalPosition2 = accel_pedal_2.Update();
 
     // Wheel Speed Sensors
-    input.VD_LFWheelSpeed = NULL;
-    input.VD_RFWheelSpeed = NULL;
+    // input.VD_LFWheelSpeed = NULL;
+    // input.VD_RFWheelSpeed = NULL;
 
     // Contactors
     auto contactor_states = contactors.ReadInput();
@@ -143,10 +143,10 @@ SimulinkInput ReadCtrlSystemInput() {
     input.BM_HVposContactorSts = contactor_states.Pack_Negative_Feedback;
     input.BM_HVnegContactorSts = contactor_states.Pack_Positive_Feedback;
     input.BM_HvilFeedback = contactor_states.HvilFeedback;
-    input.BM_LowThermValue = contactor_states.LowThermValue;
-    input.BM_HighThermValue = contactor_states.HighThermValue;
-    input.BM_AvgThermValue = contactor_states.AvgThermValue;
-    input.BM_PackSOC = contactor_states.PackSOC;
+    // input.BM_LowThermValue = contactor_states.LowThermValue;
+    // input.BM_HighThermValue = contactor_states.HighThermValue;
+    // input.BM_AvgThermValue = contactor_states.AvgThermValue;
+    // input.BM_PackSOC = contactor_states.PackSOC;
 
     // Right Motor Input
     auto amk_right_in = motor_right.UpdateInputs();
@@ -205,9 +205,19 @@ void SetCtrlSystemOutput(const SimulinkOutput& output) {
     // status_light.Update(output.DI_p_PWMstatusLightCycle,
     //                     output.DI_PWMstatusLightFreq);
 
-    // TODO the following 2 outputs
-    auto foo = output.GOV_Status;
-    auto bar = output.MI_InverterEn;
+    /* cannot send this msg, just receive
+    generated::can::VC_Status vc_status;
+    vc_status.vc_gov_status = output.GOV_Status;
+    vc_status.vc_bm_status = output.BM_Status;
+    vc_status.vc_mi_status = output.MI_Status;
+    vc_status.vc_di_status = output.Di_Status;
+    veh_can_bus.Send(vc_status);
+    */
+
+    // send inverter cmd to LV
+    generated::can::InverterCommand inverter_cmd;
+    inverter_cmd.enable_inverter = output.MI_InverterEn;
+    veh_can_bus.Send(inverter_cmd);
 
     motor_right.Transmit(AMKOutput{
         .bInverterOn_tx = output.AMK0_bInverterOn_tx,
@@ -229,9 +239,11 @@ void SetCtrlSystemOutput(const SimulinkOutput& output) {
     });
 
     contactors.Transmit(ContactorOutput{
-        // .prechargeContactorCMD = output.BM_PrechargeContactorCmd,
-        // .HVposContactorCMD = output.BM_HVposContactorCmd,
-        // .HVnegContactorCMD = output.BM_HVnegContactorCmd, // TODO uncomment
+        .prechargeContactorCMD =
+            static_cast<bool>(output.BM_PrechargeContactorCmd),
+        .HVposContactorCMD = static_cast<bool>(output.BM_HVposContactorCmd),
+        .HVnegContactorCMD =
+            static_cast<bool>(output.BM_HVnegContactorCmd),  // TODO uncomment
     });
 }
 
