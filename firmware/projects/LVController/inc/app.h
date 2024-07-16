@@ -3,6 +3,8 @@
 
 #include <cmath>
 
+#include "bindings.h"
+#include "can_messages.h"
 #include "shared/comms/can/can_bus.h"
 #include "shared/os/mutex.h"
 #include "shared/periph/gpio.h"
