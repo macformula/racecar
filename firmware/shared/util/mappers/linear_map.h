@@ -18,7 +18,7 @@ public:
     LinearMap(T m, T b) : m_(m), b_(b) {}
 
     static inline T Evaluate(U x, T m, T b) {
-        return T(m * static_cast<T>(x) + b);
+        return T(m * x + b);
     }
 
     inline T Evaluate(U x) const override {
