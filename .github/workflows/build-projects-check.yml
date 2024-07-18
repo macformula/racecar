@@ -1,0 +1,33 @@
+name: Build Projects
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    # Install ARM compiler
+    - name: Install ARM compiler
+      run: sudo apt-get install -y gcc-arm-none-eabi
+
+    # Set environment variables for ARM compiler
+    - name: Set ARM compiler environment variables
+      run: |
+        export CC=arm-none-eabi-gcc
+        export CXX=arm-none-eabi-g++
+        export ASM=arm-none-eabi-gcc
+
+    # Change directory to firmware
+    - name: Change directory to firmware
+      run: cd $GITHUB_WORKSPACE/firmware && ls
+
+    # Build DemoProject
+    - name: Build DemoProject
+      run: make -C $GITHUB_WORKSPACE/firmware PLATFORM=stm32f767 PROJECT=DemoProject
