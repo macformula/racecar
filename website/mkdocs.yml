@@ -1,0 +1,60 @@
+site_name: racecar
+theme:
+  name: material
+  palette:
+      
+    - scheme: default
+      primary: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    - scheme: slate
+      primary: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - navigation.instant
+
+  icon:
+    repo: fontawesome/brands/github
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+
+repo_url: https://github.com/macformula/racecar
+repo_name: macformula/racecar
+
+extra:
+  social:
+    - icon: material/web
+      link: https://macformularacing.com/
+    - icon: material/email
+      link: mailto:formula@mcmaster.ca
+    - icon: fontawesome/brands/github
+      link: https://github.com/macformula
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/mac-formula-electric/
+    - icon: fontawesome/brands/instagram
+      link: https://www.instagram.com/macformulaelectric/
+    - icon: fontawesome/brands/facebook
+      link: https://www.facebook.com/MACFormulaElectric/
+
+nav:
+  - Home:
+    - index.md
+    - site-dev.md
+  - Firmware:
+    - firmware/index.md
