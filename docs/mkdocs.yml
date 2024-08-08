@@ -1,0 +1,79 @@
+site_name: racecar
+theme:
+  name: material
+  palette:
+      
+    - scheme: default
+      primary: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    - scheme: slate
+      primary: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.top
+    - navigation.instant
+    - navigation.indexes
+    - search.suggest
+    - content.code.copy
+
+  icon:
+    repo: fontawesome/brands/github
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - docs/tutorials/index_gen.py
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.keys
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+repo_url: https://github.com/macformula/racecar
+repo_name: macformula/racecar
+
+extra:
+  social:
+    - icon: material/web
+      link: https://macformularacing.com/
+    - icon: material/email
+      link: mailto:formula@mcmaster.ca
+    - icon: fontawesome/brands/github
+      link: https://github.com/macformula
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/mac-formula-electric/
+    - icon: fontawesome/brands/instagram
+      link: https://www.instagram.com/macformulaelectric/
+    - icon: fontawesome/brands/facebook
+      link: https://www.facebook.com/MACFormulaElectric/
+
+nav:
+  - Home:
+    - index.md
+  - Tutorials:
+    - tutorials/index.md
+    - tutorials/git.md
+    - tutorials/site-dev.md
+  - Firmware:
+    - firmware/index.md
+    - firmware/dev-setup.md
