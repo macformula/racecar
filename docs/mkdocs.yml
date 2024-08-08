@@ -16,11 +16,13 @@ theme:
         name: Switch to light mode
   features:
     - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.sections
     - navigation.top
+    - navigation.instant
     - navigation.indexes
     - search.suggest
-    - navigation.instant
+    - content.code.copy
 
   icon:
     repo: fontawesome/brands/github
@@ -30,9 +32,22 @@ extra_css:
 
 plugins:
   - search
+  - gen-files:
+      scripts:
+        - docs/tutorials/index_gen.py
 
 markdown_extensions:
   - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.keys
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 repo_url: https://github.com/macformula/racecar
 repo_name: macformula/racecar
@@ -55,6 +70,10 @@ extra:
 nav:
   - Home:
     - index.md
-    - site-dev.md
+  - Tutorials:
+    - tutorials/index.md
+    - tutorials/git.md
+    - tutorials/site-dev.md
   - Firmware:
     - firmware/index.md
+    - firmware/dev-setup.md
