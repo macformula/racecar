@@ -16,7 +16,7 @@ Part of the demo is to show how our architecture abstracts away the platform det
 
 When built for the `stm32f767` platform, `PC13` is the input and `PB7` is the output. On the NUCLEO stm32f767zi development board, the input is the User button and the output is the blue LED, so the program can be tested without any external circuitry.
 
-When built for `windows` (should also work on Mac and Linux), the digital input is a command line prompt and the digital output is a command line response.
+When built for `cli`, the digital input is a command line prompt and the digital output is a command line response.
 
 ## Compiling this Project
 
@@ -31,7 +31,7 @@ A master CMake build system is used for all `racecar/firmware` projects, includi
 
     Replace `<project>` with one of the folder names under `racecar/firmware/projects`, in this case use `DemoProject`.
 
-    Replace `<platform>` with one of the available platforms, such as `windows` or `stm32f767`.
+    Replace `<platform>` with one of the available platforms, such as `cli` or `stm32f767`.
 
     The `make` command calls CMake with the necessary parameters.
 3. The project will build. The output will be placed in `racecar/firmware/build/DemoProject/<platform>`
@@ -40,7 +40,7 @@ A master CMake build system is used for all `racecar/firmware` projects, includi
 
 This step is dependent on the platform. It assumes you have already compiled for the desired platform using the previous instructions.
 
-### Windows
+### CLI (Windows / Unix)
 
 The build process generates a `main.exe` executable in the build folder listed above. Simply execute this file and the program will run in your terminal.
 

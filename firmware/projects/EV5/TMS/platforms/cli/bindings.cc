@@ -4,15 +4,15 @@
 #include <iostream>
 #include <string>
 
-#include "mcal/windows/periph/adc.h"
-#include "mcal/windows/periph/gpio.h"
-#include "mcal/windows/periph/pwm.h"
+#include "mcal/cli/periph/adc.h"
+#include "mcal/cli/periph/gpio.h"
+#include "mcal/cli/periph/pwm.h"
 #include "shared/periph/adc.h"
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
 
 namespace mcal {
-using namespace windows::periph;
+using namespace cli::periph;
 
 ADCInput temp_sensor_adc_1{"Temperature Sensor 1"};
 ADCInput temp_sensor_adc_2{"Temperature Sensor 2"};
@@ -40,7 +40,7 @@ const shared::periph::DigitalOutput& debug_do_blue = mcal::debug_do_blue;
 const shared::periph::DigitalOutput& debug_do_red = mcal::debug_do_red;
 
 void Initialize() {
-    std::cout << "Initializing Windows..." << std::endl;
+    std::cout << "Initializing CLI..." << std::endl;
 }
 
 void Log(std::string message) {

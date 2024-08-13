@@ -4,11 +4,11 @@
 #include <chrono>
 #include <thread>
 
-#include "mcal/windows/periph/can.h"
+#include "mcal/cli/periph/can.h"
 #include "shared/periph/can.h"
 
 namespace mcal {
-using namespace windows::periph;
+using namespace cli::periph;
 
 CanBase veh_can_base{"vcan0"};
 }  // namespace mcal
@@ -24,6 +24,6 @@ void TickBlocking(uint32_t ticks) {
 
 void Initialize() {
     mcal::veh_can_base.Setup();
-    std::cout << "Initializing windows..." << std::endl;
+    std::cout << "Initializing CLI..." << std::endl;
 }
 }  // namespace bindings

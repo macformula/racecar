@@ -1,7 +1,5 @@
 /// @author Blake Freer
 /// @date 2023-12-25
-#include "bindings.h"
-
 #include <chrono>
 #include <cstdint>
 #include <iostream>
@@ -9,13 +7,14 @@
 #include <thread>
 
 #include "bindings.h"
-#include "mcal/windows/periph/gpio.h"
-#include "mcal/windows/periph/pwm.h"
+#include "mcal/cli/periph/gpio.h"
+#include "mcal/cli/periph/pwm.h"
 #include "shared/periph/gpio.h"
 #include "shared/util/mappers/identity.h"
 
+
 namespace bindings {
-using namespace mcal::windows::periph;
+using namespace mcal::cli::periph;
 
 // clang-format off
 shared::periph::DigitalOutput&& tsal_en = DigitalOutput{"TSAL Enable"};
@@ -37,7 +36,7 @@ shared::periph::PWMOutput&& powertrain_fan_pwm = PWMOutput{"POWERTRAIN FAN PWM"}
 // clang-format on
 
 void Initialize() {
-    std::cout << "Initializing Windows..." << std::endl;
+    std::cout << "Initializing CLI..." << std::endl;
 }
 
 void DelayMS(uint32_t milliseconds) {

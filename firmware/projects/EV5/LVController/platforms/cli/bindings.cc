@@ -1,24 +1,24 @@
 /// @author Blake Freer
 /// @date 2023-12-25
 
-#include "bindings.h"
-
 #include <chrono>
 #include <cstdint>
 #include <iostream>
 #include <string>
 #include <thread>
 
-#include "mcal/windows/periph/can.h"
-#include "mcal/windows/periph/gpio.h"
-#include "mcal/windows/periph/pwm.h"
+#include "bindings.h"
+#include "mcal/cli/periph/can.h"
+#include "mcal/cli/periph/gpio.h"
+#include "mcal/cli/periph/pwm.h"
 #include "shared/periph/can.h"
 #include "shared/periph/gpio.h"
 #include "shared/util/mappers/identity.h"
 
+
 // clang-format off
 namespace mcal {
-using namespace mcal::windows::periph;
+using namespace mcal::cli::periph;
 DigitalOutput tsal_en = DigitalOutput{"TSAL Enable"};
 DigitalOutput raspberry_pi_en = DigitalOutput{"RASPI Enable"};
 DigitalOutput front_controller_en = DigitalOutput{"FRONT CONTROLLER Enable"};
@@ -64,7 +64,7 @@ shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
 // clang-format on
 
 void Initialize() {
-    std::cout << "Initializing Windows..." << std::endl;
+    std::cout << "Initializing CLI..." << std::endl;
     mcal::veh_can_base.Setup();
 }
 

@@ -5,4 +5,4 @@ PRIVATE
 
 target_include_directories(bindings PRIVATE ${DIR_PROJECT}/inc)
 
-target_link_libraries(bindings PUBLIC mcal-windows)
+target_link_libraries(bindings PUBLIC mcal-cli)
