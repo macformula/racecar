@@ -3,11 +3,11 @@
 
 #include <iostream>
 
-#include "mcal/windows/periph/gpio.h"
+#include "mcal/cli/periph/gpio.h"
 #include "shared/periph/gpio.h"
 
 namespace mcal {
-using namespace windows::periph;
+using namespace cli::periph;
 
 DigitalInput button_di{"Button"};
 DigitalOutput indicator_do{"Indicator"};
