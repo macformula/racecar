@@ -1,5 +1,0 @@
-canGen:
-  ourNode: FC
-  busName: io
-  dbcFiles:
-    - "io.dbc"

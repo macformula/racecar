@@ -1,5 +1,0 @@
-canGen:
-  ourNode: tms
-  busName: veh
-  dbcFiles:
-    - "veh.dbc"

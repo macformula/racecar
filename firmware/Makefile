@@ -6,6 +6,9 @@ BUILD_DIR = $(BUILD)/$(PROJECT)/$(PLATFORM)
 CUBEMX_DIR := projects/$(PROJECT)/platforms/$(PLATFORM)/cubemx
 GENERATOR = -G"Unix Makefiles"
 
+# Name must be a valid filename (i.e. cannot have '/')
+PROJECT_NAME := $(subst /,-,$(PROJECT))
+
 COMPILE_COMMANDS_DEST = $(BUILD)/compile_commands.json
 
 .PHONY: build config clean deepclean st-flash
@@ -14,7 +17,7 @@ build: config
 	cmake --build $(BUILD_DIR)
 
 config:
-	cmake -B $(BUILD_DIR) -S. $(GENERATOR) -D PROJECT=$(PROJECT) -D PLATFORM=$(PLATFORM)
+	cmake -B $(BUILD_DIR) -S. $(GENERATOR) -D PROJECT=$(PROJECT) -D PLATFORM=$(PLATFORM) -D PROJECT_NAME=$(PROJECT_NAME)
 
 	@echo Copying compile_commands.json to $(BUILD) for clangd.
 	cp $(BUILD_DIR)/compile_commands.json $(COMPILE_COMMANDS_DEST)
@@ -34,4 +37,4 @@ else
 endif
 
 st-flash: build
-	st-flash --reset write $(BUILD_DIR)/$(PROJECT).bin 0x08000000
+	st-flash --reset write $(BUILD_DIR)/$(PROJECT_NAME).bin 0x08000000
