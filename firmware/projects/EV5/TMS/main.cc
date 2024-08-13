@@ -5,8 +5,6 @@
 #include <string>
 
 #include "app.h"
-#include "veh_can_messages.h"
-#include "veh_msg_registry.h"
 #include "shared/comms/can/can_bus.h"
 #include "shared/os/tick.h"
 #include "shared/periph/adc.h"
@@ -15,6 +13,8 @@
 #include "shared/periph/pwm.h"
 #include "shared/util/algorithms/arrays.h"
 #include "shared/util/mappers/lookup_table.h"
+#include "veh_can_messages.h"
+#include "veh_msg_registry.h"
 
 namespace bindings {
 extern shared::periph::ADCInput& temp_sensor_adc_1;

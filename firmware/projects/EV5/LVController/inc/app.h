@@ -149,7 +149,7 @@ public:
          shared::periph::DigitalOutput& led_output)
         : Subsystem(enable_output),
           valid_input_(valid_input),
-          led_(led_output){};
+          led_(led_output) {};
 
     bool CheckValid() {
         bool is_valid = valid_input_.Read();

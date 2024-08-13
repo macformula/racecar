@@ -1,13 +1,14 @@
 /// @author Blake Freer
 /// @date 2023-12-25
 
+#include "bindings.h"
+
 #include <chrono>
 #include <cstdint>
 #include <iostream>
 #include <string>
 #include <thread>
 
-#include "bindings.h"
 #include "mcal/windows/periph/can.h"
 #include "mcal/windows/periph/gpio.h"
 #include "mcal/windows/periph/pwm.h"
