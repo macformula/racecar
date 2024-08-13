@@ -23,6 +23,7 @@ theme:
     - navigation.indexes
     - search.suggest
     - content.code.copy
+    - content.tooltips
 
   icon:
     repo: fontawesome/brands/github
@@ -38,6 +39,7 @@ plugins:
 
 markdown_extensions:
   - admonition
+  - abbr
   - attr_list
   - md_in_html
   - pymdownx.details
@@ -48,6 +50,9 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.snippets:
+      auto_append:
+        - includes/glossary.md
 
 repo_url: https://github.com/macformula/racecar
 repo_name: macformula/racecar
@@ -77,3 +82,8 @@ nav:
   - Firmware:
     - firmware/index.md
     - firmware/dev-setup.md
+    - firmware/architecture.md
+    - firmware/new-project/index.md
+
+watch:
+  - includes
