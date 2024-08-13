@@ -1,6 +1,6 @@
 canGen:
-  ourNode: foo
+  ourNode: send
   busses:
-    - busName: veh
+    - busName: demobus
       dbcFiles:
         - "../demo.dbc"
