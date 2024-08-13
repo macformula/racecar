@@ -6,7 +6,7 @@
 
 class Button {
 public:
-    Button(shared::periph::DigitalInput& di) : di_(di){};
+    Button(shared::periph::DigitalInput& di) : di_(di) {};
 
     bool Read() {
         return di_.Read();

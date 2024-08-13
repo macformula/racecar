@@ -8,7 +8,6 @@
 #include <cstdint>
 #include <string>
 
-#include "veh_can_messages.h"
 #include "shared/comms/can/can_bus.h"
 #include "shared/periph/adc.h"
 #include "shared/periph/gpio.h"
@@ -17,6 +16,7 @@
 #include "shared/util/mappers/linear_map.h"
 #include "shared/util/mappers/mapper.h"
 #include "shared/util/moving_average.h"
+#include "veh_can_messages.h"
 
 /***************************************************************
     App-level objects
