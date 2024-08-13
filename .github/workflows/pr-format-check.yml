@@ -23,10 +23,9 @@ jobs:
       - name: Check code formatting
         id: check_formatting
         run: |
-          git clang-format --style=file:firmware/.clang-format --diff $(git merge-base HEAD main) -v > clang_format_output.txt
-          if grep -q "clang-format did not modify any files" clang_format_output.txt; then
+          if git clang-format --style=file:firmware/.clang-format --diff $(git merge-base HEAD main) -v > clang_format_output.txt; then
             echo "Code formatting is already correct."
-          elif grep -q "Running clang-format on the following files" clang_format_output.txt; then
+          else
             echo "Code formatting changes detected."
             cat clang_format_output.txt
             exit 1
