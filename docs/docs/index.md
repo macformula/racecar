@@ -16,7 +16,7 @@ hide:
 
 ## Using this documentation
 
-:material-cursor-default: __Hover__ over abbreviations to show the definition.
+:material-cursor-default: __Hover__ over abbreviations to show the definition. Also see the [Glossary](glossary.md).
 
 > Mac FSAE worked on EV5 during the 2023-2024 school year.
 
