@@ -34,21 +34,21 @@ NS_ :
 
 BS_:
 
-BU_: FOO BAR
+BU_: SEND RECV
+    
 
+BO_ 940 TempSensors: 8 SEND
+    SG_ Sensor1 : 54|10@1- (0.2,0) [0|0] "degC" RECV
+    SG_ Sensor2 : 44|10@1- (0.2,0) [0|0] "degC" RECV
+    SG_ Sensor3 : 34|10@1- (0.2,0) [0|0] "degC" RECV
+    SG_ Sensor4 : 24|10@1- (0.2,0) [0|0] "degC" RECV
+    SG_ Sensor5 : 14|10@1- (0.2,0) [0|0] "degC" RECV
+    SG_ Sensor6 : 4|10@1- (0.2,0) [0|0] "degC" RECV
 
-BO_ 940 TempSensors: 8 FOO
-    SG_ Sensor1 : 54|10@1- (0.2,0) [0|0] "degC" BAR
-    SG_ Sensor2 : 44|10@1- (0.2,0) [0|0] "degC" BAR
-    SG_ Sensor3 : 34|10@1- (0.2,0) [0|0] "degC" BAR
-    SG_ Sensor4 : 24|10@1- (0.2,0) [0|0] "degC" BAR
-    SG_ Sensor5 : 14|10@1- (0.2,0) [0|0] "degC" BAR
-    SG_ Sensor6 : 4|10@1- (0.2,0) [0|0] "degC" BAR
-
-BO_ 941 TempSensorsReply: 8 BAR
-    SG_ Sensor1 : 54|10@1- (0.2,0) [0|0] "degC" FOO
-    SG_ Sensor2 : 44|10@1- (0.2,0) [0|0] "degC" FOO
-    SG_ Sensor3 : 34|10@1- (0.2,0) [0|0] "degC" FOO
-    SG_ Sensor4 : 24|10@1- (0.2,0) [0|0] "degC" FOO
-    SG_ Sensor5 : 14|10@1- (0.2,0) [0|0] "degC" FOO
-    SG_ Sensor6 : 4|10@1- (0.2,0) [0|0] "degC" FOO
+BO_ 941 TempSensorsReply: 8 RECV
+    SG_ Sensor1 : 54|10@1- (0.2,0) [0|0] "degC" SEND
+    SG_ Sensor2 : 44|10@1- (0.2,0) [0|0] "degC" SEND
+    SG_ Sensor3 : 34|10@1- (0.2,0) [0|0] "degC" SEND
+    SG_ Sensor4 : 24|10@1- (0.2,0) [0|0] "degC" SEND
+    SG_ Sensor5 : 14|10@1- (0.2,0) [0|0] "degC" SEND
+    SG_ Sensor6 : 4|10@1- (0.2,0) [0|0] "degC" SEND

@@ -3,8 +3,8 @@
 
 #include <cstdint>
 
-#include "generated/can/veh_can_messages.h"
-#include "generated/can/veh_msg_registry.h"
+#include "generated/can/demobus_can_messages.h"
+#include "generated/can/demobus_msg_registry.h"
 #include "shared/comms/can/can_bus.h"
 
 namespace bindings {
@@ -13,7 +13,7 @@ extern void Initialize();
 extern void TickBlocking(uint32_t);
 }  // namespace bindings
 
-generated::can::VehMsgRegistry veh_can_registry{};
+generated::can::DemobusMsgRegistry veh_can_registry{};
 
 shared::can::CanBus veh_can_bus{
     bindings::veh_can_base,
