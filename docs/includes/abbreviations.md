@@ -14,3 +14,6 @@
 *[gRPC]: gRPC Remote Procedure Calls. A open source framework for remote procedure calls.
 *[CLI]: Command line interface, also known as the terminal or command prompt.
 *[GPIO]: General-purpose Input Output. A pin on an integrated circuit that can function as a digital input or output.
+*[LV]: Low Voltage. The vehicle circuit that powers all non-motor electronics. Contrast with HV.
+*[HV]: High Voltage. The vehicle circuit which powers our motors. Contrast with LV.
+*[MCAL]: MicroController Abstraction Layer.

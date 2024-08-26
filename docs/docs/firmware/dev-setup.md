@@ -54,7 +54,7 @@ Download from <https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
 
 Choose an installer from the "AArch32 bare-metal target (arm-none-eabi)" section. Ensure the executables are available on your PATH.  
 
-!!! tip "Verificaton"
+!!! tip "Verification"
 
         arm-none-eabi-gcc --version
 
@@ -168,7 +168,8 @@ _If you use a different IDE, consider [adding instructions](../tutorials/site-de
    
     1. Install the [`clangd` extension](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd) from LLVM.   
 
-    2. Provide the `clangd` extension settings with the path to the `clangd` executable installed [earlier](#clangd).
+    1. Provide the `clangd` extension settings with the path to the `clangd` executable installed [earlier](#clangd).
 
-        > 1. Select the `clangd` extension and open :octicons-gear-24: Extension Settings.
-        > 1. Paste the full `clangd` executable path in the "Clangd: Path" setting.
+        1. Select the `clangd` extension and open :octicons-gear-24: Extension Settings.
+        
+        1. Paste the full `clangd` executable path in the "Clangd: Path" setting.

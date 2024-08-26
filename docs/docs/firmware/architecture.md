@@ -2,7 +2,7 @@
 
 Our firmware is separated in 2 layers: application and platform.
 
-The __application__ layer describes the __what the project does__ at a high level. This includes:
+The __application__ (app) layer describes the __what the project does__ at a high level. This includes:
 
 - :octicons-cloud-16: Interacting with generic peripheral objects.
 - :octicons-workflow-16: Task scheduling and program flow.
@@ -14,29 +14,30 @@ The __platform__ layer __configures hardware__ to run the app code. In this laye
 - :fontawesome-solid-gear: Peripheral configurations.
 - :fontawesome-solid-power-off: Initialization functions.
 
-The interface between the layers is a contract called __bindings__. The application specifies handles for each required peripheral and function, then the platform _binds_ peripheral and method implementations to these handles.
+The interface between the app and platform layers is a contract called __bindings__. This contract declares a handle for each peripheral and function required by the application. The platform _binds_ a configured peripheral or function implementation to each handle.
 
 ## Why separate these layers?
 
-There are two major reasons why we strictly separate the application and platform code.
+There are two major motivations for strictly separating the application and platform code.
 
-### Platform Abstraction
+### Motivation 1: Platform Abstraction
 
-Since the application code is not tied to any specific platform, it can __run on _any_ platform__, provided that platform can support all necessary behaviour.
+Since the application code is not tied to any specific platform, it can __run on any platform__, provided that platform can fulfill the bindings contract.
 
-I __cannot overstate__ how significant this is. Being able to arbitrarily swap platforms enables:
+I _cannot overstate_ how significant this is. Being able to arbitrarily swap platforms enables:
 
 - :octicons-terminal-16: Running vehicle firmware on your local machine through its command line interface.
 - :material-test-tube: Testing application code with a HIL or SIL setup.
 - :fontawesome-solid-microchip: Writing portable code, should we ever change our microcontroller.
 - :fontawesome-solid-gears: Simultaneously having multiple hardware configurations for the same platform.
 
-Platform abstraction means that the application code running on each device is the _exact_ same. This greatly simplifies debugging:
+Platform abstraction means that each device executes the _exact same_ application code. This greatly simplifies debugging:
 
-- If one platform has a bug but another works fine, then you immediately know that the former was configured incorrectly in the platform layer.
+- If there is a bug when running the vehicle but the test platform works fine, then you immediately know that the vehicle platform layer was configured incorrectly.
 - If all platforms have the same bug, then you know that all hardware peripherals are responding and the bug exists at the app layer.
 
 ??? example "Debugging Example"
+
     Imagine you are creating a simple project to turn on an LED whenever a button is pressed (this is the purpose of the `Demo/BasicIO` project). There are four primary elements of this code:
 
     1. Read the button state (platform layer).
@@ -58,13 +59,128 @@ Platform abstraction means that the application code running on each device is t
 
     When you run the program in the CLI, you may find everything works as expected. When you type `true`, the program prints "LED On" and `false` causes "LED Off", and the program loops as expected. This indicates the the physical hardware was configured incorrectly.
 
-    Or, maybe the CLI always prints "LED Off" regardless of your input. Now you know that there is an error in the app code. You know to inspect the code because the error exists independent of the platform configuration. 
+    Or, maybe the CLI always prints "LED Off" regardless of your input. Now you know that there is an error in the app code. You inspect the app code because the error is independent of the platform configuration. 
 
-### Modular Logic
+### Motivation 2: Modular Logic
 
-The project's application behaviour can be completely defined without knowdledge of the hardware setup, and vice-versa. This means we can develop, test, debug, and optimize a new project before we have the electrical system ready!
+Application behaviour can be completely defined without knowledge of the hardware setup, and vice-versa. This means we can develop, test, debug, and optimize a new project before we have the electrical system ready!
 
 Alternatively, two developers can work in parallel: one concerned with configuring the hardware and the other with defining app level behaviour. The strict interface between the two layers means they can work independently without breaking each others' code.
+
+## Implementation
+
+!!! note
+
+    Unless otherwise mentioned, all paths are relative to the `racecar/firmware/` directory.
+
+### Shared Peripheral Interfaces
+
+Each peripheral has a platform-independent interface defined as an [Abstract Class](https://learn.microsoft.com/en-us/cpp/cpp/abstract-classes-cpp?view=msvc-170). This class declares the high-level methods that the application can call on the peripheral. The methods are declared pure virtual and thus have no definition.
+
+These peripheral definitions are located in [`shared/periph`](https://github.com/macformula/racecar/tree/main/firmware/shared/periph).
+
+### Platform Peripheral Implementations
+
+Each platform defines a class that inherits from this abstract peripheral class. It must provide a definition for each virtual function defined in the parent class. This child class can use platform-specific logic to accomplish the high-level goal.
+
+The peripheral implementations are in the MCAL (Microcontroller Abstraction Layer) folder [`mcal/<platform-name>/periph/`](https://github.com/macformula/racecar/tree/main/firmware/mcal).
+
+??? example "Interface Example"
+
+    Let us create a simple `DigitalInput` abstract class and implement it for the `stm32f767` and `CLI` platforms.
+
+    At the app level, `DigitalInput` has just a single method `Read()`. This method takes no parameters and should return a boolean indicating the state of the input.
+
+    ```c++ title="shared/periph/gpio.h"
+    #pragma once
+
+    class DigitalInput {
+    public:
+        virtual bool Read() = 0;
+    }
+    ```
+
+    The `virtual` specifier _allows_ the `Read` method to be overridden while the `= 0` syntax _requires_ the child class to override it by making it a "pure" virtual method.
+
+    To implement this peripheral on the platforms, we inherit from the shared class and override `Read`.
+
+    === "stm32f767 Platform"
+
+        Digital inputs are read using the stm `HAL_GPIO_ReadPin` function. This function accepts a port and pin number and returns `true` (`false`) if the port pin input is HIGH (LOW).
+        
+        We do not specify a port or pin in this class. They are provided when an object is constructed in the project's platform layer, allowing this class to be reused for any stm32f767 digital input.
+
+        ```c++ title="mcal/stm32f767/periph/gpio.h"
+        #pragma once
+
+        #include <cstdint>
+        #include "shared/periph/gpio.h"
+        #include "stm32f7xx_hal.h"
+
+        namespace mcal::stm32f767::periph {
+
+        class DigitalInput : public shared::periph::DigitalInput {
+        public:
+            DigitalInput(GPIO_TypeDef* gpio_port, uint16_t pin)
+                : port_(gpio_port), pin_(pin) {}
+
+            bool Read() override {
+                return HAL_GPIO_ReadPin(port_, pin_);
+            }
+
+        private:
+            GPIO_TypeDef* port_;
+            uint16_t pin_;
+        };
+        }  // namespace mcal::stm32f767::periph
+        ```
+
+    === "CLI Platform"
+
+        A command line interface does not have physical pins to read but the digital input behaviour can be implemented by prompting the user for a boolean input.
+
+        ```c++ title="mcal/cli/periph/gpio.h"
+        #pragma once
+
+        #include <iostream>
+        #include <string>
+        #include "shared/periph/gpio.h"
+
+        namespace mcal::cli::periph {
+
+        class DigitalInput : public shared::periph::DigitalInput {
+        public:
+            DigitalInput(std::string name) : name_(name) {}
+
+            bool Read() override {
+                int value;
+                std::cout << "Reading DigitalInput " << name_ << std::endl;
+                std::cout << " | Enter 0 for False, 1 for True: ";
+                std::cin >> value;
+                std::cout << " | Value was " << (value ? "true" : "false") << std::endl;
+                return value;
+            }
+        
+        private:
+            std::string name_;
+        };
+
+        }  // namespace mcal::cli::periph
+        ```
+
+        We allow the developer to give a name to each digital input during construction. This name is included in the input prompt.
+
+        Suppose a `DigitalInput` object is constructed with the name `"UserButton"`. When `Read()` is called for this `CLI` platform, the user is prompted to enter ++0++ or ++1++.
+
+        ```console
+        Reading DigitalInput UserButton
+        | Enter 0 for False, 1 for True: 1
+        | Value was true
+        ```
+
+    With this structure, the developer can write platform-agnostic app level code using the shared `DigitalInput` interface, knowing that both platforms have a matching implementation.
+
+Both the peripheral interface and implementations can be used by multiple projects. To see how they are used in project-specific code, continue to [Project Structure](project-structure/index.md).
 
 ## Example: TMS Layers
 
@@ -113,8 +229,4 @@ We can run and debug the TMS on any platform satisfying this contract.
     - `fan_control` = Print speed to the screen
     - `vehicle_can` = Print CAN message contents
 
-    The project runs in the developers terminal.
-
-## Implementation
-
-Being statically typed, C++ requires that everything be defined tis architecture is implemented in C++ using class polymorphism.
+    The project runs in the developer's terminal.

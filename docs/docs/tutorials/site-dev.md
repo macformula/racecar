@@ -46,7 +46,7 @@ These steps only need to be performed once.
         ...
         INFO    -  [22:01:58] Serving on http://127.0.0.1:8000/
 
-2. Open the listed URL in your web browser. You will see the webpage exactly as will be published later.
+2. Open the listed URL in your web browser.
 
     > In this example, open <http://127.0.0.1:8000/> in a browser.
 
@@ -64,7 +64,7 @@ These steps only need to be performed once.
 
 When you are satisfied with your changes, commit and make a pull request.
 
-A Github action will automatically re-build the website when the PR is merged into `main`. The build artifacts are pushed to the `ghpages` branch of the repository from which the website is hosted. The website will update within a few minutes.
+A Github action will automatically re-build the website when the PR is merged into `main`. The build artefacts are pushed to the `ghpages` branch of the repository from which the website is hosted. The website will update within a few minutes.
 
 !!! info ""
 
@@ -72,4 +72,4 @@ A Github action will automatically re-build the website when the PR is merged in
 
 !!! warning "The `ghpages` branch"
 
-    The action force-pushes build artifacts to the `ghpages` branch, so any changes made on this branch will be overwritten. Edit the contents of `racecar/docs` to modify the site.
+    The action force-pushes build artefacts to the `ghpages` branch, so any changes made on this branch will be overwritten. Edit the contents of `racecar/docs` to modify the site.
