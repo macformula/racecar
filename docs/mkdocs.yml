@@ -19,10 +19,12 @@ theme:
     - navigation.tabs.sticky
     - navigation.sections
     - navigation.top
+    - navigation.footer
     - navigation.instant
     - navigation.indexes
     - search.suggest
     - content.code.copy
+    - content.tooltips
 
   icon:
     repo: fontawesome/brands/github
@@ -30,24 +32,63 @@ theme:
 extra_css:
   - stylesheets/extra.css
 
+copyright: Copyright &copy; McMaster Formula Electric
+
 plugins:
-  - search
-  - gen-files:
-      scripts:
-        - docs/tutorials/index_gen.py
+- search
+- gen-files:
+    scripts:
+      - docs/tutorials/index_gen.py
+      - includes/gen_glossary.py
+- spellcheck:
+    backends:  # the backends you want to use
+    - symspellpy  # as strings
+    - codespell:  # or nested configs
+        dictionaries: [clear]
+
+    # known_words can also be a list of words
+    known_words: ../includes/known_words.txt
+
+    # ignore words in <code> tags
+    ignore_code: yes
+
+    # minimum length of words to consider
+    min_length: 2
+
+    # maximum number of capital letters in a word
+    max_capital: 1
+
+    # keep unicode characters
+    allow_unicode: no
+
+    # skip files entirely (supports Unix shell-style wildcards)
+    skip_files:
+    - credits.md
+    - coverage.md
+    - reference/* 
+
+    # whether to only check in strict mode
+    strict_only: yes
 
 markdown_extensions:
   - admonition
+  - abbr
   - attr_list
   - md_in_html
   - pymdownx.details
   - pymdownx.keys
   - pymdownx.superfences
+  - pymdownx.inlinehilite
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.snippets:
+      auto_append:
+        - includes/abbreviations.md
+      base_path:
+        - !relative  # Relative to current.md
 
 repo_url: https://github.com/macformula/racecar
 repo_name: macformula/racecar
@@ -77,3 +118,10 @@ nav:
   - Firmware:
     - firmware/index.md
     - firmware/dev-setup.md
+    - firmware/architecture.md
+    - firmware/project-structure/index.md
+    - firmware/compile-project.md
+  - Glossary: glossary.md
+
+watch:
+  - includes
