@@ -1,15 +1,20 @@
-PLATFORM =
-PROJECT = 
+ifndef PROJECT
+$(error PROJECT not defined. Add the `PROJECT=<project-name>` argument.)
+endif
 
-BUILD = build
+ifndef PLATFORM
+$(error PLATFORM not defined. Add the `PLATFORM=<platform-name>` argument.)
+endif
+
+BUILD := build
 BUILD_DIR = $(BUILD)/$(PROJECT)/$(PLATFORM)
-CUBEMX_DIR := projects/$(PROJECT)/platforms/$(PLATFORM)/cubemx
-GENERATOR = -G"Unix Makefiles"
+PLATFORM_DIR := projects/$(PROJECT)/platforms/$(PLATFORM)
+GENERATOR := -G"Unix Makefiles"
 
 # Name must be a valid filename (i.e. cannot have '/')
 PROJECT_NAME := $(subst /,-,$(PROJECT))
 
-COMPILE_COMMANDS_DEST = $(BUILD)/compile_commands.json
+COMPILE_COMMANDS_DEST := $(BUILD)/compile_commands.json
 
 .PHONY: build config clean deepclean st-flash
 
@@ -21,7 +26,7 @@ config:
 
 	@echo Copying compile_commands.json to $(BUILD) for clangd.
 	cp $(BUILD_DIR)/compile_commands.json $(COMPILE_COMMANDS_DEST)
-	@# Ensure the .clangd file exists.
+	@echo Ensure the .clangd file exists.
 	touch .clangd 
 
 clean:
@@ -30,8 +35,8 @@ clean:
 
 deepclean: clean
 ifeq ($(findstring stm32,$(PLATFORM)),stm32)
-	@echo "Deleting files and directories in $(CUBEMX_DIR) that are ignored by Git"
-	find $(CUBEMX_DIR) | xargs git check-ignore | xargs rm -rf
+	@echo "Deleting files and directories in $(PLATFORM_DIR)/cubemx that are ignored by Git"
+	find $(PLATFORM_DIR)/cubemx | xargs git check-ignore | xargs rm -rf
 else
 	@echo "Skipping deepclean for platform $(PLATFORM)"
 endif

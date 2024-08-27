@@ -22,78 +22,96 @@ message("Build type: ${CMAKE_BUILD_TYPE}")
 # unset.
 option(PROJECT "Project folder to compile" OFF)
 option(PLATFORM "Platform to compile for" OFF)
+option(PROJECT_NAME "Project name." OFF)
+
+message(CHECK_START "Validating input arguments")
+list(APPEND CMAKE_MESSAGE_INDENT "  ")
 
 # Ensure options were provided
 if(NOT PROJECT)
-    message(FATAL_ERROR
-        "Must select a project with -D PROJECT=<project name>")
+    message(FATAL_ERROR "Must provide PROJECT.")
 endif()
 
 if(NOT PLATFORM)
-    message(FATAL_ERROR
-        "Must select a platform with -D PLATFORM=<platform name>")
+    message(FATAL_ERROR "Must provide PLATFORM.")
+endif()
+
+if(NOT PROJECT_NAME)
+    message(FATAL_ERROR "Must provide PROJECT_NAME.")
 endif()
 
 # Check that the project and platform folders exist.
+
 set(DIR_PROJECT "${CMAKE_CURRENT_SOURCE_DIR}/projects/${PROJECT}")
+assert_exists(DIR PATH ${DIR_PROJECT}
+    START "Verifying ${PROJECT} is a project"
+    PASS "Valid"
+    FAIL "Invalid"
+)
+
 set(DIR_PLATFORM "${DIR_PROJECT}/platforms/${PLATFORM}")
+assert_exists(DIR PATH ${DIR_PLATFORM}
+    START "Verifying ${PLATFORM} is a platform under ${PROJECT}"
+    PASS "Valid"
+    FAIL "Invalid"
+)
 
-directory_exists(out ${DIR_PROJECT})
+list(POP_BACK CMAKE_MESSAGE_INDENT)
+message(CHECK_PASS "Success")
 
-if(NOT ${out})
-    message(FATAL_ERROR "Invalid project \"${PROJECT}\".")
-endif()
+message(CHECK_START "Validating the MCAL Platform")
+list(APPEND CMAKE_MESSAGE_INDENT "  ")
 
-directory_exists(out ${DIR_PLATFORM})
-
-if(NOT ${out})
-    message(FATAL_ERROR "Invalid platform \"${PLATFORM}\".")
-endif()
-
-# There must be an mcal_conf,cmake file in the platform folder to specify which
-# mcal folder will be included.
-set(MCAL_CONF_FILE ${DIR_PLATFORM}/mcal_conf.cmake)
-
-file_exists(out ${MCAL_CONF_FILE})
-
-if(NOT ${out})
-    message(FATAL_ERROR "Expected to find \"${MCAL_CONF_FILE}\".")
-endif()
+set(MCAL_CONF_FILE "${DIR_PLATFORM}/mcal_conf.cmake")
+assert_exists(FILE PATH ${MCAL_CONF_FILE}
+    START "Searching for mcal configuration file"
+    PASS "Found"
+    FAIL "Not found"
+)
 
 include(${MCAL_CONF_FILE}) # Should define MCAL
-
 if(NOT DEFINED MCAL)
-    message(FATAL_ERROR
-        "Expected MCAL to be defined in \"${MCAL_CONF_FILE}\".")
+    message(FATAL_ERROR "Expected MCAL to be defined in \"${MCAL_CONF_FILE}\".")
 endif()
 
-set(DIR_MCAL ${CMAKE_CURRENT_SOURCE_DIR}/mcal/${MCAL})
+set(DIR_MCAL "${CMAKE_CURRENT_SOURCE_DIR}/mcal/${MCAL}")
+assert_exists(DIR PATH ${DIR_MCAL}
+    START "Verifying the ${MCAL} MCAL exists"
+    PASS "Valid MCAL"
+    FAIL "Invalid MCAL specified in ${MCAL_CONF_FILE}."
+)
 
-directory_exists(out ${DIR_MCAL})
-
-if(NOT ${out})
-    string(CONCAT errmsg
-        "Invalid mcal \"${MCAL}\". "
-        "See ${CMAKE_CURRENT_SOURCE_DIR}/mcal for available mcals."
-    )
-    message(FATAL_ERROR ${errmsg})
-endif()
-
-# Options are parsed. Start building
-message("Building \"${PROJECT}\" for \"${PLATFORM}\" with mcal \"${MCAL}\".")
+set(POSTBUILD_FILE "${DIR_MCAL}/PostBuild.cmake")
+assert_exists(FILE PATH ${POSTBUILD_FILE}
+    START "Finding MCAL postbuild file"
+    PASS "Found"
+    FAIL "Not found. If no postbuild actions are required, create the file\n"
+    ${POSTBUILD_FILE} "\nand leave it empty."
+)
 
 # Sets the compiler, linker, etc based on the mcal's Toolchain.cmake file
-set(CMAKE_TOOLCHAIN_FILE ${DIR_MCAL}/Toolchain.cmake)
+set(TOOLCHAIN_FILE "${DIR_MCAL}/Toolchain.cmake")
+assert_exists(FILE PATH ${TOOLCHAIN_FILE}
+    START "Finding MCAL toolchain file"
+    PASS "Found"
+    FAIL "Not found. If no toolchain setup is required, create the file\n"
+    ${TOOLCHAIN_FILE} "\nand leave it empty."
+)
+
+list(POP_BACK CMAKE_MESSAGE_INDENT)
+message(CHECK_PASS "Success")
+
+# Options are parsed. Start building
+message(STATUS "Building \"${PROJECT}\" for \"${PLATFORM}\" with mcal \"${MCAL}\".")
 
 enable_language(C CXX ASM)
+set(CMAKE_TOOLCHAIN_FILE ${TOOLCHAIN_FILE})
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_CXX_STANDARD 20) # required for c++ concepts
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES
-    ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}
-)
+set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 set(CMAKE_CXX_EXTENSIONS ON)
 
 project(${PROJECT_NAME})
@@ -121,17 +139,4 @@ if(TARGET os)
     target_link_libraries(main PRIVATE os)
 endif()
 
-set(POSTBUILD_FILE ${DIR_MCAL}/PostBuild.cmake)
-
-file_exists(out ${POSTBUILD_FILE})
-
-if(${out})
-    include("${POSTBUILD_FILE}")
-else()
-    string(CONCAT errmsg
-        "${POSTBUILD_FILE} does not exist. "
-        "If no postbuild actions are required, create the file and leave it "
-        "empty."
-    )
-    message(FATAL_ERROR ${errmsg})
-endif()
+include("${POSTBUILD_FILE}")
