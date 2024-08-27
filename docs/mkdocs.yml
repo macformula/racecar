@@ -2,7 +2,6 @@ site_name: racecar
 theme:
   name: material
   palette:
-      
     - scheme: default
       primary: custom
       toggle:
@@ -28,6 +27,8 @@ theme:
 
   icon:
     repo: fontawesome/brands/github
+    logo: material/book-open-variant
+  favicon: assets/favicon.svg
 
 extra_css:
   - stylesheets/extra.css
