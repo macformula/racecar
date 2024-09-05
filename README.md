@@ -1,6 +1,6 @@
 # racecar
 
-Monorepo for all firmware running on custom our custom ECU's
+Monorepo for all firmware running on our custom ECUs
 
 ## Documentation
 
