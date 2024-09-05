@@ -144,16 +144,16 @@ __Important:__ Create an empty file named `.clangd` in the `firmware/` directory
 
 ### gRPC
 
-> This section should be improved. See [Issue 147](https://github.com/macformula/racecar/issues/147).
+!!! warning "Optional Dependency"
 
-gRPC c++ dependencies - [link](https://grpc.io/docs/languages/cpp/quickstart/)
+    Within the racecar repo, gRPC is only used by the SIL Client under `firmware/validation/sil/`. The client is used by the Raspberry Pi MCAL to interact with the [HIL / SIL](https://github.com/macformula/hil).
 
-Follow the guide to build the example project.
+    You only need gRPC if you will be working on the HIL. Otherwise, do not worry about installing it.
 
-Add the `CMAKE_PREFIX_PATH` environment variable to your machine
+You will need a Unix development environment (Unix machine, WSL, or remote into the Raspberry Pi).
 
-    export CMAKE_PREFIX_PATH="$HOME/.local"
-  
+Go through the [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/). Build the example project.
+
 ## IDE Setup
 
 _If you use a different IDE, consider [adding instructions](../tutorials/site-dev.md) for setting it up!_
