@@ -1,0 +1,14 @@
+VERSION ""
+
+BS_:
+
+BU_: FC Debug
+
+
+BO_ 2364540158 APPS: 8 FC
+	SG_ APPS1 : 8|8@1+ (1,0) [0|100] "percent" Vector__XXX
+	SG_ APPS2 : 16|8@1+ (1,0) [0|100] "percent" Vector__XXX
+
+
+CM_ SG_ 2364540158 APPS1 "Accel Pedal 1";
+CM_ SG_ 2364540158 APPS2 "Accel Pedal 2";
