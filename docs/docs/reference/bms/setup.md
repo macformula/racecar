@@ -35,3 +35,22 @@ Follow this guide to set up the Orion BMS for debugging.
     ![CANdapter Utilities](img/candapter_util.png)
 
 4. Download the setup utility and install. Use the default settings.
+
+## Communicating
+
+1. "Connect to BMS"
+2. "500 baudrate"
+3. "Download config"
+4. "Yes, continue"
+
+Profile setup wizard
+
+No default
+
+4 cells in parallel
+
+"Cells in Series" Configure Cells
+
+clear, auto pop, close once see 144
+
+enable dischared enable output and sub opt
