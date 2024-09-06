@@ -29,13 +29,13 @@ int main(void) {
     while (true) {
         veh_can_bus.Update();
 
-        temp_sens_msg.sensor1++;
-        temp_sens_msg.sensor2++;
-        temp_sens_msg.sensor3++;
-        temp_sens_msg.sensor4++;
-        temp_sens_msg.sensor5++;
-        temp_sens_msg.sensor6++;
-
+        temp_sens_msg.sensor1= 0;
+        temp_sens_msg.sensor2= 1;
+        temp_sens_msg.sensor3= 2;
+        temp_sens_msg.sensor4= 3;
+        temp_sens_msg.sensor5= 4;
+        temp_sens_msg.sensor6= 6;
+        
         veh_can_bus.Send(temp_sens_msg);
 
         bindings::TickBlocking(tick_duration);
