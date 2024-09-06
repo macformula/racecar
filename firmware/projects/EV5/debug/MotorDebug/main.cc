@@ -35,4 +35,6 @@ int main() {
 
         bindings::DelayMS(25);
     }
+
+    return 0;
 }
