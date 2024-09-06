@@ -1,6 +1,3 @@
-/// @author Blake Freer
-/// @date 2024-04-24
-
 #pragma once
 
 #include <cstdint>
@@ -16,4 +13,4 @@ extern void Initialize();
 
 extern void DelayMS(uint32_t ms);
 
-}  // namespace bindings
+} // namespace bindings

@@ -24,7 +24,6 @@ ADCInput accel_pedal_2{
 };
 
 CanBase veh_can_base{&hcan3};
-
 }
 
 namespace bindings {
@@ -38,6 +37,10 @@ void Initialize() {
     MX_CAN3_Init();
 
     mcal::veh_can_base.Setup();
+}
+
+void DelayMS(uint32_t ms) {
+    HAL_Delay(ms);
 }
 
 }  // namespace bindings
