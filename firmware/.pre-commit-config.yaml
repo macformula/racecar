@@ -1,0 +1,20 @@
+# Minimum version of pre-commit
+minimum_pre_commit_version: "2.9.0"
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      # Prevent committing directly to the main branch
+      - id: no-commit-to-branch
+        args: [--branch, main]
+        stages: [commit]
+  
+  - repo: local 
+    hooks:
+      - id: clang-format
+        name: Run clang-format
+        entry: clang-format -i
+        language: system
+        files: ^.*\.(c|cpp|h|hpp)$
+        stages: [commit]
