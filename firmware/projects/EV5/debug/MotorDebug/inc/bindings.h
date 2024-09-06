@@ -7,9 +7,9 @@
 
 namespace bindings {
 
-extern shared::periph::ADCInput&& accel_pedal_1;
-extern shared::periph::ADCInput&& accel_pedal_2;
-extern shared::periph::CanBase&& vehicle_can_base;
+extern shared::periph::ADCInput& accel_pedal_1;
+extern shared::periph::ADCInput& accel_pedal_2;
+extern shared::periph::CanBase& vehicle_can_base;
 
 extern void Initialize();
 
