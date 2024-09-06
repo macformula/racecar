@@ -1,45 +1,40 @@
-
-#include "adc.h"
-#include "can.h"
 #include "shared/periph/adc.h"
 #include "shared/periph/can.h"
+#include <unistd.h>
 
 #include "bindings.h"
-#include "stm32f7xx_hal_adc.h"
 
 // fw imports
-#include "mcal/stm32f767/periph/adc.h"
-#include "mcal/stm32f767/periph/can.h"
-#include "mcal/stm32f767/periph/gpio.h"
+#include "mcal/cli/periph/adc.h"
+#include "mcal/cli/periph/can.h"
 
 namespace mcal {
-using namespace stm32f767::periph;
+using namespace cli::periph;
 
 ADCInput accel_pedal_1{
-    
+    "apps1"
 };
 ADCInput accel_pedal_2{
-
+    "apps2"
 };
 
-CanBase veh_can_base{&hcan3};
+CanBase vehicle_can_base{
+    "vehicle"
+};
 }
 
 namespace bindings {
 shared::periph::ADCInput& accel_pedal_1 = mcal::accel_pedal_1;
 shared::periph::ADCInput& accel_pedal_2 = mcal::accel_pedal_2;
+shared::periph::CanBase& vehicle_can_base = mcal::vehicle_can_base;
 
 void Initialize() {
-    HAL_Init();
 
-    MX_ADC1_Init();
-    MX_CAN3_Init();
 
-    mcal::veh_can_base.Setup();
 }
 
 void DelayMS(uint32_t ms) {
-    HAL_Delay(ms);
+    usleep(ms * 1000);
 }
 
 }  // namespace bindings
