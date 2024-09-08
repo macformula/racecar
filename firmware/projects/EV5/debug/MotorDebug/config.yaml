@@ -1,5 +1,5 @@
 canGen:
-  ourNode: FC
+  ourNode: FRONTCONTROLLER
   busses:
     - busName: vehicle
       dbcFiles:
