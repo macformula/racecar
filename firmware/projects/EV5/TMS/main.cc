@@ -13,6 +13,7 @@
 #include "shared/periph/pwm.h"
 #include "shared/util/algorithms/arrays.h"
 #include "shared/util/mappers/lookup_table.h"
+#include "stm32f7xx_hal.h"
 #include "veh_can_messages.h"
 #include "veh_msg_registry.h"
 
@@ -26,13 +27,12 @@ extern shared::periph::ADCInput& temp_sensor_adc_6;
 
 extern shared::periph::PWMOutput& fan_controller_pwm;
 
-extern shared::periph::DigitalOutput& debug_do_blue;
-extern shared::periph::DigitalOutput& debug_do_red;
+extern shared::periph::DigitalOutput& debug_led_green;
+extern shared::periph::DigitalOutput& debug_led_red;
 
 extern shared::periph::CanBase& veh_can_base;
 
 extern void Initialize();
-extern void Log(std::string);
 }  // namespace bindings
 
 namespace os {
@@ -84,11 +84,9 @@ const float temp_lut_data[][2] = {
 };
 
 const float fan_lut_data[][2] = {
-    // clang-format off
-	{-1,    0},
-	{ 0,   30},
-	{50,  100}
-    // clang-format on
+    {-1, 0},
+    {0, 30},
+    {50, 100},
 };
 
 constexpr int temp_lut_length =
@@ -115,8 +113,8 @@ shared::can::CanBus veh_can_bus{
 ***************************************************************/
 FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut, 2.0f};
 
-DebugIndicator debug_blue{bindings::debug_do_blue};
-DebugIndicator debug_red{bindings::debug_do_red};
+DebugIndicator debug_green{bindings::debug_led_green};
+DebugIndicator debug_red{bindings::debug_led_red};
 
 TempSensor temp_sensors[] = {
     TempSensor{bindings::temp_sensor_adc_1, temp_adc_lut},
@@ -140,6 +138,9 @@ void Update() {
     static float temperature_buffer[kSensorCount];
     static uint8_t low_thermistor_idx;
     static uint8_t high_thermistor_idx;
+
+    debug_green.Toggle();
+    debug_red.Toggle();
 
     veh_can_bus.Update();
     ts_manager.Update();
@@ -168,8 +169,14 @@ void UpdateTask(void* argument) {
     while (true) {
         uint32_t start_time_ms = os::GetTickCount();
         Update();
-        debug_blue.Toggle();  // toggling indicates the loop is running
         os::TickUntil(start_time_ms + kTaskPeriodMs);
+    }
+}
+
+void Blink(int count) {
+    for (int i = 0; i < count * 2; i++) {
+        debug_red.Toggle();
+        HAL_Delay(250);
     }
 }
 
