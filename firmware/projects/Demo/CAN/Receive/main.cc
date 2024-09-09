@@ -3,15 +3,10 @@
 
 #include <cstdint>
 
+#include "bindings.h"
 #include "generated/can/demobus_can_messages.h"
 #include "generated/can/demobus_msg_registry.h"
 #include "shared/comms/can/can_bus.h"
-
-namespace bindings {
-extern shared::periph::CanBase& veh_can_base;
-extern void Initialize();
-extern void TickBlocking(uint32_t);
-}  // namespace bindings
 
 generated::can::DemobusMsgRegistry veh_can_registry{};
 
@@ -23,22 +18,24 @@ shared::can::CanBus veh_can_bus{
 int main(void) {
     bindings::Initialize();
     uint32_t tick_duration = 100;
+    uint16_t last_msg_count = -1;
 
-    generated::can::TempSensors temp_sens_msg{};
-    generated::can::TempSensorsReply temp_sens_msg_reply{};
+    generated::can::ButtonStatus btn_msg{};
 
     while (true) {
         veh_can_bus.Update();
-        veh_can_bus.Read(temp_sens_msg);
+        veh_can_bus.Read(btn_msg);
 
-        temp_sens_msg_reply.sensor1 = temp_sens_msg.sensor1;
-        temp_sens_msg_reply.sensor2 = temp_sens_msg.sensor2;
-        temp_sens_msg_reply.sensor3 = temp_sens_msg.sensor3;
-        temp_sens_msg_reply.sensor4 = temp_sens_msg.sensor4;
-        temp_sens_msg_reply.sensor5 = temp_sens_msg.sensor5;
-        temp_sens_msg_reply.sensor6 = temp_sens_msg.sensor6;
+        std::cout << btn_msg.msg_count << "-" << last_msg_count;
+        if (btn_msg.msg_count == last_msg_count) {
+            // continue;
+        } else {
+            last_msg_count = btn_msg.msg_count;
+        };
 
-        veh_can_bus.Send(temp_sens_msg_reply);
+        bindings::indicator.Set(btn_msg.state);
+
+        // veh_can_bus.Send(temp_sens_msg_reply);
 
         bindings::TickBlocking(tick_duration);
     }
