@@ -5,6 +5,7 @@
 #include <string>
 
 #include "app.h"
+#include "bindings.h"
 #include "shared/comms/can/can_bus.h"
 #include "shared/os/tick.h"
 #include "shared/periph/adc.h"
@@ -13,27 +14,8 @@
 #include "shared/periph/pwm.h"
 #include "shared/util/algorithms/arrays.h"
 #include "shared/util/mappers/lookup_table.h"
-#include "stm32f7xx_hal.h"
 #include "veh_can_messages.h"
 #include "veh_msg_registry.h"
-
-namespace bindings {
-extern shared::periph::ADCInput& temp_sensor_adc_1;
-extern shared::periph::ADCInput& temp_sensor_adc_2;
-extern shared::periph::ADCInput& temp_sensor_adc_3;
-extern shared::periph::ADCInput& temp_sensor_adc_4;
-extern shared::periph::ADCInput& temp_sensor_adc_5;
-extern shared::periph::ADCInput& temp_sensor_adc_6;
-
-extern shared::periph::PWMOutput& fan_controller_pwm;
-
-extern shared::periph::DigitalOutput& debug_led_green;
-extern shared::periph::DigitalOutput& debug_led_red;
-
-extern shared::periph::CanBase& veh_can_base;
-
-extern void Initialize();
-}  // namespace bindings
 
 namespace os {
 extern void Tick(uint32_t ticks);
@@ -170,13 +152,6 @@ void UpdateTask(void* argument) {
         uint32_t start_time_ms = os::GetTickCount();
         Update();
         os::TickUntil(start_time_ms + kTaskPeriodMs);
-    }
-}
-
-void Blink(int count) {
-    for (int i = 0; i < count * 2; i++) {
-        debug_red.Toggle();
-        HAL_Delay(250);
     }
 }
 

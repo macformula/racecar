@@ -13,6 +13,7 @@
 #include "tim.h"
 
 // fw imports
+#include "bindings.h"
 #include "mcal/stm32f767/periph/adc.h"
 #include "mcal/stm32f767/periph/gpio.h"
 #include "mcal/stm32f767/periph/pwm.h"
@@ -48,19 +49,19 @@ CanBase veh_can_base{&hcan2};
 }  // namespace mcal
 
 namespace bindings {
-const shared::periph::ADCInput& temp_sensor_adc_1 = mcal::temp_sensor_adc_1;
-const shared::periph::ADCInput& temp_sensor_adc_2 = mcal::temp_sensor_adc_2;
-const shared::periph::ADCInput& temp_sensor_adc_3 = mcal::temp_sensor_adc_3;
-const shared::periph::ADCInput& temp_sensor_adc_4 = mcal::temp_sensor_adc_4;
-const shared::periph::ADCInput& temp_sensor_adc_5 = mcal::temp_sensor_adc_5;
-const shared::periph::ADCInput& temp_sensor_adc_6 = mcal::temp_sensor_adc_6;
+shared::periph::ADCInput& temp_sensor_adc_1 = mcal::temp_sensor_adc_1;
+shared::periph::ADCInput& temp_sensor_adc_2 = mcal::temp_sensor_adc_2;
+shared::periph::ADCInput& temp_sensor_adc_3 = mcal::temp_sensor_adc_3;
+shared::periph::ADCInput& temp_sensor_adc_4 = mcal::temp_sensor_adc_4;
+shared::periph::ADCInput& temp_sensor_adc_5 = mcal::temp_sensor_adc_5;
+shared::periph::ADCInput& temp_sensor_adc_6 = mcal::temp_sensor_adc_6;
 
-const shared::periph::PWMOutput& fan_controller_pwm = mcal::fan_controller_pwm;
-const shared::periph::DigitalOutput& debug_led_green = mcal::debug_led_green;
-const shared::periph::DigitalOutput& debug_led_red = mcal::debug_led_red;
-// const shared::periph::DigitalOutput& debug_led_red = mcal::debug_led_nucleo;
+shared::periph::PWMOutput& fan_controller_pwm = mcal::fan_controller_pwm;
+shared::periph::DigitalOutput& debug_led_green = mcal::debug_led_green;
+shared::periph::DigitalOutput& debug_led_red = mcal::debug_led_red;
+//  shared::periph::DigitalOutput& debug_led_red = mcal::debug_led_nucleo;
 
-const shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
+shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
 
 void Initialize() {
     SystemClock_Config();
