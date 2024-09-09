@@ -1,14 +1,14 @@
 #include <iostream>
 #include <string>
 
-#include "gpio.h"
+#include "digital_output.h"
 
-namespace mcal::linux::periph {
+namespace mcal::lnx::periph {
 
 DigitalOutput::DigitalOutput(std::string name) : name_(name) {}
 
 void DigitalOutput::Set(bool value) {
-    std::cout << "Setting DigitalOutput \"" << name_ << "\" to "
+    std::cout << "DigitalOutput \"" << name_ << "\" => "
               << (value ? "true" : "false") << std::endl;
 }
 
@@ -20,4 +20,4 @@ void DigitalOutput::SetLow() {
     Set(false);
 }
 
-}  // namespace mcal::linux::periph
+}  // namespace mcal::lnx::periph
