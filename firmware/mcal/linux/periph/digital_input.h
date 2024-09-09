@@ -4,7 +4,7 @@
 
 #include "shared/periph/gpio.h"
 
-namespace mcal::linux::periph {
+namespace mcal::lnx::periph {
 
 class DigitalInput : public shared::periph::DigitalInput {
 public:
@@ -16,4 +16,4 @@ private:
     std::string name_;
 };
 
-}  // namespace mcal::linux::periph
+}  // namespace mcal::lnx::periph

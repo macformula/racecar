@@ -3,7 +3,7 @@
 
 #include "digital_input.h"
 
-namespace mcal::linux::periph {
+namespace mcal::lnx::periph {
 
 DigitalInput::DigitalInput(std::string name) : name_(name) {};
 
@@ -18,4 +18,4 @@ bool DigitalInput::Read() {
     return value;
 }
 
-}  // namespace mcal::linux::periph
+}  // namespace mcal::lnx::periph
