@@ -3,15 +3,15 @@
 
 #include "adc.h"
 
-namespace mcal::linux::periph {
+namespace mcal::lnx::periph {
 
 ADCInput::ADCInput(std::string name) : name_(name) {}
 
-ADCInput::Start() {
+void ADCInput::Start() {
     std::cout << "Reading ADC \"" << name_ << "\"" << std::endl;
 }
 
-ADCInput::Read() {
+uint32_t ADCInput::Read() {
     Start();
 
     uint32_t adc_val;
@@ -22,4 +22,4 @@ ADCInput::Read() {
     return adc_val;
 }
 
-}  // namespace mcal::linux::periph
+}  // namespace mcal::lnx::periph

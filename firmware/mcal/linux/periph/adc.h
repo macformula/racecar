@@ -5,7 +5,7 @@
 
 #include "shared/periph/adc.h"
 
-namespace mcal::linux::periph {
+namespace mcal::lnx::periph {
 
 class ADCInput : public shared::periph::ADCInput {
 public:
@@ -18,4 +18,4 @@ private:
     std::string name_;
 };
 
-}  // namespace mcal::linux::periph
+}  // namespace mcal::lnx::periph
