@@ -10,11 +10,11 @@ repos:
         args: [--branch, main]
         stages: [commit]
   
-  - repo: local 
+  - repo: local
     hooks:
       - id: clang-format
         name: Run clang-format
-        entry: clang-format -i
+        entry: clang-format -i -style=file
         language: system
         files: ^.*\.(c|cpp|h|hpp)$
         stages: [commit]
