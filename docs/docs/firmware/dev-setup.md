@@ -234,3 +234,27 @@ __Important:__ Create an empty file named `.clangd` in the `firmware/` directory
 You will need a Unix development environment (Unix machine, WSL, or remote into the Raspberry Pi).
 
 Go through the [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/). Build the example project.
+
+## Pre-Commit Setup
+
+To ensure that we run formatting and code checks before pushing their code, we use `pre-commit` hooks. This helps catch issues locally before code is committed.
+
+#### Minimum Python Version
+
+To install and use `pre-commit`, ensure that you are using __Python 3.6__ or newer.
+
+#### Installing Pre-Commit
+
+1. __Install `pre-commit` via pip__:
+
+    ```bash
+    pip install pre-commit
+    ```
+
+2. __Install the git hooks__ by running this command in the `racecar` directory:
+
+    ```bash
+    pre-commit install
+    ```
+
+    This will install the hooks so they run automatically when you use `git commit`.
