@@ -37,7 +37,7 @@ def _assert_valid_dbc(filename: str):
 
 
 def _parse_dbc_files(dbc_files: List[str]) -> Database:
-    logger.info(f"Parsing DBC files: {dbc_files}")
+    logger.debug(f"Parsing DBC files: {dbc_files}")
     can_db = Database()
 
     for dbc_file in dbc_files:
@@ -55,7 +55,7 @@ def _filter_messages_by_node(
     tx_msgs = [msg for msg in messages if node in msg.senders]
     rx_msgs = [msg for msg in messages if node in msg.receivers]
 
-    logger.info(
+    logger.debug(
         f"Filtered messages by node: {node}. "
         f"Num msgs: rx = {len(rx_msgs)}, tx = {len(tx_msgs)}"
     )
@@ -73,12 +73,12 @@ def _get_mask_shift_big(
     idx = np.arange(64)
     mask_bool = (idx >= start_flipped) & (idx < end)
     mask_bytes = np.packbits(mask_bool, bitorder="big")
-    logger.info("Big endian mask generated.")
+    logger.debug("Big endian mask generated.")
 
     num_zeros = TOTAL_BITS - end
     shift_amounts = np.arange(0, 64, 8, dtype=int)[::-1] - num_zeros
 
-    logger.info("Big endian shift amounts calculated.")
+    logger.debug("Big endian shift amounts calculated.")
 
     return mask_bytes, shift_amounts
 
@@ -90,11 +90,11 @@ def _get_mask_shift_little(
     idx = np.arange(64)
     mask_bool = (idx >= start) & (idx < start + length)
     mask_bytes = np.packbits(mask_bool, bitorder="little")
-    logger.info("Little endian mask generated.")
+    logger.debug("Little endian mask generated.")
 
     num_zeros = start
     shift_amounts = np.arange(0, 64, 8, dtype=int) - num_zeros
-    logger.info("Little endian shift amounts calculated.")
+    logger.debug("Little endian shift amounts calculated.")
 
     return mask_bytes, shift_amounts
 
@@ -157,7 +157,7 @@ def _get_signal_types(can_db: Database, allow_floating_point=True):
         for message in can_db.messages
     }
 
-    logger.info("Signal types retrieved")
+    logger.debug("Signal types retrieved")
 
     return sig_types
 
@@ -262,14 +262,14 @@ def generate_code(
     }
 
     # Replace these lines with your Jinja2 template logic
-    logger.info("Generating code for can messages")
+    logger.debug("Generating code for can messages")
     _generate_from_jinja2_template(
         can_messages_template_path,
         os.path.join(output_dir, bus_name.lower() + CAN_MESSAGES_FILE_NAME),
         context,
     )
 
-    logger.info("Generating code for msg registry")
+    logger.debug("Generating code for msg registry")
     _generate_from_jinja2_template(
         msg_registry_template_path,
         os.path.join(output_dir, bus_name.lower() + MSG_REGISTRY_FILE_NAME),

@@ -15,9 +15,11 @@ FILE(GLOB_RECURSE CAN_DEPENDENCIES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/../scr
 
 list(APPEND CAN_DEPENDENCIES "${CMAKE_CURRENT_SOURCE_DIR}/config.yaml")
 
+cmake_language(GET_MESSAGE_LOG_LEVEL LOG_LEVEL)
+
 add_custom_target(
     generated_can
-	COMMAND ${Python3_EXECUTABLE} "${CMAKE_SOURCE_DIR}/../scripts/cangen/main.py" "--project=\"EV5/LVController\""
+	COMMAND ${Python3_EXECUTABLE} "${CMAKE_SOURCE_DIR}/../scripts/cangen/main.py" "--project=\"EV5/LVController\"" "--log-level=${LOG_LEVEL}"
 	DEPENDS ${CAN_DEPENDENCIES}
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	COMMENT Generating CAN code from DBCs
