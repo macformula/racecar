@@ -37,7 +37,7 @@ def _assert_valid_dbc(filename: str):
 
 
 def _parse_dbc_files(dbc_files: List[str]) -> Database:
-    logger.debug(f"Parsing DBC files: {dbc_files}")
+    logger.info(f"Parsing DBC files: {dbc_files}")
     can_db = Database()
 
     for dbc_file in dbc_files:

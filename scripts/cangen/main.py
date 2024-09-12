@@ -34,7 +34,7 @@ def parse():
         "--project", type=str, required=True, help="Name of the project"
     )
     parser.add_argument(
-        "--log-level", "-l", dest='level', choices=["STATUS", "INFO", "VERBOSE", "DEBUG"], default="INFO", help="Log verbosity threshold"
+        "--log-level", dest='level', choices=["STATUS", "INFO", "VERBOSE", "DEBUG"], default="INFO", help="Log verbosity threshold"
     )
 
     # If parsing fails (ex incorrect or no arguments provided) then this exits with
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         "VERBOSE": "DEBUG",
         "DEBUG": "DEBUG"
     }
-    # Set log level thrershold to specified verbosity
+    # Set log level threshold to specified verbosity
     logging.getLogger().setLevel(log_level_mappings[args.level])
 
     # Read & Parse the config file
