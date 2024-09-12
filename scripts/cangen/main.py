@@ -33,6 +33,9 @@ def parse():
     parser.add_argument(
         "--project", type=str, required=True, help="Name of the project"
     )
+    parser.add_argument(
+        "--log-level", dest='level', choices=["STATUS", "INFO", "VERBOSE", "DEBUG"], default="INFO", help="Log verbosity threshold"
+    )
 
     # If parsing fails (ex incorrect or no arguments provided) then this exits with
     # code 2.
@@ -45,6 +48,16 @@ if __name__ == "__main__":
     args = parse()
     project_folder_name = args.project
     os.chdir(os.path.join(DIR_PROJECTS, project_folder_name))
+    
+    # Map CMAKE log levels -> Python log levels
+    log_level_mappings = {
+        "STATUS": "INFO",
+        "INFO": "INFO",
+        "VERBOSE": "DEBUG",
+        "DEBUG": "DEBUG"
+    }
+    # Set log level threshold to specified verbosity
+    logging.getLogger().setLevel(log_level_mappings[args.level])
 
     # Read & Parse the config file
     with open(CONFIG_FILE_NAME, "r") as file:
