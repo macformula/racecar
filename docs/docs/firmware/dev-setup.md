@@ -177,21 +177,21 @@ _If you use a different IDE, consider [adding instructions](../tutorials/site-de
 
 ## Pre-Commit Setup
 
-To ensure that we run formatting and code checks before pushing their code, we use `pre-commit` hooks. This helps catch issues locally before code is committed.
+We use `pre-commit` hooks to run formatting and code checks before the code is pushed. 
 
-#### Minimum Python Version
+### Minimum Python Version
 
 To install and use `pre-commit`, ensure that you are using **Python 3.6** or newer.
 
-#### Installing Pre-Commit
+### Installing Pre-Commit
 
-1. **Install `pre-commit` via pip**:
+1. Install `pre-commit` via pip:
 
     ```bash
     pip install pre-commit
     ```
 
-2. **Install the git hooks** by running this command in the `racecar` directory:
+2. Install the git hooks by running this command in the `racecar` directory:
 
     ```bash
     pre-commit install
