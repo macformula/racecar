@@ -9,12 +9,11 @@ repos:
       - id: no-commit-to-branch
         args: [--branch, main]
         stages: [commit]
-  
+    
   - repo: local
     hooks:
       - id: clang-format
-        name: Run clang-format
-        entry: clang-format -i -style=file
+        name: Run git-clang-format
+        entry: "\"C:/Program Files/LLVM/bin/git-clang-format\" --style=file --staged"
         language: system
-        files: ^.*\.(c|cpp|h|hpp)$
         stages: [commit]
