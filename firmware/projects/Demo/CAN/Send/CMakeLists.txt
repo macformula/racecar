@@ -17,7 +17,8 @@ list(APPEND CAN_DEPENDENCIES "${CMAKE_CURRENT_SOURCE_DIR}/config.yaml")
 
 add_custom_target(
     generated_can
-	COMMAND ${Python3_EXECUTABLE} "${CMAKE_SOURCE_DIR}/../scripts/cangen/main.py" "--project=\"Demo/CAN/Foo\""
+	# COMMAND ${Python3_EXECUTABLE} "${CMAKE_SOURCE_DIR}/../scripts/cangen/main.py" "--project=\"Demo/CAN/Send\""
+	COMMAND "python" "${CMAKE_SOURCE_DIR}/../scripts/cangen/main.py" "--project=\"Demo/CAN/Send\""
 	DEPENDS ${CAN_DEPENDENCIES}
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	COMMENT Generating CAN code from DBCs
