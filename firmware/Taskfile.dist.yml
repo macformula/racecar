@@ -1,0 +1,78 @@
+version: '3'
+
+env:
+  GENERATOR: -G 'Unix Makefiles'
+
+tasks:
+  project_name_fix:
+    cmds:
+      - echo 
+  build:
+    cmds:
+      - |
+        read -p "Enter the build: " BUILD 
+        read -p "Enter the project: " PROJECT 
+        read -p "Enter the platform: " PLATFORM
+        
+        BUILD_DIR="$BUILD/$PROJECT/$PLATFORM"
+
+        cmake --build $BUILD_DIR
+
+  config:
+    cmds:
+      - |
+        read -p "Enter the build: " BUILD 
+        read -p "Enter the project: " PROJECT 
+        read -p "Enter the platform: " PLATFORM
+
+        BUILD_DIR="$BUILD/$PROJECT/$PLATFORM"
+        PROJECT_NAME=$(echo "$PROJECT" | tr '/' '-')
+        COMPILE_COMMANDS_DEST: '$BUILD/compile_commands.json'
+        PLATFORM_DIR: "projects/$PROJECT/platforms/$PLATFORM"
+
+        task check_err
+        cmake -B $BUILD_DIR -S. $GENERATOR -D PROJECT=$PROJECT -D PLATFORM=$PLATFORM -D PROJECT_NAME=$PROJECT_NAME
+        echo Copying compile_commands.json to $BUILD for clangd.
+        cp $BUILD_DIR/compile_commands.json $COMPILE_COMMANDS_DEST
+        echo Ensure the .clangd file exists.
+        touch .clangd 
+  
+  clean:
+    cmds:
+     - |
+       read -p "Enter the build: " BUILD 
+       read -p "Enter the project: " PROJECT 
+       read -p "Enter the platform: " PLATFORM
+
+       BUILD_DIR="$BUILD/$PROJECT/$PLATFORM"
+       COMPILE_COMMANDS_DEST: '$BUILD/compile_commands.json'
+       PLATFORM_DIR: "projects/$PROJECT/platforms/$PLATFORM"
+
+       task check_err
+       rm -rf $BUILD_DIR
+       rm -f $COMPILE_COMMANDS_DEST
+  
+  deepclean:
+    cmd:
+     -|
+     task clean
+     if echo "$PLATFORM" | grep -q "stm32";
+      echo "Deleting files and directories in $PLATFORM_DIR/cubemx that are ignored by Git"
+      find $PLATFORM_DIR/cubemx | xargs git check-ignore | xargs rm -rf
+     else
+      echo "Skipping deepclean for platform $PLATFORM"
+
+  st-flash:
+    cmds:
+      - |
+        read -p "Enter the build: " BUILD 
+        read -p "Enter the project: " PROJECT 
+        read -p "Enter the platform: " PLATFORM
+
+        BUILD_DIR="$BUILD/$PROJECT/$PLATFORM"
+        PROJECT_NAME="$PROJECT_NAME" | tr 's/$REPLACED_LETTER/$VALID_LETTER/g'
+        
+        task check_err
+        st-flash --reset write $BUILD_DIR/$PROJECT_NAME.bin 0x08000000
+
+

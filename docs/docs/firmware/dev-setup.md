@@ -173,3 +173,14 @@ _If you use a different IDE, consider [adding instructions](../tutorials/site-de
         1. Select the `clangd` extension and open :octicons-gear-24: Extension Settings.
         
         1. Paste the full `clangd` executable path in the "Clangd: Path" setting.
+
+## TaskFile Setup
+
+__version__ 3.37.2 
+
+=== "Windows"
+
+        choco install go-task  
+
+    
+
