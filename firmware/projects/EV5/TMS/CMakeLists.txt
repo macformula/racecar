@@ -16,7 +16,6 @@ target_include_directories(main
 	${CMAKE_CURRENT_SOURCE_DIR}/inc
 	${CMAKE_CURRENT_SOURCE_DIR}/generated/can
 )
-add_dependencies(main generated_can)
 
 # Notice that we don't include any mcal/ subdirectory in this CMake file.
 # The master CMakeLists handles platform selection and library linking.

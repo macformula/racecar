@@ -10,7 +10,6 @@ target_sources(main
 	PRIVATE
 	main.cc
 )
-add_dependencies(main generated_can)
 
 # Notice that we don't include any mcal/ subdirectory in this CMake file.
 # The master CMakeLists handles platform selection and library linking.

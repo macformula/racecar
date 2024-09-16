@@ -10,8 +10,6 @@ target_sources(main
 	PRIVATE
 	main.cc
 )
-add_dependencies(main generated_can)
-
 
 target_include_directories(main
 	PRIVATE
