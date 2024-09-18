@@ -18,7 +18,7 @@ DIR_PROJECTS = os.path.join(DIR_FIRMWARE, "projects")
 DIR_DBCS = os.path.join(DIR_FIRMWARE, "dbcs")
 
 CONFIG_FILE_NAME = "config.yaml"
-OUTPUT_DIR = "generated/can"
+DEFAULT_OUTPUT_DIR = "generated/can"
 
 DIR_TEMPLATES = os.path.join(DIR_THIS_FILE, "templates")
 CAN_MESSAGES_TEMPLATE_FILENAME = "can_messages.h.jinja2"
@@ -65,6 +65,7 @@ if __name__ == "__main__":
 
     our_node = config["canGen"]["ourNode"].upper()
     bus_list = config["canGen"]["busses"]
+    output_path = config["canGen"].get("outputPath", DEFAULT_OUTPUT_DIR)
 
     for bus in bus_list:
         # import pdb
@@ -86,7 +87,7 @@ if __name__ == "__main__":
             dbc_file_paths,
             our_node,
             bus_name,
-            OUTPUT_DIR,
+            output_path,
             can_messages_template_path,
             msg_registry_template_path,
         )
