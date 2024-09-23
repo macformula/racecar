@@ -3,4 +3,4 @@ canGen:
   busses:
     - busName: io
       dbcFiles:
-        - "../../io.dbc"
+        - "io.dbc"

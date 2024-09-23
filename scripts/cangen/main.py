@@ -62,6 +62,8 @@ if __name__ == "__main__":
     with open(CONFIG_FILE_NAME, "r") as file:
         config = yaml.safe_load(file)
 
+    config_file_path = os.path.abspath(CONFIG_FILE_NAME)
+
     our_node = config["canGen"]["ourNode"].upper()
     bus_list = config["canGen"]["busses"]
     output_path = config["canGen"].get("outputPath", DEFAULT_OUTPUT_DIR)
@@ -72,9 +74,9 @@ if __name__ == "__main__":
         # pdb.set_trace()
         bus_name = bus['busName'].capitalize()
         dbc_files = bus['dbcFiles']
-        
-        dbc_file_paths = [os.path.join(os.getcwd(), dbc) for dbc in dbc_files]
- 
+
+        dbc_file_paths = [os.path.normpath(os.path.join(os.path.dirname(config_file_path), dbc)) for dbc in dbc_files]
+
         can_messages_template_path = os.path.join(
             DIR_TEMPLATES, CAN_MESSAGES_TEMPLATE_FILENAME
         )
