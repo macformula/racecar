@@ -1,39 +1,47 @@
-version: '3'
+version: '3'  
 
 env:
-  PROJECT:
-    cmds: 
-    - |
-      read -p "Enter the project: " PROJECT
-  PLATFROM:
-   cmds: 
-    - |
-      read -p "Enter the platform: " PLATFORM
+  PROJECT: "default"
+  PLATFORM: "default"
 
   BUILD: "build"
-  BUILD_DIR: "{{.BUILD}}/{{.PROJECT}}/{{.PLATFORM}}"
-  PROJECT_NAME: $(echo "{{.PROJECT}}" | tr '/' '-')
-  COMPILE_COMMANDS_DEST: '{{.BUILD}}/compile_commands.json'
-  PLATFORM_DIR: "projects/{{.PROJECT}}/platforms/{{.PLATFORM}}"
   GENERATOR: -G 'Unix Makefiles'
+  
 
 tasks:
+  set_vars:
+    cmds:
+    - |
+      BUILD_DIR="{{.BUILD}}/{{.PROJECT}}/{{.PLATFORM}}"
+      export BUILD_DIR
+      PROJECT_NAME= $(echo "{{.PROJECT}}" | tr '/' '-')
+      export PROJECT_NAME
+      COMPILE_COMMANDS_DEST= '{{.BUILD}}/compile_commands.json'
+      export COMPILE_COMMANDS_DEST
+      PLATFORM_DIR= "projects/{{.PROJECT}}/platforms/{{.PLATFORM}}"
+      export PLATFORM_DIR
+      
   build:
     cmds:
-      - cmake --build {{.BUILD_DIR}}
+      - |
+        task set_vars
+        echo $BUILD_DIR
+        cmake --build $BUILD_DIR
 
   config:
     cmds:
       - |
+        task set_vars
         cmake -B {{.BUILD_DIR}} -S. $GENERATOR -D PROJECT={{.PROJECT}} -D PLATFORM={{.PLATFORM}} -D PROJECT_NAME={{.PROJECT_NAME}}
         echo Copying compile_commands.json to $BUILD for clangd.
         cp {{.BUILD_DIR}}/compile_commands.json {{.COMPILE_COMMANDS_DEST}}
         echo Ensure the .clangd file exists.
-        touch .clangd 
+        touch .clangd
   
   clean:
     cmds:
      - |
+       task set_vars
        rm -rf {{.BUILD_DIR}}
        rm -f {{.COMPILE_COMMANDS_DEST}}
   
@@ -49,4 +57,6 @@ tasks:
 
   st-flash:
     cmds:
-      - st-flash --reset write {{.BUILD_DIR}}/{{.PROJECT_NAME}}.bin 0x08000000
+      - |
+        task set_vars
+        st-flash --reset write {{.BUILD_DIR}}/{{.PROJECT_NAME}}.bin 0x08000000
