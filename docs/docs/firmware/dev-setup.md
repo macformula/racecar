@@ -2,6 +2,16 @@
 
 Follow these steps to begin developing in `racecar/firmware`.
 
+## Clone the Repository
+
+Navigate to the directory where you would like to hold the `racecar` repo (I used `C:\Formula\repos`). Run
+
+    git clone https://github.com/macformula/racecar.git
+
+Change in the new `racecar` directory and initialize all submodules with
+
+    git submodule update --init --recursive
+
 ## Dependencies
 
 Unless otherwise mentioned, all programs must be accessible on your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
