@@ -5,16 +5,20 @@
 #include <thread>
 
 #include "mcal/cli/periph/can.h"
+#include "mcal/cli/periph/gpio.h"
 #include "shared/periph/can.h"
+#include "shared/periph/gpio.h"
 
 namespace mcal {
 using namespace cli::periph;
 
 CanBase veh_can_base{"vcan0"};
+DigitalInput button{"Button"};
 }  // namespace mcal
 
 namespace bindings {
 shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
+shared::periph::DigitalInput& button = mcal::button;
 
 void TickBlocking(uint32_t ticks) {
     std::chrono::milliseconds duration(ticks);
