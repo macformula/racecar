@@ -48,12 +48,17 @@ def _parse_dbc_files(dbc_files: List[str]) -> Database:
 
     return can_db
 
+def _normalize_node_name(
+    node_name: str
+) -> str:
+    return node_name.upper()
 
 def _filter_messages_by_node(
     messages: List[Message], node: str
 ) -> Tuple[List[Message], List[Message]]:
-    tx_msgs = [msg for msg in messages if node in msg.senders]
-    rx_msgs = [msg for msg in messages if node in msg.receivers]
+    normalized_node_name = _normalize_node_name(node)
+    tx_msgs = [msg for msg in messages if normalized_node_name in map(_normalize_node_name, msg.senders)]
+    rx_msgs = [msg for msg in messages if normalized_node_name in map(_normalize_node_name, msg.receivers)]
 
     logger.debug(
         f"Filtered messages by node: {node}. "

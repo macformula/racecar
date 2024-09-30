@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     config_file_path = os.path.abspath(CONFIG_FILE_NAME)
 
-    our_node = config["canGen"]["ourNode"].upper()
+    our_node = config["canGen"]["ourNode"]
     bus_list = config["canGen"]["busses"]
     output_path = config["canGen"].get("outputPath", DEFAULT_OUTPUT_DIR)
 
