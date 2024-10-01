@@ -2,113 +2,130 @@
 
 Follow these steps to begin developing in `racecar/firmware`.
 
-## Clone the Repository
+!!! tip
+    You can copy a command by clicking the :material-content-copy: icon
 
-Navigate to the directory where you would like to hold the `racecar` repo (I used `C:\Formula\repos`). Run
-
-    git clone https://github.com/macformula/racecar.git
-
-Change in the new `racecar` directory and initialize all submodules with
-
-    git submodule update --init --recursive
+        echo "Copy Me --->"
 
 ## Dependencies
 
-Unless otherwise mentioned, all programs must be accessible on your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
-
-The Windows instructions assume that you have installed [Chocolatey](https://chocolatey.org/install).
-
-### GNU Make
-
-__Version__ 4.0 or newer
-
 === "Windows"
 
-        choco install make
+    1. We will use Chocolatey to install most dependencies. Go to <https://chocolatey.org/install#individual> and follow the instructions under "Install Chocolatey for Individual Use".
+
+        Open a Command Prompt __as administrator__ and run
+
+        ```text
+        choco upgrade git msys2 make cmake -y
+        ```
+        
+    2. Install the newest version of Python from <https://www.python.org/downloads/>. When installing, ensure `Add python.exe to PATH` is checked.
+
+    3. Open an MSYS2 terminal by searching `msys2` in the Start Menu :material-microsoft-windows:. Install the GNU toolchain with
+
+        ```bash
+        pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain
+        ```
+
+        Press ++enter++ when prompted to "Enter a selection."
+
+        Add the MSYS2 ucrt64 binary directory to your PATH. You can find this path by searching `msys2` in the Start menu, clicking "Open File Location" then following `ucrt64/bin`.
+
+    4. Install the Arm GNU Toolchain from <https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads>.
+        
+        1. Download the `.exe` installer under "Windows hosted cross toolchains -> AArch32 bare-metal target (arm-none-eabi)".
+        2. Run the installer.
+        3. After the installer finishes, check `Add path to environment variable.`
 
 === "Linux"
 
-        sudo apt-get install build-essential
+    1. Set up the Kitware APT repository <https://apt.kitware.com/>.
 
-!!! tip "Verification"
+        > This allows `apt` to find new versions of CMake.
 
-        make --version
+    2. In your terminal, run
 
----
+        ```bash
+        sudo apt-get update
+        sudo apt-get install software-properties-common
+        sudo add-apt-repository ppa:deadsnakes/ppa
+        sudo apt-get update
+        sudo apt-get install git-all build-essential cmake python3.12 wget
+        ```
 
-### CMake
+    3. Install the Arm GNU Toolchain.
 
-__Version__ 3.27 or newer
+        1. Download and unzip the x86_64 Linux arm-none-eabi toolchain binaries.
 
-=== "Windows"
+                wget https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz
+                sudo tar xf arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz -C /usr/share
+                rm arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz
 
-        choco install cmake
+        2. Add the binaries to your profile PATH.
 
-=== "Linux"
+            Open `~/.profile` in a text editor and add this to the end of the file.
 
-        sudo apt-get install cmake
+                PATH="/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi/bin:$PATH"
 
-    > If this installs an old version (as it did for my Ubuntu 20.04 LTS), you may need to follow the steps at <https://apt.kitware.com/> to use the APT repository hosted by the developers of CMake.
+### Verify Installation
 
-!!! tip "Verification"
+Check that all programs were installed and have an acceptable version.
 
-        cmake --version
+_Do not copy the `# version comments`_
 
----
+```{.bash .no-copy}
+python --version  # >= 3.10, use python3 on Linux / Mac
+make --version    # >= 4.0
+cmake --version   # >= 3.27
+g++ --version     # >= 10
+arm-none-eabi-g++ --version     # >= 13.0
+```
 
-### Arm GNU Toolchain
+## Install STM32 Tools
 
-__Version__ 13.2.rel1 or newer
+### Create an ST Account
 
-Download from <https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads>.
-
-Choose an installer from the "AArch32 bare-metal target (arm-none-eabi)" section. Ensure the executables are available on your PATH.  
-
-!!! tip "Verification"
-
-        arm-none-eabi-gcc --version
-
----
+Go to [www.st.com](https://www.st.com), click on the account :material-account: icon in the top right and create an account. You will need this username and password later on.
 
 ### STM32CubeMX
 
-__Version__ 6.12.0
+CubeMX is a program which generates configuration code for our microcontrollers.
 
-!!! warning
+1. Download version 6.12.0 from <https://www.st.com/en/development-tools/stm32cubemx.html> and install it. You may need to sign in with your ST account.
 
-    You must install this version __exactly__ (not even 6.12.1). Using a different version will cause issues when opening files.
+    !!! warning
 
-Download from <https://www.st.com/en/development-tools/stm32cubemx.html#st-get-software>.
+        You must install this version __exactly__ (not even 6.12.1). Using a different version will cause issues when opening files.
 
-!!! tip "Verification"
+2. Open the install path which contains the `STM32CubeMX` executable and `jre/` directory. Add this directory to your PATH.
 
-    Running `stm32cubemx` should open the program.
+3. Open a terminal in that directory and run CubeMX in "interactive" mode to login.
 
----
+    === "Windows"
 
-### Java Runtime Environment
+            jre\bin\java -jar STM32CubeMX.exe -i
 
-__Version__ 17 or newer
+    === "Linux"
 
-=== "Windows"
+            jre/bin/java -jar STM32CubeMX -i
 
-    No installation needed as it comes with CubeMX.
+4. Wait for the program to stop printing to your terminal. Press ++question+enter++ to display the `MX>` prompt. Login with your `username` and `password`.
 
-=== "Linux"
+        MX> login username password y
 
-        sudo apt install openjdk-17-jre-headless
-
-> [Issue 142](https://github.com/macformula/racecar/issues/142) may remove this dependency.
-
----
+    Do not omit the `y` at the end! You can close CubeMX now.
 
 ### STM32CubeProgrammer
 
-__Version__ 2.16.0 or newer
-
-Download from <https://www.st.com/en/development-tools/stm32cubeprog.html>.
+Download and install version 2.16 or newer from <https://www.st.com/en/development-tools/stm32cubeprog.html>.
 
 It does not need to be on your PATH.
+
+## Clone the Repository
+
+Navigate to a directory where you would like to hold the `racecar` repo (I used `C:\Formula\repos`). Run
+
+    git clone --recurse-submodules https://github.com/macformula/racecar.git
 
 ---
 
