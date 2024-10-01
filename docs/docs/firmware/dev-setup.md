@@ -13,26 +13,32 @@ Follow these steps to begin developing in `racecar/firmware`.
 
     1. We will use Chocolatey to install most dependencies. Go to <https://chocolatey.org/install#individual> and follow the instructions under "Install Chocolatey for Individual Use".
 
-        Open a Command Prompt __as administrator__ and run
+    2. Open a Command Prompt __as administrator__ and run
 
         ```text
         choco upgrade git msys2 make cmake -y
         ```
         
-    2. Install the newest version of Python from <https://www.python.org/downloads/>. When installing, ensure `Add python.exe to PATH` is checked.
+    3. Install the newest version of Python from <https://www.python.org/downloads/>. When installing, ensure `Add python.exe to PATH` is checked.
 
-    3. Open an MSYS2 terminal by searching `msys2` in the Start Menu :material-microsoft-windows:. Install the GNU toolchain with
+    4. Open the MSYS2 directory by searching `msys2` in the Start Menu :material-microsoft-windows: and choosing "Open file location." Run `msys2.exe` to open a terminal and install the GNU toolchain with
 
         ```bash
-        pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain
+        pacman -Syuu
+        pacman -S mingw-w64-x86_64-toolchain
         ```
 
         Press ++enter++ when prompted to "Enter a selection."
 
-        Add the MSYS2 ucrt64 binary directory to your PATH. You can find this path by searching `msys2` in the Start menu, clicking "Open File Location" then following `ucrt64/bin`.
-
-    4. Install the Arm GNU Toolchain from <https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads>.
+        Add the MSYS2 mingw64 binary and library directories to your PATH. These paths will be of the form
         
+        ```text
+        C:\path-to-msys2\mingw64\bin
+        C:\path-to-msys2\mingw64\lib
+        ```
+
+    5. Install the Arm GNU Toolchain from <https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads>.
+
         1. Download the `.exe` installer under "Windows hosted cross toolchains -> AArch32 bare-metal target (arm-none-eabi)".
         2. Run the installer.
         3. After the installer finishes, check `Add path to environment variable.`
@@ -50,7 +56,7 @@ Follow these steps to begin developing in `racecar/firmware`.
         sudo apt-get install software-properties-common
         sudo add-apt-repository ppa:deadsnakes/ppa
         sudo apt-get update
-        sudo apt-get install git-all build-essential cmake python3.12 wget
+        sudo apt-get install git-all build-essential cmake python3.12 wget gcc-13
         ```
 
     3. Install the Arm GNU Toolchain.
@@ -71,7 +77,7 @@ Follow these steps to begin developing in `racecar/firmware`.
 
 Check that all programs were installed and have an acceptable version.
 
-_Do not copy the `# version comments`_
+_Do not copy the `# version comments`._
 
 ```{.bash .no-copy}
 python --version  # >= 3.10, use python3 on Linux / Mac
@@ -111,15 +117,23 @@ CubeMX is a program which generates configuration code for our microcontrollers.
 
 4. Wait for the program to stop printing to your terminal. Press ++question+enter++ to display the `MX>` prompt. Login with your `username` and `password`.
 
-        MX> login username password y
+    ```{.text .no-copy}
+    login username password y
+    ```
 
-    Do not omit the `y` at the end! You can close CubeMX now.
+    Do not omit the `y` at the end!
+
+5. Install the STM32F7 firmware pack.
+
+    ```text
+    swmgr install stm32cube_f7_1.17.2 ask
+    ```
+
+    You can close CubeMX now by typing `exit`.
 
 ### STM32CubeProgrammer
 
 Download and install version 2.16 or newer from <https://www.st.com/en/development-tools/stm32cubeprog.html>.
-
-It does not need to be on your PATH.
 
 ## Clone the Repository
 
@@ -127,23 +141,23 @@ Navigate to a directory where you would like to hold the `racecar` repo (I used 
 
     git clone --recurse-submodules https://github.com/macformula/racecar.git
 
----
+You can now start developing in `racecar`! However, I recommend you configure your IDE with `clangd`, so continue to the next section.
+
+## IDE Integration
+
+_This section is optional but highly recommended._
 
 ### clangd
 
 ??? info "What is `clangd`?"
 
-    [`clangd`](https://clangd.llvm.org/) is our official C/C++ language server. It is __not required__ but will make your development experience much nicer. We have configured CMake to export your most recent compilation's build commands meaning you don't need to manually configure include paths or compiler flags for each project.
+    [`clangd`](https://clangd.llvm.org/) is a C++ language server that provides intelligent code completion and errors by analyzing compiler commands C/C++ language server. We have configured CMake to export your most recent compilation's build commands meaning you don't need to manually configure include paths or compiler flags for each project.
 
     Whenever you build a project with the Makefile, `clangd` will see the new `build/compile_commands.json` and immediately update your IDE's include paths. When you switch which project or platform you are developing for, simply rebuild the project and your development environment will be automatically prepared.
 
-__Version__ 16.0.2
+Download and unzip `clangd-{OS}-16.0.2.zip` from <https://github.com/clangd/clangd/releases?q=16.0.2> under "Assets."
 
-> We hope to update this version soon. See [Issue 93](https://github.com/macformula/racecar/issues/93).
-
-Download `clangd-{OS}-16.0.2.zip` from <https://github.com/clangd/clangd/releases?q=16.0.2> and unzip.
-
-The executable does __not__ need to be on your PATH. Place the binary somewhere convenient and reference it in your IDE (see [IDE Setup](#ide-setup)).
+Place the executable somewhere on your PATH. Follow [these instructions](https://clangd.llvm.org/installation#editor-plugins) to connect it to your IDE.
 
 __Important:__ Create an empty file named `.clangd` in the `firmware/` directory. This file indicates the "root" directory of the project, so it will look for `compile_commands.json` in `firmware/build`.
 
@@ -169,9 +183,14 @@ __Important:__ Create an empty file named `.clangd` in the `firmware/` directory
             Add: --target=arm64-apple-darwin22.6.0
         ```
 
+        
+## Additional Dependencies
+
 ### gRPC
 
 !!! warning "Optional Dependency"
+
+    _You probably don't need this._
 
     Within the racecar repo, gRPC is only used by the SIL Client under `firmware/validation/sil/`. The client is used by the Raspberry Pi MCAL to interact with the [HIL / SIL](https://github.com/macformula/hil).
 
@@ -180,23 +199,3 @@ __Important:__ Create an empty file named `.clangd` in the `firmware/` directory
 You will need a Unix development environment (Unix machine, WSL, or remote into the Raspberry Pi).
 
 Go through the [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/). Build the example project.
-
-## IDE Setup
-
-_If you use a different IDE, consider [adding instructions](../tutorials/site-dev.md) for setting it up!_
-
-=== ":material-microsoft-visual-studio-code: VS Code"
-
-    __`clangd` Setup__
-
-    1. If you have the [Microsoft C/C++ extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools), disable it for the `racecar` workspace.
-
-        > Open the Extensions pane with ++ctrl+shift+x++, right click on the C/C++ extension and select `Disable (Workspace)`.
-   
-    1. Install the [`clangd` extension](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd) from LLVM.   
-
-    1. Provide the `clangd` extension settings with the path to the `clangd` executable installed [earlier](#clangd).
-
-        1. Select the `clangd` extension and open :octicons-gear-24: Extension Settings.
-        
-        1. Paste the full `clangd` executable path in the "Clangd: Path" setting.
