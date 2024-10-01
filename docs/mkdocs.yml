@@ -88,9 +88,9 @@ markdown_extensions:
   - pymdownx.snippets:
       auto_append:
         - includes/abbreviations.md
-      # base_path:
-        # - !relative  # Relative to current.md
-        # - .          # Relative to this file
+      base_path:
+        - !relative
+        - .
 
 repo_url: https://github.com/macformula/racecar
 repo_name: macformula/racecar
