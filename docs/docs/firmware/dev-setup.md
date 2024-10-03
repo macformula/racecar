@@ -18,6 +18,14 @@ Follow these steps to begin developing in `racecar/firmware`.
         ```text
         choco upgrade git msys2 make cmake -y
         ```
+
+        !!! warning "Git Bash"
+
+            The Git Bash terminal shell is included when you install `git`. This shell emulates the Linux bash shell, allowing you to use commands like `grep`, `ls`, `rm` and many more on Windows.
+
+            If you are on Windows, you need to use Git Bash as your shell when developing in `racecar/`. (i.e. not Command Prompt or Powershell).
+
+            In VSCode, you can change your default shell by pressing ++f1++ and entering `>Terminal: Select Default Profile` and selecting your desired shell program.
         
     3. Install the newest version of Python from <https://www.python.org/downloads/>. When installing, ensure `Add python.exe to PATH` is checked.
 
@@ -80,6 +88,7 @@ Check that all programs were installed and have an acceptable version.
 _Do not copy the `# version comments`._
 
 ```{.bash .no-copy}
+git --version     # >= 2.40
 python --version  # >= 3.10, use python3 on Linux / Mac
 make --version    # >= 4.0
 cmake --version   # >= 3.27
@@ -107,9 +116,9 @@ CubeMX is a program which generates configuration code for our microcontrollers.
 
 3. Open a terminal in that directory and run CubeMX in "interactive" mode to login.
 
-    === "Windows"
+    === "Windows (Git Bash)"
 
-            jre\bin\java -jar STM32CubeMX.exe -i
+            jre/bin/java -jar STM32CubeMX.exe -i
 
     === "Linux"
 
@@ -145,11 +154,11 @@ Navigate to a directory where you would like to hold the `racecar` repo (I used 
 
 Create a Python virtual environment for CANgen. Navigate into `racecar/firmware` and run.
 
-=== "Windows"
+=== "Windows (Git Bash)"
 
     ```text
     python -m venv .env
-    .env\Scripts\activate
+    source .env/Scripts/activate
     ```
 
 === "Linux / Mac"
