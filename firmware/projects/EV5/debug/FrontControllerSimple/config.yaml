@@ -3,7 +3,7 @@ canGen:
   busses:
     - busName: veh
       dbcFiles:
-        - "veh.dbc"
+        - "../../veh.dbc"
     - busName: pt
       dbcFiles:
-        - "pt.dbc"
+        - "../../pt.dbc"

@@ -10,6 +10,7 @@ BUILD := build
 BUILD_DIR = $(BUILD)/$(PROJECT)/$(PLATFORM)
 PLATFORM_DIR := projects/$(PROJECT)/platforms/$(PLATFORM)
 GENERATOR := -G"Unix Makefiles"
+LOG_LEVEL := STATUS
 
 # Name must be a valid filename (i.e. cannot have '/')
 PROJECT_NAME := $(subst /,-,$(PROJECT))
@@ -22,7 +23,7 @@ build: config
 	cmake --build $(BUILD_DIR)
 
 config:
-	cmake -B $(BUILD_DIR) -S. $(GENERATOR) -D PROJECT=$(PROJECT) -D PLATFORM=$(PLATFORM) -D PROJECT_NAME=$(PROJECT_NAME)
+	cmake -B $(BUILD_DIR) -S. $(GENERATOR) -D PROJECT=$(PROJECT) -D PLATFORM=$(PLATFORM) -D PROJECT_NAME=$(PROJECT_NAME) --log-level $(LOG_LEVEL)
 
 	@echo Copying compile_commands.json to $(BUILD) for clangd.
 	cp $(BUILD_DIR)/compile_commands.json $(COMPILE_COMMANDS_DEST)

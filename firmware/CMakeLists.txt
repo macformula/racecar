@@ -104,8 +104,8 @@ message(CHECK_PASS "Success")
 # Options are parsed. Start building
 message(STATUS "Building \"${PROJECT}\" for \"${PLATFORM}\" with mcal \"${MCAL}\".")
 
-enable_language(C CXX ASM)
 set(CMAKE_TOOLCHAIN_FILE ${TOOLCHAIN_FILE})
+enable_language(C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)

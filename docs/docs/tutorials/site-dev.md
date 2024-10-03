@@ -27,7 +27,7 @@ These steps only need to be performed once.
 
     === "Unix"
 
-            source .venv/Scripts/activate
+            source .venv/bin/activate
 
 1. Install the documentation dependencies.
 

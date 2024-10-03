@@ -13,6 +13,7 @@
 #include "tim.h"
 
 // fw imports
+#include "bindings.h"
 #include "mcal/stm32f767/periph/adc.h"
 #include "mcal/stm32f767/periph/gpio.h"
 #include "mcal/stm32f767/periph/pwm.h"
@@ -39,26 +40,28 @@ ADCInput temp_sensor_adc_5{&hadc1, SENS_5_UC_IN_CHANNEL};
 ADCInput temp_sensor_adc_6{&hadc1, SENS_6_UC_IN_CHANNEL};
 
 PWMOutput fan_controller_pwm{&htim4, TIM_CHANNEL_1};
-DigitalOutput debug_do_blue{NUCLEO_BLUE_LED_GPIO_Port, NUCLEO_BLUE_LED_Pin};
-DigitalOutput debug_do_red{NUCLEO_RED_LED_GPIO_Port, NUCLEO_RED_LED_Pin};
+DigitalOutput debug_led_green{DEBUG_LED1_GPIO_Port, DEBUG_LED1_Pin};
+DigitalOutput debug_led_red{DEBUG_LED2_GPIO_Port, DEBUG_LED2_Pin};
+DigitalOutput debug_led_nucleo{NUCLEO_RED_LED_GPIO_Port, NUCLEO_RED_LED_Pin};
 
 CanBase veh_can_base{&hcan2};
 
 }  // namespace mcal
 
 namespace bindings {
-const shared::periph::ADCInput& temp_sensor_adc_1 = mcal::temp_sensor_adc_1;
-const shared::periph::ADCInput& temp_sensor_adc_2 = mcal::temp_sensor_adc_2;
-const shared::periph::ADCInput& temp_sensor_adc_3 = mcal::temp_sensor_adc_3;
-const shared::periph::ADCInput& temp_sensor_adc_4 = mcal::temp_sensor_adc_4;
-const shared::periph::ADCInput& temp_sensor_adc_5 = mcal::temp_sensor_adc_5;
-const shared::periph::ADCInput& temp_sensor_adc_6 = mcal::temp_sensor_adc_6;
+shared::periph::ADCInput& temp_sensor_adc_1 = mcal::temp_sensor_adc_1;
+shared::periph::ADCInput& temp_sensor_adc_2 = mcal::temp_sensor_adc_2;
+shared::periph::ADCInput& temp_sensor_adc_3 = mcal::temp_sensor_adc_3;
+shared::periph::ADCInput& temp_sensor_adc_4 = mcal::temp_sensor_adc_4;
+shared::periph::ADCInput& temp_sensor_adc_5 = mcal::temp_sensor_adc_5;
+shared::periph::ADCInput& temp_sensor_adc_6 = mcal::temp_sensor_adc_6;
 
-const shared::periph::PWMOutput& fan_controller_pwm = mcal::fan_controller_pwm;
-const shared::periph::DigitalOutput& debug_do_blue = mcal::debug_do_blue;
-const shared::periph::DigitalOutput& debug_do_red = mcal::debug_do_red;
+shared::periph::PWMOutput& fan_controller_pwm = mcal::fan_controller_pwm;
+shared::periph::DigitalOutput& debug_led_green = mcal::debug_led_green;
+shared::periph::DigitalOutput& debug_led_red = mcal::debug_led_red;
+//  shared::periph::DigitalOutput& debug_led_red = mcal::debug_led_nucleo;
 
-const shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
+shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
 
 void Initialize() {
     SystemClock_Config();
@@ -67,10 +70,6 @@ void Initialize() {
     MX_TIM4_Init();
     MX_GPIO_Init();
     MX_CAN2_Init();
-}
-
-void Log(std::string s) {
-    return;
 }
 
 }  // namespace bindings

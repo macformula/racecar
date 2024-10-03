@@ -1,15 +1,14 @@
 ifeq ($(OS),Windows_NT)
 # Convert windows backslash to regular slash
 	CUBEMX_PATH := $(subst \,/,$(shell where STM32CubeMX))
-# Compute the CubeMX's java path. Spaces in path are escaped.
-	space := $(subst ,, )
-	JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/bin/java
-# Known bug: Expanding JAVA twice does not work.
 else # Linux / MacOS
     CUBEMX_PATH := $(shell which STM32CubeMX)
-	JAVA := $(shell which java)
-# See https://github.com/macformula/racecar/issues/142
 endif
+
+# Find the JAVA which is installed with CubeMX. Spaces in path are escaped.
+space := $(subst ,, )
+CUBEMX_JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/bin/java
+# Known bug: Expanding CUBEMX_JAVA twice does not work.
 
 IOC_FILE = board_config.ioc
 
@@ -36,4 +35,4 @@ Makefile: $(IOC_FILE)
 	@printf 'exit\n' >> $(CUBEMX_GEN_SCRIPT)
 
 # Run the cubemx program to generate code.
-	$(JAVA) -jar "$(CUBEMX_PATH)" -q "$(CUBEMX_GEN_SCRIPT)"
+	$(CUBEMX_JAVA) -jar "$(CUBEMX_PATH)" -q "$(CUBEMX_GEN_SCRIPT)"

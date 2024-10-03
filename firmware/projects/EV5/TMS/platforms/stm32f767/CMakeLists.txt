@@ -3,7 +3,8 @@
 
 add_subdirectory(cubemx)
 
-target_sources(bindings PUBLIC bindings.cc os.cc)
+target_sources(bindings PUBLIC bindings.cc)
+target_include_directories(bindings PUBLIC ${DIR_PROJECT})
 target_link_libraries(bindings PUBLIC driver mcal-stm32f767)
 
 add_library(os)

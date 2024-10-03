@@ -89,7 +89,8 @@ markdown_extensions:
       auto_append:
         - includes/abbreviations.md
       base_path:
-        - !relative  # Relative to current.md
+        - !relative
+        - !relative $docs_dir/../
 
 repo_url: https://github.com/macformula/racecar
 repo_name: macformula/racecar
