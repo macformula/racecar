@@ -224,6 +224,8 @@ __Important:__ Create an empty file named `.clangd` in the `firmware/` directory
 
 You will need a Unix development environment (Unix machine, WSL, or remote into the Raspberry Pi).
 
+Go through the [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/). Build the example project.
+
 _If you use a different IDE, consider [adding instructions](../tutorials/site-dev.md) for setting it up!_
 
 === ":material-microsoft-visual-studio-code: VS Code"
@@ -242,7 +244,6 @@ _If you use a different IDE, consider [adding instructions](../tutorials/site-de
         
         1. Paste the full `clangd` executable path in the "Clangd: Path" setting.
 
-Go through the [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/). Build the example project.
 
 ## Pre-Commit Setup
 
