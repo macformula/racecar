@@ -1,0 +1,3 @@
+config load "IOC_FILE"
+project generate ./
+exit

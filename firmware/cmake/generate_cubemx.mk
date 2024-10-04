@@ -18,6 +18,8 @@ CUBEMX_GEN_SCRIPT = cubemx_script.txt
 BUILD_SYS_DIR:=$(dir $(MAKEFILE_LIST))
 CUSTOM_TARGETS_FILE = $(BUILD_SYS_DIR)custom_cubemx_targets.mk
 
+CUBEMX_GEN_SCRIPT_TEMPLATE := $(BUILD_SYS_DIR)generate_cubemx_script.txt.template
+
 # Copy the CubeMX makefile and custom targets into a new makefile
 CustomMakefile.mk: Makefile $(CUSTOM_TARGETS_FILE)
 	@echo "Creating $@ from [$^]"
@@ -27,12 +29,10 @@ CustomMakefile.mk: Makefile $(CUSTOM_TARGETS_FILE)
 # This recipe will execute whenever IOC_FILE has a newer timestamp than the
 # Makefile, i.e. whenever IOC_FILE has been updated but new code has not been
 # generated.
-Makefile: $(IOC_FILE)
+Makefile: $(IOC_FILE) $(CUBEMX_GEN_SCRIPT_TEMPLATE)
 	@echo "Autogenerating from CubeMX. If you don't want to do this, you must manually 'Generate Code' before building."
 # Create an file containing commands to generate the cubemx code.
-	@printf 'config load "%s"\n' $(IOC_FILE) > $(CUBEMX_GEN_SCRIPT)
-	@printf 'project generate ./\n' >> $(CUBEMX_GEN_SCRIPT)
-	@printf 'exit\n' >> $(CUBEMX_GEN_SCRIPT)
-
+	sed $(CUBEMX_GEN_SCRIPT_TEMPLATE) -e 's/IOC_FILE/$(IOC_FILE)/g' > $(CUBEMX_GEN_SCRIPT)
+	
 # Run the cubemx program to generate code.
 	$(CUBEMX_JAVA) -jar "$(CUBEMX_PATH)" -q "$(CUBEMX_GEN_SCRIPT)"
