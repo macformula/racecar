@@ -7,14 +7,14 @@ import argparse
 import logging
 import os
 
-import can_generator
+from .can_generator import generate_code
 import yaml
 import shutil
 
 # Generate a set of directory paths, all based on this file's location
 DIR_THIS_FILE = os.path.abspath(os.path.dirname(__file__))
 
-DIR_FIRMWARE = os.path.join(DIR_THIS_FILE, os.pardir, os.pardir, "firmware")
+DIR_FIRMWARE = os.path.join(DIR_THIS_FILE, os.pardir, os.pardir, os.pardir, "firmware")
 DIR_PROJECTS = os.path.join(DIR_FIRMWARE, "projects")
 
 CONFIG_FILE_NAME = "config.yaml"
@@ -40,6 +40,59 @@ def parse():
     # If parsing fails (ex incorrect or no arguments provided) then this exits with
     # code 2.
     return parser.parse_args()
+
+
+def main():
+
+    # Change directory to the project folder
+    args = parse()
+    project_folder_name = args.project
+    os.chdir(os.path.join(DIR_PROJECTS, project_folder_name))
+    
+    # Map CMAKE log levels -> Python log levels
+    log_level_mappings = {
+        "STATUS": "INFO",
+        "INFO": "INFO",
+        "VERBOSE": "DEBUG",
+        "DEBUG": "DEBUG"
+    }
+    # Set log level threshold to specified verbosity
+    logging.getLogger().setLevel(log_level_mappings[args.level])
+
+    # Read & Parse the config file
+    with open(CONFIG_FILE_NAME, "r") as file:
+        config = yaml.safe_load(file)
+
+    config_file_path = os.path.abspath(CONFIG_FILE_NAME)
+
+    our_node = config["canGen"]["ourNode"]
+    bus_list = config["canGen"]["busses"]
+    output_path = config["canGen"].get("outputPath", DEFAULT_OUTPUT_DIR)
+
+    for bus in bus_list:
+        # import pdb
+
+        # pdb.set_trace()
+        bus_name = bus['busName'].capitalize()
+        dbc_files = bus['dbcFiles']
+
+        dbc_file_paths = [os.path.normpath(os.path.join(os.path.dirname(config_file_path), dbc)) for dbc in dbc_files]
+
+        can_messages_template_path = os.path.join(
+            DIR_TEMPLATES, CAN_MESSAGES_TEMPLATE_FILENAME
+        )
+        msg_registry_template_path = os.path.join(
+            DIR_TEMPLATES, MSG_REGISTRY_TEMPLATE_FILENAME
+        )
+
+        generate_code(
+            dbc_file_paths,
+            our_node,
+            bus_name,
+            output_path,
+            can_messages_template_path,
+            msg_registry_template_path,
+        )
 
 
 if __name__ == "__main__":
@@ -89,7 +142,7 @@ if __name__ == "__main__":
             DIR_TEMPLATES, MSG_REGISTRY_TEMPLATE_FILENAME
         )
 
-        can_generator.generate_code(
+        generate_code(
             dbc_file_paths,
             our_node,
             bus_name,
