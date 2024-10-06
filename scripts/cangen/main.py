@@ -68,6 +68,14 @@ if __name__ == "__main__":
     bus_list = config["canGen"]["busses"]
     output_path = config["canGen"].get("outputPath", DEFAULT_OUTPUT_DIR)
 
+
+#clear the directory file
+if os.path.exists(output_path):
+    for filename in os.listdir(output_path):
+        os.remove(os.path.join(output_path, filename))
+
+
+
     for bus in bus_list:
         # import pdb
 
