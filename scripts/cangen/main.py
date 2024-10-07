@@ -70,7 +70,8 @@ if __name__ == "__main__":
     output_path = config["canGen"].get("outputPath", DEFAULT_OUTPUT_DIR)
 
     # Deletes output path folder and files within, before creating new ones
-    shutil.rmtree(output_path)
+    if os.path.exists(output_path):
+        shutil.rmtree(output_path)
 
     for bus in bus_list:
         # import pdb
