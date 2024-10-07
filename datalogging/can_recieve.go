@@ -49,5 +49,5 @@ func main() {
 
 func printCANFrame(intrfce_name string, frm can.Frame) {
 	dataToPrint := frm.Data[:frm.Length]
-	fmt.Printf("%s   %X   [%d]   % -X\n", intrfce_name, frm.ID, frm.Length, dataToPrint)
+	fmt.Printf("%s   %-4X   [%d]   % -42X\n", intrfce_name, frm.ID, frm.Length, dataToPrint)
 }
