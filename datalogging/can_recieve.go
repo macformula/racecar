@@ -12,7 +12,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run can_reciever.go <interface name>")
+		fmt.Println("Usage: go run can_reciever.go <INTERFACE NAME>")
 		return
 	}
 	var interfce_name = os.Args[1]
@@ -20,9 +20,11 @@ func main() {
 	intrfce, err := net.InterfaceByName(interfce_name)
 
 	if err != nil {
-		fmt.Println("Could not connect to vcan0. Check that you have added it properly.")
+		fmt.Printf("Could not connect to %s. Check that you have added it properly.\n", interfce_name)
 		os.Exit(1)
 	}
+
+	fmt.Println("Listening...")
 
 	connection, _ := can.NewReadWriteCloserForInterface(intrfce)
 	can_bus := can.NewBus(connection)
