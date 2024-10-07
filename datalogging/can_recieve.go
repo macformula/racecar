@@ -24,18 +24,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("Listening...")
-
+	// Establish connection to CAN bus
 	connection, _ := can.NewReadWriteCloserForInterface(intrfce)
 	can_bus := can.NewBus(connection)
-	//Pass intrfce_name through anonymous function
 	can_bus.SubscribeFunc(func(frm can.Frame) {
 		printCANFrame(interfce_name, frm)
 	})
 	can_bus.ConnectAndPublish()
 
+	// Intercepts interrupt to perform cleanup actions before exiting program
 	signalChan := make(chan os.Signal, 1)
-	//Intercept interrupts to perform cleanup actions before exiting program
 	signal.Notify(signalChan, os.Interrupt)
 	signal.Notify(signalChan, syscall.SIGTERM)
 
@@ -47,6 +45,7 @@ func main() {
 	}()
 }
 
+// Formats and outputs CAN frames to match output of candump
 func printCANFrame(intrfce_name string, frm can.Frame) {
 	dataToPrint := frm.Data[:frm.Length]
 	fmt.Printf("%s   %-4X   [%d]   % -42X\n", intrfce_name, frm.ID, frm.Length, dataToPrint)
