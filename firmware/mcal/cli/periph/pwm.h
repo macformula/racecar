@@ -30,15 +30,30 @@ public:
         std::cout << "Setting PWM " << name_ << " to " << duty_cycle_ << "%"
                   << std::endl;
     }
+
     float GetDutyCycle() override {
         std::cout << "PWM " << name_ << " has duty cycle " << duty_cycle_ << "%"
                   << std::endl;
         return duty_cycle_;
     }
 
+    void SetFrequency(float frequency) override {
+        frequency_ = frequency;
+
+        std::cout << "Setting frequency " << name_ << " to " << frequency_
+                  << " Hz" << std::endl;
+    }
+
+    float GetFrequency() override {
+        std::cout << "Frequency " << name_ << " has frequency " << frequency_
+                  << " Hz" << std::endl;
+        return frequency_;
+    }
+
 private:
     std::string name_;
     float duty_cycle_;
+    float frequency_;
 };
 
 }  // namespace mcal::cli::periph
