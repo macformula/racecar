@@ -234,3 +234,46 @@ __Important:__ Create an empty file named `.clangd` in the `firmware/` directory
 You will need a Unix development environment (Unix machine, WSL, or remote into the Raspberry Pi).
 
 Go through the [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/). Build the example project.
+
+_If you use a different IDE, consider [adding instructions](../tutorials/site-dev.md) for setting it up!_
+
+=== ":material-microsoft-visual-studio-code: VS Code"
+
+    __`clangd` Setup__
+
+    1. If you have the [Microsoft C/C++ extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools), disable it for the `racecar` workspace.
+
+        > Open the Extensions pane with ++ctrl+shift+x++, right click on the C/C++ extension and select `Disable (Workspace)`.
+   
+    1. Install the [`clangd` extension](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd) from LLVM.   
+
+    1. Provide the `clangd` extension settings with the path to the `clangd` executable installed [earlier](#clangd).
+
+        1. Select the `clangd` extension and open :octicons-gear-24: Extension Settings.
+        
+        1. Paste the full `clangd` executable path in the "Clangd: Path" setting.
+
+
+## Pre-Commit Setup
+
+We use `pre-commit` hooks to run formatting and code checks before the code is pushed. 
+
+### Minimum Python Version
+
+To install and use `pre-commit`, ensure that you are using **Python 3.6** or newer.
+
+### Installing Pre-Commit
+
+1. Install `pre-commit` via pip:
+
+    ```bash
+    pip install pre-commit
+    ```
+
+2. Install the git hooks by running this command in the `racecar` directory:
+
+    ```bash
+    pre-commit install
+    ```
+
+    This will install the hooks so they run automatically when you use `git commit`.
