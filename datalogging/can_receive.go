@@ -12,23 +12,29 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run can_reciever.go <INTERFACE NAME>")
-		return
+		fmt.Println("Usage: go run can_receiver.go <INTERFACE NAME>")
+		os.Exit(2)
 	}
-	var interfce_name = os.Args[1]
+	var interfaceName = os.Args[1]
 
-	intrfce, err := net.InterfaceByName(interfce_name)
+	canInterface, err := net.InterfaceByName(interfaceName)
 
 	if err != nil {
-		fmt.Printf("Could not connect to %s. Check that you have added it properly.\n", interfce_name)
+		fmt.Printf("Could not connect to %s. Check that you have added it properly.\n", interfaceName)
 		os.Exit(1)
 	}
 
 	// Establish connection to CAN bus
-	connection, _ := can.NewReadWriteCloserForInterface(intrfce)
+	connection, err := can.NewReadWriteCloserForInterface(canInterface)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	can_bus := can.NewBus(connection)
 	can_bus.SubscribeFunc(func(frm can.Frame) {
-		printCANFrame(interfce_name, frm)
+		printCANFrame(interfaceName, frm)
 	})
 	can_bus.ConnectAndPublish()
 
@@ -46,7 +52,7 @@ func main() {
 }
 
 // Formats and outputs CAN frames to match output of candump
-func printCANFrame(intrfce_name string, frm can.Frame) {
+func printCANFrame(interfaceName string, frm can.Frame) {
 	dataToPrint := frm.Data[:frm.Length]
-	fmt.Printf("%s   %-4X   [%d]   % -42X\n", intrfce_name, frm.ID, frm.Length, dataToPrint)
+	fmt.Printf("%s   %-4X   [%d]   % -42X\n", interfaceName, frm.ID, frm.Length, dataToPrint)
 }
