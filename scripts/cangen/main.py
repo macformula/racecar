@@ -9,6 +9,7 @@ import os
 
 import can_generator
 import yaml
+import shutil
 
 # Generate a set of directory paths, all based on this file's location
 DIR_THIS_FILE = os.path.abspath(os.path.dirname(__file__))
@@ -67,6 +68,10 @@ if __name__ == "__main__":
     our_node = config["canGen"]["ourNode"]
     bus_list = config["canGen"]["busses"]
     output_path = config["canGen"].get("outputPath", DEFAULT_OUTPUT_DIR)
+
+    # Deletes output path folder and files within, before creating new ones
+    if os.path.exists(output_path):
+        shutil.rmtree(output_path)
 
     for bus in bus_list:
         # import pdb
