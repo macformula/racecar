@@ -12,7 +12,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run can_receiver.go <INTERFACE NAME>")
+		fmt.Println("Usage: go run can_receive.go <INTERFACE NAME>")
 		os.Exit(2)
 	}
 	var interfaceName = os.Args[1]
