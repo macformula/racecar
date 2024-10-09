@@ -14,16 +14,13 @@ class AnalogOutput : public shared::periph::AnalogOutput {
 public:
     AnalogOutput(std::string name) : name_(name) {}
 
-    void Set(float voltage) {
-        voltage_ = voltage;
-
-        std::cout << "Setting voltage " << name_ << " to " << voltage_ << " V" 
+    void SetVoltage (float voltage) override {
+        std::cout << "Setting AnalogOutput " << name_ << " to " << voltage << " V" 
                   << std::endl;
     }
 
 private:
     std::string name_;
-    float voltage_;
 };
 
 }  // namespace mcal::cli::periph

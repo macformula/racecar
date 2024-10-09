@@ -9,7 +9,7 @@ namespace shared::periph {
 
 class AnalogOutput : public util::Peripheral {
 public:
-    virtual void Set(float voltage) = 0;
+    virtual void SetVoltage(float voltage) = 0;
 };
 
 }  // namespace shared::periph

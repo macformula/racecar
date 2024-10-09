@@ -27,7 +27,7 @@ public:
         duty_cycle_ =
             shared::util::Clamper<float>::Evaluate(duty_cycle, 0, 100);
 
-        std::cout << "Setting PWM " << name_ << " to " << duty_cycle_ << "%"
+        std::cout << "Setting PWM " << name_ << " duty cycle to " << duty_cycle_ << "%"
                   << std::endl;
     }
 
@@ -38,14 +38,14 @@ public:
     }
 
     void SetFrequency(float frequency) override {
-        frequency_ = frequency;
+        frequency_ = std::max((float) 0, frequency);
 
-        std::cout << "Setting frequency " << name_ << " to " << frequency_
+        std::cout << "Setting PWM " << name_ << " frequency to " << frequency_
                   << " Hz" << std::endl;
     }
 
     float GetFrequency() override {
-        std::cout << "Frequency " << name_ << " has frequency " << frequency_
+        std::cout << "PWM " << name_ << " has frequency " << frequency_
                   << " Hz" << std::endl;
         return frequency_;
     }

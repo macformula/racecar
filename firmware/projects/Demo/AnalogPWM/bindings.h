@@ -5,8 +5,8 @@
 
 namespace bindings {
 
-extern shared::periph::PWMOutput& test;
-extern shared::periph::AnalogOutput& test2;
+extern shared::periph::PWMOutput& pwm;
+extern shared::periph::AnalogOutput& analog_out;
 
 extern void DelayMS(unsigned int ms);
 extern void Initialize();
