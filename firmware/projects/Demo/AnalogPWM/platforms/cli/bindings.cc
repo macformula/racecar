@@ -10,15 +10,15 @@
 
 namespace mcal {
 
-cli::periph::PWMOutput test{"Test"};
-cli::periph::AnalogOutput test2{"Test 2"};
+cli::periph::PWMOutput pwm{"test"};
+cli::periph::AnalogOutput analog_out{"test"};
 
 }  // namespace mcal
 
 namespace bindings {
 
-shared::periph::PWMOutput& test = mcal::test;
-shared::periph::AnalogOutput& test2 = mcal::test2;
+shared::periph::PWMOutput& pwm = mcal::pwm;
+shared::periph::AnalogOutput& analog_out = mcal::analog_out;
 
 void DelayMS(unsigned int ms) {
     usleep(ms * 1000);
