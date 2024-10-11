@@ -14,6 +14,8 @@ repos:
     hooks:
       - id: clang-format
         name: Run git-clang-format
-        entry: git clang-format --style=file --staged
-        language: system
+        entry: git clang-format --style=file --staged --force
+        language: python
         stages: [commit]
+        additional_dependencies:
+          - clang-format~=19.0
