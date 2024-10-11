@@ -239,10 +239,6 @@ Go through the [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/qu
 
 We use `pre-commit` hooks to run formatting and code checks before the code is pushed.
 
-### Minimum Python Version
-
-To install and use `pre-commit`, ensure that you are using __Python 3.6__ or newer.
-
 ### Installing Pre-Commit
 
 1. Install `pre-commit` via pip:
