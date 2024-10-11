@@ -12,8 +12,7 @@ PLATFORM_DIR := projects/$(PROJECT)/platforms/$(PLATFORM)
 GENERATOR := -G"Unix Makefiles"
 LOG_LEVEL := STATUS
 
-# Name must be a valid filename (i.e. cannot have '/')
-PROJECT_NAME := $(subst /,-,$(PROJECT))
+PROJECT_NAME := $(notdir $(patsubst %/,%,$(PROJECT)))
 
 COMPILE_COMMANDS_DEST := $(BUILD)/compile_commands.json
 
