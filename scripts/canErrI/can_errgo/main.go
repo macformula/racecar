@@ -13,9 +13,30 @@ const (
 	canFrameSize = 16       // CAN frame size (for a standard CAN frame)
 )
 
+func IntPow(n, m int) int {
+    if m == 0 {
+        return 1
+    }
+
+    if m == 1 {
+        return n
+    }
+
+    result := n
+    for i := 2; i <= m; i++ {
+        result *= n
+    }
+    return result
+}
+
+
 func main() {
 	// Create a raw CAN socket using the unix package
-	sock, err := unix.Socket(unix.AF_CAN, unix.SOCK_RAW, unix.CAN_RAW)
+	var sock int;
+	var err error;
+
+	
+	sock, err = unix.Socket(unix.AF_CAN, unix.SOCK_RAW, unix.CAN_RAW)
 	if err != nil {
 		log.Fatalf("Error creating CAN socket: %v", err)
 	}
@@ -49,9 +70,19 @@ func main() {
 		// Extract CAN ID and data
 		canID := binary.LittleEndian.Uint32(buf[0:4]) & 0x1FFFFFFF // 29-bit CAN ID (masked)
 		data := buf[8:]                                           // CAN data bytes (8 bytes)
+		fmt.Printf("CAN ID: 0x%X, Data: %08b\n", canID, data)	
+		for i :=len(data) - 1; i >= 0; i--{
+			//fmt.Printf("CAN ID: 0x%X, Data: %08b\n",canID, data[i])
+			for k :=0; k < 8; k++{
+				//fmt.Printf("%d\n", IntPow(2,k))
+				if (data[i] & byte(IntPow(2,k)) != 0){
+					fmt.Printf("error%d occured\n", (7-i)*8 + k)
+			}
+		}
+	}
 
 		// Print the CAN message ID and data
-		fmt.Printf("CAN ID: 0x%X, Data: % X\n", canID, data)
+		//fmt.Printf("CAN ID: 0x%X, Data: %08b\n", canID, data)
 	}
 }
 

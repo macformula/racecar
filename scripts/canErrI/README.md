@@ -17,7 +17,7 @@ rerun (for now make CAN_PORT vcan0):
 
 ./setup_vcan.sh <CAN_PORT>
 candump -L <CAN_PORT> > <LOG_FILE> &
-./go_test/can-listen &
+./can_errgo/can-listen &
 
 You can now run:
 
