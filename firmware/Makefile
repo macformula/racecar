@@ -12,6 +12,7 @@ PLATFORM_DIR := projects/$(PROJECT)/platforms/$(PLATFORM)
 GENERATOR := -G"Unix Makefiles"
 LOG_LEVEL := STATUS
 
+# Extracts the project folder name from the full path, removing any parent directory references
 PROJECT_NAME := $(notdir $(patsubst %/,%,$(PROJECT)))
 
 COMPILE_COMMANDS_DEST := $(BUILD)/compile_commands.json
