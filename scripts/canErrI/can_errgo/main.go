@@ -72,17 +72,19 @@ func main() {
 		data := buf[8:]                                           // CAN data bytes (8 bytes)
 		fmt.Printf("CAN ID: 0x%X, Data: %08b\n", canID, data)	
 		for i :=len(data) - 1; i >= 0; i--{
+			bit := 1
 			//fmt.Printf("CAN ID: 0x%X, Data: %08b\n",canID, data[i])
 			for k :=0; k < 8; k++{
 				//fmt.Printf("%d\n", IntPow(2,k))
-				if (data[i] & byte(IntPow(2,k)) != 0){
+				if (data[i] & byte(bit) != 0){
 					fmt.Printf("error%d occured\n", (7-i)*8 + k)
-			}
+			
 		}
+		bit*=2
 	}
 
 		// Print the CAN message ID and data
 		//fmt.Printf("CAN ID: 0x%X, Data: %08b\n", canID, data)
-	}
+	}}
 }
 
