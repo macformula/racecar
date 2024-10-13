@@ -9,6 +9,7 @@ int main() {
     while (true) {
         bindings:: setup_interupt();
 
+        //toggling between the high and low once toggle switch has been activated
         if (bindings::toggle){
             bindings::indicator.SetHigh();
         } else{
