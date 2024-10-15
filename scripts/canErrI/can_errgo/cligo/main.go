@@ -19,6 +19,7 @@ var baseStyle = lipgloss.NewStyle().
 
 type model struct {
 	table table.Model
+	hiddenRows []table.Row
 }
 
 func deleteElementRow(slice []table.Row, index int) []table.Row{
@@ -42,21 +43,36 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "q", "ctrl+c":
 			return m, tea.Quit
-		case "a": 
+		case "a":
+			
+			if len(m.table.Rows())==0{
+				return m, nil
+			}
+
+			test := "hi"
 			v := m.table.SelectedRow()[1]
 			num, err:= strconv.Atoi(v)
 			if err != nil{
 				tea.Printf("bug")
 			}
-			
+			if len(m.GetHiddenRows() )> 0{
+				test = "hello world"
+			}	else{
+				test = "nope"
+			}
+
+
 			m.table.SelectedRow()[1] = strconv.Itoa(num + 1)
 			m.table.UpdateViewport()
-			return m, nil
+			return m, tea.Batch(
+				tea.Printf("%s",test),
+			)
 		case "i":
 			if len(m.table.Rows()) == 0{
 				return m, nil
 			}
-
+			
+			
 			m.table.SetRows(deleteElementRow(m.table.Rows(),m.table.Cursor()))
 			m.table.UpdateViewport()
 			return m, nil
@@ -69,15 +85,22 @@ func (m model) View() string {
 	return baseStyle.Render(m.table.View()) + "\n  " + m.table.HelpView() + "\n"
 }
 
+func (m model) GetHiddenRows() []table.Row{
+	return m.hiddenRows
+}
+
+func (m model) SetHiddenRows(rows []table.Row) {
+	m.hiddenRows = rows
+}
+
 func main() {
 	columns := []table.Column{
 		{Title: "Error:", Width: 10},
 		{Title: "Count", Width: 10},
 				
 	}
-
-	rows := []table.Row{{"error444322322324","20"},
-			     {"error2", "1"}}
+	rows := []table.Row {{"error1", "0"}}
+	
 
 	t := table.New(
 		table.WithColumns(columns),
@@ -98,7 +121,7 @@ func main() {
 		Bold(false)
 	t.SetStyles(s)
 
-	m := model{t}
+	m := model{t, rows}
 	if _, err := tea.NewProgram(m).Run(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
