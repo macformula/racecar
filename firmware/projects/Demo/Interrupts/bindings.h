@@ -10,6 +10,6 @@ namespace bindings {
     extern void AppLevelFunction();
     void setup_interupt();
 
-    extern volatile bool toggle; 
+    
     
 }  // namespace bindings

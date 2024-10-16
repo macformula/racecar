@@ -3,25 +3,23 @@
 
 
 //toggle variable
-volatile bool bindings::toggle = false;
+volatile bool toggle = false;
 
 //app level function that takes care of the interupt handler
 namespace bindings {  // Define AppLevelFunction within the bindings namespace
     void AppLevelFunction() {
-        std::cout << "Toggle Switch is Pressed \n";
-        bindings::toggle = !bindings::toggle;
+        std::cout << "Toggle Switch is Pressed" << std::endl;
+        toggle = !toggle;
     }
 }
 
 int main() {
     bindings::Initialize();
-    
+    bindings::setup_interupt();
 
     while (true) {
-        bindings:: setup_interupt();
-
         //toggling between the high and low once toggle switch has been activated
-        if (bindings::toggle){
+        if (toggle){
             bindings::indicator.SetHigh();
         } else{
             bindings::indicator.SetLow();
