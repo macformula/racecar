@@ -60,10 +60,22 @@ public:
         return float(pulse) / float(period) * 100.0f;
     }
 
+    void SetFrequency(float frequency) override {
+        frequency_ = std::max((float) 0, frequency);
+        uint32_t autoreload = 1/frequency_;
+
+        __HAL_TIM_SetAutoreload(htim, autoreload);
+    }
+
+    float GetFrequency() override {
+        return frequency_;
+    }
+
 private:
     TIM_HandleTypeDef* htim_;
     uint32_t channel_;
     float duty_cycle_ = 0;
+    float frequency_;
 };
 
 }  // namespace mcal::stm32f767::periph
