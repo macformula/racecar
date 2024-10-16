@@ -1,0 +1,2 @@
+target_sources(main PUBLIC main.cc)
+
