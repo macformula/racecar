@@ -5,12 +5,12 @@ Date: 2024-04-13
 
 import argparse
 import logging
+import sys
 
-from .generate_can_from_dbc import generate_can_from_dbc
+from .can_generator import generate_can_from_dbc
 
 logging.basicConfig(level="INFO", format="%(levelname)-8s| (%(name)s) %(message)s")
-
-CONFIG_FILE_NAME = "config.yaml"
+logger = logging.getLogger(__name__)
 
 
 def parse():
@@ -26,7 +26,7 @@ def parse():
 
     # If parsing fails (ex incorrect or no arguments provided) then this exits with
     # code 2.
-    return parser.parse_args()
+    return parser.parse_args(None if sys.argv[1:] else ["-h"])
 
 
 def main():
@@ -40,6 +40,6 @@ def main():
         "DEBUG": "DEBUG",
     }
     # Set log level threshold to specified verbosity
-    logging.getLogger().setLevel(log_level_mappings[args.level])
+    logger.setLevel(log_level_mappings[args.level])
 
     generate_can_from_dbc(args.project)
