@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "cangen_package"
+name = "cangen"
 version = "0.1.0"
 description = "Converts .dbc files into C++ files for a CAN bus system."
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.10"
 argparse-addons = "0.12.0"
 bitstruct = "8.19.0"
 cantools = "39.4.5"
@@ -23,7 +23,10 @@ typing_extensions = "4.11.0"
 wrapt = "1.16.0"
 
 [tool.poetry.scripts]
-cangen = "cangen_package.main:main"
+cangen = "cangen.main:main"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.6.9"
 
 [build-system]
 requires = ["poetry-core"]

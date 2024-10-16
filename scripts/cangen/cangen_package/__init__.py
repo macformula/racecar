@@ -1,1 +1,0 @@
-from .can_generator import generate_code
