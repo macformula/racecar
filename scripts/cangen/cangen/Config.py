@@ -1,11 +1,16 @@
 import yaml
-from .Bus import Bus
+from dataclasses import dataclass
+
+
+@dataclass
+class Bus:
+    dbc_file_path: str
+    our_node: str
+    bus_name: str
 
 
 class Config:
-    OUTPUT_PATH = "generated/can"
-
-    def __init__(self, config_file_name: str) -> None:
+    def __init__(self, config_file_name: str):
         with open(config_file_name, "r") as file:
             config = yaml.safe_load(file)
 

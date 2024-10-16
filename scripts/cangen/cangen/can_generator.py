@@ -6,15 +6,15 @@ Date: 2024-04-13
 import logging
 import math
 import os
+import re
 import time
 from typing import Dict, List, Tuple
-from .Bus import Bus
+from .config import Bus, Config
 
 import numpy as np
 from cantools.database import Database, Message, Signal
 from jinja2 import Environment
 
-from .util import _decimal_to_hex, _camel_to_snake
 
 logger = logging.getLogger(__name__)
 
@@ -170,6 +170,13 @@ def _get_signal_types(can_db: Database, allow_floating_point=True):
     return sig_types
 
 
+def _camel_to_snake(text):
+    """Converts UpperCamelCase to snake_case."""
+
+    s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", text)
+    return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
+
+
 def _generate_from_jinja2_template(
     template_path: str, output_path: str, context_dict: dict
 ):
@@ -182,7 +189,7 @@ def _generate_from_jinja2_template(
 
     # Register the camel_to_snake filter
     env.filters["camel_to_snake"] = _camel_to_snake
-    env.filters["decimal_to_hex"] = _decimal_to_hex
+    env.filters["decimal_to_hex"] = hex
 
     # Load the template from the string content
     template = env.from_string(template_str)
@@ -260,3 +267,17 @@ def generate_code(bus: Bus):
     )
 
     logger.info("Code generation complete")
+
+CONFIG_FILE_NAME = "config.yaml"
+
+
+def generate_can_from_dbc(project_folder_name: str):
+    # Change directory to the project folder
+    os.chdir(project_folder_name)
+
+    # Parse the config file into a Config object
+    config = Config(CONFIG_FILE_NAME)
+
+    # Generate code for all busses in the projects Config
+    for bus in config.busses:
+        generate_code(bus)
