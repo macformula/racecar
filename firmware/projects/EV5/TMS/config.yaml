@@ -2,5 +2,4 @@ canGen:
   ourNode: tms
   busses:
     - busName: veh
-      dbcFiles:
-        - "../veh.dbc"
+      dbcFile: "../veh.dbc"

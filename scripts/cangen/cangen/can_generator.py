@@ -6,13 +6,15 @@ Date: 2024-04-13
 import logging
 import math
 import os
-import re
 import time
 from typing import Dict, List, Tuple
+from .Bus import Bus
 
 import numpy as np
 from cantools.database import Database, Message, Signal
 from jinja2 import Environment
+
+from .util import _decimal_to_hex, _camel_to_snake
 
 logger = logging.getLogger(__name__)
 
@@ -22,43 +24,47 @@ TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
 MSG_REGISTRY_FILE_NAME = "_msg_registry.h"
 CAN_MESSAGES_FILE_NAME = "_can_messages.h"
 
+OUTPUT_DIR = "generated/can"
 
-def _assert_valid_dbc(filename: str):
-    """Raise an error if filename is not a valid and existant dbc file."""
+CAN_MESSAGES_TEMPLATE_FILENAME = "can_messages.h.jinja2"
+MSG_REGISTRY_TEMPLATE_FILENAME = "msg_registry.h.jinja2"
 
-    if not os.path.isfile(filename):
-        raise FileNotFoundError(f"Could not find a file at {filename}.")
-
-    _, extension = os.path.splitext(filename)
-    if extension != ".dbc":
-        raise ValueError(f"{filename} is not a .dbc file.")
-
-    logger.debug(f"{filename} is a valid dbc file.")
+DIR_THIS_FILE = os.path.abspath(os.path.dirname(__file__))
+DIR_TEMPLATES = os.path.join(DIR_THIS_FILE, "templates")
+CAN_MESSAGES_TEMPLATE_PATH = os.path.join(DIR_TEMPLATES, CAN_MESSAGES_TEMPLATE_FILENAME)
+MSG_REGISTRY_TEMPLATE_PATH = os.path.join(DIR_TEMPLATES, MSG_REGISTRY_TEMPLATE_FILENAME)
 
 
-def _parse_dbc_files(dbc_files: List[str]) -> Database:
-    logger.info(f"Parsing DBC files: {dbc_files}")
+def _parse_dbc_files(dbc_file: str) -> Database:
+    logger.info(f"Parsing DBC files: {dbc_file}")
     can_db = Database()
 
-    for dbc_file in dbc_files:
-        _assert_valid_dbc(dbc_file)
-        with open(dbc_file, "r") as f:
-            can_db.add_dbc(f)
-            logger.info(f"Successfully added DBC: {dbc_file}")
+    with open(dbc_file, "r") as f:
+        can_db.add_dbc(f)
+        logger.info(f"Successfully added DBC: {dbc_file}")
 
     return can_db
 
-def _normalize_node_name(
-    node_name: str
-) -> str:
+
+def _normalize_node_name(node_name: str) -> str:
     return node_name.upper()
+
 
 def _filter_messages_by_node(
     messages: List[Message], node: str
 ) -> Tuple[List[Message], List[Message]]:
     normalized_node_name = _normalize_node_name(node)
-    tx_msgs = [msg for msg in messages if normalized_node_name in map(_normalize_node_name, msg.senders)]
-    rx_msgs = [msg for msg in messages if normalized_node_name in map(_normalize_node_name, msg.receivers)]
+
+    tx_msgs = [
+        msg
+        for msg in messages
+        if normalized_node_name in map(_normalize_node_name, msg.senders)
+    ]
+    rx_msgs = [
+        msg
+        for msg in messages
+        if normalized_node_name in map(_normalize_node_name, msg.receivers)
+    ]
 
     logger.debug(
         f"Filtered messages by node: {node}. "
@@ -91,7 +97,6 @@ def _get_mask_shift_big(
 def _get_mask_shift_little(
     length: int, start: int
 ) -> Tuple[np.ndarray[int], np.ndarray[int]]:
-
     idx = np.arange(64)
     mask_bool = (idx >= start) & (idx < start + length)
     mask_bytes = np.packbits(mask_bool, bitorder="little")
@@ -107,7 +112,6 @@ def _get_mask_shift_little(
 def _get_masks_shifts(
     msgs: List[Message],
 ) -> Dict[str, Dict[str, Tuple[List[int], List[int]]]]:
-
     # Create a dictionary of empty dictionaries, indexed by message names
     masks_shifts_dict = {msg.name: {} for msg in msgs}
 
@@ -151,7 +155,6 @@ def _get_signal_datatype(signal: Signal, allow_floating_point: bool = True) -> s
 
 
 def _get_signal_types(can_db: Database, allow_floating_point=True):
-
     # Create a dictionary (indexed by message name) of dictionaries (indexed by signal
     # name) corresponding to the datatype of each signal within each message.
     sig_types = {
@@ -165,27 +168,6 @@ def _get_signal_types(can_db: Database, allow_floating_point=True):
     logger.debug("Signal types retrieved")
 
     return sig_types
-
-
-def _camel_to_snake(text):
-    """Converts UpperCamelCase to snake_case."""
-
-    s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", text)
-    return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
-
-
-def _decimal_to_hex(decimal_value):
-    """
-    Converts a non-negative decimal integer to a lowercase hexadecimal string.
-
-    Raises:
-        ValueError: If the input is negative.
-    """
-
-    if decimal_value < 0:
-        raise ValueError("Input must be a non-negative integer")
-
-    return hex(decimal_value)
 
 
 def _generate_from_jinja2_template(
@@ -224,14 +206,7 @@ def _generate_from_jinja2_template(
     logger.info(f"Rendered code written to '{os.path.abspath(output_path)}'")
 
 
-def generate_code(
-    dbc_files: List[str],
-    our_node: str,
-    bus_name: str,
-    output_dir: str,
-    can_messages_template_path: str,
-    msg_registry_template_path: str,
-):
+def generate_code(bus: Bus):
     """
     Parses DBC files, extracts information, and generates code using Jinja2
     templates.
@@ -241,9 +216,13 @@ def generate_code(
     templates (not included here) to create the final code.
     """
 
+    dbc_file = bus.dbc_file_path
+    our_node = bus.our_node
+    bus_name = bus.bus_name
+
     logger.info("Generating code")
 
-    can_db = _parse_dbc_files(dbc_files)
+    can_db = _parse_dbc_files(dbc_file)
 
     signal_types = _get_signal_types(can_db)
     temp_signal_types = _get_signal_types(can_db, allow_floating_point=False)
@@ -266,18 +245,17 @@ def generate_code(
         "bus_name": bus_name,
     }
 
-    # Replace these lines with your Jinja2 template logic
     logger.debug("Generating code for can messages")
     _generate_from_jinja2_template(
-        can_messages_template_path,
-        os.path.join(output_dir, bus_name.lower() + CAN_MESSAGES_FILE_NAME),
+        CAN_MESSAGES_TEMPLATE_PATH,
+        os.path.join(OUTPUT_DIR, bus_name.lower() + CAN_MESSAGES_FILE_NAME),
         context,
     )
 
     logger.debug("Generating code for msg registry")
     _generate_from_jinja2_template(
-        msg_registry_template_path,
-        os.path.join(output_dir, bus_name.lower() + MSG_REGISTRY_FILE_NAME),
+        MSG_REGISTRY_TEMPLATE_PATH,
+        os.path.join(OUTPUT_DIR, bus_name.lower() + MSG_REGISTRY_FILE_NAME),
         context,
     )
 

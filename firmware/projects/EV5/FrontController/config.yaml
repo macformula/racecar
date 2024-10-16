@@ -2,8 +2,6 @@ canGen:
   ourNode: fc
   busses:
     - busName: veh
-      dbcFiles:
-        - "../veh.dbc"
+      dbcFile: "../veh.dbc"
     - busName: pt
-      dbcFiles:
-        - "../pt.dbc"
+      dbcFile: "../pt.dbc"
