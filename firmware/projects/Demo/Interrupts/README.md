@@ -1,21 +1,19 @@
 # Interrupt Handling Project
 
-The Interrupt Handling project demonstrates how to implement interrupt handling in C++. It is designed to work on CLI platforms and provides an example of managing asynchronous events through signal interrupts.
+This project demonstrates basic interrupt handling in C++ for CLI platforms, showcasing how to manage asynchronous events like `Ctrl + C` using signal interrupts.
 
-### Key Components:
-- **Bindings** (this module): Manages the interrupt logic and state control.
-- **Main Application**: Contains the primary logic for handling interrupts.
+## Key Parts:
+- **Signal Setup**: Configures the signal handler for system interrupts such as `Ctrl + C` (SIGINT).
+- **Interrupt Handler**: Captures and processes the signal, allowing the application to respond without exiting.
+- **Application Logic**: Runs a loop that toggles a state variable when an interrupt occurs.
 
-### Functionality:
-1. **Signal Handling**: The application listens for a specific signal (e.g., `Ctrl + C`) to trigger the interrupt.
-2. **State Management**: Upon receiving the interrupt, it toggles a state variable to demonstrate the responsiveness of the application.
+## Functionality:
+1. **Signal Handling**: Listens for `Ctrl + C` (SIGINT) and triggers a handler without terminating the program.
+2. **State Toggling**: Toggles a `volatile` state variable upon receiving the interrupt, demonstrating responsiveness.
 
-### How to Use:
-To incorporate this project as an example in your own work:
-- Review the structure of the `bindings` namespace.
-- Modify the `AppLevelFunction` to define your interrupt behavior.
-- Set up the interrupt handling by including `bindings.h` and calling `bindings::setup_interrupt()`.
-
-
+## How to Use:
+1. **Review the Signal Setup**: Check `bindings.cc` for the signal handler that manages `Ctrl + C`.
+2. **Modify `AppLevelFunction`**: Customize behavior in `bindings.cc` for how the program reacts to interrupts.
+3. **Enable Interrupt Handling**: Include `bindings.h` in your main file and call `bindings::setup_interrupt()`.
 
 
