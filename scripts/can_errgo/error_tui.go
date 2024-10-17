@@ -8,6 +8,7 @@ import (
 
 	"strconv"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -49,9 +50,11 @@ type CANMsg struct {
 
 type model struct {
     table        table.Model
+	tableKeys	 KeyMap	
 
 	submenuTable  table.Model
 	submenuActive bool
+	submenuKeys   KeyMap
 
     hiddenCounts map[string]int
     errorToBit   map[string]int
@@ -227,14 +230,74 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+type KeyMap struct {
+	a       key.Binding
+	i       key.Binding
+	s	    key.Binding
+	q       key.Binding
+
+}
+
+// ShortHelp implements the KeyMap interface.
+func (km KeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{km.a, km.i, km.s, km.q}
+}
+
+
+// DefaultKeyMap returns a default set of keybindings.
+func additionalKeyMap() KeyMap {
+	return KeyMap{
+		a: key.NewBinding(
+			key.WithKeys("a"),
+			key.WithHelp("a", "Acknowledge"),
+		),
+		i: key.NewBinding(
+			key.WithKeys("i"),
+			key.WithHelp("i", "Ignore"),
+		),
+		s: key.NewBinding(
+			key.WithKeys("s"),
+			key.WithHelp("s", "Ignored Menu"),
+		),
+		q: key.NewBinding(
+			key.WithKeys("q"),
+			key.WithHelp("q/ctrl+c", "quit"),
+		),
+	}
+}
+
+func subMenuKeyMap() KeyMap {
+	return KeyMap{
+		i: key.NewBinding(
+			key.WithKeys("i"),
+			key.WithHelp("i", "Ignore"),
+		),
+		s: key.NewBinding(
+			key.WithKeys("s"),
+			key.WithHelp("s", "Ignored Menu"),
+		),
+		q: key.NewBinding(
+			key.WithKeys("q"),
+			key.WithHelp("q/ctrl+c", "quit"),
+		),
+	}
+}
+
+
+
+
 func (m model) View() string {
     if m.submenuActive {
         // Display both the main menu and submenu
         return baseStyle.Render(m.table.View()) + "\n\n" +
-               baseStyle.Render(m.submenuTable.View()) + "\n"
+               baseStyle.Render(m.submenuTable.View()) + "\n" + 
+			   m.table.HelpView() +  "\n" +
+			   m.submenuTable.Help.ShortHelpView(m.submenuKeys.ShortHelp()) +  "\n"
     }
     // Only show the main table when submenu is not active
-    return baseStyle.Render(m.table.View()) + "\n"
+    return baseStyle.Render(m.table.View()) + "\n" + 
+	m.table.HelpView() + "\n" + 
+	m.table.Help.ShortHelpView(m.tableKeys.ShortHelp()) + "\n"
 }
 
 func  createTable() model{
@@ -267,7 +330,7 @@ func  createTable() model{
 
 	table2 := createSubMenu()
 
-	m := model{t, table2,false,  map[string]int{}, map[string]int{} ,^uint64(0)}
+	m := model{t, additionalKeyMap(), table2, false, subMenuKeyMap(), map[string]int{}, map[string]int{} ,^uint64(0)}
 	return m
 }
 
@@ -354,7 +417,7 @@ func main() {
 
     p := tea.NewProgram(m)
     go func() {
-        if err := p.Start(); err != nil {
+        if _,err := p.Run(); err != nil {
             fmt.Println("Error running TUI:", err)
         }
         close(quit)
