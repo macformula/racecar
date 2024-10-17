@@ -120,10 +120,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "q", "ctrl+c":
 			return m, tea.Quit
-		case "t":
-			m.Update(CANMsg{ID: 1231, Value: 1002323131})
-			m.table.UpdateViewport()
-			return m, nil
 		case "a":
 
 			if len(m.table.Rows())==0{
@@ -155,6 +151,21 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.ignoreMask = toggleBit(m.ignoreMask, m.errorToBit[m.table.SelectedRow()[0]] )
 
 			return m, nil
+		case "r":
+			if len(m.table.Rows())==0{
+				return m, nil
+			}
+
+			if m.table.Cursor() < 0 || m.table.Cursor() >= len(m.table.Rows()) {
+                                return m, nil
+            
+			}
+			m.hiddenCounts[m.table.SelectedRow()[0]] = 0
+			m.table.SelectedRow()[1] = "0"
+			m.table.UpdateViewport()
+
+
+			return m , nil
 
 
 			
