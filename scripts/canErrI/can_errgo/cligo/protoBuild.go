@@ -20,6 +20,15 @@ const (
 	canFrameSize = 16       // CAN frame size (for a standard CAN frame)
 )
 
+func deepCopy(rows []table.Row) []table.Row {
+    newRows := make([]table.Row, len(rows))
+    for i := range rows {
+        newRows[i] = make(table.Row, len(rows[i]))
+        copy(newRows[i], rows[i])
+    }
+    return newRows
+}
+
 func bytesToUint64(b []byte) uint64 {
 	var result uint64
 	for i := 0; i < len(b) && i < 8; i++ {
@@ -42,11 +51,40 @@ type model struct {
 	table table.Model
 	// hiddenRows []table.Row
 	hiddenCounts map[string]int
+	errorToBit map[string]int
+	ignoreMask uint64
 }
 
-func deleteElementRow(slice []table.Row, index int) []table.Row{
-    return append(slice[:index], slice[index+1:]...)
+//func deleteElementRow(slice []table.Row, index int) []table.Row{
+//   return append(slice[:index], slice[index+1:]...)
+//}
+
+
+// toggleBit toggles the specified bit in the number
+// If the bit is 0, it sets it to 1; if it is 1, it sets it to 0.
+func toggleBit(n uint64, bitPosition int) uint64 {
+    // Create a mask for the specified bit
+    mask := uint64(1) << bitPosition
+
+    // Toggle the specified bit using bitwise XOR
+    return n ^ mask
 }
+
+
+func deleteElementRow(slice []table.Row, index int) []table.Row {
+    // Create a new slice with the same length minus 1
+    newSlice := make([]table.Row, 0, len(slice)-1)
+                      
+    // Append the elements before the index
+    newSlice = append(newSlice, slice[:index]...)
+
+    // Append the elements after the index
+    newSlice = append(newSlice, slice[index+1:]...)
+
+    return newSlice
+}
+
+
 
 func findRow(s []table.Row, e table.Row) int {
     for i, a := range s {
@@ -82,7 +120,46 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "q", "ctrl+c":
 			return m, tea.Quit
-		// case "a":
+		case "t":
+			m.Update(CANMsg{ID: 1231, Value: 1002323131})
+			m.table.UpdateViewport()
+			return m, nil
+		case "a":
+
+			if len(m.table.Rows())==0{
+				return m, nil
+			}
+
+			if m.table.Cursor() < 0 || m.table.Cursor() >= len(m.table.Rows()) {
+                                return m, nil
+                        }
+
+			newRows := deleteElementRow(m.table.Rows(), m.table.Cursor())
+			m.table.SetRows(newRows)
+
+			m.table.UpdateViewport()
+			return m, tea.Batch(
+				//tea.Printf("%v", m.table.Rows()),
+			)
+		case "i":
+
+			if len(m.table.Rows())==0{
+                                return m, nil
+			}
+
+                        if m.table.Cursor() < 0 || m.table.Cursor() >= len(m.table.Rows()) {
+                                return m, nil
+			}
+                        
+			
+			m.ignoreMask = toggleBit(m.ignoreMask, m.errorToBit[m.table.SelectedRow()[0]] )
+
+			return m, nil
+
+
+			
+
+			// case "a":
 			
 		// 	if len(m.table.Rows())==0{
 		// 		return m, nil
@@ -141,6 +218,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// 	return m, nil
 		}
 	case CANMsg:
+		msg.Value = msg.Value & m.ignoreMask
 		for k := 0; k < 64; k++ { // Iterate through all 32 bits
 			if msg.Value&(1<<k) != 0 { // Check if the k-th bit is set
 				if val, ok := m.hiddenCounts["error" + strconv.Itoa(k)]; ok{
@@ -148,21 +226,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					
 				} else{
 					m.hiddenCounts["error" + strconv.Itoa(k)] = 1
+					m.errorToBit["error" + strconv.Itoa(k)] = k
 				}
 
 				index := findRowString(m.table.Rows(),  "error" + strconv.Itoa(k))
 				if index == -1{
 					//need to check for acknowledgement later
-					newRow := append(m.table.Rows(), table.Row{ "error" + strconv.Itoa(k), "1"})
+					newRow := append(m.table.Rows(), table.Row{ "error" + strconv.Itoa(k), strconv.Itoa(m.hiddenCounts["error" + strconv.Itoa(k)]) })
 					m.table.SetRows(newRow)
 				} else{
-					newRows := m.table.Rows()
+					newRows := deepCopy(m.table.Rows())
 					newRows[index][1] = strconv.Itoa(m.hiddenCounts[newRows[index][0]])
 					m.table.SetRows(newRows)
 				}
 
 				m.table.UpdateViewport()
-				fmt.Printf("error%d occurred\n", k)
+				//fmt.Printf("error%d occurred\n", k)
 			}
 		}
 		return m, nil
@@ -207,7 +286,7 @@ func  createTable() model{
 		Bold(false)
 	t.SetStyles(s)
 
-	m := model{t, map[string]int{}}
+	m := model{t, map[string]int{}, map[string]int{} ,^uint64(0)}
 	return m
 }
 
