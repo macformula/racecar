@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net"
-	
+
 	"strconv"
-	
-	"golang.org/x/sys/unix"
+
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"golang.org/x/sys/unix"
 )
 
 
@@ -48,25 +48,21 @@ type CANMsg struct {
 }
 
 type model struct {
-	table table.Model
-	// hiddenRows []table.Row
-	hiddenCounts map[string]int
-	errorToBit map[string]int
-	ignoreMask uint64
-}
+    table        table.Model
 
-//func deleteElementRow(slice []table.Row, index int) []table.Row{
-//   return append(slice[:index], slice[index+1:]...)
-//}
+	submenuTable  table.Model
+	submenuActive bool
+
+    hiddenCounts map[string]int
+    errorToBit   map[string]int
+    ignoreMask   uint64
+}
 
 
 // toggleBit toggles the specified bit in the number
-// If the bit is 0, it sets it to 1; if it is 1, it sets it to 0.
+//If the bit is 0, it sets it to 1; if it is 1, it sets it to 0.
 func toggleBit(n uint64, bitPosition int) uint64 {
-    // Create a mask for the specified bit
     mask := uint64(1) << bitPosition
-
-    // Toggle the specified bit using bitwise XOR
     return n ^ mask
 }
 
@@ -84,8 +80,7 @@ func deleteElementRow(slice []table.Row, index int) []table.Row {
     return newSlice
 }
 
-
-
+// Might have future use
 func findRow(s []table.Row, e table.Row) int {
     for i, a := range s {
         if a[0] == e[0] {
@@ -104,6 +99,10 @@ func findRowString(s []table.Row, e string) int {
     return -1
 }
 
+func  overBounds(table table.Model) bool{
+	return len(table.Rows())==0 || table.Cursor() < 0 || table.Cursor() >= len(table.Rows()) 
+}
+
 
 func (m model) Init() tea.Cmd { return nil }
 
@@ -111,6 +110,29 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		if m.submenuActive{
+			// If submenu is active, only let the submenu handle KeyMsg
+			switch msg.String() {
+			case "i":
+				if overBounds(m.submenuTable){
+					return m, nil
+				}
+	
+				m.ignoreMask = toggleBit(m.ignoreMask, m.errorToBit[m.submenuTable.SelectedRow()[0]])
+				newRows := deleteElementRow(m.submenuTable.Rows(), m.submenuTable.Cursor())
+				m.submenuTable.SetRows(newRows)
+
+			case "s":
+				m.submenuActive = false  // Hide submenu
+				m.table.Focus()  
+				m.submenuTable.Blur()        
+			case "q", "ctrl+c":
+				return m, tea.Quit
+			}
+
+			m.submenuTable, cmd = m.submenuTable.Update(msg)
+			return m, cmd
+		}
 		switch msg.String() {
 		case "esc":
 			if m.table.Focused() {
@@ -122,128 +144,64 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "a":
 
-			if len(m.table.Rows())==0{
+			if overBounds(m.table){
 				return m, nil
 			}
 
-			if m.table.Cursor() < 0 || m.table.Cursor() >= len(m.table.Rows()) {
-                                return m, nil
-                        }
 
+			m.hiddenCounts[m.table.SelectedRow()[0]] = 0
 			newRows := deleteElementRow(m.table.Rows(), m.table.Cursor())
 			m.table.SetRows(newRows)
-
 			m.table.UpdateViewport()
-			return m, tea.Batch(
-				//tea.Printf("%v", m.table.Rows()),
-			)
+			return m, nil
 		case "i":
-
-			if len(m.table.Rows())==0{
-                                return m, nil
-			}
-
-                        if m.table.Cursor() < 0 || m.table.Cursor() >= len(m.table.Rows()) {
-                                return m, nil
+			
+			if overBounds(m.table){
+				return m, nil
 			}
                         
 			
 			m.ignoreMask = toggleBit(m.ignoreMask, m.errorToBit[m.table.SelectedRow()[0]] )
+			newSubRow := append(m.submenuTable.Rows(), table.Row{m.table.SelectedRow()[0]})
+			m.submenuTable.SetRows(newSubRow)
+			m.submenuTable.UpdateViewport()
 
-			return m, nil
-		case "r":
-			if len(m.table.Rows())==0{
-				return m, nil
-			}
-
-			if m.table.Cursor() < 0 || m.table.Cursor() >= len(m.table.Rows()) {
-                                return m, nil
-            
-			}
 			m.hiddenCounts[m.table.SelectedRow()[0]] = 0
-			m.table.SelectedRow()[1] = "0"
+			newRows := deleteElementRow(m.table.Rows(), m.table.Cursor())
+			m.table.SetRows(newRows)
 			m.table.UpdateViewport()
 
-
-			return m , nil
-
-
-			
-
-			// case "a":
-			
-		// 	if len(m.table.Rows())==0{
-		// 		return m, nil
-		// 	}
-		// 	if m.table.Cursor() < 0 || m.table.Cursor() >= len(m.table.Rows()) {
-		// 		return m, nil
-		// 	}
-
-		// 	v := m.table.SelectedRow()[1]
-		// 	num, err:= strconv.Atoi(v)
-		// 	if err != nil{
-		// 		tea.Printf("bug")
-		// 	}
-		// 	// if len(m.GetHiddenRows() )> 0{
-		// 	// 	test = "hello world"
-		// 	// }	else{
-		// 	// 	test = "nope"
-		// 	// }
-
-
-
-		// 	// m.table.SelectedRow()[1] = strconv.Itoa(num + 1)
-		// 	i := findRow(m.hiddenRows,m.table.SelectedRow())
-		// 	m.hiddenRows[i][1] = strconv.Itoa(num + 1)
-		// 	m.table.SetRows(m.hiddenRows)
-		// 	m.table.UpdateViewport()
-		// 	return m, tea.Batch(
-		// 		tea.Printf("%v", m.hiddenRows),
-		// 		tea.Printf("%s", strconv.Itoa(i)),
-		// 	)
-
-		// case "i":
-		// 	if len(m.table.Rows()) == 0{
-		// 		return m, nil
-		// 	}
-			
-		// 	s := m.hiddenRows
-			
-		// 	m.table.SetRows(deleteElementRow(m.table.Rows(),m.table.Cursor()))
-		// 	m.table.UpdateViewport()
-		// 	return m, tea.Batch(
-		// 		tea.Printf("previous ,%v", s),
-		// 		tea.Printf("after, %v", m.hiddenRows),
-		// 	)
-		// case "r":
-		// 	if len(m.table.Rows()) == 0{
-		// 		return m, nil
-		// 	}
-
-		// 	indexOfDeletedRow := findRow(m.hiddenRows, m.table.SelectedRow())
-		// 	newHiddenRows := deleteElementRow( m.hiddenRows, indexOfDeletedRow)
-		// 	m.SetHiddenRows(newHiddenRows)
-
-		// 	m.table.SetRows(m.hiddenRows)
-		// 	m.table.UpdateViewport()
-		// 	return m, nil
-		}
+			return m, nil
+        case "s":
+            if m.submenuActive {
+                // Hide submenu and return to main menu
+                m.submenuActive = false
+                m.table.Focus()
+            } else {
+                // Show submenu and focus it
+                m.submenuActive = true
+                m.table.Blur()
+                m.submenuTable.Focus()
+            }
+	}
 	case CANMsg:
 		msg.Value = msg.Value & m.ignoreMask
 		for k := 0; k < 64; k++ { // Iterate through all 32 bits
 			if msg.Value&(1<<k) != 0 { // Check if the k-th bit is set
-				if val, ok := m.hiddenCounts["error" + strconv.Itoa(k)]; ok{
-					m.hiddenCounts["error" + strconv.Itoa(k) ] = val + 1
+
+				var errorNumberStr string = strconv.Itoa(k)
+
+				if val, ok := m.hiddenCounts["error" + errorNumberStr]; ok{
+					m.hiddenCounts["error" + errorNumberStr ] = val + 1
 					
 				} else{
-					m.hiddenCounts["error" + strconv.Itoa(k)] = 1
-					m.errorToBit["error" + strconv.Itoa(k)] = k
+					m.hiddenCounts["error" + errorNumberStr] = 1
+					m.errorToBit["error" + errorNumberStr] = k
 				}
 
-				index := findRowString(m.table.Rows(),  "error" + strconv.Itoa(k))
+				index := findRowString(m.table.Rows(),  "error" + errorNumberStr)
 				if index == -1{
-					//need to check for acknowledgement later
-					newRow := append(m.table.Rows(), table.Row{ "error" + strconv.Itoa(k), strconv.Itoa(m.hiddenCounts["error" + strconv.Itoa(k)]) })
+					newRow := append(m.table.Rows(), table.Row{ "error" + errorNumberStr, strconv.Itoa(m.hiddenCounts["error" + errorNumberStr]) })
 					m.table.SetRows(newRow)
 				} else{
 					newRows := deepCopy(m.table.Rows())
@@ -252,28 +210,38 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 				m.table.UpdateViewport()
-				//fmt.Printf("error%d occurred\n", k)
 			}
 		}
 		return m, nil
 	}
-	m.table, cmd = m.table.Update(msg)
+
+	if _, ok := msg.(CANMsg); ok {
+        // Update the mainTable regardless of submenu state
+        m.table, cmd = m.table.Update(msg)
+    }else if m.submenuActive {
+        m.submenuTable, cmd = m.submenuTable.Update(msg)
+    } else {
+        m.table, cmd = m.table.Update(msg)
+    }
+
 	return m, cmd
 }
 
 func (m model) View() string {
-	return baseStyle.Render(m.table.View()) + "\n  " + m.table.HelpView() + "\n"
+    if m.submenuActive {
+        // Display both the main menu and submenu
+        return baseStyle.Render(m.table.View()) + "\n\n" +
+               baseStyle.Render(m.submenuTable.View()) + "\n"
+    }
+    // Only show the main table when submenu is not active
+    return baseStyle.Render(m.table.View()) + "\n"
 }
-
-// func (m *model) SetHiddenRows(rows []table.Row) {
-//     m.hiddenRows = rows
-// }
 
 func  createTable() model{
 
 	columns := []table.Column{
 		{Title: "Error:", Width: 30},
-		{Title: "Count", Width: 10},			
+		{Title: "Count:", Width: 10},			
 	}
 	rows := []table.Row {}
 	
@@ -286,7 +254,7 @@ func  createTable() model{
 	)
 
 	s := table.DefaultStyles()
-	s.Header = s.Header.
+	s.Header = s.Header.	
 		BorderStyle(lipgloss.NormalBorder()).
 		BorderForeground(lipgloss.Color("240")).
 		BorderBottom(true).
@@ -297,18 +265,46 @@ func  createTable() model{
 		Bold(false)
 	t.SetStyles(s)
 
-	m := model{t, map[string]int{}, map[string]int{} ,^uint64(0)}
+	table2 := createSubMenu()
+
+	m := model{t, table2,false,  map[string]int{}, map[string]int{} ,^uint64(0)}
 	return m
 }
 
+// Initialization of the submenu
+func createSubMenu() table.Model {
+    columns := []table.Column{
+        {Title: "Ignored Errors:", Width: 30},
+    }
+
+    rows := []table.Row{}
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithFocused(true),
+		table.WithHeight(5),
+	)
+
+	s := table.DefaultStyles()
+	s.Header = s.Header.	
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color("240")).
+		BorderBottom(true).
+		Bold(false)
+	s.Selected = s.Selected.
+		Foreground(lipgloss.Color("112")).
+		Background(lipgloss.Color("240")).
+		Bold(false)
+	t.SetStyles(s)
+
+    return t
+}
 
 
-
-func listen(p *tea.Program) {
+func can_listener(p *tea.Program) {
 	// Create a raw CAN socket using the unix package
 	var sock int;
 	var err error;
-	// var mask uint64 = ^uint64(0)
 	
 	sock, err = unix.Socket(unix.AF_CAN, unix.SOCK_RAW, unix.CAN_RAW)
 	if err != nil {
@@ -343,34 +339,28 @@ func listen(p *tea.Program) {
 
 		// Extract CAN ID and data
 		canID := binary.LittleEndian.Uint32(buf[0:4]) & 0x1FFFFFFF // 29-bit CAN ID (masked)
-		data := bytesToUint64(buf[8:])  //& mask  
+		data := bytesToUint64(buf[8:]) 
 		
 
 		msg := CANMsg{ ID : canID, Value: data}
 		p.Send(msg)
-		// CAN data bytes (8 bytes)
-		//fmt.Printf("CAN ID: 0x%X, Data: %08b\n", canID, data)	
-		// for k := 0; k < 64; k++ { // Iterate through all 32 bits
-		// 	if data&(1<<k) != 0 { // Check if the k-th bit is set
-		// 		fmt.Printf("error%d occurred\n", k)
-		// 	}
-		// }
 	}
-
-		// Print the CAN message ID and data
-		//fmt.Printf("CAN ID: 0x%X, Data: %08b\n", canID, data)
 }
-func main() {
-	
-	var m model = createTable()
-	p := tea.NewProgram(m)
-	go p.Run()
-	go listen(p)
 
-	select {}
-	// if _, err := tea.NewProgram(m).Run(); err != nil {
-	// 	fmt.Println("Error running program:", err)
-	// 	os.Exit(1)
-	// }
+
+func main() {
+    var m model = createTable()
+    quit := make(chan struct{})
+
+    p := tea.NewProgram(m)
+    go func() {
+        if err := p.Start(); err != nil {
+            fmt.Println("Error running TUI:", err)
+        }
+        close(quit)
+    }()
+
+    go can_listener(p)
+    <-quit
 }
 
