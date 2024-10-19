@@ -61,7 +61,7 @@ public:
     }
 
     void SetFrequency(float frequency) override {
-        frequency_ = std::max((float) 0, frequency);
+        frequency_ = std::max(0.000015259022f, frequency);
         uint32_t autoreload = 1/frequency_;
 
         __HAL_TIM_SetAutoreload(htim, autoreload);

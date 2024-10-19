@@ -37,9 +37,14 @@ void DemoPWM() {
  * @brief Tests the AnalogOutput class using various voltages.
  */
 void DemoAnalog() {
-    analog_out.SetVoltage(3.0f);
+    analog_out.SetVoltage(1.0f);
     DelayMS(1000);
-    analog_out.SetVoltage(50.);
+    analog_out.SetVoltage(4.5f);
+    DelayMS(1000);
+    analog_out.SetVoltage(0.0f);
+    DelayMS(1000);
+    analog_out.SetVoltage(3.3f);
+    DelayMS(1000);
 }
 
 int main() {

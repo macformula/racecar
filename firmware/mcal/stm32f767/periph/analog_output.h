@@ -17,11 +17,14 @@ public:
         : htim_(htim), channel_(channel) {}
 
     void SetVoltage (float voltage) override {
-        voltage_ = shared::util::Clamper<float>::Evaluate(voltage, 0, 3.3);
+        voltage_ = shared::util::Clamper<float>::Evaluate(voltage, 0, 3.3f);
         uint32_t pulse = (voltage_ * float(__HAL_TIM_GetAutoreload(htim_))) /
-                 (3.3 * 100.0f);
+                         (3.3f * 100.0f);
+        uint32_t maxPulse = float(__HAL_TIM_GetAutoreload(htim_)) / (100.0f);
+        uint32_t pulse_ =
+            shared::util::Clamper<float>::Evaluate(pulse, 0, maxPulse);
 
-        __HAL_TIM_SetCompare(htim_, channel_, pulse);
+        __HAL_TIM_SetCompare(htim_, channel_, pulse_);
     }
 
 private:
