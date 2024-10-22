@@ -13,12 +13,6 @@ For example, if you are in the racecar directory already, then you could run
 pip install scripts/cangen
 ```
 
-The directory where you run this command does not matter, as long as the path specified leads to the directory containing the pyproject.toml for cangen.
-For example, if you are in the racecar directory already, then you could run 
-```
-pip install scripts/cangen
-```
-
 
 ### Example usage
 To generate code for a project, like FrontController:
