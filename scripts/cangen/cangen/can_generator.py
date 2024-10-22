@@ -213,7 +213,7 @@ def _generate_from_jinja2_template(
     logger.info(f"Rendered code written to '{os.path.abspath(output_path)}'")
 
 
-def generate_code(bus: Bus):
+def generate_code(bus: Bus, config: Config):
     """
     Parses DBC files, extracts information, and generates code using Jinja2
     templates.
@@ -224,7 +224,7 @@ def generate_code(bus: Bus):
     """
 
     dbc_file = bus.dbc_file_path
-    our_node = bus.our_node
+    our_node = config.node
     bus_name = bus.bus_name
 
     logger.info("Generating code")
@@ -268,6 +268,7 @@ def generate_code(bus: Bus):
 
     logger.info("Code generation complete")
 
+
 CONFIG_FILE_NAME = "config.yaml"
 
 
@@ -280,4 +281,4 @@ def generate_can_from_dbc(project_folder_name: str):
 
     # Generate code for all busses in the projects Config
     for bus in config.busses:
-        generate_code(bus)
+        generate_code(bus, config)
