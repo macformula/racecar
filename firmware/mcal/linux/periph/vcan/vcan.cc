@@ -41,7 +41,6 @@ int VcanSocket::Open() {
 }
 
 VcanSocket::~VcanSocket() {
-    std::cout << "closing" << std::endl;
     close(socket_);
 }
 
@@ -51,6 +50,10 @@ int VcanSocket::Write(struct can_frame* frame) {
 
 int VcanSocket::Read(struct can_frame* frame) {
     return read(socket_, frame, sizeof(struct can_frame));
+}
+
+std::string VcanSocket::GetIface() const {
+    return iface_;
 }
 
 }  // namespace mcal::lnx::periph::vcan

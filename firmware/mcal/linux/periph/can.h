@@ -7,7 +7,7 @@
 #include "mcal/linux/periph/vcan/vcan.h"
 #include "shared/comms/can/raw_can_msg.h"
 #include "shared/periph/can.h"
-#include "vcan.h"
+#include "vcan/vcan.h"
 
 namespace mcal::lnx::periph {
 

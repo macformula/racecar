@@ -16,10 +16,10 @@ public:
     int Open();
     int Write(struct can_frame* frame);
     int Read(struct can_frame* frame);
-
-    std::string iface_;
+    std::string GetIface() const;
 
 private:
+    std::string iface_;
     int socket_;
     struct sockaddr_can addr_;
     struct ifreq ifr_;

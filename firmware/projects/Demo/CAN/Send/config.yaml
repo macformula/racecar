@@ -1,5 +1,5 @@
 canGen:
-  ourNode: send
+  ourNode: SEND
   busses:
     - busName: demobus
       dbcFiles:

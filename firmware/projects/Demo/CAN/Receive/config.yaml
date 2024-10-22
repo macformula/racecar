@@ -1,5 +1,5 @@
 canGen:
-  ourNode: recv
+  ourNode: RECV
   busses:
     - busName: demobus
       dbcFiles:

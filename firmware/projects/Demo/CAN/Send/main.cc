@@ -17,9 +17,8 @@ shared::can::CanBus veh_can_bus{
 
 int main(void) {
     bindings::Initialize();
-    uint32_t tick_duration = 100;
+    uint32_t interval_ms = 50;
     uint16_t msg_count = 0;
-    bool btn_state;
 
     generated::can::ButtonStatus btn_msg{};
 
@@ -30,8 +29,7 @@ int main(void) {
         btn_msg.msg_count = ++msg_count;
 
         veh_can_bus.Send(btn_msg);
-
-        bindings::TickBlocking(tick_duration);
+        bindings::TickBlocking(interval_ms);
     }
 
     return 0;
