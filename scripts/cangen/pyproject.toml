@@ -2,7 +2,7 @@
 name = "cangen"
 version = "0.1.0"
 description = "Converts .dbc files into C++ files for a CAN bus system."
-authors = ["Andrew Iammancini <andrewi44@icloud.com>"]
+authors = ["Andrew Iammancini"]
 readme = "README.md"
 
 [tool.poetry.dependencies]

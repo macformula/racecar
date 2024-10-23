@@ -5,7 +5,6 @@ Date: 2024-04-13
 
 import argparse
 import logging
-import sys
 
 from .can_generator import generate_can_from_dbc
 
@@ -26,20 +25,18 @@ def parse():
 
     # If parsing fails (ex incorrect or no arguments provided) then this exits with
     # code 2.
-    return parser.parse_args(None if sys.argv[1:] else ["-h"])
+    return parser.parse_args()
 
 
 def main():
     args = parse()
 
-    # Map CMAKE log levels -> Python log levels
-    log_level_mappings = {
+    cmake_to_python_level = {
         "STATUS": "INFO",
         "INFO": "INFO",
         "VERBOSE": "DEBUG",
         "DEBUG": "DEBUG",
     }
-    # Set log level threshold to specified verbosity
-    logger.setLevel(log_level_mappings[args.level])
+    logger.setLevel(cmake_to_python_level[args.level])
 
     generate_can_from_dbc(args.project)

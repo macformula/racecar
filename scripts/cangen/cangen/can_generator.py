@@ -24,8 +24,6 @@ TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
 MSG_REGISTRY_FILE_NAME = "_msg_registry.h"
 CAN_MESSAGES_FILE_NAME = "_can_messages.h"
 
-OUTPUT_DIR = "generated/can"
-
 CAN_MESSAGES_TEMPLATE_FILENAME = "can_messages.h.jinja2"
 MSG_REGISTRY_TEMPLATE_FILENAME = "msg_registry.h.jinja2"
 
@@ -226,6 +224,7 @@ def generate_code(bus: Bus, config: Config):
     dbc_file = bus.dbc_file_path
     our_node = config.node
     bus_name = bus.bus_name
+    output_dir = Config.output_dir
 
     logger.info("Generating code")
 
@@ -255,30 +254,22 @@ def generate_code(bus: Bus, config: Config):
     logger.debug("Generating code for can messages")
     _generate_from_jinja2_template(
         CAN_MESSAGES_TEMPLATE_PATH,
-        os.path.join(OUTPUT_DIR, bus_name.lower() + CAN_MESSAGES_FILE_NAME),
+        os.path.join(output_dir, bus_name.lower() + CAN_MESSAGES_FILE_NAME),
         context,
     )
 
     logger.debug("Generating code for msg registry")
     _generate_from_jinja2_template(
         MSG_REGISTRY_TEMPLATE_PATH,
-        os.path.join(OUTPUT_DIR, bus_name.lower() + MSG_REGISTRY_FILE_NAME),
+        os.path.join(output_dir, bus_name.lower() + MSG_REGISTRY_FILE_NAME),
         context,
     )
 
     logger.info("Code generation complete")
 
 
-CONFIG_FILE_NAME = "config.yaml"
-
-
 def generate_can_from_dbc(project_folder_name: str):
-    # Change directory to the project folder
     os.chdir(project_folder_name)
-
-    # Parse the config file into a Config object
-    config = Config(CONFIG_FILE_NAME)
-
-    # Generate code for all busses in the projects Config
+    config = Config.from_yaml("config.yaml")
     for bus in config.busses:
         generate_code(bus, config)

@@ -1,26 +1,28 @@
 # Cangen
-Cangen is a cli package used to generate C++/C files from a corresponding dbc file. This tool automates the can generation process and ensures can generation is consistent between all projects. 
 
-### Installation
-First install the cangen package through the terminal:
+Generates C++ files from a corresponding dbc file. Ensures repeatable generation between all projects.
 
-```
-pip install racecar/scripts/cangen
-```
-The directory where you run this command does not matter, as long as the path specified leads to the directory containing the pyproject.toml for cangen.
-For example, if you are in the racecar directory already, then you could run 
-```
+## Installation
+
+From the `racecar/` directory, run
+
+```bash
 pip install scripts/cangen
 ```
 
+## Usage
 
-### Example usage
-To generate code for a project, like FrontController:
+To generate CAN code for a project, execute `cangen` and pass the project folder. The project folder is the one which contains `config.yaml`.
+
+## Example
+
+If you are in the `racecar/firmware/` directory, you could generate `EV5/FrontController` code with
+
+```bash
+cangen projects/EV5/FrontController
 ```
-cangen racecar/firmware/projects/EV5/FrontController
-```
-The file path should be the relative path to the project you are looking to generate code for.
-This command will generate code in a generated/can folder inside the selected projects directory. 
+
+This command will generate code in a `generated/can/` subfolder of the project.
 
 ```
 FrontController
