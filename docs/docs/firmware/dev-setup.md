@@ -168,12 +168,12 @@ Create a Python virtual environment for CANgen. Navigate into `racecar/firmware`
     source .env/bin/activate
     ```
 
-The second command "activates" the virtual environment. You will see `(.env)` beside your terminal prompt when it is activated, and it must be activated before building any project.
+The second command "activates" the virtual environment. You will see `(.env)` beside your terminal prompt when it is activated. __It must be activated before building any project.__
 
-Finally, with the environment activated, install the CANgen requirements.
+Finally, with the environment activated, change into `racecar/` and install CANgen:
 
 ```bash
-pip install -r ../scripts/cangen/requirements.txt
+pip install scripts/cangen
 ```
 
 You can now start developing in `racecar`! However, I recommend you configure your IDE with `clangd`, so continue to the next section.
