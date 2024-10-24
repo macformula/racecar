@@ -150,7 +150,7 @@ Navigate to a directory where you would like to hold the `racecar` repo (I used 
 
     git clone --recurse-submodules https://github.com/macformula/racecar.git
 
-## Install CANgen dependencies
+## Install CANgen
 
 Create a Python virtual environment for CANgen. Navigate into `racecar/firmware` and run.
 
@@ -170,11 +170,13 @@ Create a Python virtual environment for CANgen. Navigate into `racecar/firmware`
 
 The second command "activates" the virtual environment. You will see `(.env)` beside your terminal prompt when it is activated. __It must be activated before building any project.__
 
-Finally, with the environment activated, change into `racecar/` and install CANgen:
+With the environment activated, change into `racecar/` and install CANgen:
 
 ```bash
-pip install scripts/cangen
+pip install -e scripts/cangen
 ```
+
+> The `-e` flag is _very_ important. It install CANgen as an editable package which means you won't have to reinstall when the package is changed.
 
 You can now start developing in `racecar`! However, I recommend you configure your IDE with `clangd`, so continue to the next section.
 
