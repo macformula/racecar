@@ -1,0 +1,6 @@
+canGen:
+  ourNode: tms
+  busses:
+    - busName: error
+      dbcFiles:
+        - error.dbc

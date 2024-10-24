@@ -1,0 +1,44 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: TMS
+
+BO_ 390 TMS_ERROR: 8 TMS
+ SG_ TEMP_FAULT : 0|1@1- (1,0) [0|0] "bool" Vector_XXX
+ SG_ RTOS_STACK : 1|1@1- (1,0) [0|0] "bool" Vector_XXX
+ SG_ ERROR_2 : 2|1@1- (1,0) [0|0] "bool" Vector_XXX
+ SG_ ERROR_3 : 3|1@1- (1,0) [0|0] "bool" Vector_XXX
+ SG_ ERROR_4 : 4|1@1- (1,0) [0|0] "bool" Vector_XXX
+ SG_ ERROR_5 : 5|1@1- (1,0) [0|0] "bool" Vector_XXX
