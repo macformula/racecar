@@ -45,12 +45,6 @@ Follow these steps to begin developing in `racecar/firmware`.
         C:\path-to-msys2\mingw64\lib
         ```
 
-    5. Install the Arm GNU Toolchain from <https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads>.
-
-        1. Download the `.exe` installer under "Windows hosted cross toolchains -> AArch32 bare-metal target (arm-none-eabi)".
-        2. Run the installer.
-        3. After the installer finishes, check `Add path to environment variable.`
-
 === "Linux"
 
     1. Set up the Kitware APT repository <https://apt.kitware.com/>.
@@ -61,25 +55,21 @@ Follow these steps to begin developing in `racecar/firmware`.
 
         ```bash
         sudo apt-get update
-        sudo apt-get install software-properties-common
+        sudo apt-get install software-properties-common python3-launchpadlib
         sudo add-apt-repository ppa:deadsnakes/ppa
         sudo apt-get update
         sudo apt-get install git-all build-essential cmake python3.12 wget gcc-13
         ```
 
-    3. Install the Arm GNU Toolchain.
+### Arm Toolchain
 
-        1. Download and unzip the x86_64 Linux arm-none-eabi toolchain binaries.
+Install the Arm GNU Toolchain (v13 or newer) from <https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads>.
 
-                wget https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz
-                sudo tar xf arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz -C /usr/share
-                rm arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz
+1. Find the __<ARCHITECTURE\> hosted cross toolchains__ section for your computer's architecture then download and install the __AArch32 bare-metal target (arm-none-eabi)__.
 
-        2. Add the binaries to your profile PATH.
+    > There are multiple downloads available in this section. Choose the installer: `.exe` on Windows, `.tar.xz` on Linux, `.pkg` on MacOS.
 
-            Open `~/.profile` in a text editor and add this to the end of the file.
-
-                PATH="/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi/bin:$PATH"
+2. Add the folder containing the binaries to your path.
 
 ### Verify Installation
 
