@@ -24,7 +24,7 @@ class Config:
 
     def __init__(self, config: dict):
         self.node = config.pop("ourNode")
-        self.output_path = config.pop("outputPath", DEFAULT_OUTPUT_DIR)
+        self.output_dir = config.pop("outputPath", DEFAULT_OUTPUT_DIR)
 
         self.busses = [Bus(bus) for bus in config.pop("busses")]
 
