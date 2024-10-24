@@ -7,14 +7,15 @@ import logging
 import math
 import os
 import re
+import shutil
 import time
 from typing import Dict, List, Tuple
-from .config import Bus, Config
 
 import numpy as np
 from cantools.database import Database, Message, Signal
 from jinja2 import Environment
 
+from .config import Bus, Config
 
 logger = logging.getLogger(__name__)
 
@@ -270,5 +271,10 @@ def generate_code(bus: Bus, config: Config):
 def generate_can_from_dbc(project_folder_name: str):
     os.chdir(project_folder_name)
     config = Config.from_yaml("config.yaml")
+
+    # Deletes output path folder and files within, before creating new ones
+    if os.path.exists(config.output_dir):
+        shutil.rmtree(config.output_dir)
+
     for bus in config.busses:
         generate_code(bus, config)
