@@ -13,7 +13,7 @@ Most development boards (such as the [Nucleo-144](https://www.st.com/en/evaluati
 Simply connect the board to your laptop with a USB cable.
 
 <figure markdown="span">
-  ![nucleo stlink](nucleo144-f767zi.png){ width="100%" }
+  ![nucleo stlink](img/nucleo144-f767zi.png){ width="100%" }
   <figcaption>ST-Link on Nucleo-144 F767ZI</figcaption>
 </figure>
 
@@ -23,10 +23,28 @@ The vehicle ECUs are not development boards, they are bare STM32F7 processors so
 
 You will need and external ST-Link and a USB cable from the blue tool chest in the Hatch bay. Some of the ST-Links are Micro-USB and others are USB-C. We should have cables for both.
 
+<figure markdown="span">
+![](img/chest-bags.png){ width="80%" }
+<figcaption>ST-Link and cables are kept in bags in this drawer.</figcaption>
+</figure>
+
+Please wrap the ST-Link in electrical tape since it has exposed conductors and is very easy to fry.
+
+<figure markdown="span">
+![](img/etape.jpg){ width="80%" }
+<figcaption>E-Tape would have prevented the Great ST-Link Massacre of Comp 2024.</figcaption>
+</figure>
+
 1. Ensure the ECU is off (not receiving power) and the USB is not connected to your laptop.
-2. Carefully connect the grey ribbon cable to the JTAG connector on the ECU board. There is a tab on the ribbon connector which must align with the notch on the JTAG connector.
-3. Connect the other end of the ribbon to the ST-Link, aligning the connectors as before.
-4. Power on the ECU. Talk to an upper year SW or Electrical member for help.
-5. Connect your laptop to the ST-Link using the USB cable.
+2. Carefully connect the grey ribbon cable to the JTAG connector on the ECU board and the connector on the ST-Link. There is a tab on the ribbon connector which must align with the notch on the JTAG connector.
+
+    <figure markdown="span">
+    <!-- ![](img/notch-1.jpg){ width="80%" } -->
+    ![](img/notch-2.jpg){ width="80%" }
+    <figcaption>Connector tab and notch</figcaption>
+    </figure>
+
+3. Power on the ECU. Talk to an upper year SW or Electrical member for help.
+4. Connect your laptop to the ST-Link using the USB cable.
 
 ## Open CubeProgrammer
