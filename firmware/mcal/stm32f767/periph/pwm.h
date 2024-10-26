@@ -60,10 +60,31 @@ public:
         return float(pulse) / float(period) * 100.0f;
     }
 
+    void SetFrequency(float frequency) override {
+        frequency_ = std::max(kMinimumFrequency, frequency);
+        uint32_t autoreload = GetTimerFrequency() / frequency_;
+
+        __HAL_TIM_SetAutoreload(htim, autoreload);
+    }
+
+    float GetFrequency() override {
+        float frequency = GetTimerFrequency() / __HAL_TIM_GetAutoreload(htim_);
+
+        return frequency;
+    }
+
 private:
     TIM_HandleTypeDef* htim_;
+    // stm32f767 has a 16-bit autoreload register -> min frequency = 1/65535
+    static constexpr kMinimumFrequency = 0.000015259022f;
     uint32_t channel_;
     float duty_cycle_ = 0;
+
+    uint32_t GetTimerFrequency() {
+        uint32_t tickFreq = __HAL_TIM_GetTickFreq();
+
+        return tickFreq;
+    }
 };
 
 }  // namespace mcal::stm32f767::periph
