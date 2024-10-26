@@ -1,12 +1,11 @@
 space := $(subst ,, )
+CUBEMX_PATH := $(shell which STM32CubeMX)
+OS := $(shell uname -s)
 
-ifeq ($(OS),Windows_NT)
-# Convert windows backslash to regular slash
-	CUBEMX_PATH := $(subst \,/,$(shell where STM32CubeMX))
-	CUBEMX_JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/bin/java
-else # Linux / MacOS
-    CUBEMX_PATH := $(shell which STM32CubeMX)
+ifeq ($(OS), Darwin)
 	CUBEMX_JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/Contents/Home/bin/java
+else
+	CUBEMX_JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/bin/java
 endif
 
 # Known bug: Expanding CUBEMX_JAVA twice does not work.
