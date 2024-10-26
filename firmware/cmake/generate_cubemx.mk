@@ -1,13 +1,18 @@
+space := $(subst ,, )
+
 ifeq ($(OS),Windows_NT)
 # Convert windows backslash to regular slash
 	CUBEMX_PATH := $(subst \,/,$(shell where STM32CubeMX))
+	CUBEMX_JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/bin/java
 else # Linux / MacOS
     CUBEMX_PATH := $(shell which STM32CubeMX)
+	CUBEMX_JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/Contents/Home/bin/java
 endif
 
-# Find the JAVA which is installed with CubeMX. Spaces in path are escaped.
-space := $(subst ,, )
-CUBEMX_JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/bin/java
+all:
+	@echo "CubeMX path: $(CUBEMX_PATH)"
+	@echo "CubeMX Java path: $(CUBEMX_JAVA)"
+
 # Known bug: Expanding CUBEMX_JAVA twice does not work.
 
 IOC_FILE = board_config.ioc
