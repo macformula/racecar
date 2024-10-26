@@ -1,4 +1,7 @@
 **/build/
 /.clangd
 /.cache
+/.env
+/.venv
+/venv
 *.log
