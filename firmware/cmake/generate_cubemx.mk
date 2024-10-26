@@ -9,10 +9,6 @@ else # Linux / MacOS
 	CUBEMX_JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/Contents/Home/bin/java
 endif
 
-all:
-	@echo "CubeMX path: $(CUBEMX_PATH)"
-	@echo "CubeMX Java path: $(CUBEMX_JAVA)"
-
 # Known bug: Expanding CUBEMX_JAVA twice does not work.
 
 IOC_FILE = board_config.ioc
