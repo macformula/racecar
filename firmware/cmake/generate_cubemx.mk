@@ -32,7 +32,7 @@ CustomMakefile.mk: Makefile $(CUSTOM_TARGETS_FILE)
 Makefile: $(IOC_FILE) $(CUBEMX_GEN_SCRIPT_TEMPLATE)
 	@echo "Autogenerating from CubeMX. If you don't want to do this, you must manually 'Generate Code' before building."
 # Create an file containing commands to generate the cubemx code.
-	sed $(CUBEMX_GEN_SCRIPT_TEMPLATE) -e 's/IOC_FILE/$(IOC_FILE)/g' > $(CUBEMX_GEN_SCRIPT)
+	sed -e 's/IOC_FILE/$(IOC_FILE)/g' $(CUBEMX_GEN_SCRIPT_TEMPLATE) > $(CUBEMX_GEN_SCRIPT)
 	
 # Run the cubemx program to generate code.
 	$(CUBEMX_JAVA) -jar "$(CUBEMX_PATH)" -q "$(CUBEMX_GEN_SCRIPT)"
