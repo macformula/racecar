@@ -176,7 +176,7 @@ With the environment activated, change into `racecar/` and install CANgen:
 pip install -e scripts/cangen
 ```
 
-> The `-e` flag is _very_ important. It install CANgen as an editable package which means you won't have to reinstall when the package is changed.
+> The `-e` flag is _very_ important. It installs CANgen as an editable package which means you won't have to reinstall when the package is changed.
 
 You can now start developing in `racecar`! However, I recommend you configure your IDE with `clangd`, so continue to the next section.
 
