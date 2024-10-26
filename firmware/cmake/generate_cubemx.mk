@@ -1,7 +1,7 @@
 space := $(subst ,, )
 CUBEMX_PATH := $(shell which STM32CubeMX)
 
-ifeq ($(shell uname -s), Darwin)
+ifeq ($(shell uname), Darwin)
 	CUBEMX_JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/Contents/Home/bin/java
 else
 	CUBEMX_JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/bin/java
