@@ -17,20 +17,16 @@ public:
         : htim_(htim), channel_(channel) {}
 
     void SetVoltage (float voltage) override {
-        voltage_ = shared::util::Clamper<float>::Evaluate(voltage, 0, 3.3f);
-        uint32_t pulse = (voltage_ * float(__HAL_TIM_GetAutoreload(htim_))) /
-                         (3.3f * 100.0f);
-        uint32_t maxPulse = float(__HAL_TIM_GetAutoreload(htim_)) / (100.0f);
-        uint32_t pulse_ =
-            shared::util::Clamper<float>::Evaluate(pulse, 0, maxPulse);
+        uint32_t maxPulse = __HAL_TIM_GetAutoreload(htim_);
+        uint32_t pulse = shared::util::Clamper<float>::Evaluate(
+            (voltage * maxPulse) / 3.3f, 0, maxPulse);
 
-        __HAL_TIM_SetCompare(htim_, channel_, pulse_);
+        __HAL_TIM_SetCompare(htim_, channel_, pulse);
     }
 
 private:
     TIM_HandleTypeDef* htim_;
     uint32_t channel_;
-    float voltage_;
 };
 
 }  // namespace mcal::stm32f767::periph
