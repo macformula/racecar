@@ -1,9 +1,8 @@
 # Find the STM32CubeMX executable
-ifeq ($(OS),Windows_NT)
-# Convert windows backslash to regular slash
+ifeq ($(OS), Windows_NT)
+# Convert Windows backslash to regular slash
 	CUBEMX_PATH := $(subst \,/,$(shell where STM32CubeMX))
-else
-# Linux / MacOS
+else # Linux / MacOS
     CUBEMX_PATH := $(shell which STM32CubeMX)
 endif
 
