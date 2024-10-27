@@ -34,26 +34,12 @@ public:
     }
 
     /**
-     * @brief Quickly get the duty cycle which was last sent to this device.
-     * @note Compared to GetHardwareDutyCycle, this method is faster (doesn't
-     * read registers) and is less likely to cause issues when performing
-     * arithmetic since the hardware duty cycle is limited by integer
-     * resolution.
+     * @brief Get the duty cycle from the PWM registers.
+     * @note This method returns the "most accurate" current duty cycle.
      *
      * @return float
      */
     float GetDutyCycle() override {
-        return duty_cycle_;
-    }
-
-    /**
-     * @brief Get the duty cycle from the PWM registers.
-     * @note Compared to GetDutyCycle(), this method returns the "most accurate"
-     * current duty cycle.
-     *
-     * @return float
-     */
-    float GetHardwareDutyCycle() {
         uint32_t pulse = __HAL_TIM_GetCompare(htim_, channel_);
         uint32_t period = __HAL_TIM_GetAutoreload(htim_);
 
