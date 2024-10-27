@@ -176,9 +176,7 @@ def _generate_from_jinja2_template(
 ):
     # Create the environment with trim_blocks and lstrip_blocks settings
     env = Environment(
-        loader=PackageLoader("cangen"),
-        trim_blocks=True, 
-        lstrip_blocks=True
+        loader=PackageLoader("cangen"), trim_blocks=True, lstrip_blocks=True
     )
 
     # Register the camel_to_snake filter
