@@ -85,6 +85,8 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.arithmatex:
+      generic: true
   - pymdownx.snippets:
       auto_append:
         - includes/abbreviations.md
@@ -109,6 +111,13 @@ extra:
       link: https://www.instagram.com/macformulaelectric/
     - icon: fontawesome/brands/facebook
       link: https://www.facebook.com/MACFormulaElectric/
+extra_javascript:
+  - javascripts/katex.js
+  - https://unpkg.com/katex@0/dist/katex.min.js
+  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
+
+extra_css:
+  - https://unpkg.com/katex@0/dist/katex.min.css
 
 nav:
   - Home:
@@ -123,6 +132,7 @@ nav:
     - firmware/architecture.md
     - firmware/project-structure/index.md
     - firmware/compile-project.md
+    - firmware/can-traffic.md
   - Glossary: glossary.md
 
 watch:

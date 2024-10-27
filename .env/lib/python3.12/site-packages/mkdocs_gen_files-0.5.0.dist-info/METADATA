@@ -1,0 +1,74 @@
+Metadata-Version: 2.1
+Name: mkdocs-gen-files
+Version: 0.5.0
+Summary: MkDocs plugin to programmatically generate documentation pages during the build
+Project-URL: Documentation, https://oprypin.github.io/mkdocs-gen-files/
+Project-URL: Source, https://github.com/oprypin/mkdocs-gen-files
+Project-URL: Issues, https://github.com/oprypin/mkdocs-gen-files/issues
+Project-URL: History, https://github.com/oprypin/mkdocs-gen-files/releases
+Author-email: Oleh Prypin <oleh@pryp.in>
+License-Expression: MIT
+License-File: LICENSE.md
+Keywords: mkdocs,mkdocs-plugin
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Console
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Documentation
+Classifier: Topic :: Software Development :: Documentation
+Classifier: Topic :: Text Processing :: Markup :: Markdown
+Classifier: Typing :: Typed
+Requires-Python: >=3.7
+Requires-Dist: mkdocs>=1.0.3
+Description-Content-Type: text/markdown
+
+# mkdocs-gen-files
+
+**[Plugin][] for [MkDocs][] to programmatically generate documentation pages during the build**
+
+[![PyPI](https://img.shields.io/pypi/v/mkdocs-gen-files)](https://pypi.org/project/mkdocs-gen-files/)
+[![GitHub](https://img.shields.io/github/license/oprypin/mkdocs-gen-files)](https://github.com/oprypin/mkdocs-gen-files/blob/master/LICENSE.md)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/oprypin/mkdocs-gen-files/ci.yml.svg)](https://github.com/oprypin/mkdocs-gen-files/actions?query=event%3Apush+branch%3Amaster)
+
+```shell
+pip install mkdocs-gen-files
+```
+
+**Continue to the [documentation site][].**
+
+[mkdocs]: https://www.mkdocs.org/
+[plugin]: https://www.mkdocs.org/user-guide/plugins/
+[documentation site]: https://oprypin.github.io/mkdocs-gen-files
+
+## Usage
+
+Activate the plugin in **mkdocs.yml** (`scripts` is a required list of Python scripts to execute, always relative to **mkdocs.yml**):
+
+```yaml
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - gen_pages.py  # or any other name or path
+```
+
+Then create such a script **gen_pages.py** (this is relative to the root, *not* to the **docs** directory).
+
+```python
+import mkdocs_gen_files
+
+with mkdocs_gen_files.open("foo.md", "w") as f:
+    print("Hello, world!", file=f)
+```
+
+This added a programmatically generated page to our site. That is, the document doesn't actually appear in our source files, it only *virtually* becomes part of the site to be built by MkDocs.
+
+**Continue to the [documentation site][].**

@@ -24,6 +24,11 @@ Total data per cycle includes all the bits transmitted in one CAN message. This 
 
 ![Bus Load Formula](https://latex.codecogs.com/png.latex?\text{Bus%20Load%20(\%)}%20=%20\frac{\text{Number%20of%20Bits%20per%20Frame}%20\times%20\text{Number%20of%20Frames%20per%20Second}}{\text{CAN%20Speed}}%20\times%20100)
 
+$$
+\text{Bus Load (\%)} = \frac{\text{Number of Bits per Frame} \times \text{Number of Frames per Second}}{\text{CAN Speed}} \times 100
+$$
+
+
 ![Bus Load Formula](https://latex.codecogs.com/png.latex?\text{Bus%20Load%20(\%)}%20=%20\frac{\text{Total%20Bits%20per%20Second}}{\text{CAN%20Speed}}%20\times%20100)
 
 ## Sample calculation: 
@@ -35,4 +40,5 @@ Frequency: 200 (cycles per second)
 Baud Rate: 500 kbaud (500,000 bits transferred per second)
 
 ![Solved Bus Load Formula](https://latex.codecogs.com/png.latex?\text{Bus%20Load%20(\%)}%20=%20\frac{1,524%20\times%20200}{500,000}%20\times%20100%20=%2060.96\%)
+
 

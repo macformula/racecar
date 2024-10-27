@@ -1,0 +1,119 @@
+Metadata-Version: 2.1
+Name: mkdocs-spellcheck
+Version: 1.1.0
+Summary: A spell checker plugin for MkDocs.
+Author-Email: =?utf-8?q?Timoth=C3=A9e_Mazzucotelli?= <dev@pawamoy.fr>
+License: ISC
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Documentation
+Classifier: Topic :: Software Development
+Classifier: Topic :: Software Development :: Documentation
+Classifier: Topic :: Utilities
+Classifier: Typing :: Typed
+Project-URL: Homepage, https://pawamoy.github.io/mkdocs-spellcheck
+Project-URL: Documentation, https://pawamoy.github.io/mkdocs-spellcheck
+Project-URL: Changelog, https://pawamoy.github.io/mkdocs-spellcheck/changelog
+Project-URL: Repository, https://github.com/pawamoy/mkdocs-spellcheck
+Project-URL: Issues, https://github.com/pawamoy/mkdocs-spellcheck/issues
+Project-URL: Discussions, https://github.com/pawamoy/mkdocs-spellcheck/discussions
+Project-URL: Gitter, https://gitter.im/mkdocs-spellcheck/community
+Project-URL: Funding, https://github.com/sponsors/pawamoy
+Requires-Python: >=3.8
+Provides-Extra: all
+Provides-Extra: codespell
+Provides-Extra: symspellpy
+Requires-Dist: mkdocs-spellcheck[codespell,symspellpy]; extra == "all"
+Requires-Dist: codespell>=2.2.2; extra == "codespell"
+Requires-Dist: symspellpy>=6.7.6; extra == "symspellpy"
+Requires-Dist: importlib-resources>=6.4; python_version < "3.9" and extra == "symspellpy"
+Description-Content-Type: text/markdown
+
+# MkDocs SpellCheck
+
+[![ci](https://github.com/pawamoy/mkdocs-spellcheck/workflows/ci/badge.svg)](https://github.com/pawamoy/mkdocs-spellcheck/actions?query=workflow%3Aci)
+[![documentation](https://img.shields.io/badge/docs-mkdocs%20material-blue.svg?style=flat)](https://pawamoy.github.io/mkdocs-spellcheck/)
+[![pypi version](https://img.shields.io/pypi/v/mkdocs-spellcheck.svg)](https://pypi.org/project/mkdocs-spellcheck/)
+[![gitpod](https://img.shields.io/badge/gitpod-workspace-blue.svg?style=flat)](https://gitpod.io/#https://github.com/pawamoy/mkdocs-spellcheck)
+[![gitter](https://badges.gitter.im/join%20chat.svg)](https://app.gitter.im/#/room/#mkdocs-spellcheck:gitter.im)
+
+A spell checker plugin for MkDocs.
+
+This plugin can use different backends
+to check the spelling of words in your final HTML pages.
+These backends are:
+
+- [`codespell`](https://github.com/codespell-project/codespell)
+- [`symspellpy`](https://github.com/mammothb/symspellpy)
+
+## Installation
+
+To install all backends, use the `all` extra.
+Otherwise specify the name(s) of the backend(s) as extra.
+
+```bash
+pip install mkdocs-spellcheck[all]
+pip install mkdocs-spellcheck[codespell]
+pip install mkdocs-spellcheck[symspellpy]
+pip install mkdocs-spellcheck[codespell,symspellpy]
+```
+
+## Usage
+
+```yaml
+# mkdocs.yml
+plugins:
+- search
+- spellcheck:
+    backends:  # the backends you want to use
+    - symspellpy  # as strings
+    - codespell:  # or nested configs
+        dictionaries: [clear, rare]
+
+    # known_words can also be a list of words
+    known_words: known_words.txt
+
+    # ignore words in <code> tags
+    ignore_code: yes
+
+    # minimum length of words to consider
+    min_length: 2
+
+    # maximum number of capital letters in a word
+    max_capital: 1
+
+    # keep unicode characters
+    allow_unicode: no
+
+    # skip files entirely (supports Unix shell-style wildcards)
+    skip_files:
+    - credits.md
+    - coverage.md
+    - reference/* 
+
+    # whether to only check in strict mode
+    strict_only: yes
+```
+
+By default, the `symspellpy` backend is used.
+
+### `codespell`
+
+The builtin dictionaries are:
+
+- `clear` for unambiguous errors
+- `rare` for rare (but valid) words that are likely to be errors
+- `informal` for making informal words more formal
+- `usage` for replacing phrasing with recommended terms
+- `code` for words from code and/or mathematics that are likely
+    to be typos in other contexts (such as `uint`)
+- `names` for valid proper names that might be typos
+- `en-GB_to_en-US` for corrections from `en-GB` to `en-US`

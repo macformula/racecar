@@ -1,0 +1,3 @@
+[mkdocs.plugins]
+spellcheck = mkdocs_spellcheck.plugin:SpellCheckPlugin
+
