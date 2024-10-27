@@ -13,7 +13,7 @@ ifeq ($(shell uname), Darwin)
 # MacOS
 	CUBEMX_JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/Contents/Home/bin/java
 else
-# Windows/Linux
+# Windows / Linux
 	CUBEMX_JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/bin/java
 endif
 
