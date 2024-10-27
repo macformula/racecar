@@ -29,19 +29,19 @@ bool b_DriverInterfaceError(double DI_V_AccelPedalPos1, double DI_V_AccelPedalPo
 }
 
 
-int main() {
-    // Example usage
-    double DI_V_AccelPedalPos1 = 0.8, DI_V_AccelPedalPos2 = 0.9;
-    double DI_FrontBrakePressure = 2, DI_RearBrakePressure = 0.7;
-    double DI_V_RawSteeringAngle = 0.5; //test case
+// int main() {
+//     // Example usage
+//     double DI_V_AccelPedalPos1 = 0.8, DI_V_AccelPedalPos2 = 0.9;
+//     double DI_FrontBrakePressure = 2, DI_RearBrakePressure = 0.7;
+//     double DI_V_RawSteeringAngle = 0.5; //test case
 
-    bool driverError = b_DriverInterfaceError(
-        DI_V_AccelPedalPos1, DI_V_AccelPedalPos2, 
-        DI_FrontBrakePressure, DI_RearBrakePressure, 
-        DI_V_RawSteeringAngle
-    );
+//     bool driverError = b_DriverInterfaceError(
+//         DI_V_AccelPedalPos1, DI_V_AccelPedalPos2, 
+//         DI_FrontBrakePressure, DI_RearBrakePressure, 
+//         DI_V_RawSteeringAngle
+//     );
 
-    std::cout << "Driver Interface Error: " << (driverError ? "Yes" : "No") << std::endl;
+//     std::cout << "Driver Interface Error: " << (driverError ? "Yes" : "No") << std::endl;
 
-    return 0;
-}
+//     return 0;
+// }
