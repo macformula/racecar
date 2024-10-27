@@ -116,6 +116,8 @@ public:
      * @param interval_sec
      */
     void Update(float interval_sec) const {
+        // max_duty_step must be greater than any platform's PWM duty cycle
+        // resolution
         float max_duty_step = duty_per_second_ * interval_sec;
 
         float current_duty = pwm_output_.GetDutyCycle();
