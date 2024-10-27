@@ -13,7 +13,7 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 from cantools.database import Database, Message, Signal
-from jinja2 import Environment
+from jinja2 import Environment, PackageLoader
 
 from .config import Bus, Config
 
@@ -27,11 +27,6 @@ CAN_MESSAGES_FILE_NAME = "_can_messages.h"
 
 CAN_MESSAGES_TEMPLATE_FILENAME = "can_messages.h.jinja2"
 MSG_REGISTRY_TEMPLATE_FILENAME = "msg_registry.h.jinja2"
-
-DIR_THIS_FILE = os.path.abspath(os.path.dirname(__file__))
-DIR_TEMPLATES = os.path.join(DIR_THIS_FILE, "templates")
-CAN_MESSAGES_TEMPLATE_PATH = os.path.join(DIR_TEMPLATES, CAN_MESSAGES_TEMPLATE_FILENAME)
-MSG_REGISTRY_TEMPLATE_PATH = os.path.join(DIR_TEMPLATES, MSG_REGISTRY_TEMPLATE_FILENAME)
 
 
 def _parse_dbc_files(dbc_file: str) -> Database:
@@ -179,21 +174,19 @@ def _camel_to_snake(text):
 def _generate_from_jinja2_template(
     template_path: str, output_path: str, context_dict: dict
 ):
-    # Read the template string from a file
-    with open(template_path, "r") as file:
-        template_str = file.read()
-
     # Create the environment with trim_blocks and lstrip_blocks settings
-    env = Environment(trim_blocks=True, lstrip_blocks=True)
+    env = Environment(
+        loader=PackageLoader("cangen"),
+        trim_blocks=True, 
+        lstrip_blocks=True
+    )
 
     # Register the camel_to_snake filter
     env.filters["camel_to_snake"] = _camel_to_snake
     env.filters["decimal_to_hex"] = hex
 
-    # Load the template from the string content
-    template = env.from_string(template_str)
-
-    # Render the template with the context
+    # Load and render template
+    template = env.get_template(template_path)
     rendered_code = template.render(**context_dict)
 
     # Write the rendered code to a file
@@ -253,14 +246,14 @@ def generate_code(bus: Bus, config: Config):
 
     logger.debug("Generating code for can messages")
     _generate_from_jinja2_template(
-        CAN_MESSAGES_TEMPLATE_PATH,
+        CAN_MESSAGES_TEMPLATE_FILENAME,
         os.path.join(config.output_dir, bus_name.lower() + CAN_MESSAGES_FILE_NAME),
         context,
     )
 
     logger.debug("Generating code for msg registry")
     _generate_from_jinja2_template(
-        MSG_REGISTRY_TEMPLATE_PATH,
+        MSG_REGISTRY_TEMPLATE_FILENAME,
         os.path.join(config.output_dir, bus_name.lower() + MSG_REGISTRY_FILE_NAME),
         context,
     )
