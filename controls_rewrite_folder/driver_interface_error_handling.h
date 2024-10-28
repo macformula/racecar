@@ -13,8 +13,7 @@ bool isInRange(T fractionIn){
 
 template <typename T>
 bool b_DriverInterfaceError(T DI_V_AccelPedalPos1, T DI_V_AccelPedalPos2, T DI_FrontBrakePressure, T DI_RearBrakePressure, T DI_V_RawSteeringAngle){
-    const T TOLERANCE = 0.00000000000001; // Define a small tolerance for floating-point comparisons
-    return (!isInRange(DI_V_AccelPedalPos1) || !isInRange(DI_V_AccelPedalPos2) || !isInRange(DI_FrontBrakePressure) || !isInRange(DI_RearBrakePressure) || !isInRange(DI_V_RawSteeringAngle) || (std::abs(DI_V_AccelPedalPos1 - DI_V_AccelPedalPos2) > TOLERANCE+ 0.1));
+    return (!isInRange(DI_V_AccelPedalPos1) || !isInRange(DI_V_AccelPedalPos2) || !isInRange(DI_FrontBrakePressure) || !isInRange(DI_RearBrakePressure) || !isInRange(DI_V_RawSteeringAngle) || (std::abs(DI_V_AccelPedalPos1 - DI_V_AccelPedalPos2) > 0.1));
 
 }
 } //namespace control
