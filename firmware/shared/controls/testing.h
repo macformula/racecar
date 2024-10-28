@@ -16,3 +16,7 @@ const double TOLERANCE = 1e-5;
 // Use these for float / double types
 #define ASSERT_CLOSE(x, y) assert(std::abs((x) - (y)) < (decltype(x))TOLERANCE)
 #define ASSERT_NCLOSE(x, y) assert(std::abs((x) - (y)) > (decltype(x))TOLERANCE)
+
+// Use these for boolean types
+#define ASSERT_TRUE(x) assert((x))
+#define ASSERT_FALSE(x) assert(!(x))
