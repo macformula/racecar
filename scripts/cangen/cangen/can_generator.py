@@ -234,15 +234,15 @@ def generate_code(bus: Bus, config: Config):
 
     logger.debug("Generating code for can messages")
     _generate_from_jinja2_template(
-        CAN_MESSAGES_TEMPLATE_FILENAME,
-        os.path.join(config.output_dir, bus.bus_name.lower() + CAN_MESSAGES_FILE_NAME),
+        CAN_MESSAGES_TEMPLATE_PATH,
+        os.path.join(config.output_dir, bus_name.lower() + CAN_MESSAGES_FILE_NAME),
         context,
     )
 
     logger.debug("Generating code for msg registry")
     _generate_from_jinja2_template(
-        MSG_REGISTRY_TEMPLATE_FILENAME,
-        os.path.join(config.output_dir, bus.bus_name.lower() + MSG_REGISTRY_FILE_NAME),
+        MSG_REGISTRY_TEMPLATE_PATH,
+        os.path.join(config.output_dir, bus_name.lower() + MSG_REGISTRY_FILE_NAME),
         context,
     )
 
