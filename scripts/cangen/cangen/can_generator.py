@@ -213,46 +213,34 @@ def generate_code(bus: Bus, config: Config):
     templates (not included here) to create the final code.
     """
 
-    dbc_file = bus.dbc_file_path
-    our_node = config.node
-    bus_name = bus.bus_name
-
     logger.info("Generating code")
 
-    can_db = _parse_dbc_files(dbc_file)
-
-    signal_types = _get_signal_types(can_db)
-    temp_signal_types = _get_signal_types(can_db, allow_floating_point=False)
-
-    rx_msgs, tx_msgs = _filter_messages_by_node(can_db.messages, our_node)
-    all_msgs = rx_msgs + tx_msgs
-
-    unpack_masks_shifts = _get_masks_shifts(rx_msgs)
-    pack_masks_shifts = _get_masks_shifts(tx_msgs)
+    can_db = _parse_dbc_files(bus.dbc_file_path)
+    rx_msgs, tx_msgs = _filter_messages_by_node(can_db.messages, config.node)
 
     context = {
         "date": time.strftime("%Y-%m-%d"),
         "rx_msgs": rx_msgs,
         "tx_msgs": tx_msgs,
-        "all_msgs": all_msgs,
-        "signal_types": signal_types,
-        "temp_signal_types": temp_signal_types,
-        "unpack_info": unpack_masks_shifts,
-        "pack_info": pack_masks_shifts,
-        "bus_name": bus_name,
+        "all_msgs": rx_msgs + tx_msgs,
+        "signal_types": _get_signal_types(can_db),
+        "temp_signal_types": _get_signal_types(can_db, allow_floating_point=False),
+        "unpack_info": _get_masks_shifts(rx_msgs),
+        "pack_info": _get_masks_shifts(tx_msgs),
+        "bus_name": bus.bus_name,
     }
 
     logger.debug("Generating code for can messages")
     _generate_from_jinja2_template(
         CAN_MESSAGES_TEMPLATE_FILENAME,
-        os.path.join(config.output_dir, bus_name.lower() + CAN_MESSAGES_FILE_NAME),
+        os.path.join(config.output_dir, bus.bus_name.lower() + CAN_MESSAGES_FILE_NAME),
         context,
     )
 
     logger.debug("Generating code for msg registry")
     _generate_from_jinja2_template(
         MSG_REGISTRY_TEMPLATE_FILENAME,
-        os.path.join(config.output_dir, bus_name.lower() + MSG_REGISTRY_FILE_NAME),
+        os.path.join(config.output_dir, bus.bus_name.lower() + MSG_REGISTRY_FILE_NAME),
         context,
     )
 
