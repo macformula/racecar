@@ -2,7 +2,7 @@
 
 By default, WSL2 does not support Virtual CAN, however it can be enabled by building a custom WSL2 kernel.
 
-!!! warning "This setup assumes you are running within WSL. If you do not have WSL installed, open Windows Powershell and run:"
+!!! warning "This setup assumes you are running within WSL. If you do not have WSL installed, open up a Windows terminal and run:"
         wsl --install
 
 ## Step 1: Update the WSL Environment
@@ -25,16 +25,18 @@ To ensure compatibility, you need the specific kernel version of WSL2.
         uname -r
 
     - Example output: `5.15.153.1-microsoft-standard-WSL2`
+    - Note the version number, as it must match with `<your-kernel-version>` in step 2, 3, and 4.
 
 2. **Download the kernel source**:
 
     - Go to the [WSL2 Linux Kernel repository](https://github.com/microsoft/WSL2-Linux-Kernel/tags).
     - Find and copy the link for the `Source code (tar.gz)` file matching your kernel version.
+    -
 
 3. **Download and extract the file**:
 
-        wget https://github.com/microsoft/WSL2-Linux-Kernel/archive/refs/tags/linux-msft-wsl-5.15.153.1.tar.gz
-        tar -xf linux-msft-wsl-5.15.153.1.tar.gz
+        wget https://github.com/microsoft/WSL2-Linux-Kernel/archive/refs/tags/linux-msft-wsl-<your-kernel-version>.tar.gz
+        tar -xf linux-msft-wsl-<your-kernel-version>.tar.gz
 
 4. **Navigate to the extracted folder:**
 
