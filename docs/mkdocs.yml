@@ -33,6 +33,10 @@ theme:
 extra_css:
   - stylesheets/extra.css
 
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
 copyright: Copyright &copy; McMaster Formula Electric
 
 plugins:
@@ -73,7 +77,7 @@ plugins:
 
 markdown_extensions:
   - admonition
-  - abbr
+  # - abbr
   - attr_list
   - md_in_html
   - pymdownx.details
@@ -91,6 +95,8 @@ markdown_extensions:
       base_path:
         - !relative
         - !relative $docs_dir/../
+  - pymdownx.arithmatex:
+      generic: true
 
 repo_url: https://github.com/macformula/racecar
 repo_name: macformula/racecar
@@ -123,6 +129,7 @@ nav:
     - firmware/architecture.md
     - firmware/project-structure/index.md
     - firmware/compile-project.md
+    - firmware/can-traffic.md
   - Glossary: glossary.md
 
 watch:
