@@ -216,15 +216,13 @@ def generate_code(bus: Bus, config: Config):
     logger.info("Generating code")
 
     can_db = _parse_dbc_files(bus.dbc_file_path)
-
     rx_msgs, tx_msgs = _filter_messages_by_node(can_db.messages, config.node)
-    all_msgs = rx_msgs + tx_msgs
 
     context = {
         "date": time.strftime("%Y-%m-%d"),
         "rx_msgs": rx_msgs,
         "tx_msgs": tx_msgs,
-        "all_msgs": all_msgs,
+        "all_msgs": rx_msgs + tx_msgs,
         "signal_types": _get_signal_types(can_db),
         "temp_signal_types": _get_signal_types(can_db, allow_floating_point=False),
         "unpack_info": _get_masks_shifts(rx_msgs),
@@ -234,15 +232,15 @@ def generate_code(bus: Bus, config: Config):
 
     logger.debug("Generating code for can messages")
     _generate_from_jinja2_template(
-        CAN_MESSAGES_TEMPLATE_PATH,
-        os.path.join(config.output_dir, bus_name.lower() + CAN_MESSAGES_FILE_NAME),
+        CAN_MESSAGES_TEMPLATE_FILENAME,
+        os.path.join(config.output_dir, bus.bus_name.lower() + CAN_MESSAGES_FILE_NAME),
         context,
     )
 
     logger.debug("Generating code for msg registry")
     _generate_from_jinja2_template(
-        MSG_REGISTRY_TEMPLATE_PATH,
-        os.path.join(config.output_dir, bus_name.lower() + MSG_REGISTRY_FILE_NAME),
+        MSG_REGISTRY_TEMPLATE_FILENAME,
+        os.path.join(config.output_dir, bus.bus_name.lower() + MSG_REGISTRY_FILE_NAME),
         context,
     )
 
