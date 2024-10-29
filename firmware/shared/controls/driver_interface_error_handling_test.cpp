@@ -1,8 +1,8 @@
 #include "driver_interface_error_handling.h"
-#include "testing.h"
+
 #include <iostream>
 
-
+#include "testing.h"
 
 int main() {
     using namespace ctrl;
@@ -34,17 +34,16 @@ int main() {
     // Test case 9: RawSteeringAngle out of range
     ASSERT_TRUE(b_DriverInterfaceError(0.86, 0.78, 0.9, 0.8, -0.5));
 
-    // Test case 10: Difference between PedalPos1 and PedalPos2 exceeds threshold
+    // Test case 10: Difference between PedalPos1 and PedalPos2 exceeds
+    // threshold
     ASSERT_TRUE(b_DriverInterfaceError(0.8, 0.95, 0.9, 0.8, 0.5));
 
     // Test case 11: Pedal position and parameters should result in true
     ASSERT_TRUE(b_DriverInterfaceError(0.25, 0.4, 0.9, 0.8, 0.5));
 
     // Test case 12, fails because pedal position is > 0.1
-    ASSERT_TRUE(b_DriverInterfaceError(0.5, 0.61, 0.5, 0.5, 0.5)); 
+    ASSERT_TRUE(b_DriverInterfaceError(0.5, 0.61, 0.5, 0.5, 0.5));
 
-
-
-    std::cout << "All test cases passed!" << std::endl;    
+    std::cout << "All test cases passed!" << std::endl;
     return 0;
 }
