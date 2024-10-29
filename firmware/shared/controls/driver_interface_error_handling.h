@@ -1,6 +1,5 @@
 #pragma once
 #include <cmath>
-#include <iostream>
 
 // everson shen and aleeza ali zar
 
