@@ -9,6 +9,7 @@ endif
 BUILD := build
 BUILD_DIR = $(BUILD)/$(PROJECT)/$(PLATFORM)
 PLATFORM_DIR := projects/$(PROJECT)/platforms/$(PLATFORM)
+PLATFORM_FAMILY := $(shell echo $(patsubst stm32f%,%,$(PLATFORM)) | cut -c1)
 GENERATOR := -G"Unix Makefiles"
 LOG_LEVEL := STATUS
 
@@ -46,7 +47,7 @@ st-flash: build
 	st-flash --reset write $(BUILD_DIR)/$(PROJECT_NAME).bin 0x08000000
 
 debug-openocd:
-	openocd -f interface/stlink.cfg -f target/stm32f7x.cfg
+	openocd -f interface/stlink.cfg -f target/stm32f$(PLATFORM_FAMILY)x.cfg
 
 debug-gdb:
-	arm-none-eabi-gdb "$(BUILD_DIR)/main.elf" -ex "target extended-remote localhost:3333" -ex "monitor reset halt" \
+	arm-none-eabi-gdb "$(BUILD_DIR)/main.elf" -ex "target extended-remote localhost:3333" -ex "monitor reset halt"
