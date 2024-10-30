@@ -22,7 +22,7 @@ Use the following command to install OpenOCD:
     brew install openocd
     ```
 
-It is likely the ARM GNU Toolchain is already installed if you have followed the [Firmware Development Setup](../firmware/dev-setup.md) guide. Refer to this guide if it is not installed.
+It is likely the ARM GNU Toolchain containing GDB is already installed if you have followed the [Firmware Development Setup](../firmware/dev-setup.md) guide. Refer to this guide if it is not installed.
 
 ### Verify Installation
 
@@ -39,17 +39,25 @@ arm-none-eabi-gdb --version     # >= 13.0
 
 ### Debugging
 
-<!-- TODO: TBD once we decide on terminal or script usage -->
+To debug a program, the OpenOCD server must be started and GDB connected to it.
 
-Terminal 1:
-```text
-openocd -f interface/stlink.cfg -f target/stm32f7x.cfg
+You must have a compiled binary file to be able to load it onto the board for debugging. If you have not yet compiled your program, refer to the [Compiling a Project](../firmware/compile-project.md) guide.
+
+Once you have compiled your program, plug in your board and run the following commands. They follow a similar structure to the `make` commands used for compiling.
+
+!!! warning
+    The OpenOCD command must be run before the GDB command.
+
+    Each command should be run in a separate terminal.
+
+```bash
+make PROJECT=Demo/Blink PLATFORM=stm32f767 debug-openocd
 ```
 
-Terminal 2:
-```text
-arm-none-eabi-gdb your_program.elf -ex "target remote :3333"
+```bash
+make PROJECT=Demo/Blink PLATFORM=stm32f767 debug-gdb
 ```
+
 
 ### GDB Commands
 
@@ -72,12 +80,6 @@ Below are some common GDB commands used for debugging:
 `where`: Displays the current call stack, showing the active function and its caller hierarchy.
 
 Refer to the [VisualGDB](https://visualgdb.com/gdbreference/commands/) documentation for more commands.
-
-### Example
-
-Here is an example of debugging a program using GDB:
-
-<!-- TODO: TBD once we decide on terminal or script usage -->
 
 ## Resources
 
