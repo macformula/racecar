@@ -43,7 +43,7 @@ To debug a program, the OpenOCD server must be started and GDB connected to it.
 
 You must have a compiled binary file to be able to load it onto the board for debugging. If you have not yet compiled your program, refer to the [Compiling a Project](../firmware/compile-project.md) guide.
 
-Once you have compiled your program, plug in your board and run the following commands. They follow a similar structure to the `make` commands used for compiling.
+Once you have compiled your program, plug in your board and run the following commands. They follow a similar structure to the `make` commands used for compiling. You do not need to flash your program onto the board before debugging (this is done by GDB).
 
 !!! warning
     The OpenOCD command must be run before the GDB command.
@@ -54,10 +54,13 @@ Once you have compiled your program, plug in your board and run the following co
 make PROJECT=Demo/Blink PLATFORM=stm32f767 debug-openocd
 ```
 
+Let the OpenOCD command run until it says: `Info : Listening on port 3333 for gdb connections`.
+
 ```bash
 make PROJECT=Demo/Blink PLATFORM=stm32f767 debug-gdb
 ```
 
+You should now be in the GDB command line interface and can use GDB commands to debug your program.
 
 ### GDB Commands
 
