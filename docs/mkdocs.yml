@@ -117,6 +117,7 @@ nav:
     - tutorials/index.md
     - tutorials/git.md
     - tutorials/site-dev.md
+    - tutorials/wsl-can/index.md
   - Firmware:
     - firmware/index.md
     - firmware/dev-setup.md
