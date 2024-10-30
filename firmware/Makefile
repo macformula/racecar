@@ -44,3 +44,9 @@ endif
 
 st-flash: build
 	st-flash --reset write $(BUILD_DIR)/$(PROJECT_NAME).bin 0x08000000
+
+debug-openocd:
+	openocd -f interface/stlink.cfg -f target/stm32f7x.cfg
+
+debug-gdb:
+	arm-none-eabi-gdb "$(BUILD_DIR)/main.elf" -ex "target extended-remote localhost:3333" -ex "monitor reset halt" \
