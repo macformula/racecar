@@ -11,7 +11,7 @@ Run the following commands in your WSL terminal to update your environment and i
 
     sudo apt-get update -y
 
-### Install dependencies:
+### Install dependencies
 
     sudo apt install -y dwarves libelf-dev flex bison libssl-dev libncurses-dev bc build-essential make
     sudo apt install -y --no-install-recommends wslu
@@ -31,7 +31,6 @@ To ensure compatibility, you need the specific kernel version of WSL2.
 
     - Go to the [WSL2 Linux Kernel repository](https://github.com/microsoft/WSL2-Linux-Kernel/tags).
     - Find and copy the link for the `Source code (tar.gz)` file matching your kernel version.
-    -
 
 3. **Download and extract the file**:
 
@@ -67,12 +66,12 @@ To ensure compatibility, you need the specific kernel version of WSL2.
 
 ![Step 2](img/gui2.webp)
 ![Step 3](img/gui3.webp)
+
 ### Enable CAN Device Drivers
 
 - Navigate to **CAN Device Drivers**.
 - For each driver shown in the screenshot, press `M` to enable as a module.
 - Save and exit the configuration menu.
-
 
 ![Step 4](img/gui4.webp)
 
