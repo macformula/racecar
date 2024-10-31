@@ -94,7 +94,7 @@ We now add 3 elements to our contract.
     --8<-- "inc/bindings.h"
     ```
 
-This completes the bindings contract. We can now write the application code, knowing that the platforms will all stasify this contract.
+This completes the bindings contract. We can now write the application code, knowing that the platforms will all satisfy this contract.
 
 ## Application code
 
