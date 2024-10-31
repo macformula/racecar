@@ -46,6 +46,6 @@ This command only applies when `#!bash PLATFORM=stm32f767`. It deletes all "giti
 Calls `build` then downloads the firmware to a connected stm device.
 
 !!! tip
-    I recommend using the [STM32CubeProgrammer](dev-setup.md/#stm32cubeprogrammer) software instead of `st-flash`.
+    You should use the [STM32CubeProgrammer](dev-setup.md/#stm32cubeprogrammer) software instead of `st-flash`.
 
     See [Flashing Firmware](/docs/tutorials/flashing/index.md).
