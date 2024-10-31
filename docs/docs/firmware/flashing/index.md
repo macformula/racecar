@@ -19,7 +19,7 @@ Simply connect the board to your laptop with a USB cable.
 
 ### Vehicle ECUs
 
-The vehicle ECUs are not development boards, they are bare STM32F7 processors soldered to a circuit board. These boards do not have a built in ST-Link or USB interface so we must use a different connector.
+The vehicle ECUs are not development boards. They are bare STM32F7 processors soldered to a circuit board. These boards do not have a built-in ST-Link or USB interface so we must use a different connector.
 
 You will need and external ST-Link and a USB cable from the blue tool chest in the Hatch bay. Some of the ST-Links are Micro-USB and others are USB-C. We should have cables for both.
 
@@ -38,7 +38,7 @@ Please wrap the ST-Link in electrical tape since it has exposed conductors and i
 1. Ensure the ECU is off (not receiving power) and the USB is not connected to your laptop.
 2. Carefully connect the grey ribbon cable to the ST-Link and the JTAG connector on the ECU board.
 
-    Both ends of the ribbon cable have a tab which must align with the notch on the JTAG connector.
+    Both ends of the ribbon cable have a tab which must align with the notch on the connector.
 
     <figure markdown="span">
     ![](img/notch-2.jpg){ width="80%" }
