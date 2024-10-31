@@ -116,6 +116,7 @@ nav:
   - Tutorials:
     - tutorials/index.md
     - tutorials/git.md
+    - tutorials/flashing/index.md
     - tutorials/site-dev.md
   - Firmware:
     - firmware/index.md
@@ -123,7 +124,6 @@ nav:
     - firmware/architecture.md
     - firmware/project-structure/index.md
     - firmware/compile-project.md
-    - firmware/flashing/index.md
   - Glossary: glossary.md
 
 watch:
