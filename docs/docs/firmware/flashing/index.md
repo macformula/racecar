@@ -1,6 +1,6 @@
 # Flashing Firmware
 
-After [compiling a project](../compile-project.md) for the `stm32f767` platform, you need to flash the firmware to the board. This article describes how to connect to a board and flash using [STM32CubeProgrammer](dev-setup.md/#stm32cubeprogrammer).
+After [compiling a project](../compile-project.md) for the `stm32f767` platform, you need to flash the firmware to the board. This article describes how to connect to a board and flash using [STM32CubeProgrammer](../dev-setup.md/#stm32cubeprogrammer).
 
 ## Connect to the Board
 
