@@ -9,7 +9,6 @@ endif
 BUILD := build
 BUILD_DIR = $(BUILD)/$(PROJECT)/$(PLATFORM)
 PLATFORM_DIR := projects/$(PROJECT)/platforms/$(PLATFORM)
-PLATFORM_FAMILY := $(shell echo $(patsubst stm32f%,%,$(PLATFORM)) | cut -c1)
 GENERATOR := -G"Unix Makefiles"
 LOG_LEVEL := STATUS
 
@@ -18,7 +17,7 @@ PROJECT_NAME := $(notdir $(patsubst %/,%,$(PROJECT)))
 
 COMPILE_COMMANDS_DEST := $(BUILD)/compile_commands.json
 
-.PHONY: build config clean deepclean st-flash
+.PHONY: build config clean deepclean st-flash debug-openocd debug-gdb debug
 
 build: config
 	cmake --build $(BUILD_DIR)
@@ -47,7 +46,11 @@ st-flash: build
 	st-flash --reset write $(BUILD_DIR)/$(PROJECT_NAME).bin 0x08000000
 
 debug-openocd:
-	openocd -f interface/stlink.cfg -f target/stm32f$(PLATFORM_FAMILY)x.cfg
+	openocd -f interface/stlink.cfg -f target/stm32f7x.cfg 
 
 debug-gdb:
-	arm-none-eabi-gdb "$(BUILD_DIR)/main.elf" -ex "target extended-remote localhost:3333" -ex "monitor reset halt"
+	arm-none-eabi-gdb "$(BUILD_DIR)/main.elf" -ex "target extended-remote localhost:3333" -ex "monitor reset halt" -ex "load" -ex "monitor reset halt"
+	
+debug:
+	openocd -f interface/stlink.cfg -f target/stm32f7x.cfg & \
+	arm-none-eabi-gdb "$(BUILD_DIR)/main.elf" -ex "target extended-remote localhost:3333" -ex "monitor reset halt" -ex "load" -ex "monitor reset halt"
