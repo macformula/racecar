@@ -10,19 +10,22 @@ For debugging our boards, we use OpenOCD and GDB.
 
 ## Installation
 
-Use the following command to install OpenOCD:
-
 === "Windows"
     ```text
-    <!-- TODO: Rida documentation for OpenOCD -->
+    choco install openocd
     ```
 
-=== "Linux / Mac"
+=== "Linux"
+    ```text
+    sudo apt-get install openocd
+    ```
+
+=== "Mac"
     ```text
     brew install openocd
     ```
 
-It is likely the ARM GNU Toolchain containing GDB is already installed if you have followed the [Firmware Development Setup](../firmware/dev-setup.md) guide. Refer to this guide if it is not installed.
+The ARM GNU Toolchain containing GDB is already installed if you followed the [Firmware Development Setup](../firmware/dev-setup.md) guide. Refer to that if it is not installed.
 
 ### Verify Installation
 
@@ -37,36 +40,33 @@ arm-none-eabi-gdb --version     # >= 13.0
 
 ## Usage
 
-### Debugging
-
 To debug a program, the OpenOCD server must be started and GDB connected to it.
 
-You must have a compiled binary file to be able to load it onto the board for debugging. If you have not yet compiled your program, refer to the [Compiling a Project](../firmware/compile-project.md) guide.
+1. Build your project for the `stm32f767` platform. See [Compiling a Project](../firmware/compile-project.md) for more details:
 
-Once you have compiled your program, plug in your board and run the following commands. They follow a similar structure to the `make` commands used for compiling. You do not need to flash your program onto the board before debugging (this is done by GDB).
+    ```bash
+    make PROJECT=Demo/Blink PLATFORM=stm32f767 build
+    ```
 
-!!! warning
-    The OpenOCD command must be run before the GDB command.
+2. Start the OpenOCD server:
 
-    Each command should be run in a separate terminal.
+    ```bash
+    make PROJECT=Demo/Blink PLATFORM=stm32f767 debug-openocd
+    ```
 
-```bash
-make PROJECT=Demo/Blink PLATFORM=stm32f767 debug-openocd
-```
+3. In a separate terminal, start GDB:
 
-Let the OpenOCD command run until it says: `Info : Listening on port 3333 for gdb connections`.
+    ```bash
+    make PROJECT=Demo/Blink PLATFORM=stm32f767 debug-gdb
+    ```
 
-```bash
-make PROJECT=Demo/Blink PLATFORM=stm32f767 debug-gdb
-```
-
-You should now be in the GDB command line interface and can use GDB commands to debug your program.
+4. Start debugging in the GDB terminal. See the list of common commands below.
 
 ### GDB Commands
 
 Below are some common GDB commands used for debugging:
 
-`load`: Loads the program onto the target device for debugging.
+`load`: Loads the program into the target device's memory.
 
 `continue`: Resumes program execution until the next breakpoint or end.
 
@@ -82,7 +82,7 @@ Below are some common GDB commands used for debugging:
 
 `where`: Displays the current call stack, showing the active function and its caller hierarchy.
 
-Refer to the [VisualGDB](https://visualgdb.com/gdbreference/commands/) documentation for more commands.
+Refer to [VisualGDB](https://visualgdb.com/gdbreference/commands/) and [GDB Cheat Sheet](https://darkdust.net/files/GDB%20Cheat%20Sheet.pdf) for more commands and details.
 
 ## Resources
 
