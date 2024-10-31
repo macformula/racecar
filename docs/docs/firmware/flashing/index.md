@@ -1,6 +1,6 @@
 # Flashing Firmware
 
-After [compiling a project](compile-project.md) for the `stm32f767` platform, you need to flash the firmware to the board. This article describes how to connect to a board and flash using [STM32CubeProgrammer](dev-setup.md/#stm32cubeprogrammer).
+After [compiling a project](../compile-project.md) for the `stm32f767` platform, you need to flash the firmware to the board. This article describes how to connect to a board and flash using [STM32CubeProgrammer](dev-setup.md/#stm32cubeprogrammer).
 
 ## Connect to the Board
 
@@ -25,21 +25,22 @@ You will need and external ST-Link and a USB cable from the blue tool chest in t
 
 <figure markdown="span">
 ![](img/chest-bags.png){ width="80%" }
-<figcaption>ST-Link and cables are kept in bags in this drawer.</figcaption>
+<figcaption>ST-Link and cables are kept in bags in this drawer. Return them when finished!</figcaption>
 </figure>
 
 Please wrap the ST-Link in electrical tape since it has exposed conductors and is very easy to fry.
 
 <figure markdown="span">
 ![](img/etape.jpg){ width="80%" }
-<figcaption>E-Tape would have prevented the Great ST-Link Massacre of Comp 2024.</figcaption>
+<figcaption>E-Tape would have prevented the Great ST-Link Massacre of Comp '24.</figcaption>
 </figure>
 
 1. Ensure the ECU is off (not receiving power) and the USB is not connected to your laptop.
-2. Carefully connect the grey ribbon cable to the JTAG connector on the ECU board and the connector on the ST-Link. There is a tab on the ribbon connector which must align with the notch on the JTAG connector.
+2. Carefully connect the grey ribbon cable to the ST-Link and the JTAG connector on the ECU board.
+
+    Both ends of the ribbon cable have a tab which must align with the notch on the JTAG connector.
 
     <figure markdown="span">
-    <!-- ![](img/notch-1.jpg){ width="80%" } -->
     ![](img/notch-2.jpg){ width="80%" }
     <figcaption>Connector tab and notch</figcaption>
     </figure>
@@ -48,3 +49,59 @@ Please wrap the ST-Link in electrical tape since it has exposed conductors and i
 4. Connect your laptop to the ST-Link using the USB cable.
 
 ## Open CubeProgrammer
+
+You installed Cube Programmer when [Setting up your Development Environment](../dev-setup.md). Run the program. It will open to a screen like this:
+
+<figure markdown="span">
+![](img/cubeprog_firstscreen.png){ width="100%" }
+</figure>
+
+### Connect to the STM32 with ST Link
+
+<figure markdown="span">
+![](img/cubeprog_diagram-STLink.png){ width="60%" }
+</figure>
+
+1. Select __ST-LINK__ as the programming interface.
+2. Select the ST-Link device serial number. There should only be one option if you are plugged into a single device.
+3. Verify the ST-Link configuration.
+4. Click __Connect__.
+
+### Flash your program
+
+<figure markdown="span">
+![](img/cubeprog_diagram-Download.png){ width="80%" }
+</figure>
+
+1. Switch to the __Download__ window.
+2. Select the binary file to flash. This is the `.bin` file located in
+
+    ```text
+    racecar/firmware/build/PROJECT/PLATFORM/
+    ```
+
+3. Verify the flash configuration.
+4. Click __Start Programming__.
+
+## Troubleshooting
+
+### First flash succeeds, second fails
+
+Disconnect from the ST-Link then reconnect. Wait a few seconds and click __Start Programming__ again.
+
+### Cannot flash at all
+
+You are connected to ST-Link but unable to flash.
+
+* Is the ECU powered? The ST-Link is powered by your laptop but the ECU needs external power.
+
+### Cannot connect to ST-Link
+
+The ST-Link serial appears but I cannot connect:
+
+1. Verify the ST-Link configuration.
+
+The ST-Link serial number does NOT appear:
+
+1. Check your USB connections.
+2. Verify the ST-Link is receiving power by looking for LED lights.
