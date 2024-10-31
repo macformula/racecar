@@ -17,7 +17,7 @@ PROJECT_NAME := $(notdir $(patsubst %/,%,$(PROJECT)))
 
 COMPILE_COMMANDS_DEST := $(BUILD)/compile_commands.json
 
-.PHONY: build config clean deepclean st-flash
+.PHONY: build config clean deepclean st-flash debug-openocd debug-gdb
 
 build: config
 	cmake --build $(BUILD_DIR)
@@ -44,3 +44,9 @@ endif
 
 st-flash: build
 	st-flash --reset write $(BUILD_DIR)/$(PROJECT_NAME).bin 0x08000000
+
+debug-openocd:
+	openocd -f interface/stlink.cfg -f target/stm32f7x.cfg -c "gdb_port 3333"
+
+debug-gdb:
+	arm-none-eabi-gdb "$(BUILD_DIR)/main.elf" -ex "target extended-remote localhost:3333" -ex "load"
