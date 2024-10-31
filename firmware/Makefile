@@ -9,6 +9,7 @@ endif
 BUILD := build
 BUILD_DIR = $(BUILD)/$(PROJECT)/$(PLATFORM)
 PLATFORM_DIR := projects/$(PROJECT)/platforms/$(PLATFORM)
+PLATFORM_FAMILY := $(shell echo $(patsubst stm32f%,%,$(PLATFORM)) | cut -c1)
 GENERATOR := -G"Unix Makefiles"
 LOG_LEVEL := STATUS
 
