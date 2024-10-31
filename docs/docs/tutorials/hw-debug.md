@@ -64,7 +64,7 @@ To debug a program, the OpenOCD server must be started and GDB connected to it.
 
 ### GDB Commands
 
-Below are some common GDB commands used for debugging:
+These commands are executed directly in the GDB terminal.
 
 `load`: Loads the program into the target device's memory.
 
