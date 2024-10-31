@@ -1,5 +1,7 @@
 #include "driver_interface_error_handling.h"
 
+#include <iostream>
+
 #include "testing.h"
 
 int main() {
