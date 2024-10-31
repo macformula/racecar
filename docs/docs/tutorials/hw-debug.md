@@ -48,41 +48,65 @@ To debug a program, the OpenOCD server must be started and GDB connected to it.
     make PROJECT=Demo/Blink PLATFORM=stm32f767 build
     ```
 
-2. Start the OpenOCD server:
+2. Plug your board into your computer and ensure it is powered on.
+
+3. Start the OpenOCD server:
 
     ```bash
     make PROJECT=Demo/Blink PLATFORM=stm32f767 debug-openocd
     ```
 
-3. In a separate terminal, start GDB:
+4. In a separate terminal, start GDB:
 
     ```bash
     make PROJECT=Demo/Blink PLATFORM=stm32f767 debug-gdb
     ```
 
-4. Start debugging in the GDB terminal. See the list of common commands below.
+5. Start debugging in the GDB terminal. See the list of common commands and an example below.
 
 ### GDB Commands
 
 These commands are executed directly in the GDB terminal.
 
-`load`: Loads the program into the target device's memory.
+`help`: Displays a list of available commands and their syntax/descriptions.
+
+`load`: Loads the program into the target device's memory. The `debug-gdb` command has been configured to do this automatically on startup.
 
 `continue`: Resumes program execution until the next breakpoint or end.
 
 `finish`: Continues execution until the current function finishes, then stops.
 
-`break`: Sets a breakpoint at a specified line or function to pause execution.
-
-`info breakpoints`: Lists all active breakpoints and their details.
-
 `next`: Executes the next line of code, stepping over any function calls.
 
 `step`: Executes the next line of code, stepping into any function calls.
 
+`break`: Sets a breakpoint at a specified line or function to pause execution.
+
+`info breakpoints`: Lists all active breakpoints and their details.
+
 `where`: Displays the current call stack, showing the active function and its caller hierarchy.
 
 Refer to [VisualGDB](https://visualgdb.com/gdbreference/commands/) and [GDB Cheat Sheet](https://darkdust.net/files/GDB%20Cheat%20Sheet.pdf) for more commands and details.
+
+### Example
+
+The following commands show an example debugging session with the Blink project.
+
+```bash
+    make PROJECT=Demo/Blink PLATFORM=stm32f767 debug-openocd
+```
+
+```bash
+    make PROJECT=Demo/Blink PLATFORM=stm32f767 debug-gdb
+```
+
+```text
+    (gdb) break main        # Set a breakpoint at the main function
+    (gdb) continue          # Continue the execution of the program
+    (gdb) where             # Display the current call stack
+    (gdb) next              # Execute the next line of code
+    (gdb) quit              # Exit GDB
+```
 
 ## Resources
 
