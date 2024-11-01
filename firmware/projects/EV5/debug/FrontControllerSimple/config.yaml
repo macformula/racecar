@@ -1,7 +1,8 @@
 canGen:
-  ourNode: fc
   busses:
-    - busName: veh
+    - name: veh
+      node: fc
       dbcFile: "../../veh.dbc"
-    - busName: pt
+    - name: pt
+      node: fc
       dbcFile: "../../pt.dbc"
