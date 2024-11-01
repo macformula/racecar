@@ -1,5 +1,5 @@
 canGen:
   busses:
-    - bus: veh
+    - name: veh
       node: lvc
       dbcFile: "../veh.dbc"
