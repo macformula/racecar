@@ -7,7 +7,8 @@ DEFAULT_OUTPUT_DIR = "generated/can"
 class Bus:
     def __init__(self, bus: dict):
         self.dbc_file_path: str = bus.pop("dbcFile")
-        self.bus_name: str = bus.pop("busName").capitalize()
+        self.bus_name: str = bus.pop("name").capitalize()
+        self.node = bus.pop("node")
 
         if bus:
             raise ValueError(
@@ -23,9 +24,7 @@ class Config:
         return Config(config.pop("canGen"))
 
     def __init__(self, config: dict):
-        self.node = config.pop("ourNode")
         self.output_dir = config.pop("outputPath", DEFAULT_OUTPUT_DIR)
-
         self.busses = [Bus(bus) for bus in config.pop("busses")]
 
         if config:

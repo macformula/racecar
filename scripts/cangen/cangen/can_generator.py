@@ -216,7 +216,7 @@ def generate_code(bus: Bus, config: Config):
     logger.info("Generating code")
 
     can_db = _parse_dbc_files(bus.dbc_file_path)
-    rx_msgs, tx_msgs = _filter_messages_by_node(can_db.messages, config.node)
+    rx_msgs, tx_msgs = _filter_messages_by_node(can_db.messages, bus.node)
 
     context = {
         "date": time.strftime("%Y-%m-%d"),
