@@ -48,6 +48,10 @@ Please wrap the ST-Link in electrical tape since it has exposed conductors and i
 3. Power on the ECU. Talk to an upper year SW or Electrical member for help.
 4. Connect your laptop to the ST-Link using the USB cable.
 
+Full setup:
+
+![](img/setup_labelled.jpg)
+
 ## Open CubeProgrammer
 
 You installed Cube Programmer when [Setting up your Development Environment](../dev-setup.md). Run the program. It will open to a screen like this:
