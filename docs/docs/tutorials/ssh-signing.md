@@ -57,6 +57,19 @@ Open another terminal to test your connection to GitHub by entering the followin
 ssh -T git@github.com
 ```
 
+??? Failure "Windows: `ssh` not recognized"
+
+    Older versions of Windows do not include SSH so it must be installed separately.
+
+    1. Open the __Settings__ app. Go to __System__ then __Optional Features__.
+    2. Click __Add a feature__ and search for "OpenSSH."
+    3. Install the feature. Restart your computer.
+    4. Add the OpenSSH directory to your PATH.
+
+        The default location is `C:\Windows\System32\OpenSSH`
+
+    Open a new terminal. You should be able to execute `ssh`.
+
 Type "yes" when it asks if you want to continue connecting.
 You should see a message like "Hi username! You've successfully authenticated, but GitHub does not provide shell access."
 
@@ -88,4 +101,3 @@ Update your git configuration in your terminal to automatically sign commits wit
     ```
 
 Additional commit signing GitHub documentation can be found [here](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key).
-
