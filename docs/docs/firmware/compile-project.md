@@ -48,4 +48,4 @@ Calls `build` then downloads the firmware to a connected stm device.
 !!! tip
     You should use the [STM32CubeProgrammer](dev-setup.md/#stm32cubeprogrammer) software instead of `st-flash`.
 
-    See [Flashing Firmware](/docs/tutorials/flashing/index.md).
+    See [Flashing Firmware](flashing/index.md).
