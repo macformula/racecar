@@ -8,7 +8,7 @@ repos:
       # Prevent committing directly to the main branch
       - id: no-commit-to-branch
         args: [--branch, main]
-        stages: [pre-commit]
+        stages: [commit]
     
   - repo: local
     hooks:

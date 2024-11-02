@@ -8,8 +8,7 @@ namespace bindings {
     extern void DelayMS(unsigned int ms);
     extern void Initialize();
     extern void AppLevelFunction();
-    void setup_interupt();
 
-    
-    
-}  // namespace bindings
+    }  // namespace bindings
+
+    extern void ToggleInterruptHandler();

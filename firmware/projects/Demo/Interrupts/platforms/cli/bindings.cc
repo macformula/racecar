@@ -21,13 +21,12 @@ namespace bindings {
         usleep(ms * 1000);
     }
 
-    // interupt function that uses the signal function for the cli/linux platform
-    void setup_interupt(){
-        signal(SIGINT, (__p_sig_fn_t)&AppLevelFunction);
-    }
+    // interupt function that uses the signal function for the cli/linux
+    // platform
 
     void Initialize() {
         std::cout << "Initializing the CLI...\n" << std::endl;
+        signal(SIGINT, (__p_sig_fn_t)&ToggleInterruptHandler);
     }
 
 }  // namespace bindings

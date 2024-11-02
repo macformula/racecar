@@ -5,6 +5,10 @@
 //toggle variable
 volatile bool toggle = false;
 
+void ToggleInterruptHandler() {
+    bindings::AppLevelFunction();
+}
+
 //app level function that takes care of the interupt handler
 namespace bindings {  // Define AppLevelFunction within the bindings namespace
     void AppLevelFunction() {
@@ -15,7 +19,6 @@ namespace bindings {  // Define AppLevelFunction within the bindings namespace
 
 int main() {
     bindings::Initialize();
-    bindings::setup_interupt();
 
     while (true) {
         //toggling between the high and low once toggle switch has been activated
