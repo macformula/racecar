@@ -236,10 +236,11 @@ def generate_code(bus: Bus, config: Config):
 
     logger.info("Code generation complete")
 
+
 def _prepare_output_directory(output_dir):
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
-    
+
     os.makedirs(output_dir, exist_ok=True)
 
     # Create a git ignore for everything in the generated path. Ignore everything.
@@ -247,6 +248,7 @@ def _prepare_output_directory(output_dir):
     if not os.path.exists(gitignore_path):
         with open(gitignore_path, "w") as f:
             f.write("*")
+
 
 def generate_can_from_dbc(project_folder_name: str):
     os.chdir(project_folder_name)
