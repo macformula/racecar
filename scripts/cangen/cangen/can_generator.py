@@ -187,16 +187,6 @@ def _generate_from_jinja2_template(
     template = env.get_template(template_path)
     rendered_code = template.render(**context_dict)
 
-    # Write the rendered code to a file
-    output_dir = os.path.dirname(output_path)
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Create a git ignore for everything in the generated path. Ignore everything.
-    gitignore_path = os.path.join(output_dir, ".gitignore")
-    if not os.path.exists(gitignore_path):
-        with open(gitignore_path, "w") as f:
-            f.write("*")
-
     with open(output_path, "w") as output_file:
         output_file.write(rendered_code)
 
@@ -246,14 +236,24 @@ def generate_code(bus: Bus, config: Config):
 
     logger.info("Code generation complete")
 
+def _prepare_output_directory(output_dir):
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+    
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Create a git ignore for everything in the generated path. Ignore everything.
+    gitignore_path = os.path.join(output_dir, ".gitignore")
+    if not os.path.exists(gitignore_path):
+        with open(gitignore_path, "w") as f:
+            f.write("*")
 
 def generate_can_from_dbc(project_folder_name: str):
     os.chdir(project_folder_name)
     config = Config.from_yaml("config.yaml")
 
-    # Deletes output path folder and files within, before creating new ones
-    if os.path.exists(config.output_dir):
-        shutil.rmtree(config.output_dir)
+    # Deletes previously generated files and creates a gitignore for the directory
+    _prepare_output_directory(config.output_dir)
 
     for bus in config.busses:
         generate_code(bus, config)
