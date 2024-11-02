@@ -20,7 +20,7 @@ In a bash terminal, enter the following command:
     Continue with the following commands:
 
     ```text
-    cat c:/Users/YOU/.ssh/id_ed25519 | clip.exe
+    cat c:/Users/YOU/.ssh/id_ed25519 | clip
     eval "$(ssh-agent -s)"
     ssh-add c:/Users/YOU/.ssh/id_ed25519
     ```
