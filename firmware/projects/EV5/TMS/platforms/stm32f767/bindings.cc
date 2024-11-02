@@ -80,18 +80,10 @@ void Initialize() {
 }  // namespace bindings
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
-    /* Prevent unused argument(s) compilation warning */
-
     CAN_RxHeaderTypeDef RxHeader;
     uint8_t RxData[8];
 
-    // Retrieve message to clear the interrupt flag
-    if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData) == HAL_OK) {
-        // Process the message data here or set a flag for the main loop
-    }
-
-    /* NOTE : This function Should not be modified, when the callback is needed,
-              the HAL_CAN_RxFifo0MsgPendingCallback could be implemented in the
-              user file
-     */
+    // TMS doesn't care about any Rx messages but we need to call this to
+    // clear the interrupt flag.
+    HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData);
 }
