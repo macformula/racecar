@@ -15,6 +15,19 @@ This tutorial will guide you through setting up SSH keys and commit signing for 
     ssh-keygen -t ed25519 -C "your_github_email@example.com"
     ```
 
+    ??? Failure "Windows: `ssh-keygen` not recognized"
+
+        Older versions of Windows do not include SSH so it must be installed separately.
+
+        1. Open the __Settings__ app. Go to __System__ then __Optional Features__.
+        2. Click __Add a feature__ and search for "OpenSSH."
+        3. Install the feature. Restart your computer.
+        4. Add the OpenSSH directory to your PATH.
+
+            The default location is `C:\Windows\System32\OpenSSH`
+
+        Open a new terminal. You should be able to execute `ssh-keygen` and other `ssh` commands.
+
     Save to the default location `c:/Users/YOU/.ssh/id_ed25519` and do not enter a passphrase. This will allow you to use the key without entering a password every time you push to GitHub.
 
     Continue with the following commands:
@@ -56,19 +69,6 @@ Open another terminal to test your connection to GitHub by entering the followin
 ```text
 ssh -T git@github.com
 ```
-
-??? Failure "Windows: `ssh` not recognized"
-
-    Older versions of Windows do not include SSH so it must be installed separately.
-
-    1. Open the __Settings__ app. Go to __System__ then __Optional Features__.
-    2. Click __Add a feature__ and search for "OpenSSH."
-    3. Install the feature. Restart your computer.
-    4. Add the OpenSSH directory to your PATH.
-
-        The default location is `C:\Windows\System32\OpenSSH`
-
-    Open a new terminal. You should be able to execute `ssh`.
 
 Type "yes" when it asks if you want to continue connecting.
 You should see a message like "Hi username! You've successfully authenticated, but GitHub does not provide shell access."
