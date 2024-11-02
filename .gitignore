@@ -1,7 +1,8 @@
 .DS_STORE
 .vscode
 
-**/env
-**/venv
-**/.env
-**/.venv
+env/
+venv/
+.env/
+.venv/
+__pycache__/
