@@ -1,6 +1,8 @@
 /// @author Blake Freer
 /// @date 2023-12-25
 
+#include <stdio.h>
+
 #include <string>
 
 // cubemx files
@@ -10,6 +12,7 @@
 #include "main.h"
 #include "mcal/stm32f767/periph/can.h"
 #include "shared/comms/can/can_msg.h"
+#include "stm32f7xx_hal_tim.h"
 #include "tim.h"
 
 // fw imports
@@ -59,17 +62,36 @@ shared::periph::ADCInput& temp_sensor_adc_6 = mcal::temp_sensor_adc_6;
 shared::periph::PWMOutput& fan_controller_pwm = mcal::fan_controller_pwm;
 shared::periph::DigitalOutput& debug_led_green = mcal::debug_led_green;
 shared::periph::DigitalOutput& debug_led_red = mcal::debug_led_red;
-//  shared::periph::DigitalOutput& debug_led_red = mcal::debug_led_nucleo;
+// shared::periph::DigitalOutput& debug_led_red = mcal::debug_led_nucleo;
 
 shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
 
 void Initialize() {
-    SystemClock_Config();
     HAL_Init();
+    SystemClock_Config();
     MX_ADC1_Init();
     MX_TIM4_Init();
     MX_GPIO_Init();
     MX_CAN2_Init();
+
+    mcal::veh_can_base.Setup();
 }
 
 }  // namespace bindings
+
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
+    /* Prevent unused argument(s) compilation warning */
+
+    CAN_RxHeaderTypeDef RxHeader;
+    uint8_t RxData[8];
+
+    // Retrieve message to clear the interrupt flag
+    if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData) == HAL_OK) {
+        // Process the message data here or set a flag for the main loop
+    }
+
+    /* NOTE : This function Should not be modified, when the callback is needed,
+              the HAL_CAN_RxFifo0MsgPendingCallback could be implemented in the
+              user file
+     */
+}
