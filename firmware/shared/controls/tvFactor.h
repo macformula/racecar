@@ -60,8 +60,6 @@ std::tuple<T,T> tvFactoring(T p_steeringAngle, T tvFactor){    //don't pass by r
     }
 
     return std::make_tuple(p_tvFactorLeft, p_tvFactorRight);
-
-    //return
 }
 
 }
