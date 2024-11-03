@@ -35,10 +35,6 @@ int main (){
     ASSERT_CLOSE(rightFactor3, 1); 
 
 
-
-
-
-
     std::cout << "All tests passed" << std::endl;
     
     return 0;

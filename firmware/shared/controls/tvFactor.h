@@ -41,8 +41,6 @@ T open_loop_tv_lookUp(T DI_p_steeringAngle){
     return result;
 }
 
-
-        
 template <typename T>
 std::tuple<T,T> tvFactoring(T p_steeringAngle, T tvFactor){    //don't pass by reference (struct or tuple)
     T p_tvFactorLeft;
