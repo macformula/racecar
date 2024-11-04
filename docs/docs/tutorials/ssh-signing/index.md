@@ -101,5 +101,3 @@ Verify your commits are signed by checking your commit history on GitHub for "Ve
 - [Testing your SSH connection](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/testing-your-ssh-connection)
 
 - [Managing commit signature verification](https://docs.github.com/en/authentication/managing-commit-signature-verification)
-
-Test commit
