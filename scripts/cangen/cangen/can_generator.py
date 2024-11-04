@@ -242,7 +242,7 @@ def _prepare_output_directory(output_dir):
     os.makedirs(output_dir, exist_ok=True)
     for file in os.listdir(output_dir):
         os.unlink(file)
-    
+
     gitignore_path = os.path.join(output_dir, ".gitignore")
     with open(gitignore_path, "w") as f:
         f.write("*")
