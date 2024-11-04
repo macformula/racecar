@@ -27,16 +27,10 @@ int main() {
 
     // (Unbounded) Should return 0 because stateflow functionality is not
     // introduced yet, so function returns 0.
-    ASSERT_CLOSE(ctrl::TCStateflowChart(0.0042, 0.2), 0);
+    ASSERT_CLOSE(ctrl::CalculateTCScaleFactor(0.0042, 0.2), 0);
 
     // (Bounded by 0) Same as previous test
-    ASSERT_CLOSE(ctrl::TCStateflowChart(0.0, 0.2), 0);
-
-    // Should return the output value from the TC Stateflow Chart function
-    ASSERT_CLOSE(ctrl::CalculateTCScaleFactor(0.5), 0.5);
-
-    // Should return the output value from the TC Stateflow Chart function
-    ASSERT_EQ(ctrl::CalculateTCScaleFactor(3), 3);
+    ASSERT_CLOSE(ctrl::CalculateTCScaleFactor(0.0, 0.2), 0);
 
     // This statement will not be reached if an assert fails.
     std::cout << "All tests passed" << std::endl;

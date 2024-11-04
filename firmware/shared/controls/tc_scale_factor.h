@@ -16,19 +16,14 @@ T CalculateActualSlip(T left_rear_wheel_speed, T right_rear_wheel_speed,
     }
 
     if (actual_slip < 0) {
-        return 0;
+        actual_slip = 0;
     }
     return actual_slip;
 }
 
 template <typename T>
-T TCStateflowChart(T actual_slip, T target_slip) {
+T CalculateTCScaleFactor(T actual_slip, T target_slip) {
     // Stateflow: Multi-Stage TC
     return 0;
-}
-
-template <typename T>
-T CalculateTCScaleFactor(T TC_scale_factor_chart_out) {
-    return TC_scale_factor_chart_out;
 }
 }  // namespace ctrl
