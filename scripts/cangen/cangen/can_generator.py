@@ -239,7 +239,6 @@ def generate_code(bus: Bus, config: Config):
 
 def _prepare_output_directory(output_dir):
     """Deletes previously generated files and creates a gitignore for the directory"""
-    os.makedirs(output_dir, exist_ok=True)
     shutil.rmtree(output_dir)
     
     os.makedirs(output_dir, exist_ok=True)
