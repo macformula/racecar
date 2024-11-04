@@ -238,23 +238,20 @@ def generate_code(bus: Bus, config: Config):
 
 
 def _prepare_output_directory(output_dir):
-    if os.path.exists(output_dir):
-        shutil.rmtree(output_dir)
-
+    """Deletes previously generated files and creates a gitignore for the directory"""
     os.makedirs(output_dir, exist_ok=True)
-
-    # Create a git ignore for everything in the generated path. Ignore everything.
+    shutil.rmtree(output_dir)
+    
+    os.makedirs(output_dir, exist_ok=True)
     gitignore_path = os.path.join(output_dir, ".gitignore")
-    if not os.path.exists(gitignore_path):
-        with open(gitignore_path, "w") as f:
-            f.write("*")
+    with open(gitignore_path, "w") as f:
+        f.write("*")
 
 
 def generate_can_from_dbc(project_folder_name: str):
     os.chdir(project_folder_name)
     config = Config.from_yaml("config.yaml")
 
-    # Deletes previously generated files and creates a gitignore for the directory
     _prepare_output_directory(config.output_dir)
 
     for bus in config.busses:
