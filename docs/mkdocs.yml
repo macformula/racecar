@@ -119,6 +119,7 @@ nav:
     - tutorials/site-dev.md
     - tutorials/wsl-can/index.md
     - tutorials/hw-debug.md
+    - tutorials/ssh-signing/index.md
   - Firmware:
     - firmware/index.md
     - firmware/dev-setup.md

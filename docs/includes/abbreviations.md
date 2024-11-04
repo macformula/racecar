@@ -18,3 +18,4 @@
 *[HV]: High Voltage. The vehicle circuit which powers our motors. Contrast with LV.
 *[MCAL]: MicroController Abstraction Layer.
 *[BMS]: Battery Management System. A vehicle device responsible for consistently and safely drawing power from the accumulator / battery.
+*[SSH]: Secure Shell.
