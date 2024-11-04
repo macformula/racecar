@@ -64,7 +64,7 @@ To add a signing key to your GitHub account, go to <https://github.com/settings/
 - Name your key something descriptive.
 - Select "Signing Key" as the key type.
 - Paste the contents of `id_ed25519.pub` into the "Key" box.
-- Click "Add SSH Key".
+- Click "Add SSH Key."
 
 Update your git configuration in your terminal to automatically sign commits with your key:
 
@@ -108,7 +108,7 @@ To convert to SSH, run the following command, replacing `orgname` and `reponame`
 git remote set-url origin git@github.com:orgname/reponame.git
 ```
 
-To avoid this manual configuration in the future, clone repositories using thier SSH URL instead of HTTPS.
+To avoid this manual configuration in the future, clone repositories using their SSH URL instead of HTTPS.
 
 ![Clone with SSH](./clone-with-ssh.png)
 
