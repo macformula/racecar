@@ -17,9 +17,10 @@ This variation affects the total bits transmitted and, in turn, the bus load. To
 
 The message length in a CAN frame can be calculated as a function of the data length. This calculation includes several fixed fields and a variable data field, which changes based on the message's data content.
 
-![CAN Frame Diagram](../assets/canbusdiagram.svg)
-
-*Figure: CAN Bus Frame Diagram. Source: [CSS Electronics CAN Bus Tutorial](https://www.csselectronics.com/pages/can-bus-simple-intro-tutorial#can-bus-frames)*
+<figure markdown="span">
+![](img/canbusdiagram.svg){ width="100%" }
+<figcaption>CAN Bus Frame Diagram. Source: <a href="https://www.csselectronics.com/pages/can-bus-simple-intro-tutorial">CSS Electronics CAN Bus Tutorial</a></figcaption>
+</figure>
 
 Each CAN frame consists of several fields with fixed bit lengths, plus a variable-length data field. Here’s the breakdown:
 
