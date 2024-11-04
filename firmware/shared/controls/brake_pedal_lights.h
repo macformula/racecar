@@ -11,8 +11,7 @@ T CalculateBrakePedalPosition(bool rear_brake_pedal_error,
                               T front_brake_pedal_position) {
     // Brake Error Handling
     if (rear_brake_pedal_error || front_brake_pedal_error) {
-        return T{};  // removed the initalized variable because i realized i can
-                     // just directly return 0 or the max value
+        return static_cast<T>(0);
     } else {
         return std::max(front_brake_pedal_position, rear_brake_pedal_position);
     }
