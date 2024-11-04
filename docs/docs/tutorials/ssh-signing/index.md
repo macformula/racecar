@@ -94,6 +94,24 @@ This will now mark and display all of your commits with a signature verification
 
 Verify your commits are signed by checking your commit history on GitHub for "Verified" tags.
 
+## Set Repo to Use SSH
+
+It is likely your repository is using HTTPS to connect to GitHub. To check which remote URL is currently being used, run the following terminal command inside of a repository:
+
+```text
+git remote -v
+```
+
+To convert to SSH, run the following command, replacing `orgname` and `reponame` with your GitHub organization and repository names (i.e. `macformula` and `racecar`):
+
+```text
+git remote set-url origin git@github.com:orgname/reponame.git
+```
+
+To avoid this manual configuration in the future, clone repositories using thier SSH URL instead of HTTPS.
+
+![Clone with SSH](./clone-with-ssh.png)
+
 ## Resources
 
 - [Generating a new SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
