@@ -1,6 +1,6 @@
 # :material-key: SSH and Commit Signing
 
-This tutorial will guide you through setting up SSH keys and commit signing for GitHub. SSH keys are a more secure way to connect to GitHub, rather than other protocols like HTTPS. Commit signing is used to verify that commits are coming from you and have not been tampered with.
+This tutorial will guide you through setting up an SSH key and commit signing for GitHub. SSH keys are a more secure way to connect to GitHub, rather than other protocols like HTTPS. Commit signing is used to verify that commits are coming from you and have not been tampered with.
 
 !!! warning
     You must have a [verified email address on GitHub](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/verifying-your-email-address) to add SSH keys and sign commits.
