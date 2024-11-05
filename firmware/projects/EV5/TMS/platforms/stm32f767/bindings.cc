@@ -12,7 +12,6 @@
 #include "main.h"
 #include "mcal/stm32f767/periph/can.h"
 #include "shared/comms/can/can_msg.h"
-#include "stm32f7xx_hal_tim.h"
 #include "tim.h"
 
 // fw imports

@@ -146,7 +146,6 @@ void Update() {
     static uint8_t high_thermistor_idx;
 
     debug_green.Toggle();
-    debug_red.Toggle();
 
     veh_can_bus.Update();
     ts_manager.Update();
