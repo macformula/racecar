@@ -25,14 +25,14 @@
 class TempSensor {
 public:
     TempSensor(shared::periph::ADCInput& adc,
-               shared::util::Mapper<float>& adc_to_temp)
-        : adc_(adc), adc_to_temp_(adc_to_temp), rolling_temperature_() {}
+               const shared::util::Mapper<float>& volt_to_temp)
+        : adc_(adc), volt_to_temp_(volt_to_temp), rolling_temperature_() {}
 
 private:
     shared::periph::ADCInput& adc_;
 
     /// @brief Mapping from raw ADC value to temperature [degC]
-    shared::util::Mapper<float>& adc_to_temp_;
+    const shared::util::Mapper<float>& volt_to_temp_;
 
     static constexpr int moving_average_length_ = 20;
     shared::util::MovingAverage<float, moving_average_length_>
@@ -40,7 +40,8 @@ private:
 
     float Read() {
         uint32_t adc_value = adc_.Read();
-        float temperature = adc_to_temp_.Evaluate(float(adc_value));
+        float volt = static_cast<float>(adc_value) * 3.3f / 4095.0f;
+        float temperature = volt_to_temp_.Evaluate(volt);
         return temperature;
     }
 

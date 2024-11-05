@@ -34,7 +34,8 @@ public:
      * @param g Inner function.
      * @note Evaulates `f(g(x))`, so `g` is applied before `f`.
      */
-    CompositeMap(Mapper<Tf, Tg>& f, Mapper<Tg, U>& g) : f_(f), g_(g) {}
+    CompositeMap(const Mapper<Tf, Tg>& f, const Mapper<Tg, U>& g)
+        : f_(f), g_(g) {}
 
     /**
      * @brief Evaluates `f(g(x))`.
