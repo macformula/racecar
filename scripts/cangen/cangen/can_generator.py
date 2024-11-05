@@ -239,9 +239,9 @@ def generate_code(bus: Bus, config: Config):
 
 def _prepare_output_directory(output_dir):
     """Deletes previously generated files and creates a gitignore for the directory"""
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
     os.makedirs(output_dir, exist_ok=True)
-    for file in os.listdir(output_dir):
-        os.unlink(file)
 
     gitignore_path = os.path.join(output_dir, ".gitignore")
     with open(gitignore_path, "w") as f:
