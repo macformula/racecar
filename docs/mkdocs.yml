@@ -131,7 +131,7 @@ nav:
     - firmware/architecture.md
     - firmware/project-structure/index.md
     - firmware/compile-project.md
-    - firmware/can-traffic.md
+    - firmware/can-traffic/index.md
   - Glossary: glossary.md
 
 watch:
