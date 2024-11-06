@@ -11,7 +11,7 @@ DESTINATION_PATH=$4
 
 # Check if the bin folder exists
 if [ ! -d "$BIN_FILES" ]; then
-    echo "Error: File $BIN_FILES not found."
+    echo "ERROR: Folder $BIN_FILES not found"
     exit 1
 fi
 
