@@ -22,7 +22,6 @@ term_pattern = re.compile(r"^\*\[(?P<term>.*?)\]: (?P<definition>.*)$")
 
 glossary: list[dict] = []
 with open(HERE / file_glossary_input, "r") as f:
-
     for idx, line in enumerate(f.readlines()):
         match = re.match(term_pattern, line)
         if match:

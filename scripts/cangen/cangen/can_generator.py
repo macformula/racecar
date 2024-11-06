@@ -9,7 +9,7 @@ import os
 import re
 import shutil
 import time
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Callable, Any
 
 import numpy as np
 from cantools.database import Database, Message, Signal
@@ -171,26 +171,34 @@ def _camel_to_snake(text):
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
-def _generate_from_jinja2_template(
-    template_path: str, output_path: str, context_dict: dict
+def _create_jninja_environment(
+    package_name: str, filters: dict[str, Callable[..., Any]]
 ):
-    # Create the environment with trim_blocks and lstrip_blocks settings
     env = Environment(
-        loader=PackageLoader("cangen"), trim_blocks=True, lstrip_blocks=True
+        loader=PackageLoader(package_name), trim_blocks=True, lstrip_blocks=True
+    )
+    for filter_name, filter_function in filters:
+        env.filters[filter_name] = filter_function
+
+    return env
+
+
+def _generate_from_jinja2_templates(
+    template_paths: List[str], output_paths: List[str], context: dict
+):
+    env = _create_jninja_environment(
+        "cangen", {"camel_to_snake": _camel_to_snake, "decimal_to_hex": hex}
     )
 
-    # Register the camel_to_snake filter
-    env.filters["camel_to_snake"] = _camel_to_snake
-    env.filters["decimal_to_hex"] = hex
+    # Load and render templates
+    for template_path, output_path in zip(template_paths, output_paths):
+        template = env.get_template(template_path)
+        rendered_code = template.render(**context)
 
-    # Load and render template
-    template = env.get_template(template_path)
-    rendered_code = template.render(**context_dict)
+        with open(output_path, "w") as output_file:
+            output_file.write(rendered_code)
 
-    with open(output_path, "w") as output_file:
-        output_file.write(rendered_code)
-
-    logger.info(f"Rendered code written to '{os.path.abspath(output_path)}'")
+        logger.info(f"Rendered code written to '{os.path.abspath(output_path)}'")
 
 
 def generate_code(bus: Bus, config: Config):
@@ -220,17 +228,17 @@ def generate_code(bus: Bus, config: Config):
         "bus_name": bus.bus_name,
     }
 
-    logger.debug("Generating code for can messages")
-    _generate_from_jinja2_template(
+    logger.debug("Generating code for can messages and msg registry.")
+    template_file_names = [
         CAN_MESSAGES_TEMPLATE_FILENAME,
-        os.path.join(config.output_dir, bus.bus_name.lower() + CAN_MESSAGES_FILE_NAME),
-        context,
-    )
-
-    logger.debug("Generating code for msg registry")
-    _generate_from_jinja2_template(
         MSG_REGISTRY_TEMPLATE_FILENAME,
-        os.path.join(config.output_dir, bus.bus_name.lower() + MSG_REGISTRY_FILE_NAME),
+    ]
+    _generate_from_jinja2_templates(
+        template_file_names,
+        [
+            os.path.join(config.output_dir, bus.bus_name.lower() + file_name)
+            for file_name in template_file_names
+        ],
         context,
     )
 
@@ -240,7 +248,10 @@ def generate_code(bus: Bus, config: Config):
 def _prepare_output_directory(output_dir):
     """Deletes previously generated files and creates a gitignore for the directory"""
     if os.path.exists(output_dir):
+        logger.info("Deleting previously generated code")
         shutil.rmtree(output_dir)
+
+    logger.info("Creating generated/can folder")
     os.makedirs(output_dir, exist_ok=True)
 
     gitignore_path = os.path.join(output_dir, ".gitignore")
@@ -248,7 +259,9 @@ def _prepare_output_directory(output_dir):
         f.write("*")
 
 
-def generate_can_from_dbc(project_folder_name: str):
+def generate_can_for_project(project_folder_name: str):
+    """Generates C code for a given project.
+    Ensure the project contains a config.yaml file which specifies the relative path to its corresponding dbc file."""
     os.chdir(project_folder_name)
     config = Config.from_yaml("config.yaml")
 

@@ -6,7 +6,7 @@ Date: 2024-04-13
 import argparse
 import logging
 
-from .can_generator import generate_can_from_dbc
+from .can_generator import generate_can_for_project
 
 logging.basicConfig(level="INFO", format="%(levelname)-8s| (%(name)s) %(message)s")
 logger = logging.getLogger(__name__)
@@ -39,4 +39,4 @@ def main():
     }
     logger.setLevel(cmake_to_python_level[args.level])
 
-    generate_can_from_dbc(args.project)
+    generate_can_for_project(args.project)
