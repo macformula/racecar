@@ -25,8 +25,8 @@ TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
 MSG_REGISTRY_FILE_NAME = "_msg_registry.h"
 CAN_MESSAGES_FILE_NAME = "_can_messages.h"
 
-CAN_MESSAGES_TEMPLATE_FILENAME = "can_messages.h.jinja2"
-MSG_REGISTRY_TEMPLATE_FILENAME = "msg_registry.h.jinja2"
+TEMPLATE_FILE_NAMES = ["can_messages.h.jinja2", "msg_registry.h.jinja2"]
+
 
 
 def _parse_dbc_files(dbc_file: str) -> Database:
@@ -177,11 +177,13 @@ def _create_jninja_environment(
     env = Environment(
         loader=PackageLoader(package_name), trim_blocks=True, lstrip_blocks=True
     )
-    for filter_name, filter_function in filters:
+    for filter_name, filter_function in filters.items():
         env.filters[filter_name] = filter_function
 
     return env
 
+def _create_output_file_name(output_dir, bus_name, template_filename):
+    return os.path.join(output_dir, bus_name.lower() + "_" + template_filename[:-7])
 
 def _generate_from_jinja2_templates(
     template_paths: List[str], output_paths: List[str], context: dict
@@ -229,15 +231,11 @@ def generate_code(bus: Bus, config: Config):
     }
 
     logger.debug("Generating code for can messages and msg registry.")
-    template_file_names = [
-        CAN_MESSAGES_TEMPLATE_FILENAME,
-        MSG_REGISTRY_TEMPLATE_FILENAME,
-    ]
     _generate_from_jinja2_templates(
-        template_file_names,
+        TEMPLATE_FILE_NAMES,
         [
-            os.path.join(config.output_dir, bus.bus_name.lower() + file_name)
-            for file_name in template_file_names
+            _create_output_file_name(config.output_dir, bus.bus_name, file_name)
+            for file_name in TEMPLATE_FILE_NAMES
         ],
         context,
     )
