@@ -1,0 +1,5 @@
+sudo apt-get update
+sudo apt-get upgrade
+
+sudo apt install net-tools iproute2 can-utils linux-modules-extra-$(uname -r)
+
