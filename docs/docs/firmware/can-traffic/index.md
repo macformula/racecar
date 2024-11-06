@@ -36,7 +36,9 @@ Each CAN frame consists of several fields with fixed bit lengths, plus a variabl
 
 ### Final Formula
 
-The maximum total frame length is: (\( 1 + 11 + 1 + 6 + 16 + 2 + 7 + 9.6x = 44 + 9.6x\)) bits
+The maximum total frame length is:
+
+\[ 1 + 11 + 1 + 6 + 16 + 2 + 7 + 9.6x = 44 + 9.6x \text{ bits}\]
 
 --------------------------------------
 
@@ -51,13 +53,12 @@ Baud Rate: 500 kbaud (500,000 bits transferred per second)
 |Battery Status|     8      |     100       | 44 + 9.6 x 8 = 121|
 |Motor Control|      5      |     50        | 44 + 9.6 x 5 = 92|
 
-$$
-\text{Total Bits Per Second} = \sum_{i=1}^n \left(\text{Frequency}_i \times \text{Message Length}_i \right)
-$$
-
-$$
-\text{Total Bits Per Second} = (121 \times 100) + (92 \times 50) = 12100 + 4600 = 16700 \, \text{bits per second}
-$$
+\begin{align}
+\text{Total Bits Per Second} &= \sum_{i=1}^n \left(\text{Frequency}_i \times \text{Message Length}_i \right)\\
+\text{Total Bits Per Second} &= (100\text{ Hz} \times 121\text{ bits}) + (50\text{ Hz}\times 92\text{ bits})\\
+&=(12100 + 4600)\text{ bits per second}\\
+&= 16700\text{ bits per second}
+\end{align}
 
 ## Calculating Bus Load
 
