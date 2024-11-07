@@ -1,8 +1,10 @@
 # Compiling a Project
 
-We have a CMake build system and Makefile front end.
+We have a CMake build system and Makefile front end. The Makefile expects 2 variables from the command line.
 
-The Makefile expects 2 variables from the command line
+!!! note "Virtual Environment"
+
+    These instructions assume that your [`cangen` virtual environment is active](dev-setup.md/#install-cangen).
 
 ## Makefile Variables
 
@@ -42,3 +44,8 @@ This command only applies when `#!bash PLATFORM=stm32f767`. It deletes all "giti
 ### `st-flash`
 
 Calls `build` then downloads the firmware to a connected stm device.
+
+!!! tip
+    You should use the [STM32CubeProgrammer](dev-setup.md/#stm32cubeprogrammer) software instead of `st-flash`.
+
+    See [Flashing Firmware](flashing/index.md).

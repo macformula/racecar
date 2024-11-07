@@ -34,36 +34,43 @@ public:
     }
 
     /**
-     * @brief Quickly get the duty cycle which was last sent to this device.
-     * @note Compared to GetHardwareDutyCycle, this method is faster (doesn't
-     * read registers) and is less likely to cause issues when performing
-     * arithmetic since the hardware duty cycle is limited by integer
-     * resolution.
+     * @brief Get the duty cycle from the PWM registers.
+     * @note This method returns the "most accurate" current duty cycle.
      *
      * @return float
      */
     float GetDutyCycle() override {
-        return duty_cycle_;
-    }
-
-    /**
-     * @brief Get the duty cycle from the PWM registers.
-     * @note Compared to GetDutyCycle(), this method returns the "most accurate"
-     * current duty cycle.
-     *
-     * @return float
-     */
-    float GetHardwareDutyCycle() {
         uint32_t pulse = __HAL_TIM_GetCompare(htim_, channel_);
         uint32_t period = __HAL_TIM_GetAutoreload(htim_);
 
         return float(pulse) / float(period) * 100.0f;
     }
 
+    void SetFrequency(float frequency) override {
+        frequency_ = std::max(kMinimumFrequency, frequency);
+        uint32_t autoreload = GetTimerFrequency() / frequency_;
+
+        __HAL_TIM_SetAutoreload(htim, autoreload);
+    }
+
+    float GetFrequency() override {
+        float frequency = GetTimerFrequency() / __HAL_TIM_GetAutoreload(htim_);
+
+        return frequency;
+    }
+
 private:
     TIM_HandleTypeDef* htim_;
+    // stm32f767 has a 16-bit autoreload register -> min frequency = 1/65535
+    static constexpr kMinimumFrequency = 0.000015259022f;
     uint32_t channel_;
     float duty_cycle_ = 0;
+
+    uint32_t GetTimerFrequency() {
+        uint32_t tickFreq = __HAL_TIM_GetTickFreq();
+
+        return tickFreq;
+    }
 };
 
 }  // namespace mcal::stm32f767::periph

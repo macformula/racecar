@@ -1,6 +1,5 @@
 canGen:
-  ourNode: FRONTCONTROLLER
   busses:
-    - busName: vehicle
-      dbcFiles:
-        - "pedal.dbc"
+    - name: vehicle
+      node: FRONTCONTROLLER
+      dbcFile: "pedal.dbc"

@@ -125,12 +125,16 @@ nav:
     - tutorials/index.md
     - tutorials/git.md
     - tutorials/site-dev.md
+    - tutorials/wsl-can/index.md
+    - tutorials/ssh-signing/index.md
   - Firmware:
     - firmware/index.md
     - firmware/dev-setup.md
     - firmware/architecture.md
     - firmware/project-structure/index.md
     - firmware/compile-project.md
+    - firmware/flashing/index.md
+    - firmware/hw-debug.md
     - firmware/can-traffic/index.md
   - Glossary: glossary.md
 

@@ -45,12 +45,6 @@ Follow these steps to begin developing in `racecar/firmware`.
         C:\path-to-msys2\mingw64\lib
         ```
 
-    5. Install the Arm GNU Toolchain from <https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads>.
-
-        1. Download the `.exe` installer under "Windows hosted cross toolchains -> AArch32 bare-metal target (arm-none-eabi)".
-        2. Run the installer.
-        3. After the installer finishes, check `Add path to environment variable.`
-
 === "Linux"
 
     1. Set up the Kitware APT repository <https://apt.kitware.com/>.
@@ -61,25 +55,21 @@ Follow these steps to begin developing in `racecar/firmware`.
 
         ```bash
         sudo apt-get update
-        sudo apt-get install software-properties-common
+        sudo apt-get install software-properties-common python3-launchpadlib
         sudo add-apt-repository ppa:deadsnakes/ppa
         sudo apt-get update
         sudo apt-get install git-all build-essential cmake python3.12 wget gcc-13
         ```
 
-    3. Install the Arm GNU Toolchain.
+### Arm Toolchain
 
-        1. Download and unzip the x86_64 Linux arm-none-eabi toolchain binaries.
+Install the Arm GNU Toolchain (v13 or newer) from <https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads>.
 
-                wget https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz
-                sudo tar xf arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz -C /usr/share
-                rm arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz
+1. Find the __<ARCHITECTURE\> hosted cross toolchains__ section for your computer's architecture then download and install the __AArch32 bare-metal target (arm-none-eabi)__.
 
-        2. Add the binaries to your profile PATH.
+    > There are multiple downloads available in this section. Choose the installer: `.exe` on Windows, `.tar.xz` on Linux, `.pkg` on MacOS.
 
-            Open `~/.profile` in a text editor and add this to the end of the file.
-
-                PATH="/usr/share/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi/bin:$PATH"
+2. Add the folder containing the binaries to your path.
 
 ### Verify Installation
 
@@ -150,7 +140,7 @@ Navigate to a directory where you would like to hold the `racecar` repo (I used 
 
     git clone --recurse-submodules https://github.com/macformula/racecar.git
 
-## Install CANgen dependencies
+## Install CANgen
 
 Create a Python virtual environment for CANgen. Navigate into `racecar/firmware` and run.
 
@@ -168,13 +158,15 @@ Create a Python virtual environment for CANgen. Navigate into `racecar/firmware`
     source .env/bin/activate
     ```
 
-The second command "activates" the virtual environment. You will see `(.env)` beside your terminal prompt when it is activated, and it must be activated before building any project.
+The second command "activates" the virtual environment. You will see `(.env)` beside your terminal prompt when it is activated. __It must be activated before building any project.__
 
-Finally, with the environment activated, install the CANgen requirements.
+With the environment activated, change into `racecar/` and install CANgen:
 
 ```bash
-pip install -r ../scripts/cangen/requirements.txt
+pip install -e scripts/cangen
 ```
+
+> The `-e` flag is _very_ important. It installs CANgen as an editable package which means you won't have to reinstall when the package is changed.
 
 You can now start developing in `racecar`! However, I recommend you configure your IDE with `clangd`, so continue to the next section.
 
@@ -234,3 +226,23 @@ __Important:__ Create an empty file named `.clangd` in the `firmware/` directory
 You will need a Unix development environment (Unix machine, WSL, or remote into the Raspberry Pi).
 
 Go through the [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/). Build the example project.
+
+## Pre-Commit Setup
+
+We use `pre-commit` hooks to run formatting and code checks before the code is pushed.
+
+### Installing Pre-Commit
+
+1. Install `pre-commit` via pip:
+
+    ```bash
+    pip install pre-commit
+    ```
+
+2. Install the git hooks by running this command in the `racecar` directory:
+
+    ```bash
+    pre-commit install
+    ```
+
+    This will install the hooks so they run automatically when you use `git commit`.

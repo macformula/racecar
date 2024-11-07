@@ -13,7 +13,9 @@
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
 #include "shared/util/algorithms/arrays.h"
+#include "shared/util/mappers/linear_map.h"
 #include "shared/util/mappers/lookup_table.h"
+#include "shared/util/mappers/mapper.h"
 #include "veh_can_messages.h"
 #include "veh_msg_registry.h"
 
@@ -27,53 +29,75 @@ extern "C" {
 void UpdateTask(void* argument);
 }
 
-const float temp_lut_data[][2] = {
+namespace tempsensor {
+
+/// This table is directly copied from Table 4 of the temperature sensor
+/// datasheet. `datasheets/energus/Datasheet_with_VTC6_rev_A(2021-10-26).pdf`
+const float ts_table[][2] = {
     // clang-format off
-    {2475, 120},
-	{2480, 115},
-	{2485, 110},
-	{2491, 105},
-	{2496, 100},
-	{2501,  95},
-	{2512,  90},
-	{2517,  85},
-	{2528,  80},
-	{2543,  75},
-	{2554,  70},
-	{2570,  65},
-	{2586,  60},
-	{2607,  55},
-	{2628,  50},
-	{2649,  45},
-	{2675,  40},
-	{2707,  35},
-	{2739,  30},
-	{2771,  25},
-	{2802,  20},
-	{2839,  15},
-	{2871,  10},
-	{2903,   5},
-	{2934,   0},
-	{2966,  -5},
-	{2987, -10},
-	{3014, -15},
-	{3029, -20},
-	{3045, -25},
-	{3056, -30},
-	{3066, -35},
-    {3077, -40},
+    {1.30f, 120.0f},
+    {1.31f, 115.0f},
+    {1.32f, 110.0f},
+    {1.33f, 105.0f},
+    {1.34f, 100.0f},
+    {1.35f,  95.0f},
+    {1.37f,  90.0f},
+    {1.38f,  85.0f},
+    {1.40f,  80.0f},
+    {1.43f,  75.0f},
+    {1.45f,  70.0f},
+    {1.48f,  65.0f},
+    {1.51f,  60.0f},
+    {1.55f,  55.0f},
+    {1.59f,  50.0f},
+    {1.63f,  45.0f},
+    {1.68f,  40.0f},
+    {1.74f,  35.0f},
+    {1.80f,  30.0f},
+    {1.86f,  25.0f},
+    {1.92f,  20.0f},
+    {1.99f,  15.0f},
+    {2.05f,  10.0f},
+    {2.11f,   5.0f},
+    {2.17f,   0.0f},
+    {2.23f,  -5.0f},
+    {2.27f, -10.0f},
+    {2.32f, -15.0f},
+    {2.35f, -20.0f},
+    {2.38f, -25.0f},
+    {2.40f, -30.0f},
+    {2.42f, -35.0f},
+    {2.44f, -40.0f}
     // clang-format on
 };
+constexpr int lut_length = (sizeof(ts_table)) / (sizeof(ts_table[0]));
+const shared::util::LookupTable<lut_length> volt_ts_to_degC{ts_table};
 
+/// Calculate the voltage at the temperature sensor from the voltage at the STM.
+/// They are not equal because there is a non-unity gain buffer between them.
+/// V_STM = 1.44 + 0.836 * V_TS / 2
+/// So the inverse is
+/// V_TS = 2 * (V_STM - 1.44) / 0.836 = 2/0.836 * V_STM - 2*1.44/0.836
+const shared::util::LinearMap<float> volt_stm_to_volt_ts{
+    2.0f / 0.836f,
+    -2.0f * 1.44f / 0.836f,
+};
+
+/// Compose the two maps to get the final map from the STM voltage to the
+/// temperature in degrees C.
+const shared::util::CompositeMap<float> volt_stm_to_degC{
+    volt_ts_to_degC,      // outer (second) function
+    volt_stm_to_volt_ts,  // inner (first) function
+};
+
+}  // namespace tempsensor
+
+/// Spin the fan faster when the acculumator is hotter.
 const float fan_lut_data[][2] = {
     {-1, 0},
     {0, 30},
     {50, 100},
 };
-
-constexpr int temp_lut_length =
-    (sizeof(temp_lut_data)) / (sizeof(temp_lut_data[0]));
-shared::util::LookupTable<temp_lut_length> temp_adc_lut{temp_lut_data};
 
 constexpr int fan_lut_length =
     (sizeof(fan_lut_data) / (sizeof(fan_lut_data[0])));
@@ -99,12 +123,12 @@ DebugIndicator debug_green{bindings::debug_led_green};
 DebugIndicator debug_red{bindings::debug_led_red};
 
 TempSensor temp_sensors[] = {
-    TempSensor{bindings::temp_sensor_adc_1, temp_adc_lut},
-    TempSensor{bindings::temp_sensor_adc_2, temp_adc_lut},
-    TempSensor{bindings::temp_sensor_adc_3, temp_adc_lut},
-    TempSensor{bindings::temp_sensor_adc_4, temp_adc_lut},
-    TempSensor{bindings::temp_sensor_adc_5, temp_adc_lut},
-    TempSensor{bindings::temp_sensor_adc_6, temp_adc_lut},
+    TempSensor{bindings::temp_sensor_adc_1, tempsensor::volt_stm_to_degC},
+    TempSensor{bindings::temp_sensor_adc_2, tempsensor::volt_stm_to_degC},
+    TempSensor{bindings::temp_sensor_adc_3, tempsensor::volt_stm_to_degC},
+    TempSensor{bindings::temp_sensor_adc_4, tempsensor::volt_stm_to_degC},
+    TempSensor{bindings::temp_sensor_adc_5, tempsensor::volt_stm_to_degC},
+    TempSensor{bindings::temp_sensor_adc_6, tempsensor::volt_stm_to_degC},
 };
 
 const int kSensorCount = 6;
@@ -122,7 +146,6 @@ void Update() {
     static uint8_t high_thermistor_idx;
 
     debug_green.Toggle();
-    debug_red.Toggle();
 
     veh_can_bus.Update();
     ts_manager.Update();

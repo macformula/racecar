@@ -1,6 +1,5 @@
 canGen:
-  ourNode: FC
   busses:
-    - busName: io
-      dbcFiles:
-        - "io.dbc"
+    - name: io
+      node: FC
+      dbcFile: "io.dbc"

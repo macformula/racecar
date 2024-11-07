@@ -7,12 +7,15 @@ import logging
 import math
 import os
 import re
+import shutil
 import time
 from typing import Dict, List, Tuple
 
 import numpy as np
 from cantools.database import Database, Message, Signal
-from jinja2 import Environment
+from jinja2 import Environment, PackageLoader
+
+from .config import Bus, Config
 
 logger = logging.getLogger(__name__)
 
@@ -22,43 +25,40 @@ TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
 MSG_REGISTRY_FILE_NAME = "_msg_registry.h"
 CAN_MESSAGES_FILE_NAME = "_can_messages.h"
 
-
-def _assert_valid_dbc(filename: str):
-    """Raise an error if filename is not a valid and existant dbc file."""
-
-    if not os.path.isfile(filename):
-        raise FileNotFoundError(f"Could not find a file at {filename}.")
-
-    _, extension = os.path.splitext(filename)
-    if extension != ".dbc":
-        raise ValueError(f"{filename} is not a .dbc file.")
-
-    logger.debug(f"{filename} is a valid dbc file.")
+CAN_MESSAGES_TEMPLATE_FILENAME = "can_messages.h.jinja2"
+MSG_REGISTRY_TEMPLATE_FILENAME = "msg_registry.h.jinja2"
 
 
-def _parse_dbc_files(dbc_files: List[str]) -> Database:
-    logger.info(f"Parsing DBC files: {dbc_files}")
+def _parse_dbc_files(dbc_file: str) -> Database:
+    logger.info(f"Parsing DBC files: {dbc_file}")
     can_db = Database()
 
-    for dbc_file in dbc_files:
-        _assert_valid_dbc(dbc_file)
-        with open(dbc_file, "r") as f:
-            can_db.add_dbc(f)
-            logger.info(f"Successfully added DBC: {dbc_file}")
+    with open(dbc_file, "r") as f:
+        can_db.add_dbc(f)
+        logger.info(f"Successfully added DBC: {dbc_file}")
 
     return can_db
 
-def _normalize_node_name(
-    node_name: str
-) -> str:
+
+def _normalize_node_name(node_name: str) -> str:
     return node_name.upper()
+
 
 def _filter_messages_by_node(
     messages: List[Message], node: str
 ) -> Tuple[List[Message], List[Message]]:
     normalized_node_name = _normalize_node_name(node)
-    tx_msgs = [msg for msg in messages if normalized_node_name in map(_normalize_node_name, msg.senders)]
-    rx_msgs = [msg for msg in messages if normalized_node_name in map(_normalize_node_name, msg.receivers)]
+
+    tx_msgs = [
+        msg
+        for msg in messages
+        if normalized_node_name in map(_normalize_node_name, msg.senders)
+    ]
+    rx_msgs = [
+        msg
+        for msg in messages
+        if normalized_node_name in map(_normalize_node_name, msg.receivers)
+    ]
 
     logger.debug(
         f"Filtered messages by node: {node}. "
@@ -91,7 +91,6 @@ def _get_mask_shift_big(
 def _get_mask_shift_little(
     length: int, start: int
 ) -> Tuple[np.ndarray[int], np.ndarray[int]]:
-
     idx = np.arange(64)
     mask_bool = (idx >= start) & (idx < start + length)
     mask_bytes = np.packbits(mask_bool, bitorder="little")
@@ -107,7 +106,6 @@ def _get_mask_shift_little(
 def _get_masks_shifts(
     msgs: List[Message],
 ) -> Dict[str, Dict[str, Tuple[List[int], List[int]]]]:
-
     # Create a dictionary of empty dictionaries, indexed by message names
     masks_shifts_dict = {msg.name: {} for msg in msgs}
 
@@ -151,7 +149,6 @@ def _get_signal_datatype(signal: Signal, allow_floating_point: bool = True) -> s
 
 
 def _get_signal_types(can_db: Database, allow_floating_point=True):
-
     # Create a dictionary (indexed by message name) of dictionaries (indexed by signal
     # name) corresponding to the datatype of each signal within each message.
     sig_types = {
@@ -174,49 +171,21 @@ def _camel_to_snake(text):
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
-def _decimal_to_hex(decimal_value):
-    """
-    Converts a non-negative decimal integer to a lowercase hexadecimal string.
-
-    Raises:
-        ValueError: If the input is negative.
-    """
-
-    if decimal_value < 0:
-        raise ValueError("Input must be a non-negative integer")
-
-    return hex(decimal_value)
-
-
 def _generate_from_jinja2_template(
     template_path: str, output_path: str, context_dict: dict
 ):
-    # Read the template string from a file
-    with open(template_path, "r") as file:
-        template_str = file.read()
-
     # Create the environment with trim_blocks and lstrip_blocks settings
-    env = Environment(trim_blocks=True, lstrip_blocks=True)
+    env = Environment(
+        loader=PackageLoader("cangen"), trim_blocks=True, lstrip_blocks=True
+    )
 
     # Register the camel_to_snake filter
     env.filters["camel_to_snake"] = _camel_to_snake
-    env.filters["decimal_to_hex"] = _decimal_to_hex
+    env.filters["decimal_to_hex"] = hex
 
-    # Load the template from the string content
-    template = env.from_string(template_str)
-
-    # Render the template with the context
+    # Load and render template
+    template = env.get_template(template_path)
     rendered_code = template.render(**context_dict)
-
-    # Write the rendered code to a file
-    output_dir = os.path.dirname(output_path)
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Create a git ignore for everything in the generated path. Ignore everything.
-    gitignore_path = os.path.join(output_dir, ".gitignore")
-    if not os.path.exists(gitignore_path):
-        with open(gitignore_path, "w") as f:
-            f.write("*")
 
     with open(output_path, "w") as output_file:
         output_file.write(rendered_code)
@@ -224,14 +193,7 @@ def _generate_from_jinja2_template(
     logger.info(f"Rendered code written to '{os.path.abspath(output_path)}'")
 
 
-def generate_code(
-    dbc_files: List[str],
-    our_node: str,
-    bus_name: str,
-    output_dir: str,
-    can_messages_template_path: str,
-    msg_registry_template_path: str,
-):
+def generate_code(bus: Bus, config: Config):
     """
     Parses DBC files, extracts information, and generates code using Jinja2
     templates.
@@ -243,42 +205,54 @@ def generate_code(
 
     logger.info("Generating code")
 
-    can_db = _parse_dbc_files(dbc_files)
-
-    signal_types = _get_signal_types(can_db)
-    temp_signal_types = _get_signal_types(can_db, allow_floating_point=False)
-
-    rx_msgs, tx_msgs = _filter_messages_by_node(can_db.messages, our_node)
-    all_msgs = rx_msgs + tx_msgs
-
-    unpack_masks_shifts = _get_masks_shifts(rx_msgs)
-    pack_masks_shifts = _get_masks_shifts(tx_msgs)
+    can_db = _parse_dbc_files(bus.dbc_file_path)
+    rx_msgs, tx_msgs = _filter_messages_by_node(can_db.messages, bus.node)
 
     context = {
         "date": time.strftime("%Y-%m-%d"),
         "rx_msgs": rx_msgs,
         "tx_msgs": tx_msgs,
-        "all_msgs": all_msgs,
-        "signal_types": signal_types,
-        "temp_signal_types": temp_signal_types,
-        "unpack_info": unpack_masks_shifts,
-        "pack_info": pack_masks_shifts,
-        "bus_name": bus_name,
+        "all_msgs": rx_msgs + tx_msgs,
+        "signal_types": _get_signal_types(can_db),
+        "temp_signal_types": _get_signal_types(can_db, allow_floating_point=False),
+        "unpack_info": _get_masks_shifts(rx_msgs),
+        "pack_info": _get_masks_shifts(tx_msgs),
+        "bus_name": bus.bus_name,
     }
 
-    # Replace these lines with your Jinja2 template logic
     logger.debug("Generating code for can messages")
     _generate_from_jinja2_template(
-        can_messages_template_path,
-        os.path.join(output_dir, bus_name.lower() + CAN_MESSAGES_FILE_NAME),
+        CAN_MESSAGES_TEMPLATE_FILENAME,
+        os.path.join(config.output_dir, bus.bus_name.lower() + CAN_MESSAGES_FILE_NAME),
         context,
     )
 
     logger.debug("Generating code for msg registry")
     _generate_from_jinja2_template(
-        msg_registry_template_path,
-        os.path.join(output_dir, bus_name.lower() + MSG_REGISTRY_FILE_NAME),
+        MSG_REGISTRY_TEMPLATE_FILENAME,
+        os.path.join(config.output_dir, bus.bus_name.lower() + MSG_REGISTRY_FILE_NAME),
         context,
     )
 
     logger.info("Code generation complete")
+
+
+def _prepare_output_directory(output_dir):
+    """Deletes previously generated files and creates a gitignore for the directory"""
+    if os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
+    os.makedirs(output_dir, exist_ok=True)
+
+    gitignore_path = os.path.join(output_dir, ".gitignore")
+    with open(gitignore_path, "w") as f:
+        f.write("*")
+
+
+def generate_can_from_dbc(project_folder_name: str):
+    os.chdir(project_folder_name)
+    config = Config.from_yaml("config.yaml")
+
+    _prepare_output_directory(config.output_dir)
+
+    for bus in config.busses:
+        generate_code(bus, config)

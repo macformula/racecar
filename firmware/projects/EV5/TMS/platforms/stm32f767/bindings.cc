@@ -1,6 +1,8 @@
 /// @author Blake Freer
 /// @date 2023-12-25
 
+#include <stdio.h>
+
 #include <string>
 
 // cubemx files
@@ -59,17 +61,28 @@ shared::periph::ADCInput& temp_sensor_adc_6 = mcal::temp_sensor_adc_6;
 shared::periph::PWMOutput& fan_controller_pwm = mcal::fan_controller_pwm;
 shared::periph::DigitalOutput& debug_led_green = mcal::debug_led_green;
 shared::periph::DigitalOutput& debug_led_red = mcal::debug_led_red;
-//  shared::periph::DigitalOutput& debug_led_red = mcal::debug_led_nucleo;
+// shared::periph::DigitalOutput& debug_led_red = mcal::debug_led_nucleo;
 
 shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
 
 void Initialize() {
-    SystemClock_Config();
     HAL_Init();
+    SystemClock_Config();
     MX_ADC1_Init();
     MX_TIM4_Init();
     MX_GPIO_Init();
     MX_CAN2_Init();
+
+    mcal::veh_can_base.Setup();
 }
 
 }  // namespace bindings
+
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
+    CAN_RxHeaderTypeDef RxHeader;
+    uint8_t RxData[8];
+
+    // TMS doesn't care about any Rx messages but we need to call this to
+    // clear the interrupt flag.
+    HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData);
+}
