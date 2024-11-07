@@ -20,7 +20,7 @@ In this tutorial, we will __recreate the Blink project from scratch__ for multip
 
 ## Prepare the project folder
 
-All projects are stored under the `projects/` directory. They can be grouped into subfolders. For example, all demo projects are stored under `projects/Demo` and all EV5 firmware projects are in `projects/EV5`.
+All projects are stored under the `projects/` directory. They can be grouped into subfolders. For example, all demo projects are stored under `projects/Demo` and all EV firmware projects are in `projects/`.
 
 1. Create a new folder to hold the project at `projects/MyBlink`.
 
