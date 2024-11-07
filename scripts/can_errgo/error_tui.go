@@ -37,11 +37,12 @@ func deepCopy(rows []table.Row) []table.Row {
 }
 
 func bytesToUint64(b []byte) uint64 {
-	var result uint64
-	for i := 0; i < len(b) && i < 8; i++ {
-		result |= uint64(b[i]) << (8 * i)
-	}
-	return result
+    var result uint64
+    for i := 0; i < len(b) && i < 8; i++ {
+        // Reverse the order: least significant byte (rightmost) gets the lowest bits
+        result |= uint64(b[len(b)-1-i]) << (8 * i)
+    }
+    return result
 }
 
 var baseStyle = lipgloss.NewStyle().
@@ -279,10 +280,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.isTimeout = false
 		msg.Value = msg.Value & m.ignoreMask
 		m.re_fresh()
-		for k := 0; k < 64; k++ { // Iterate through all 32 bits
+		for k := 0; k < 64; k++ { // Iterate through all 64 bits
 			if msg.Value&(1<<k) != 0 { // Check if the k-th bit is set
 
-				var errorNumberStr string = strconv.Itoa(64 - k)
+				var errorNumberStr string = strconv.Itoa(k)
 
 				if val, ok := m.hiddenCounts["error" + errorNumberStr]; ok{
 					m.hiddenCounts["error" + errorNumberStr ] = val + 1
@@ -540,7 +541,8 @@ func can_listener(p *tea.Program) {
 		canID := binary.LittleEndian.Uint32(buf[0:4]) & 0x1FFFFFFF // 29-bit CAN ID (masked)
 		data := bytesToUint64(buf[8:]) 
 		
-
+		fmt.Printf("%d", buf[8:])
+		fmt.Printf("%d", data)
 		msg := CANMsg{ ID : canID, Value: data}
 		p.Send(msg)
 	}
