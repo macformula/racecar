@@ -32,6 +32,12 @@ theme:
 
 extra_css:
   - stylesheets/extra.css
+  - https://unpkg.com/katex@0/dist/katex.min.css
+
+extra_javascript:
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+  - https://unpkg.com/katex@0/dist/katex.min.js
+  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
 
 copyright: Copyright &copy; McMaster Formula Electric
 
@@ -91,6 +97,8 @@ markdown_extensions:
       base_path:
         - !relative
         - !relative $docs_dir/../
+  - pymdownx.arithmatex:
+      generic: true 
 
 repo_url: https://github.com/macformula/racecar
 repo_name: macformula/racecar
@@ -127,6 +135,7 @@ nav:
     - firmware/compile-project.md
     - firmware/flashing/index.md
     - firmware/hw-debug.md
+    - firmware/can-traffic/index.md
   - Glossary: glossary.md
 
 watch:
