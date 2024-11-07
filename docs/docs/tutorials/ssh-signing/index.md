@@ -64,7 +64,7 @@ To add a signing key to your GitHub account, go to <https://github.com/settings/
 - Name your key something descriptive.
 - Select "Signing Key" as the key type.
 - Paste the contents of `id_ed25519.pub` into the "Key" box.
-- Click "Add SSH Key."
+- Click "Add SSH Key".
 
 Update your git configuration in your terminal to automatically sign commits with your key:
 
