@@ -96,25 +96,6 @@ private:
   // The queue of message items.
   etl::queue<message_packet, 10> queue;
 
-    // void transitionUp() {
-    //     if (current_state == StateId::IDLE) {
-    //         current_state = StateId::RUNNING;
-    //     } else if (current_state == StateId::RUNNING) {
-    //         current_state = StateId::WINDING_DOWN;
-    //     }
-    //     // If already in WINDING_DOWN, stay there
-    // }
-
-    // // Transition to the previous state (down arrow)
-    // void transitionDown() {
-    //     if (current_state == StateId::WINDING_DOWN) {
-    //         current_state = StateId::RUNNING;
-    //     } else if (current_state == StateId::RUNNING) {
-    //         current_state = StateId::IDLE;
-    //     }
-    //     // If already in IDLE, stay there
-    // }
-
     // void handleInput() {
     //     while (true) {
     //         int ch = _getch();
@@ -165,10 +146,7 @@ public:
         return StateId::IDLE;
     }
 
-    etl::fsm_state_id_t on_event_unknown(
-        const etl::imessage& event) {  // an event represents an action or signal that
-                                 // can trigger a change in the state of a
-                                 // finite state machine (FSM).
+    etl::fsm_state_id_t on_event_unknown(const etl::imessage& event) {
         std::cout << "  S1 : Received unknown message " << int(event.get_message_id()) << std::endl;
         std::cout.flush();
         return StateId::IDLE;
@@ -213,22 +191,11 @@ public:
         return StateId::RUNNING;
     }
 
-    etl::fsm_state_id_t on_event_unknown(
-        etl::imessage& event) {  // an event represents an action or signal that
-                                 // can trigger a change in the state of a
-                                 // finite state machine (FSM).
+    etl::fsm_state_id_t on_event_unknown(const etl::imessage& event) {
         std::cout << "  S2 : Received unknown message " << int(event.get_message_id()) << std::endl;
         std::cout.flush();
         return StateId::RUNNING;
     }
-
-    // etl::fsm_state_id_t on_exit_state(const Start& Stop){
-    //     cout << "  S1 : Received message " << int(Stop.get_message_id()) << " : '" << EventId::STOP << "'" << std::endl;
-    //     cout.flush();
-    //     return StateId::WINDING_DOWN;
-
-    // }
-
 };
 
 // Winding Down State
@@ -244,39 +211,32 @@ public:
     }
 
     etl::fsm_state_id_t on_event(const Start& event){
-        std::cout << "  S2 : Received incompatible message " << int(event.get_message_id()) << std::endl;
+        std::cout << "  S3 : Received incompatible message "
+                  << int(event.get_message_id()) << std::endl;
         cout.flush();
         return StateId::WINDING_DOWN;
     }
 
     etl::fsm_state_id_t on_event(const Stop& event){
-        cout << "  S2 : Received message " << int(event.get_message_id()) << " : '" << EventId::STOP << "'" << std::endl;
+        cout << "  S3 : Received message " << int(event.get_message_id())
+             << " : '" << EventId::STOP << "'" << std::endl;
         cout.flush();
         return StateId::WINDING_DOWN;
     }
 
     etl::fsm_state_id_t on_event(const Stopped& event){
-        cout << "  S2 : Received message " << int(event.get_message_id()) << " : '" << EventId::STOPPED << "'" << std::endl;
+        cout << "  S3 : Received message " << int(event.get_message_id())
+             << " : '" << EventId::STOPPED << "'" << std::endl;
         cout.flush();
         return StateId::IDLE;
     }
 
-    etl::fsm_state_id_t on_event_unknown(
-        etl::imessage& event) {  // an event represents an action or signal that
-                                 // can trigger a change in the state of a
-                                 // finite state machine (FSM).
-        std::cout << "  S1 : Received unknown message " << int(event.get_message_id()) << std::endl;
+    etl::fsm_state_id_t on_event_unknown(const etl::imessage& event) {
+        std::cout << "  S3 : Received unknown message "
+                  << int(event.get_message_id()) << std::endl;
         std::cout.flush();
         return StateId::RUNNING;
     }
-
-    // etl::fsm_state_id_t on_exit_state(const Start& Stop){
-    //     cout << "  S1 : Received message " << int(Stop.get_message_id()) << " : '" << EventId::STOP << "'" << std::endl;
-    //     cout.flush();
-    //     return StateId::WINDING_DOWN;
-
-    // }
-
 };
 
 
@@ -299,10 +259,10 @@ int main() {
 
     // Queue messages to control the FSM
     etl::send_message(motorControlFSM, startMsg);
-    //etl::send_message(motorControlFSM, Message1(2));
-    etl::send_message(motorControlFSM, stoppedMsg);
-    //etl::send_message(motorControlFSM, Message2(3.4));
+    // etl::send_message(motorControlFSM, Message1(2));
     etl::send_message(motorControlFSM, stopMsg);
+    // etl::send_message(motorControlFSM, Message2(3.4));
+    etl::send_message(motorControlFSM, stoppedMsg);
     //etl::send_message(motorControlFSM, Message3("World"));
     //etl::send_message(motorControlFSM, Message4());
 
