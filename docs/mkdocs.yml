@@ -79,7 +79,7 @@ plugins:
 
 markdown_extensions:
   - admonition
-  # - abbr
+  - abbr
   - attr_list
   - md_in_html
   - pymdownx.details
