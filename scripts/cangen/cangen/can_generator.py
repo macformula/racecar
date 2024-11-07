@@ -182,26 +182,8 @@ def _create_jninja_environment(
 
     return env
 
-def _create_output_file_name(output_dir, bus_name, template_filename):
-    return os.path.join(output_dir, bus_name.lower() + "_" + template_filename[:-7])
-
-def _generate_from_jinja2_templates(
-    template_paths: List[str], output_paths: List[str], context: dict
-):
-    env = _create_jninja_environment(
-        "cangen", {"camel_to_snake": _camel_to_snake, "decimal_to_hex": hex}
-    )
-
-    # Load and render templates
-    for template_path, output_path in zip(template_paths, output_paths):
-        template = env.get_template(template_path)
-        rendered_code = template.render(**context)
-
-        with open(output_path, "w") as output_file:
-            output_file.write(rendered_code)
-
-        logger.info(f"Rendered code written to '{os.path.abspath(output_path)}'")
-
+def _create_output_file_name(output_dir: str, bus_name: str, template_file_name: str):
+    return os.path.join(output_dir, bus_name.lower() + "_" + template_file_name[:-7])
 
 def generate_code(bus: Bus, config: Config):
     """
@@ -231,14 +213,17 @@ def generate_code(bus: Bus, config: Config):
     }
 
     logger.debug("Generating code for can messages and msg registry.")
-    _generate_from_jinja2_templates(
-        TEMPLATE_FILE_NAMES,
-        [
-            _create_output_file_name(config.output_dir, bus.bus_name, file_name)
-            for file_name in TEMPLATE_FILE_NAMES
-        ],
-        context,
+
+    env = _create_jninja_environment(
+        "cangen", {"camel_to_snake": _camel_to_snake, "decimal_to_hex": hex}
     )
+    for template_file_name in TEMPLATE_FILE_NAMES:
+        template = env.get_template(template_file_name)
+        rendered_code = template.render(**context)
+        output_file_name = _create_output_file_name(config.output_dir, bus.bus_name, template_file_name)
+        with open(output_file_name, "w") as output_file:
+            output_file.write(rendered_code)
+        logger.info(f"Rendered code written to '{os.path.abspath(output_file_name)}'")
 
     logger.info("Code generation complete")
 
