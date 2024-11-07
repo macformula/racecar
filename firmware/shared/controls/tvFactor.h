@@ -1,5 +1,4 @@
 #pragma once
-#include <cmath>
 #include <vector>
 #include <algorithm>
 #include <tuple>
@@ -8,58 +7,48 @@
 namespace ctrl{
 
 template <typename T>
-T tvEnable(T DI_p_steeringAngle, T DI_b_tvEnable){
-
-    if (DI_b_tvEnable > 0) return DI_p_steeringAngle;
+T EnableTorqueVectoring(T steering_angle, T torque_vectoring_switch) {
+    if (torque_vectoring_switch > 0)
+        return steering_angle;
     else return 0;
 }
 
 template <typename T>
-T open_loop_tv_lookUp(T DI_p_steeringAngle){
+T CreateTorqueVectoringFactor(T steering_angle) {
+    T absolute_steering_angle = std::abs(steering_angle);
 
-    T Angle = std::abs(DI_p_steeringAngle);
-
-    // Lookup Table Data
-    // breakpoints = {0, 5, 10, 15, 20, 25}; 
-    // tableData = {1, 0.934, 0.87, 0.808, 0.747, 0.683};
-
-    const float steeringAngle_lut_data[][2] = {
-    {0.0, 1.0f},
-	{5.0, 0.934f},
-	{10.0, 0.87f},
-	{15.0, 0.808f},
-	{20.0, 0.747f},
-	{25.0, 0.683f},
+    const float steering_angle_lookup_table_data[][2] = {
+        {0.0, 1.0f},    {5.0, 0.934f},  {10.0, 0.87f},
+        {15.0, 0.808f}, {20.0, 0.747f}, {25.0, 0.683f},
     };
 
-    constexpr int steeringAngle_lut_length =
-    (sizeof(steeringAngle_lut_data)) / (sizeof(steeringAngle_lut_data[0]));
+    constexpr int steering_angle_lookup_table_length =
+        (sizeof(steering_angle_lookup_table_data)) /
+        (sizeof(steering_angle_lookup_table_data[0]));
 
-    shared::util::LookupTable<steeringAngle_lut_length> steeringAngle_adc_lut{steeringAngle_lut_data};
+    shared::util::LookupTable<steering_angle_lookup_table_length> table_lookup{
+        steering_angle_lookup_table_data};
 
-    T result = steeringAngle_adc_lut.Evaluate(Angle);
-    return result;
+    return table_lookup.Evaluate(absolute_steering_angle);
 }
 
 template <typename T>
-std::tuple<T,T> tvFactoring(T p_steeringAngle, T tvFactor){    //don't pass by reference (struct or tuple)
-    T p_tvFactorLeft;
-    T p_tvFactorRight; 
+std::tuple<T, T> AdjustTorqueVectoring(T steering_angle,
+                                       T torque_vectoring_factor) {
+    T left_torque_vector;
+    T right_torque_vector;
 
-    if (p_steeringAngle > 0){
-        p_tvFactorLeft = T(1);
-        p_tvFactorRight = tvFactor;
-    }
-    else if (p_steeringAngle < 0){
-        p_tvFactorRight = T(1);
-        p_tvFactorLeft = tvFactor;
-    }
-    else{
-        p_tvFactorLeft = T(1);
-        p_tvFactorRight = T(1);
+    if (steering_angle > 0) {
+        left_torque_vector = static_cast<T>(1);
+        right_torque_vector = torque_vectoring_factor;
+    } else if (steering_angle < 0) {
+        right_torque_vector = static_cast<T>(1);
+        left_torque_vector = torque_vectoring_factor;
+    } else {
+        left_torque_vector = static_cast<T>(1);
+        right_torque_vector = static_cast<T>(1);
     }
 
-    return std::make_tuple(p_tvFactorLeft, p_tvFactorRight);
+    return std::tuple(left_torque_vector, right_torque_vector);
 }
-
 }
