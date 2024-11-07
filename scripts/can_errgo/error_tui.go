@@ -2,13 +2,17 @@ package main
 
 import (
 	"encoding/binary"
+	"flag"
 	"fmt"
 	"log"
 	"math"
 	"net"
+	"os"
 	"sort"
 	"strconv"
 	"time"
+
+	component "main/components"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
@@ -67,6 +71,9 @@ type model struct {
 	isTimeout   bool
 	lastCANTime time.Time
 	t           time.Duration
+
+	box component.Box
+	showBox bool
 }
 
 
@@ -117,7 +124,7 @@ func findRowString(s []table.Row, e string) int {
     return -1
 }
 
-func  overBounds(table table.Model) bool{
+func overBounds(table table.Model) bool{
 	return len(table.Rows())==0 || table.Cursor() < 0 || table.Cursor() >= len(table.Rows()) 
 }
 
@@ -177,6 +184,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.ignoreMask = toggleBit(m.ignoreMask, m.errorToBit[m.submenuTable.SelectedRow()[0]])
 				newRows := deleteElementRow(m.submenuTable.Rows(), m.submenuTable.Cursor())
 				m.submenuTable.SetRows(newRows)
+			case "d":
+				if overBounds(m.submenuTable){
+					m.showBox =false
+					return m, nil
+				}			
+				if m.showBox && (m.table.SelectedRow()[0] == m.box.Title){
+					m.showBox =false
+					return m, nil
+				}else{
+					m.box.SetText(m.table.SelectedRow()[0], "temp description")
+					m.showBox = true
+					return m, nil
+				}
 
 			case "s":
 				m.submenuActive = false  // Hide submenu
@@ -189,6 +209,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.submenuTable, cmd = m.submenuTable.Update(msg)
 			return m, cmd
 		}
+
+
 		switch msg.String() {
 		case "esc":
 			if m.table.Focused() {
@@ -237,6 +259,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
                 m.table.Blur()
                 m.submenuTable.Focus()
             }
+		case "d":
+			tea.Printf("test");
+			if overBounds(m.table){
+				m.showBox =false
+				return m, nil
+			}
+			if m.showBox && m.table.SelectedRow()[0] == m.box.Title{
+				m.showBox =false
+				return m, nil
+			}else{
+				m.box.SetText(m.table.SelectedRow()[0], "temp description temp description temp description temp description temp description temp description temp description temp description temp description")
+				m.showBox = true
+				return m, nil
+			}
 	}
 	case CANMsg:
 		m.lastCANTime = time.Now()
@@ -298,12 +334,13 @@ type KeyMap struct {
 	i       key.Binding
 	s	    key.Binding
 	q       key.Binding
+	d   	key.Binding
 
 }
 
 // ShortHelp implements the KeyMap interface.
 func (km KeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{km.a, km.i, km.s, km.q}
+	return []key.Binding{km.a, km.i, km.s,km.d, km.q}
 }
 
 
@@ -322,6 +359,10 @@ func additionalKeyMap() KeyMap {
 			key.WithKeys("s"),
 			key.WithHelp("s", "Ignored Menu"),
 		),
+		d: key.NewBinding(
+			key.WithKeys("d"),
+			key.WithHelp("d", "Show description"),
+		),
 		q: key.NewBinding(
 			key.WithKeys("q"),
 			key.WithHelp("q/ctrl+c", "quit"),
@@ -339,6 +380,10 @@ func subMenuKeyMap() KeyMap {
 			key.WithKeys("s"),
 			key.WithHelp("s", "Close Ignored Menu"),
 		),
+		d: key.NewBinding(
+			key.WithKeys("d"),
+			key.WithHelp("d", "Show description"),
+		),
 		q: key.NewBinding(
 			key.WithKeys("q"),
 			key.WithHelp("q/ctrl+c", "quit"),
@@ -351,21 +396,24 @@ func (m model) View() string {
 	if m.isTimeout{
 		out = fmt.Sprint("\n\x1b[41m\x1b[37mWarning! Last recorded message was over ",math.Round(time.Since(m.lastCANTime).Seconds()), " seconds ago!\x1b[0m") + "\n" +  out
 	}
-
+	if m.showBox{
+		out = out + m.box.View();
+	}
     if m.submenuActive {
         // Display both the main menu and submenu
-        return out + "\n" +
+        out =  out + "\n" +
                baseStyle.Render(m.submenuTable.View()) + "\n" + 
 			   m.table.HelpView() +  "\n" +
 			   m.submenuTable.Help.ShortHelpView(m.submenuKeys.ShortHelp()) +  "\n"
-    }
-    // Only show the main table when submenu is not active
-    return out + "\n" + 
-	m.table.HelpView() + "\n" + 
-	m.table.Help.ShortHelpView(m.tableKeys.ShortHelp()) + "\n"
+    }else{
+    out = out + "\n" + 
+		m.table.HelpView() + "\n" + 
+		m.table.Help.ShortHelpView(m.tableKeys.ShortHelp()) + "\n"
+	}
+	return out;
 }
 
-func  createTable() model{
+func  createTable(warning int) model{
 
 	columns := []table.Column{
 		{Title: "Error:", Width: 30},
@@ -397,6 +445,9 @@ func  createTable() model{
 
 	table2 := createSubMenu()
 
+	box := component.Box{};
+	box.SetWidth(60)
+
 	m := model{
 		t,
 		additionalKeyMap(),
@@ -411,8 +462,10 @@ func  createTable() model{
 		
 		false,
 		time.Now(),
-		5 * time.Second,
+		time.Duration(warning) * time.Second,
 		
+		box,
+		false,
 	}
 	return m
 }
@@ -495,18 +548,37 @@ func can_listener(p *tea.Program) {
 
 
 func main() {
-    var m model = createTable()
-    quit := make(chan struct{})
+	// Define the command line flag
+	warnFlag := flag.String("w", "", "warning time for the table (integer value)")
 
-    p := tea.NewProgram(m)
-    go func() {
-        if _,err := p.Run(); err != nil {
-            fmt.Println("Error running TUI:", err)
-        }
-        close(quit)
-    }()
+	flag.Parse()
 
-    go can_listener(p)
-    <-quit
+	var warning int
+	if *warnFlag == "" {
+		warning = 999 // Default value
+	} else {
+		// Parse the value for the -w flag
+		var err error
+		warning, err = strconv.Atoi(*warnFlag)
+		if err != nil {
+			// If it's not a valid integer, show the usage message and exit
+			fmt.Println("Usage: [program name] -w [int]")
+			os.Exit(1)
+		}
+	}
+
+	var m model = createTable(warning)
+	quit := make(chan struct{})
+
+	p := tea.NewProgram(m)
+	go func() {
+		if _, err := p.Run(); err != nil {
+			fmt.Println("Error running TUI:", err)
+		}
+		close(quit)
+	}()
+	go can_listener(p)
+
+
+	<-quit
 }
-
