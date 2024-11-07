@@ -21,10 +21,6 @@ PRIVATE
 
 add_library(controls)
 
-
-# Print CMAKE_CURRENT_SOURCE_DIR
-message(STATUS "CMAKE_CURRENT_SOURCE_DIR: ${CMAKE_CURRENT_SOURCE_DIR}")
-
 set(CTRL_SYS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vehicle_control_system/src/vehicle_control_system-autogen/controller_autogen_ert_rtw")
 target_include_directories(controls PUBLIC ${CTRL_SYS_DIR})
 
