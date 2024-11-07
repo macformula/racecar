@@ -1,5 +1,5 @@
 [submodule "firmware/projects/FrontController/vehicle_control_system"]
-	path = firmware/projects/EV5/FrontController/vehicle_control_system
+	path = firmware/projects/FrontController/vehicle_control_system/vehicle_control_system
 	url = https://github.com/macformula/vehicle_control_system.git
 [submodule "firmware/tests/googletest"]
 	path = firmware/tests/googletest
@@ -8,5 +8,5 @@
 	path = firmware/third-party/etl
 	url = https://github.com/ETLCPP/etl.git
 [submodule "firmware/projects/FrontControllerSimple/vehicle_control_system"]
-	path = firmware/projects/EV5/debug/FrontControllerSimple/vehicle_control_system
+	path = firmware/projects/debug/FrontControllerSimple/vehicle_control_system/vehicle_control_system
 	url = https://github.com/macformula/vehicle_control_system.git
