@@ -23,22 +23,38 @@ The message length in a CAN frame can be calculated as a function of the data le
 
 Each CAN frame consists of several fields with fixed bit lengths, plus a variable-length data field. Let \(x\) be the number of bytes. Here’s the breakdown:
 
-|Frame Element| Length(bits)|
+|Frame Element| Length (bits)|
 |--------------|------------|
-|Start of Frame (SOF) |     8   |
+|Start of Frame (SOF) |     1   |
 |Identifier (ID)|      11     |
 |Remote Transmission Request (RTR)| 1|
 | Control (DLC)| 6|
+|Data| 8 bits per byte with 20% bit stuffing = 9.6x|
 |Cyclic Redundancy Check (CRC) | 16 |
 |Acknowledgement (ACK)| 2 |
 |End of Frame (EOF)| 7|
-|Data Length| 8 bits per byte with 20% bit stuffing = 9.6x|
 
 ### Final Formula
 
 The maximum total frame length is:
 
 \[ 1 + 11 + 1 + 6 + 16 + 2 + 7 + 9.6x = 44 + 9.6x \text{ bits}\]
+
+where \(x\) represents the number of bytes in the variable data field.
+
+--------------------------------------
+
+## Total CAN Traffic
+
+\begin{align}
+\text{Total Bits Per Second} &= \sum_{i=1}^n \left(\text{Frequency}_i \times \text{Message Length}_i \right)\\
+\end{align}
+
+## Total Bus Load
+
+\begin{align}
+\text{Bus Load}\%= \frac{\text{Total Bits per Second}}{\text{Baud Rate}} \times 100\%
+\end{align}
 
 --------------------------------------
 
@@ -60,9 +76,7 @@ Baud Rate: 500 kbaud (500,000 bits transferred per second)
 &= 16700\text{ bits per second}
 \end{align}
 
-## Calculating Bus Load
-
-### The bus load is the previous example can be calculated as:
+The bus load is the previous example can be calculated as:
 
 $$
 \text{Bus Load}\%= \frac{\text{Total Bits per Second}}{\text{Baud Rate}} \times 100\%
