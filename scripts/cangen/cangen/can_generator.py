@@ -28,7 +28,6 @@ CAN_MESSAGES_FILE_NAME = "_can_messages.h"
 TEMPLATE_FILE_NAMES = ["can_messages.h.jinja2", "msg_registry.h.jinja2"]
 
 
-
 def _parse_dbc_files(dbc_file: str) -> Database:
     logger.info(f"Parsing DBC files: {dbc_file}")
     can_db = Database()
@@ -185,7 +184,7 @@ def _create_jninja_environment(
 def _create_output_file_name(output_dir: str, bus_name: str, template_file_name: str):
     return os.path.join(output_dir, bus_name.lower() + "_" + template_file_name[:-7])
 
-def generate_code(bus: Bus, config: Config):
+def _generate_code(bus: Bus, config: Config):
     """
     Parses DBC files, extracts information, and generates code using Jinja2
     templates.
@@ -228,7 +227,7 @@ def generate_code(bus: Bus, config: Config):
     logger.info("Code generation complete")
 
 
-def _prepare_output_directory(output_dir):
+def _prepare_output_directory(output_dir: str):
     """Deletes previously generated files and creates a gitignore for the directory"""
     if os.path.exists(output_dir):
         logger.info("Deleting previously generated code")
@@ -244,11 +243,11 @@ def _prepare_output_directory(output_dir):
 
 def generate_can_for_project(project_folder_name: str):
     """Generates C code for a given project.
-    Ensure the project contains a config.yaml file which specifies the relative path to its corresponding dbc file."""
+    Ensure the project folder contains a config.yaml file which specifies the relative path to its corresponding dbc file."""
     os.chdir(project_folder_name)
     config = Config.from_yaml("config.yaml")
 
     _prepare_output_directory(config.output_dir)
 
     for bus in config.busses:
-        generate_code(bus, config)
+        _generate_code(bus, config)
