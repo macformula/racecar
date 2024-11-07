@@ -3,7 +3,7 @@
 #include "bindings.h"
 #include "generated/can/vehicle_can_messages.h"
 #include "generated/can/vehicle_msg_registry.h"
-#include "projects/EV5/debug/MotorDebug/generated/can/vehicle_msg_registry.h"
+#include "projects/debug/MotorDebug/generated/can/vehicle_msg_registry.h"
 #include "shared/comms/can/can_bus.h"
 #include "shared/periph/can.h"
 
