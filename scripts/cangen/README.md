@@ -16,10 +16,10 @@ To generate CAN code for a project, execute `cangen` and pass the project folder
 
 ## Example
 
-If you are in the `racecar/firmware/` directory, you could generate `EV5/FrontController` code with
+If you are in the `racecar/firmware/` directory, you could generate `FrontController` code with
 
 ```bash
-cangen projects/EV5/FrontController
+cangen projects/FrontController
 ```
 
 This command will generate code in a `generated/can/` subfolder of the project.
