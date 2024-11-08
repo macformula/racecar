@@ -1,2 +1,3 @@
-set(CMAKE_C_FLAGS_INIT "") # undef "linux"
-set(CMAKE_CXX_FLAGS_INIT "${CMAKE_C_FLAGS_INIT} -ansi")
+# Blake Freer
+# November 8, 2024
+# No cmake instructions as the default Linux compiler should work.
