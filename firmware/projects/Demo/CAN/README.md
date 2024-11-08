@@ -6,9 +6,9 @@ The `Send` node reads a button input then sends the input over CAN to the `Recei
 
 ## DBC
 
-The DBC file is very simple. It contains a single message `ButtonStatus` with two fields:
-- Byte 0: Button state (boolean)
-- Byte 1-2: Message number (uint16)
+The DBC file is very simple. It contains a single message `ButtonStatus` with one signal fields:
+
+- Bit 0: State (boolean) - 1 if pressed, 0 if not
 
 C++ code for the DBC is generated using `scripts/cangen`. The code is placed into `Send/generated/can/` and `Receive/generated/can/`.
 
@@ -30,12 +30,12 @@ Reading DigitalInput "Button"
 | Enter 0 for False, 1 for True: 1
 | Value was true
 CanBase vcan0: Sending
-| [3AC] 01 01 00 00 00 00 00 00
+| [3AC] 01
 Reading DigitalInput "Button"
 | Enter 0 for False, 1 for True: 0
 | Value was false
 CanBase vcan0: Sending
-| [3AC] 00 02 00 00 00 00 00 00
+| [3AC] 00
 ```
 
 ```bash
@@ -43,9 +43,15 @@ $ ./build/Demo/CAN/Receive/linux/main
 Initializing Linux
 Opened vcan0 at index 4
 CanBase vcan0: Received
-| [3AC] 01 01 00 00 00 00 00 00
+| [3AC] 01
 DigitalOutput "Indicator" => true
 CanBase vcan0: Received
-| [3AC] 00 02 00 00 00 00 00 00
+| [3AC] 00
 DigitalOutput "Indicator" => false
 ```
+
+### stm32f767 Nucleo
+
+Both Send and Receive have CAN RX and TX on pins PB3 and PB4, respectively. See the nucleo pinouts (`racecar/datasheets/nucleo/`) for the physical pin. For a complete circuit, you will also need 2 CAN drivers like the AD MAX33042E (see datasheets folder).
+
+The `Send` node polls its built-in button every 50 ms and sends a message to the `Receive` node which sets its on-board LED to match the button.
