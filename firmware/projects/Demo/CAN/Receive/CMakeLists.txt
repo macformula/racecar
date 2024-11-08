@@ -6,15 +6,7 @@
 
 include("${CMAKE_SOURCE_DIR}/cmake/cangen.cmake")
 
-target_sources(main
-    PRIVATE
-    main.cc
-)
-
-target_include_directories(main
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc
-)
+target_sources(main PRIVATE main.cc)
 
 # Notice that we don't include any mcal/ subdirectory in this CMake file.
 # The master CMakeLists handles platform selection and library linking.
