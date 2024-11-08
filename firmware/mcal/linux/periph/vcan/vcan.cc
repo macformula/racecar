@@ -7,6 +7,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <format>
 #include <iostream>
 #include <string>
 
@@ -34,8 +35,8 @@ int VcanSocket::Open() {
         return -1;
     }
 
-    std::cout << "Opened " << iface_ << " at index " << addr_.can_ifindex
-              << std::endl;
+    std::cout << std::format("Opened \"{}\" at index {}.\n", iface_,
+                             addr_.can_ifindex);
 
     return 0;
 }

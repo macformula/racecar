@@ -1,3 +1,4 @@
+#include <format>
 #include <iostream>
 #include <string>
 
@@ -8,8 +9,9 @@ namespace mcal::lnx::periph {
 DigitalOutput::DigitalOutput(std::string name) : name_(name) {}
 
 void DigitalOutput::Set(bool value) {
-    std::cout << "DigitalOutput \"" << name_ << "\" => "
-              << (value ? "true" : "false") << std::endl;
+    std::cout << std::format("DigitalOutput \"{}\" => {}", name_,
+                             value ? "true" : "false")
+              << std::endl;
 }
 
 void DigitalOutput::SetHigh() {

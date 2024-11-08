@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <format>
 #include <iostream>
 
 #include "adc.h"
@@ -8,7 +9,7 @@ namespace mcal::lnx::periph {
 ADCInput::ADCInput(std::string name) : name_(name) {}
 
 void ADCInput::Start() {
-    std::cout << "Reading ADC \"" << name_ << "\"" << std::endl;
+    std::cout << std::format("Reading ADC \"{}\"\n", name_);
 }
 
 uint32_t ADCInput::Read() {
