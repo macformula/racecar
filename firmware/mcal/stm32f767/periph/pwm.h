@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
 
 #include "shared/periph/pwm.h"
@@ -47,14 +48,16 @@ public:
     }
 
     void SetFrequency(float frequency) override {
-        frequency_ = std::max(kMinimumFrequency, frequency);
-        uint32_t autoreload = GetTimerFrequency() / frequency_;
+        float frequency_ = std::max(kMinimumFrequency, frequency);
+        uint32_t autoreload = static_cast<uint32_t>(
+            static_cast<float>(GetTimerFrequency()) / frequency_);
 
-        __HAL_TIM_SetAutoreload(htim, autoreload);
+        __HAL_TIM_SetAutoreload(htim_, autoreload);
     }
 
     float GetFrequency() override {
-        float frequency = GetTimerFrequency() / __HAL_TIM_GetAutoreload(htim_);
+        float frequency = static_cast<float>(GetTimerFrequency()) /
+                          static_cast<float>(__HAL_TIM_GetAutoreload(htim_));
 
         return frequency;
     }
@@ -62,12 +65,12 @@ public:
 private:
     TIM_HandleTypeDef* htim_;
     // stm32f767 has a 16-bit autoreload register -> min frequency = 1/65535
-    static constexpr kMinimumFrequency = 0.000015259022f;
+    static constexpr float kMinimumFrequency = 0.000015259022f;
     uint32_t channel_;
     float duty_cycle_ = 0;
 
     uint32_t GetTimerFrequency() {
-        uint32_t tickFreq = __HAL_TIM_GetTickFreq();
+        uint32_t tickFreq = HAL_GetTickFreq();
 
         return tickFreq;
     }
