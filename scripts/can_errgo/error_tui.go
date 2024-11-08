@@ -144,29 +144,56 @@ func (m *model) re_fresh(){
 func (m *model) SortByColumn(columnIndex int) error {
     rows := m.table.Rows()
 
-    // Perform sorting with a custom less function
-    sort.Slice(rows, func(i, j int) bool {
-        // Make sure columnIndex is within bounds for both rows
-        if columnIndex >= len(rows[i]) || columnIndex >= len(rows[j]) {
-            fmt.Println("Error: columnIndex out of bounds")
-            return false
+    // Check if sorting should adjust cursor position
+    if !overBounds(m.table) {
+        // Capture the current row data before sorting
+        currentIndex := m.table.Cursor()
+        selectedRow := rows[currentIndex]
+        
+        // Perform sorting with a custom less function
+        sort.SliceStable(rows, func(i, j int) bool {
+            if columnIndex >= len(rows[i]) || columnIndex >= len(rows[j]) {
+                fmt.Println("Error: columnIndex out of bounds")
+                return false
+            }
+
+            val1, err1 := strconv.Atoi(rows[i][columnIndex])
+            val2, err2 := strconv.Atoi(rows[j][columnIndex])
+
+            if err1 == nil && err2 == nil {
+                return val1 < val2
+            }
+            return rows[i][columnIndex] < rows[j][columnIndex]
+        })
+
+        // Find new index of the originally selected row
+        for i, row := range rows {
+            if row[0] == selectedRow[0] {
+                m.table.SetCursor(i)
+                break
+            }
         }
+    } else {
+        // Just sort if out of bounds
+        sort.SliceStable(rows, func(i, j int) bool {
+            if columnIndex >= len(rows[i]) || columnIndex >= len(rows[j]) {
+                fmt.Println("Error: columnIndex out of bounds")
+                return false
+            }
 
-        // Attempt to convert the values to integers for comparison
-        val1, err1 := strconv.Atoi(rows[i][columnIndex])
-        val2, err2 := strconv.Atoi(rows[j][columnIndex])
+            val1, err1 := strconv.Atoi(rows[i][columnIndex])
+            val2, err2 := strconv.Atoi(rows[j][columnIndex])
 
-        // If both are valid integers, sort numerically
-        if err1 == nil && err2 == nil {
-            return val1 < val2
-        }
-
-        // If conversion fails, sort lexicographically
-        return rows[i][columnIndex] < rows[j][columnIndex]
-    })
+            if err1 == nil && err2 == nil {
+                return val1 < val2
+            }
+            return rows[i][columnIndex] < rows[j][columnIndex]
+        })
+    }
 
     return nil
 }
+
 
 func (m model) Init() tea.Cmd { return tickEvery(m.t) }
 
@@ -177,32 +204,54 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.submenuActive{
 			// If submenu is active, only let the submenu handle KeyMsg
 			switch msg.String() {
-			case "i":
+			case "up":
 				if overBounds(m.submenuTable){
+					m.table.SetCursor(0)
 					return m, nil
 				}
-	
+				m.submenuTable.MoveUp(1)			
+				// m.box.SetText(m.submenuTable.SelectedRow()[0], "temp description for subtable")
+				
+				return m,nil	
+			case "down":
+				if overBounds(m.submenuTable){
+					m.table.SetCursor(0)
+					return m, nil
+				}	
+				m.submenuTable.MoveDown(1)		
+				// m.box.SetText(m.submenuTable.SelectedRow()[0], "temp description for subtable")
+				return m,nil			
+			case "i":
+				if overBounds(m.submenuTable){
+					m.table.SetCursor(0)
+					return m, nil
+				}
+				
+				if m.submenuTable.SelectedRow() == nil{
+					return m, nil
+				}
+				
 				m.ignoreMask = toggleBit(m.ignoreMask, m.errorToBit[m.submenuTable.SelectedRow()[0]])
 				newRows := deleteElementRow(m.submenuTable.Rows(), m.submenuTable.Cursor())
 				m.submenuTable.SetRows(newRows)
-			case "d":
-				if overBounds(m.submenuTable){
-					m.showBox =false
-					return m, nil
-				}			
-				if m.showBox && (m.submenuTable.SelectedRow()[0] == m.box.Title){
-					m.showBox =false
-					return m, nil
+				if m.submenuTable.Cursor() == 0{
+					m.submenuTable.MoveDown(1)
 				}else{
-					m.box.SetText(m.submenuTable.SelectedRow()[0], "temp description")
-					m.showBox = true
-					return m, nil
+					m.submenuTable.MoveUp(1)
 				}
 
 			case "s":
 				m.submenuActive = false  // Hide submenu
 				m.table.Focus()  
-				m.submenuTable.Blur()        
+				m.submenuTable.Blur() 
+
+				if m.table.SelectedRow() == nil{
+					m.table.SetCursor(0)
+					return m, nil
+				}
+				// m.box.SetText(m.table.SelectedRow()[0], "temp description for main table")     
+				return m, nil
+		
 			case "q", "ctrl+c":
 				return m, tea.Quit
 			}
@@ -224,20 +273,36 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "a":
 
 			if overBounds(m.table){
+				m.table.SetCursor(0)
+				return m, nil
+			}
+			
+			if m.table.SelectedRow() == nil{
+				m.table.SetCursor(0)
 				return m, nil
 			}
 
 			m.hiddenCounts[m.table.SelectedRow()[0]] = 0
 			newRows := deleteElementRow(m.table.Rows(), m.table.Cursor())
 			m.table.SetRows(newRows)
-			m.table.UpdateViewport()
+			if m.table.Cursor() == 0{
+				m.table.MoveDown(1)
+			}else{
+				m.table.MoveUp(1)
+			}
 			return m, nil
 		case "i":
 			
 			if overBounds(m.table){
+				m.table.SetCursor(0)
 				return m, nil
 			}
-                        
+            
+			if m.table.SelectedRow() == nil{
+				m.table.SetCursor(0)
+				return m, nil
+			}
+			
 			m.ignoreMask = toggleBit(m.ignoreMask, m.errorToBit[m.table.SelectedRow()[0]] )
 			newSubRow := append(m.submenuTable.Rows(), table.Row{m.table.SelectedRow()[0]})
 			m.submenuTable.SetRows(newSubRow)
@@ -246,7 +311,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.hiddenCounts[m.table.SelectedRow()[0]] = 0
 			newRows := deleteElementRow(m.table.Rows(), m.table.Cursor())
 			m.table.SetRows(newRows)
-			m.table.UpdateViewport()
+			m.table.MoveDown(1)
 
 			return m, nil
         case "s":
@@ -260,20 +325,38 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
                 m.table.Blur()
                 m.submenuTable.Focus()
             }
-		case "d":
-			tea.Printf("test");
+			if len(m.submenuTable.Rows()) > 0{
+				m.submenuTable.SetCursor(0)
+				// m.box.SetText(m.submenuTable.SelectedRow()[0], "temp description for subtable")     
+			}
+		case "up":
 			if overBounds(m.table){
-				m.showBox =false
+				m.table.SetCursor(0)
+				return m, nil
+			}		
+
+			if m.table.SelectedRow() == nil{
+				m.table.SetCursor(0)
 				return m, nil
 			}
-			if m.showBox && m.table.SelectedRow()[0] == m.box.Title{
-				m.showBox =false
+
+			m.table.MoveUp(1)
+			// m.box.SetText(m.table.SelectedRow()[0], "temp description for main table")
+			return m,nil	
+		case "down":
+			if overBounds(m.table){
+				m.table.SetCursor(0)
 				return m, nil
-			}else{
-				m.box.SetText(m.table.SelectedRow()[0], "temp description temp description temp description temp description temp description temp description temp description temp description temp description")
-				m.showBox = true
+			}			
+
+			if m.table.SelectedRow() == nil{
+				m.table.SetCursor(0)
 				return m, nil
 			}
+
+			m.table.MoveDown(1)
+			// m.box.SetText(m.table.SelectedRow()[0], "temp description for main table")
+			return m,nil			
 	}
 	case CANMsg:
 		m.lastCANTime = time.Now()
@@ -335,13 +418,12 @@ type KeyMap struct {
 	i       key.Binding
 	s	    key.Binding
 	q       key.Binding
-	d   	key.Binding
 
 }
 
 // ShortHelp implements the KeyMap interface.
 func (km KeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{km.a, km.i, km.s,km.d, km.q}
+	return []key.Binding{km.a, km.i, km.s, km.q}
 }
 
 
@@ -360,10 +442,6 @@ func additionalKeyMap() KeyMap {
 			key.WithKeys("s"),
 			key.WithHelp("s", "Ignored Menu"),
 		),
-		d: key.NewBinding(
-			key.WithKeys("d"),
-			key.WithHelp("d", "Show description"),
-		),
 		q: key.NewBinding(
 			key.WithKeys("q"),
 			key.WithHelp("q/ctrl+c", "quit"),
@@ -381,10 +459,6 @@ func subMenuKeyMap() KeyMap {
 			key.WithKeys("s"),
 			key.WithHelp("s", "Close Ignored Menu"),
 		),
-		d: key.NewBinding(
-			key.WithKeys("d"),
-			key.WithHelp("d", "Show description"),
-		),
 		q: key.NewBinding(
 			key.WithKeys("q"),
 			key.WithHelp("q/ctrl+c", "quit"),
@@ -397,27 +471,45 @@ func (m model) View() string {
 	if m.isTimeout{
 		out = fmt.Sprint("\n\x1b[41m\x1b[37mWarning! Last recorded message was over ",math.Round(time.Since(m.lastCANTime).Seconds()), " seconds ago!\x1b[0m") + "\n" +  out
 	}
-	if m.showBox{
+	if m.submenuActive{
+		if m.submenuTable.SelectedRow() != nil{
+			m.box.SetText(m.submenuTable.SelectedRow()[0], "temp description for sub table")
+		}
 		out = out + m.box.View();
-	}
-    if m.submenuActive {
-        // Display both the main menu and submenu
         out =  out + "\n" +
                baseStyle.Render(m.submenuTable.View()) + "\n" + 
 			   m.table.HelpView() +  "\n" +
 			   m.submenuTable.Help.ShortHelpView(m.submenuKeys.ShortHelp()) +  "\n"
-    }else{
-    out = out + "\n" + 
-		m.table.HelpView() + "\n" + 
-		m.table.Help.ShortHelpView(m.tableKeys.ShortHelp()) + "\n"
-	}
+	}else{
+		if m.table.SelectedRow() != nil {
+			m.box.SetText(m.table.SelectedRow()[0], "temp description for main table")
+		}
+		out = out + m.box.View()
+		out = out + "\n" + 
+			m.table.HelpView() + "\n" + 
+			m.table.Help.ShortHelpView(m.tableKeys.ShortHelp()) + "\n"
+		}
+	// if m.showBox{
+	// 	out = out + m.box.View();
+	// }
+    // if m.submenuActive {
+    //     // Display both the main menu and submenu
+    //     out =  out + "\n" +
+    //            baseStyle.Render(m.submenuTable.View()) + "\n" + 
+	// 		   m.table.HelpView() +  "\n" +
+	// 		   m.submenuTable.Help.ShortHelpView(m.submenuKeys.ShortHelp()) +  "\n"
+    // }else{
+    // out = out + "\n" + 
+	// 	m.table.HelpView() + "\n" + 
+	// 	m.table.Help.ShortHelpView(m.tableKeys.ShortHelp()) + "\n"
+	// }
 	return out;
 }
 
 func  createTable(warning int) model{
 
 	columns := []table.Column{
-		{Title: "Error:", Width: 30},
+		{Title: "Error:", Width: 40},
 		{Title: "Count:", Width: 10},
 		{Title: "Freshness", Width: 10},
 
