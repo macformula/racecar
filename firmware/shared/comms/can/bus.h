@@ -13,7 +13,7 @@ namespace shared::can {
 class CanBus {
 public:
     CanBus(shared::periph::CanBase& can_base, MsgRegistry& rx_msg_registry)
-        : can_base_(can_base), rx_msg_registry_(rx_msg_registry){};
+        : can_base_(can_base), rx_msg_registry_(rx_msg_registry) {};
 
     void Send(CanTxMsg& msg) {
         RawCanMsg raw_msg;
