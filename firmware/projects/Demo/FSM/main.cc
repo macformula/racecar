@@ -7,8 +7,6 @@
 #include <string>
 
 using namespace std;
-
-
 // Define your state identifiers
 struct EventId {  // Initiates actions, transitions, or signals FSM, triggers
                   // events
@@ -95,24 +93,6 @@ private:
 
   // The queue of message items.
   etl::queue<message_packet, 10> queue;
-
-    // void handleInput() {
-    //     while (true) {
-    //         int ch = _getch();
-
-    //         switch (ch) {
-    //             case 'w':  // Up key (W)
-    //             case 'W':  // Handle uppercase W as well
-    //                 transitionUp();
-    //                 break;
-    //             case 's':  // Down key (S)
-    //             case 'S':  // Handle uppercase S as well
-    //                 transitionDown();
-    //         }
-    //     }
-    // }
-
-    
 };
 
 class IdleState
@@ -151,13 +131,6 @@ public:
         std::cout.flush();
         return StateId::IDLE;
     }
-
-    // etl::fsm_state_id_t on_exit_state(const Start& Start){
-    //     cout << "  S1 : Received message " << int(Start.get_message_id()) << " : '" << EventId::START << "'" << std::endl;
-    //     cout.flush();
-    //     return StateId::RUNNING;
-
-    // }
 };
 
 // Running State
@@ -239,6 +212,42 @@ public:
     }
 };
 
+void handleInput(MotorControl& motorControlFSM) {
+    while (true) {
+        int ch = _getch();  // Capture key press
+
+        switch (ch) {
+            case 'w':  // 'w' or 'W' key to send Start event
+            case 'W': {
+                Start startMsg;
+                etl::send_message(motorControlFSM, startMsg);
+                std::cout << "Sent Start message\n";
+            } break;
+            case 's':  // 's' or 'S' key to send Stop event
+            case 'S': {
+                Stop stopMsg;
+                etl::send_message(motorControlFSM, stopMsg);
+                std::cout << "Sent Stop message\n";
+            } break;
+            case 'a':  // 'x' key to send Stopped event
+            case 'A': {
+                Stopped stoppedMsg;
+                etl::send_message(motorControlFSM, stoppedMsg);
+                std::cout << "Sent Stopped message\n";
+            } break;
+            case 'q':  // 'q' to quit the loop and stop the FSM
+            case 'Q':
+                std::cout << "Exiting...\n";
+                return;
+            default:
+                std::cout << "Unknown key pressed\n";
+                break;
+        }
+
+        // Process the queued messages after each key press
+        motorControlFSM.process_queue();
+    }
+}
 
 int main() {
     // Instantiate the MotorControl FSM
@@ -253,18 +262,13 @@ int main() {
     Stopped stoppedMsg;      // Trigger stopped state
     Stop stopMsg;            // Trigger stop state
 
-    etl::ifsm_state* state_list[] = { &idleState, &runningState, &windingDownState };
+    etl::ifsm_state* state_list[] = {&idleState, &runningState,
+                                     &windingDownState};
     motorControlFSM.set_states(state_list, 3);
     motorControlFSM.start();
 
     // Queue messages to control the FSM
-    etl::send_message(motorControlFSM, startMsg);
-    // etl::send_message(motorControlFSM, Message1(2));
-    etl::send_message(motorControlFSM, stopMsg);
-    // etl::send_message(motorControlFSM, Message2(3.4));
-    etl::send_message(motorControlFSM, stoppedMsg);
-    //etl::send_message(motorControlFSM, Message3("World"));
-    //etl::send_message(motorControlFSM, Message4());
+    handleInput(motorControlFSM);
 
     std::cout << std::endl;
 
@@ -272,6 +276,5 @@ int main() {
     motorControlFSM.process_queue();
 
     return 0;
-
 }
 
