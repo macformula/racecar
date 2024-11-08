@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "shared/comms/can/can_msg.h"
 #include "shared/comms/can/raw_can_msg.h"
 
 namespace shared::can {
