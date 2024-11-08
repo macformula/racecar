@@ -190,11 +190,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.showBox =false
 					return m, nil
 				}			
-				if m.showBox && (m.table.SelectedRow()[0] == m.box.Title){
+				if m.showBox && (m.submenuTable.SelectedRow()[0] == m.box.Title){
 					m.showBox =false
 					return m, nil
 				}else{
-					m.box.SetText(m.table.SelectedRow()[0], "temp description")
+					m.box.SetText(m.submenuTable.SelectedRow()[0], "temp description")
 					m.showBox = true
 					return m, nil
 				}
@@ -541,8 +541,6 @@ func can_listener(p *tea.Program) {
 		canID := binary.LittleEndian.Uint32(buf[0:4]) & 0x1FFFFFFF // 29-bit CAN ID (masked)
 		data := bytesToUint64(buf[8:]) 
 		
-		fmt.Printf("%d", buf[8:])
-		fmt.Printf("%d", data)
 		msg := CANMsg{ ID : canID, Value: data}
 		p.Send(msg)
 	}
