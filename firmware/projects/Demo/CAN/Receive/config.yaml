@@ -1,6 +1,6 @@
 canGen:
-  ourNode: RECV
   busses:
-    - busName: demobus
-      dbcFiles:
+    - name: demobus
+      node: RECV
+      dbcFile:
         - "../demo.dbc"
