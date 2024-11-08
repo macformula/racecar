@@ -4,6 +4,5 @@ BS_:
 
 BU_: SEND RECV
     
-BO_ 940 ButtonStatus: 8 SEND
+BO_ 940 ButtonStatus: 1 SEND
     SG_ State : 0|1@1+ (1,0) [0|1] "bool" RECV
-    SG_ MsgCount : 8|16@1+ (1,0) [0|65535] "count" RECV

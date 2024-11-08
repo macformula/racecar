@@ -7,6 +7,7 @@
 #include "main.h"
 
 // fw includes
+#include "../../bindings.h"
 #include "mcal/stm32f767/periph/can.h"
 #include "mcal/stm32f767/periph/gpio.h"
 #include "shared/periph/can.h"
@@ -24,12 +25,12 @@ namespace mcal {
 using namespace stm32f767::periph;
 
 CanBase veh_can_base{&hcan3};
-DigitalOutput button{ButtonPin_GPIO_Port, ButtonPin_Pin};
+DigitalInput button{ButtonPin_GPIO_Port, ButtonPin_Pin};
 }  // namespace mcal
 
 namespace bindings {
 shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
-shared::periph::DigitalOutput& button = mcal::button;
+shared::periph::DigitalInput& button = mcal::button;
 
 void Initialize() {
     SystemClock_Config();
