@@ -14,7 +14,7 @@
 
 static std::string message_to_string(const shared::can::RawCanMsg& msg) {
     std::string str = std::format("[{:02X}]", msg.header.id);
-    for (int i = 0; i < sizeof(msg.data); ++i) {
+    for (int i = 0; i < sizeof(msg.header.data_len); ++i) {
         str += std::format(" {:02X}", msg.data[i]);
     }
     return str;
