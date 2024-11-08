@@ -1,6 +1,0 @@
-canGen:
-  busses:
-    - name: veh
-      node: foo
-      dbcFiles:
-        - "../demo.dbc"
