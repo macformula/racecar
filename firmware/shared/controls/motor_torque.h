@@ -52,7 +52,7 @@ std::tuple<T, T> CalculateMotorTorque(T raw_torque_values[], int size,
 
     for (int i = 0; i < size; i++) {
         T running_average =
-            running_average_calculator.Compute(raw_torque_values[i] * 1000);
+            running_average_calculator.Compute(raw_torque_values[i] * 10);
 
         right_motor_torque_limit = running_average * right_factor;
         left_motor_torque_limit = running_average * left_factor;
@@ -63,7 +63,7 @@ std::tuple<T, T> CalculateMotorTorque(T raw_torque_values[], int size,
 
 template <typename T>
 bool CheckBrakePedalPosition(T brake_pedal_position) {
-    return brake_pedal_position > static_cast<T>(0.1);
+    return brake_pedal_position > static_cast<T>(10);
 }
 
 template <typename T>
@@ -78,7 +78,7 @@ T ComputeTorqueRequest(T driver_torque_request, T brake_pedal_position) {
             case State::Run:
                 motor_torque_request = driver_torque_request;
 
-                if (driver_torque_request >= static_cast<T>(0.25) && brake_on) {
+                if (driver_torque_request >= static_cast<T>(25) && brake_on) {
                     currentState = State::Stop;
                 } else {
                     return motor_torque_request;
@@ -87,7 +87,7 @@ T ComputeTorqueRequest(T driver_torque_request, T brake_pedal_position) {
             case State::Stop:
                 motor_torque_request = static_cast<T>(0.0);
 
-                if (driver_torque_request < static_cast<T>(0.05) && !brake_on) {
+                if (driver_torque_request < static_cast<T>(5) && !brake_on) {
                     currentState = State::Run;
                 } else {
                     return motor_torque_request;
