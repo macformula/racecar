@@ -11,7 +11,7 @@ namespace bindings {
     extern shared::periph::CanBase& error_can_base;
     extern void Initialize();
     extern void TickBlocking(uint32_t);
-}  // namespace bindings
+}
 
 generated::can::ErrorMsgRegistry error_can_registry{};
 
@@ -21,6 +21,7 @@ shared::can::CanBus error_can_bus{
 };
 
 int main(void) {
+    // Initialize the CLI and milliseconds to repeat by
     bindings::Initialize();
     uint32_t tick_duration = 100;
 
@@ -28,6 +29,7 @@ int main(void) {
     generated::can::TMS_ERROR error_msg{};
 
     while (true) {
+        // "Send" the output, printing to stdout
         error_can_bus.Update();
 
         // Set the 1st error to the opposite value and send
@@ -50,6 +52,7 @@ int main(void) {
         error_msg.error63 = !error_msg.error63;
         error_can_bus.Send(error_msg);
 
+        // Wait for 100ms before repeating the process
         bindings::TickBlocking(tick_duration);
     }
 
