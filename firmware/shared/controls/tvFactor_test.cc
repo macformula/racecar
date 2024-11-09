@@ -7,12 +7,11 @@
 int main() {
     using namespace ctrl;
 
-    ASSERT_CLOSE(CreateTorqueVectoringFactor(5.0, true), 0.934);
-    ASSERT_CLOSE(CreateTorqueVectoringFactor(10.0, true), 0.87);
-    ASSERT_CLOSE(CreateTorqueVectoringFactor(13.2, true), 0.83032);
-    ASSERT_CLOSE(CreateTorqueVectoringFactor(23.3, true), 0.70476);
-    ASSERT_CLOSE(CreateTorqueVectoringFactor(27.3, true), 0.683);
-    ASSERT_CLOSE(CreateTorqueVectoringFactor(27.3, false), 0);
+    ASSERT_CLOSE(CreateTorqueVectoringFactor(5.0), 0.934);
+    ASSERT_CLOSE(CreateTorqueVectoringFactor(10.0), 0.87);
+    ASSERT_CLOSE(CreateTorqueVectoringFactor(13.2), 0.83032);
+    ASSERT_CLOSE(CreateTorqueVectoringFactor(23.3), 0.70476);
+    ASSERT_CLOSE(CreateTorqueVectoringFactor(27.3), 0.683);
 
     {
         auto [left_factor, right_factor] = AdjustTorqueVectoring(15.2, 3.6);
