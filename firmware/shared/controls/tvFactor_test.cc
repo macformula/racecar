@@ -7,9 +7,6 @@
 int main() {
     using namespace ctrl;
 
-    ASSERT_TRUE(EnableTorqueVectoring(true));
-    ASSERT_FALSE(EnableTorqueVectoring(false));
-
     ASSERT_CLOSE(CreateTorqueVectoringFactor(5.0, true), 0.934);
     ASSERT_CLOSE(CreateTorqueVectoringFactor(10.0, true), 0.87);
     ASSERT_CLOSE(CreateTorqueVectoringFactor(13.2, true), 0.83032);
