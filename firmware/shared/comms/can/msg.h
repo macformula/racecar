@@ -3,59 +3,27 @@
 
 #pragma once
 
-#include "shared/comms/can/raw_can_msg.h"
+#include <concepts>
+#include <cstdint>
+#include <cstring>
 
 namespace shared::can {
 
-class CanMsg {};
+struct RawMessage {
+    RawMessage(uint32_t id, uint8_t data_length, const uint8_t data[8]);
 
-// Forward declaration of msg registry
-class MsgRegistry;
-
-class CanRxMsg : public CanMsg {
-private:
-    virtual void Clone(CanRxMsg&) const = 0;
-    virtual void Unpack(const RawCanMsg&) = 0;
-    virtual CanId Id() const = 0;
-
-protected:
-    template <typename T>
-    static inline T unpack_right_shift(uint8_t value, uint8_t shift,
-                                       uint8_t mask) {
-        return static_cast<T>(static_cast<T>(value & mask) >> shift);
-    }
-
-    template <typename T>
-    static inline T unpack_left_shift(uint8_t value, uint8_t shift,
-                                      uint8_t mask) {
-        return static_cast<T>(static_cast<T>(value & mask) << shift);
-    }
-
-    friend class MsgRegistry;
+    uint32_t id_;
+    uint8_t data_length;
+    uint8_t data_[8];
 };
 
-class CanBus;
-
-class CanTxMsg : public CanMsg {
-private:
-    virtual void Pack(RawCanMsg&) const = 0;
-
-protected:
-    template <typename T>
-    static inline uint8_t pack_left_shift(T value, uint8_t shift,
-                                          uint8_t mask) {
-        return static_cast<uint8_t>(static_cast<uint8_t>(value << shift) &
-                                    mask);
-    }
-
-    template <typename T>
-    static inline uint8_t pack_right_shift(T value, uint8_t shift,
-                                           uint8_t mask) {
-        return static_cast<uint8_t>(static_cast<uint8_t>(value >> shift) &
-                                    mask);
-    }
-
-    friend class CanBus;
+// TxMessage concept is required by Bus.Send()
+template <typename T>
+concept TxMessage = requires(const T msg) {
+    { msg.encode() } -> std::same_as<RawMessage>;
 };
+
+// We don't need an RxMessage cocept since no function takes in an arbitrary
+// RxMessage.
 
 }  // namespace shared::can
