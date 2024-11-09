@@ -6,6 +6,7 @@
 #include <concepts>
 #include <cstdint>
 #include <cstring>
+#include <format>
 
 namespace shared::can {
 
@@ -27,3 +28,21 @@ concept TxMessage = requires(const T msg) {
 // RxMessage.
 
 }  // namespace shared::can
+
+// Convert RawMessage to string with `std::format`
+template <>
+struct std::formatter<shared::can::RawMessage> {
+    constexpr auto parse(auto& ctx) {
+        return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const shared::can::RawMessage& msg, FormatContext& ctx) const {
+        std::string str = std::format("[{:02X}]", msg.id_);
+        for (int i = 0; i < msg.data_length; ++i) {
+            str += std::format(" {:02X}", msg.data_[i]);
+        }
+
+        return std::format_to(ctx.out(), "{}", str);
+    }
+};
