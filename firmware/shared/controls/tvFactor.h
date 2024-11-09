@@ -1,35 +1,39 @@
 #pragma once
-#include <vector>
 #include <algorithm>
 #include <tuple>
 #include "../util/mappers/lookup_table.h"
 
 namespace ctrl{
 
-template <typename T>
-T EnableTorqueVectoring(T steering_angle, T torque_vectoring_switch) {
-    if (torque_vectoring_switch > 0)
-        return steering_angle;
-    else return 0;
+bool EnableTorqueVectoring(bool torque_vectoring_switch) {
+    if (torque_vectoring_switch == true) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 template <typename T>
-T CreateTorqueVectoringFactor(T steering_angle) {
-    T absolute_steering_angle = std::abs(steering_angle);
+T CreateTorqueVectoringFactor(T steering_angle, bool torque_vectoring_switch) {
+    if (EnableTorqueVectoring(torque_vectoring_switch) == true) {
+        T absolute_steering_angle = std::abs(steering_angle);
 
-    const float steering_angle_lookup_table_data[][2] = {
-        {0.0, 1.0f},    {5.0, 0.934f},  {10.0, 0.87f},
-        {15.0, 0.808f}, {20.0, 0.747f}, {25.0, 0.683f},
-    };
+        static const float steering_angle_lookup_table_data[][2] = {
+            {0.0, 1.0f},    {5.0, 0.934f},  {10.0, 0.87f},
+            {15.0, 0.808f}, {20.0, 0.747f}, {25.0, 0.683f},
+        };
 
-    constexpr int steering_angle_lookup_table_length =
-        (sizeof(steering_angle_lookup_table_data)) /
-        (sizeof(steering_angle_lookup_table_data[0]));
+        static constexpr int steering_angle_lookup_table_length =
+            (sizeof(steering_angle_lookup_table_data)) /
+            (sizeof(steering_angle_lookup_table_data[0]));
 
-    shared::util::LookupTable<steering_angle_lookup_table_length> table_lookup{
-        steering_angle_lookup_table_data};
+        static shared::util::LookupTable<steering_angle_lookup_table_length>
+            table_lookup{steering_angle_lookup_table_data};
 
-    return table_lookup.Evaluate(absolute_steering_angle);
+        return table_lookup.Evaluate(absolute_steering_angle);
+    } else {
+        return 0;
+    }
 }
 
 template <typename T>
