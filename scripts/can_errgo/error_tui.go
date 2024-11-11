@@ -12,10 +12,10 @@ import (
 	"strconv"
 	"time"
 
-	component "main/components"
+	box "main/components/box"
+	table "main/components/table"
 
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"golang.org/x/sys/unix"
@@ -27,6 +27,7 @@ const (
 	canFrameSize = 16       // CAN frame size (for a standard CAN frame)
 )
 
+// Might have future use
 func deepCopy(rows []table.Row) []table.Row {
     newRows := make([]table.Row, len(rows))
     for i := range rows {
@@ -73,7 +74,7 @@ type model struct {
 	lastCANTime time.Time
 	t           time.Duration
 
-	box component.Box
+	box box.Box
 	showBox bool
 }
 
@@ -143,8 +144,7 @@ func (m *model) re_fresh(){
 
 func (m *model) SortByColumn(columnIndex int) error {
     rows := m.table.Rows()
-
-    // Check if sorting should adjust cursor position
+    // Check if sorting should adjust cursor position (In the odd case that no cursor is set, we don't want to run into a panic)
     if !overBounds(m.table) {
         // Capture the current row data before sorting
         currentIndex := m.table.Cursor()
@@ -169,10 +169,11 @@ func (m *model) SortByColumn(columnIndex int) error {
         // Find new index of the originally selected row
         for i, row := range rows {
             if row[0] == selectedRow[0] {
-                m.table.SetCursor(i)
+                m.table.SetCursorAndViewport(i)
                 break
             }
         }
+		
     } else {
         // Just sort if out of bounds
         sort.SliceStable(rows, func(i, j int) bool {
@@ -190,7 +191,6 @@ func (m *model) SortByColumn(columnIndex int) error {
             return rows[i][columnIndex] < rows[j][columnIndex]
         })
     }
-
     return nil
 }
 
@@ -210,8 +210,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return m, nil
 				}
 				m.submenuTable.MoveUp(1)			
-				// m.box.SetText(m.submenuTable.SelectedRow()[0], "temp description for subtable")
-				
 				return m,nil	
 			case "down":
 				if overBounds(m.submenuTable){
@@ -219,7 +217,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return m, nil
 				}	
 				m.submenuTable.MoveDown(1)		
-				// m.box.SetText(m.submenuTable.SelectedRow()[0], "temp description for subtable")
 				return m,nil			
 			case "i":
 				if overBounds(m.submenuTable){
@@ -244,12 +241,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.submenuActive = false  // Hide submenu
 				m.table.Focus()  
 				m.submenuTable.Blur() 
+				m.table.SetShowCursor(true)
 
 				if m.table.SelectedRow() == nil{
 					m.table.SetCursor(0)
 					return m, nil
 				}
-				// m.box.SetText(m.table.SelectedRow()[0], "temp description for main table")     
 				return m, nil
 		
 			case "q", "ctrl+c":
@@ -324,10 +321,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
                 m.submenuActive = true
                 m.table.Blur()
                 m.submenuTable.Focus()
+				m.table.SetShowCursor(false)
             }
 			if len(m.submenuTable.Rows()) > 0{
 				m.submenuTable.SetCursor(0)
-				// m.box.SetText(m.submenuTable.SelectedRow()[0], "temp description for subtable")     
 			}
 		case "up":
 			if overBounds(m.table){
@@ -341,7 +338,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			m.table.MoveUp(1)
-			// m.box.SetText(m.table.SelectedRow()[0], "temp description for main table")
 			return m,nil	
 		case "down":
 			if overBounds(m.table){
@@ -355,7 +351,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			m.table.MoveDown(1)
-			// m.box.SetText(m.table.SelectedRow()[0], "temp description for main table")
 			return m,nil			
 	}
 	case CANMsg:
@@ -368,6 +363,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				var errorNumberStr string = strconv.Itoa(k)
 
+				// Instead of "error" + #, this would be what the DBC file should map to, for now keep this for testing
 				if val, ok := m.hiddenCounts["error" + errorNumberStr]; ok{
 					m.hiddenCounts["error" + errorNumberStr ] = val + 1
 					
@@ -375,6 +371,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.hiddenCounts["error" + errorNumberStr] = 1
 					m.errorToBit["error" + errorNumberStr] = k
 				}
+
 
 				index := findRowString(m.table.Rows(),  "error" + errorNumberStr)
 				if index == -1{
@@ -387,8 +384,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					newRows[index][2] = "0"
 					m.table.SetRows(newRows)
 				}
-
-
 			}
 			m.SortByColumn(2)
 			m.table.UpdateViewport()
@@ -466,83 +461,55 @@ func subMenuKeyMap() KeyMap {
 	}
 }
 
+// View returns the string representation of the model. We could combine and condense, but its clearer to keep it separate.
 func (m model) View() string {
-	out := baseStyle.Render(m.table.View()) + "\n"
+
+	out := "\n \n \n"
+	// Help menu changes based on the state of the submenu
+	if m.submenuActive{
+		out = 	m.table.HelpView() + "\n" + 
+				m.submenuTable.Help.ShortHelpView(m.submenuKeys.ShortHelp()) + "\n"
+	}else{
+		out = 	m.table.HelpView() + "\n" +
+				m.table.Help.ShortHelpView(m.tableKeys.ShortHelp()) + "\n"	
+	}
+
+	// Timeout warning
 	if m.isTimeout{
 		out = fmt.Sprint("\n\x1b[41m\x1b[37mWarning! Last recorded message was over ",math.Round(time.Since(m.lastCANTime).Seconds()), " seconds ago!\x1b[0m") + "\n" +  out
 	}
+
+	// Render the table 
+	out = out + baseStyle.Render(m.table.View()) + "\n"
+
+	// Render the submenu if it is active
 	if m.submenuActive{
-		if m.submenuTable.SelectedRow() != nil{
-			m.box.SetText(m.submenuTable.SelectedRow()[0], "temp description for sub table")
-		}
-		out = out + m.box.View();
-        out =  out + "\n" +
-               baseStyle.Render(m.submenuTable.View()) + "\n" + 
-			   m.table.HelpView() +  "\n" +
-			   m.submenuTable.Help.ShortHelpView(m.submenuKeys.ShortHelp()) +  "\n"
-	}else{
-		if m.table.SelectedRow() != nil {
-			m.box.SetText(m.table.SelectedRow()[0], "temp description for main table")
-		}
+		out = out + baseStyle.Render(m.submenuTable.View()) + "\n"
+	}
+
+	// Render the box 
+	if m.submenuActive && m.submenuTable.SelectedRow() != nil{
+		m.box.SetText(m.submenuTable.SelectedRow()[0], "temp description for " + m.submenuTable.SelectedRow()[0])
 		out = out + m.box.View()
-		out = out + "\n" + 
-			m.table.HelpView() + "\n" + 
-			m.table.Help.ShortHelpView(m.tableKeys.ShortHelp()) + "\n"
-		}
-	// if m.showBox{
-	// 	out = out + m.box.View();
-	// }
-    // if m.submenuActive {
-    //     // Display both the main menu and submenu
-    //     out =  out + "\n" +
-    //            baseStyle.Render(m.submenuTable.View()) + "\n" + 
-	// 		   m.table.HelpView() +  "\n" +
-	// 		   m.submenuTable.Help.ShortHelpView(m.submenuKeys.ShortHelp()) +  "\n"
-    // }else{
-    // out = out + "\n" + 
-	// 	m.table.HelpView() + "\n" + 
-	// 	m.table.Help.ShortHelpView(m.tableKeys.ShortHelp()) + "\n"
-	// }
-	return out;
+	} else if m.table.SelectedRow() != nil{
+		m.box.SetText(m.table.SelectedRow()[0], "temp description for " + m.table.SelectedRow()[0])
+		out = out + m.box.View()
+	}
+
+	return out
 }
 
-func  createTable(warning int) model{
+func initViewer(warning int) model{
 
-	columns := []table.Column{
-		{Title: "Error:", Width: 40},
-		{Title: "Count:", Width: 10},
-		{Title: "Freshness", Width: 10},
-
-	}
-	rows := []table.Row {}
-	
-
-	t := table.New(
-		table.WithColumns(columns),
-		table.WithRows(rows),
-		table.WithFocused(true),
-		table.WithHeight(7),
-	)
-
-	s := table.DefaultStyles()
-	s.Header = s.Header.	
-		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color("240")).
-		BorderBottom(true).
-		Bold(false)
-	s.Selected = s.Selected.
-		Foreground(lipgloss.Color("229")).
-		Background(lipgloss.Color("57")).
-		Bold(false)
-	t.SetStyles(s)
-
+	mainTable := createTable()
 	table2 := createSubMenu()
 
-	box := component.Box{};
-	box.SetWidth(60)
+	box := box.Box{};
+	// Each column has padding of 2, so the width is 60 + 2*3(error columns) = 66
+	box.SetWidth(66)
 
 	m := model{
-		t,
+		mainTable,
 		additionalKeyMap(),
 		
 		table2,
@@ -563,10 +530,41 @@ func  createTable(warning int) model{
 	return m
 }
 
+func  createTable() table.Model{
+	columns := []table.Column{
+		{Title: "Error:", Width: 40},
+		{Title: "Count:", Width: 10},
+		{Title: "Freshness", Width: 10},
+
+	}
+	rows := []table.Row {}
+	
+
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithFocused(true),
+		table.WithHeight(11),
+	)
+
+	s := table.DefaultStyles()
+	s.Header = s.Header.	
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color("240")).
+		BorderBottom(true).
+		Bold(false)
+	s.Selected = s.Selected.
+		Foreground(lipgloss.Color("229")).
+		Background(lipgloss.Color("57")).
+		Bold(false)
+	t.SetStyles(s)
+	return t
+}
+
 // Initialization of the submenu
 func createSubMenu() table.Model {
     columns := []table.Column{
-        {Title: "Ignored Errors:", Width: 30},
+        {Title: "Ignored Errors:", Width: 60 + 4} ,
     }
 
     rows := []table.Row{}
@@ -584,8 +582,8 @@ func createSubMenu() table.Model {
 		BorderBottom(true).
 		Bold(false)
 	s.Selected = s.Selected.
-		Foreground(lipgloss.Color("112")).
-		Background(lipgloss.Color("240")).
+		Foreground(lipgloss.Color("229")).
+		Background(lipgloss.Color("57")).
 		Bold(false)
 	t.SetStyles(s)
 
@@ -659,7 +657,7 @@ func main() {
 		}
 	}
 
-	var m model = createTable(warning)
+	var m model = initViewer(warning)
 	quit := make(chan struct{})
 
 	p := tea.NewProgram(m)

@@ -1,5 +1,5 @@
 // component/box.go
-package component
+package box
 
 import (
 	"strings"
@@ -24,9 +24,9 @@ func (b *Box) SetText(title, description string) {
 }
 
 func (b Box) View() string {
-	borderStyle := lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Padding(1, 2)
-	titleStyle := lipgloss.NewStyle().Bold(true).Underline(true).Align(lipgloss.Center).Width(b.Width)
-	descriptionStyle := lipgloss.NewStyle().Align(lipgloss.Left).Width(b.Width - 4)
+	borderStyle := lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Padding(1, 2).BorderForeground(lipgloss.Color("57"))
+	titleStyle := lipgloss.NewStyle().Bold(true).Underline(true).Align(lipgloss.Center).Width(b.Width).MaxWidth(b.Width)
+	descriptionStyle := lipgloss.NewStyle().Align(lipgloss.Left).Width(b.Width).MaxWidth(b.Width)
 
 	titleContent := titleStyle.Render(b.Title) + "\n"
 	descriptionContent := descriptionStyle.Render(b.wrapText(b.Description))
