@@ -2,4 +2,5 @@ canGen:
   busses:
     - name: veh
       node: foo
-      dbcFile: "../demo.dbc"
+      dbcFile:
+        - "../demo.dbc"
