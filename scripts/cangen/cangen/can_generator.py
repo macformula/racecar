@@ -9,7 +9,7 @@ import os
 import re
 import shutil
 import time
-from typing import Dict, List, Tuple, Callable, Any
+from typing import Dict, List, Tuple
 
 import numpy as np
 from cantools.database import Database, Message, Signal
@@ -22,12 +22,8 @@ logger = logging.getLogger(__name__)
 EIGHT_BITS = 8
 EIGHT_BYTES = 8
 TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
-MSG_REGISTRY_FILE_NAME = "_msg_registry.h"
-CAN_MESSAGES_FILE_NAME = "_can_messages.h"
 
 TEMPLATE_FILE_NAMES = ["can_messages.h.jinja2", "msg_registry.h.jinja2"]
-
-PACKAGE_NAME = "cangen"
 
 
 def _parse_dbc_files(dbc_file: str) -> Database:
@@ -172,33 +168,11 @@ def _camel_to_snake(text):
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
-def _create_jninja_environment(
-    package_name: str, filters: dict[str, Callable[..., Any]]
-):
-    env = Environment(
-        loader=PackageLoader(package_name), trim_blocks=True, lstrip_blocks=True
-    )
-    for filter_name, filter_function in filters.items():
-        env.filters[filter_name] = filter_function
-
-    return env
+def _create_output_file_name(bus_name: str, template_file_name: str) -> str:
+    return os.path.join(bus_name.lower() + "_" + template_file_name.removesuffix(".jninja2"))
 
 
-def _create_output_file_name(output_dir: str, bus_name: str, template_file_name: str):
-    return os.path.join(output_dir, bus_name.lower() + "_" + template_file_name[:-7])
-
-
-def _generate_jninja_template(template_file_name, output_path, context, env):
-    template = env.get_template(template_file_name)
-    rendered_code = template.render(**context)
-
-    output_file_name = output_path
-    with open(output_file_name, "w") as output_file:
-        output_file.write(rendered_code)
-    logger.info(f"Rendered code written to '{os.path.abspath(output_file_name)}'")
-
-
-def _generate_code(bus: Bus, config: Config):
+def _generate_code(bus: Bus):
     """
     Parses DBC files, extracts information, and generates code using Jinja2
     templates.
@@ -227,20 +201,24 @@ def _generate_code(bus: Bus, config: Config):
 
     logger.debug("Generating code for can messages and msg registry.")
 
-    env = _create_jninja_environment(
-        PACKAGE_NAME, {"camel_to_snake": _camel_to_snake, "decimal_to_hex": hex}
+    env = Environment(
+        loader=PackageLoader(__package__), trim_blocks=True, lstrip_blocks=True
     )
-    for template_file_name in TEMPLATE_FILE_NAMES:
-        _generate_jninja_template(
-            template_file_name,
-            _create_output_file_name(
-                config.output_dir, bus.bus_name, template_file_name
-            ),
-            context,
-            env,
-        )
+    env.filters["decimal_to_hex"] = hex
+    env.filters["camel_to_snake"] = _camel_to_snake
 
-    logger.info("Code generation complete")
+    for template_file_name in TEMPLATE_FILE_NAMES:
+        template = env.get_template(template_file_name)
+        rendered_code = template.render(**context)
+
+        
+
+        output_file_name = _create_output_file_name(bus.bus_name, template_file_name)
+        with open(_create_output_file_name, "w") as output_file:
+            output_file.write(rendered_code)
+        logger.info(f"Rendered code written to '{os.path.abspath(output_file_name)}'")
+
+        logger.info("Code generation complete")
 
 
 def _prepare_output_directory(output_dir: str):
@@ -265,5 +243,6 @@ def generate_can_for_project(project_folder_name: str):
 
     _prepare_output_directory(config.output_dir)
 
+    os.chdir(config.output_dir)
     for bus in config.busses:
         _generate_code(bus, config)

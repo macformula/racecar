@@ -15,14 +15,15 @@ logger = logging.getLogger(__name__)
 def parse():
     parser = argparse.ArgumentParser(description="DBC to C code generator")
     parser.add_argument("project", type=str, help="Name of the project")
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
         "-v",
         "--verbose",
         dest="is_verbose",
         action="store_true",
         help="Enable verbose output",
     )
-    parser.add_argument(
+    group.add_argument(
         "--cmake-log-level",
         dest="level",
         choices=["STATUS", "INFO", "VERBOSE", "DEBUG"],
