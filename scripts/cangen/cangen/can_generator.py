@@ -27,6 +27,8 @@ CAN_MESSAGES_FILE_NAME = "_can_messages.h"
 
 TEMPLATE_FILE_NAMES = ["can_messages.h.jinja2", "msg_registry.h.jinja2"]
 
+PACKAGE_NAME = "cangen"
+
 
 def _parse_dbc_files(dbc_file: str) -> Database:
     logger.info(f"Parsing DBC files: {dbc_file}")
@@ -184,6 +186,15 @@ def _create_jninja_environment(
 def _create_output_file_name(output_dir: str, bus_name: str, template_file_name: str):
     return os.path.join(output_dir, bus_name.lower() + "_" + template_file_name[:-7])
 
+def _generate_jninja_template(template_file_name, output_path, context, env):
+    template = env.get_template(template_file_name)
+    rendered_code = template.render(**context)
+
+    output_file_name = output_path
+    with open(output_file_name, "w") as output_file:
+        output_file.write(rendered_code)
+    logger.info(f"Rendered code written to '{os.path.abspath(output_file_name)}'")
+
 def _generate_code(bus: Bus, config: Config):
     """
     Parses DBC files, extracts information, and generates code using Jinja2
@@ -214,15 +225,14 @@ def _generate_code(bus: Bus, config: Config):
     logger.debug("Generating code for can messages and msg registry.")
 
     env = _create_jninja_environment(
-        "cangen", {"camel_to_snake": _camel_to_snake, "decimal_to_hex": hex}
+        PACKAGE_NAME, {"camel_to_snake": _camel_to_snake, "decimal_to_hex": hex}
     )
     for template_file_name in TEMPLATE_FILE_NAMES:
-        template = env.get_template(template_file_name)
-        rendered_code = template.render(**context)
-        output_file_name = _create_output_file_name(config.output_dir, bus.bus_name, template_file_name)
-        with open(output_file_name, "w") as output_file:
-            output_file.write(rendered_code)
-        logger.info(f"Rendered code written to '{os.path.abspath(output_file_name)}'")
+        _generate_jninja_template(
+            template_file_name, 
+            _create_output_file_name(config.output_dir, bus.bus_name, template_file_name),
+            context,
+            env)
 
     logger.info("Code generation complete")
 
