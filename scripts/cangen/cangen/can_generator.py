@@ -183,8 +183,10 @@ def _create_jninja_environment(
 
     return env
 
+
 def _create_output_file_name(output_dir: str, bus_name: str, template_file_name: str):
     return os.path.join(output_dir, bus_name.lower() + "_" + template_file_name[:-7])
+
 
 def _generate_jninja_template(template_file_name, output_path, context, env):
     template = env.get_template(template_file_name)
@@ -194,6 +196,7 @@ def _generate_jninja_template(template_file_name, output_path, context, env):
     with open(output_file_name, "w") as output_file:
         output_file.write(rendered_code)
     logger.info(f"Rendered code written to '{os.path.abspath(output_file_name)}'")
+
 
 def _generate_code(bus: Bus, config: Config):
     """
@@ -229,10 +232,13 @@ def _generate_code(bus: Bus, config: Config):
     )
     for template_file_name in TEMPLATE_FILE_NAMES:
         _generate_jninja_template(
-            template_file_name, 
-            _create_output_file_name(config.output_dir, bus.bus_name, template_file_name),
+            template_file_name,
+            _create_output_file_name(
+                config.output_dir, bus.bus_name, template_file_name
+            ),
             context,
-            env)
+            env,
+        )
 
     logger.info("Code generation complete")
 

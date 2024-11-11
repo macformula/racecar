@@ -40,7 +40,11 @@ def parse():
         "DEBUG": "DEBUG",
     }
 
-    args.level = cmake_to_python_level['VERBOSE'] if args.is_verbose else cmake_to_python_level[args.level]
+    args.level = (
+        cmake_to_python_level["VERBOSE"]
+        if args.is_verbose
+        else cmake_to_python_level[args.level]
+    )
     return args
 
 
