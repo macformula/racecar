@@ -168,13 +168,12 @@ def _camel_to_snake(text):
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
-def _create_output_file_name(bus_name: str, template_file_name: str) -> str:
+def _create_output_file_name(output_dir: str, bus_name: str, template_file_name: str) -> str:
     return os.path.join(
-        bus_name.lower() + "_" + template_file_name.removesuffix(".jninja2")
+        output_dir, bus_name.lower() + "_" + template_file_name.removesuffix(".jninja2")
     )
 
-
-def _generate_code(bus: Bus):
+def _generate_code(bus: Bus, output_dir: str):
     """
     Parses DBC files, extracts information, and generates code using Jinja2
     templates.
@@ -213,8 +212,8 @@ def _generate_code(bus: Bus):
         template = env.get_template(template_file_name)
         rendered_code = template.render(**context)
 
-        output_file_name = _create_output_file_name(bus.bus_name, template_file_name)
-        with open(_create_output_file_name, "w") as output_file:
+        output_file_name = _create_output_file_name(output_dir, bus.bus_name, template_file_name)
+        with open(output_file_name, "w") as output_file:
             output_file.write(rendered_code)
         logger.info(f"Rendered code written to '{os.path.abspath(output_file_name)}'")
 
@@ -243,6 +242,5 @@ def generate_can_for_project(project_folder_name: str):
 
     _prepare_output_directory(config.output_dir)
 
-    os.chdir(config.output_dir)
     for bus in config.busses:
-        _generate_code(bus)
+        _generate_code(bus, config.output_dir)
