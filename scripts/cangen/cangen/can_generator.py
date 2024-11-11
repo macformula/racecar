@@ -245,4 +245,4 @@ def generate_can_for_project(project_folder_name: str):
 
     os.chdir(config.output_dir)
     for bus in config.busses:
-        _generate_code(bus, config)
+        _generate_code(bus)
