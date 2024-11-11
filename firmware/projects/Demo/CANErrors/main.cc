@@ -21,24 +21,25 @@ int main(void) {
     uint32_t tick_duration = 100;
 
     // Initialize the error object that sets/sends each error
-    ErrorHandler error_msg{};
+    ErrorHandler error_message{};
 
     while (true) {
         error_can_bus.Update();
 
         // Test #1: Iterate through each error, setting it and sending it
-        for (int i = 0; i < 63; i++) {
-            error_msg.setError(i);
-            error_msg.sendError(error_can_bus);
+        for (int i = 0; i < 64; i++) {
+            Error error = static_cast<Error>(i);
+            error_message.setError(error);
+            error_message.sendError(error_can_bus);
         }
 
         // Test #2: Set random errors using the enum
-        error_msg.setError(Error0);
-        error_msg.setError(Error5);
-        error_msg.setError(Error10);
-        error_msg.setError(Error15);
-        error_msg.setError(Error20);
-        error_msg.sendError(error_can_bus);
+        error_message.setError(Error0);
+        error_message.setError(Error5);
+        error_message.setError(Error10);
+        error_message.setError(Error15);
+        error_message.setError(Error20);
+        error_message.sendError(error_can_bus);
 
         // Wait for 100ms before repeating the process
         bindings::TickBlocking(tick_duration);

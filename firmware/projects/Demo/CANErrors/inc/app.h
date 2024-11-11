@@ -11,36 +11,6 @@
     App-level objects
 ***************************************************************/
 
-// Interface to set/send all possible errors for the system
-class ErrorHandler {
-    private:
-        // Object that holds a 64 bit int, each bit representing an error
-        generated::can::TMS_ERROR error_msg{};
-    public:
-        // Sets the error based on the error index given
-        void setError(uint32_t error) {
-            if (error < 0 || error > 63) {
-                std::cerr << "Error index must be between 0 and 63!" << std::endl;
-                return;
-            }
-
-            error_msg.errors |= (1ULL << error);
-        }
-
-        // Sends the error message through the provided CAN bus
-        void sendError(shared::can::CanBus error_can_bus) {
-            error_can_bus.Send(error_msg);
-
-            // Reset after a send to not send duplicate errors
-            resetError();
-        }
-
-        // Resets all errors back to untriggered
-        void resetError() {
-            error_msg.errors = 0;
-        }
-};
-
 // Defines all possible errors to set
 enum Error {
     Error0 = 0,
@@ -107,4 +77,34 @@ enum Error {
     Error61 = 61,
     Error62 = 62,
     Error63 = 63
+};
+
+// Interface to set/send all possible errors for the system
+class ErrorHandler {
+    private:
+        // Object that holds a 64 bit int, each bit representing an error
+        generated::can::TMS_ERROR error_message{};
+
+        // Resets all errors back to untriggered
+        void resetError() {
+            error_message.errors = 0;
+        }
+    public:
+        // Sets the error based on the error index given
+        void setError(Error error) {
+            if (error < 0 || error > 63) {
+                std::cerr << "Error index must be between 0 and 63!" << std::endl;
+                return;
+            }
+
+            error_message.errors |= (1ULL << error);
+        }
+
+        // Sends the error message through the provided CAN bus
+        void sendError(shared::can::CanBus error_can_bus) {
+            error_can_bus.Send(error_message);
+
+            // Reset after a send to not send duplicate errors
+            resetError();
+        }
 };
