@@ -169,7 +169,9 @@ def _camel_to_snake(text):
 
 
 def _create_output_file_name(bus_name: str, template_file_name: str) -> str:
-    return os.path.join(bus_name.lower() + "_" + template_file_name.removesuffix(".jninja2"))
+    return os.path.join(
+        bus_name.lower() + "_" + template_file_name.removesuffix(".jninja2")
+    )
 
 
 def _generate_code(bus: Bus):
@@ -210,8 +212,6 @@ def _generate_code(bus: Bus):
     for template_file_name in TEMPLATE_FILE_NAMES:
         template = env.get_template(template_file_name)
         rendered_code = template.render(**context)
-
-        
 
         output_file_name = _create_output_file_name(bus.bus_name, template_file_name)
         with open(_create_output_file_name, "w") as output_file:
