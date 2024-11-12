@@ -475,7 +475,7 @@ func (m model) View() string {
 	if m.submenuActive && m.submenuTable.SelectedRow() != nil{
 		m.box.SetText(m.submenuTable.SelectedRow()[0], "temp description for " + m.submenuTable.SelectedRow()[0])
 		out = out + m.box.View()
-	} else if m.table.SelectedRow() != nil{
+	} else if m.table.SelectedRow() != nil && !m.submenuActive{
 		m.box.SetText(m.table.SelectedRow()[0], "temp description for " + m.table.SelectedRow()[0])
 		out = out + m.box.View()
 	}
