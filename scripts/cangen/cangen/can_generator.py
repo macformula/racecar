@@ -22,11 +22,8 @@ logger = logging.getLogger(__name__)
 EIGHT_BITS = 8
 EIGHT_BYTES = 8
 TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
-MSG_REGISTRY_FILE_NAME = "_msg_registry.h"
-CAN_MESSAGES_FILE_NAME = "_can_messages.h"
 
-CAN_MESSAGES_TEMPLATE_FILENAME = "can_messages.h.jinja2"
-MSG_REGISTRY_TEMPLATE_FILENAME = "msg_registry.h.jinja2"
+TEMPLATE_FILE_NAMES = ["can_messages.h.jinja2", "msg_registry.h.jinja2"]
 
 
 def _parse_dbc_files(dbc_file: str) -> Database:
@@ -171,29 +168,12 @@ def _camel_to_snake(text):
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
-def _generate_from_jinja2_template(
-    template_path: str, output_path: str, context_dict: dict
-):
-    # Create the environment with trim_blocks and lstrip_blocks settings
-    env = Environment(
-        loader=PackageLoader("cangen"), trim_blocks=True, lstrip_blocks=True
+def _create_output_file_name(output_dir: str, bus_name: str, template_file_name: str) -> str:
+    return os.path.join(
+        output_dir, bus_name.lower() + "_" + template_file_name.removesuffix(".jinja2")
     )
 
-    # Register the camel_to_snake filter
-    env.filters["camel_to_snake"] = _camel_to_snake
-    env.filters["decimal_to_hex"] = hex
-
-    # Load and render template
-    template = env.get_template(template_path)
-    rendered_code = template.render(**context_dict)
-
-    with open(output_path, "w") as output_file:
-        output_file.write(rendered_code)
-
-    logger.info(f"Rendered code written to '{os.path.abspath(output_path)}'")
-
-
-def generate_code(bus: Bus, config: Config):
+def _generate_code(bus: Bus, output_dir: str):
     """
     Parses DBC files, extracts information, and generates code using Jinja2
     templates.
@@ -220,27 +200,33 @@ def generate_code(bus: Bus, config: Config):
         "bus_name": bus.bus_name,
     }
 
-    logger.debug("Generating code for can messages")
-    _generate_from_jinja2_template(
-        CAN_MESSAGES_TEMPLATE_FILENAME,
-        os.path.join(config.output_dir, bus.bus_name.lower() + CAN_MESSAGES_FILE_NAME),
-        context,
+    logger.debug("Generating code for can messages and msg registry.")
+
+    env = Environment(
+        loader=PackageLoader(__package__), trim_blocks=True, lstrip_blocks=True
     )
+    env.filters["decimal_to_hex"] = hex
+    env.filters["camel_to_snake"] = _camel_to_snake
 
-    logger.debug("Generating code for msg registry")
-    _generate_from_jinja2_template(
-        MSG_REGISTRY_TEMPLATE_FILENAME,
-        os.path.join(config.output_dir, bus.bus_name.lower() + MSG_REGISTRY_FILE_NAME),
-        context,
-    )
+    for template_file_name in TEMPLATE_FILE_NAMES:
+        template = env.get_template(template_file_name)
+        rendered_code = template.render(**context)
 
-    logger.info("Code generation complete")
+        output_file_name = _create_output_file_name(output_dir, bus.bus_name, template_file_name)
+        with open(output_file_name, "w") as output_file:
+            output_file.write(rendered_code)
+        logger.info(f"Rendered code written to '{os.path.abspath(output_file_name)}'")
+
+        logger.info("Code generation complete")
 
 
-def _prepare_output_directory(output_dir):
+def _prepare_output_directory(output_dir: str):
     """Deletes previously generated files and creates a gitignore for the directory"""
     if os.path.exists(output_dir):
+        logger.info("Deleting previously generated code")
         shutil.rmtree(output_dir)
+
+    logger.info("Creating generated/can folder")
     os.makedirs(output_dir, exist_ok=True)
 
     gitignore_path = os.path.join(output_dir, ".gitignore")
@@ -248,11 +234,13 @@ def _prepare_output_directory(output_dir):
         f.write("*")
 
 
-def generate_can_from_dbc(project_folder_name: str):
+def generate_can_for_project(project_folder_name: str):
+    """Generates C code for a given project.
+    Ensure the project folder contains a config.yaml file which specifies the relative path to its corresponding dbc file."""
     os.chdir(project_folder_name)
     config = Config.from_yaml("config.yaml")
 
     _prepare_output_directory(config.output_dir)
 
     for bus in config.busses:
-        generate_code(bus, config)
+        _generate_code(bus, config.output_dir)
