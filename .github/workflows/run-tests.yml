@@ -1,38 +1,34 @@
-# name: Run tests
-# on: 
-#   push:
-# jobs:
-#   test-job:
-#     runs-on: windows-latest
-#     steps:
-#       - uses: actions/checkout@v4
-#       - name: Build Project
-#         shell: pwsh
-#         run: |
-#           Write-Host "Building..."
-#       - name: Test Project
-#         shell: pwsh
-#         run: |
-#           Write-Host "Testing..."
-
-name: Build and Test Project
+name: Build and Test Projects
 on:
   push:
 jobs:
   build:
     runs-on: windows-latest
 
+    strategy:
+      matrix:
+        project:
+          - Demo/Blink
+          - Demo/BasicIO
+          - Demo/AnalogPWM
+          - Demo/CAN
+          - Demo/Mapper
+          - Demo/RTOS
+        platform: cli  # Can add more platforms here if required
+
+    name: Build and Test ${{ matrix.project }} on ${{ matrix.platform }}
+
     steps:
     - uses: actions/checkout@v4
 
-    - name: Build
+    - name: Build Project
       shell: bash
       run: |
         cd firmware
-        make PROJECT=Demo/Blink PLATFORM=cli build
+        make PROJECT=${{ matrix.project }} PLATFORM=${{ matrix.platform }} build
 
-    - name: Test
+    - name: Test Project
       shell: bash
       run: |
         cd firmware
-        make PROJECT=Demo/Blink PLATFORM=cli test
+        make PROJECT=${{ matrix.project }} PLATFORM=${{ matrix.platform }} test
