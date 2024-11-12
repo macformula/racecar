@@ -6,4 +6,4 @@ BU_: TMS
 
 // Defines one 64 bit signal where each bit represents a different error
 BO_ 390 TMS_ERROR: 8 TMS
-    SG_ Errors : 0|64@1- (1,0) [0|0] "bitfield" Vector__XXX
+    SG_ Errors : 0|64@1+ (1,0) [0|0] "bitfield" Vector__XXX
