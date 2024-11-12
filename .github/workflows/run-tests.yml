@@ -34,17 +34,18 @@ jobs:
       run: |
         cd firmware
         make PROJECT=${{ matrix.project }} PLATFORM=${{ matrix.platform }} test
+    
+    # - name: Set Artifact Name
+    #   shell: bash
+    #   env:
+    #     PROJECT_NAME: ${{ matrix.project }}
+    #   run: |
+    #     ARTIFACT_NAME="${PROJECT_NAME//\//-}"
+    #     echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
 
-    - name: Set Artifact Name
-      shell: bash
-      env:
-        PROJECT_NAME: ${{ matrix.project }}
-      run: |
-        ARTIFACT_NAME="${PROJECT_NAME//\//-}"
-        echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
-
-    - name: Upload Test Results
-      uses: actions/upload-artifact@v3
-      with:
-        name: ctest-results-${{ env.ARTIFACT_NAME }}-${{ matrix.platform }}
-        path: firmware/build/${{ matrix.project }}/${{ matrix.platform }}/Testing/Temporary
+    # - name: Upload Test Results
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: ctest-results-${{ env.ARTIFACT_NAME }}-${{ matrix.platform }}
+    #     path: firmware/build/${{ matrix.project }}/${{ matrix.platform }}/Testing/Temporary
+    
