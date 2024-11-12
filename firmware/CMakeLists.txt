@@ -101,6 +101,9 @@ assert_exists(FILE PATH ${TOOLCHAIN_FILE}
 list(POP_BACK CMAKE_MESSAGE_INDENT)
 message(CHECK_PASS "Success")
 
+# Enable testing
+enable_testing()
+
 # Options are parsed. Start building
 message(STATUS "Building \"${PROJECT}\" for \"${PLATFORM}\" with mcal \"${MCAL}\".")
 
@@ -121,6 +124,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
 
 add_executable(main)
+add_executable(test_program)
+
 add_library(bindings)
 
 add_subdirectory(shared) # provides "shared" (library)
@@ -132,11 +137,15 @@ add_subdirectory(${DIR_PLATFORM}) # modifies "bindings" (library)
 target_link_libraries(main PRIVATE shared)
 target_link_libraries(main PRIVATE bindings)
 
+target_link_libraries(test_program PRIVATE shared)
+target_link_libraries(test_program PRIVATE bindings)
+
 # Only link/include RTOS if the project supports RTOS
 # The project needs to provide an underlying OS target
 # in the platform/${PLATFORM_NAME}/CMakeLists.txt
 if(TARGET os)
     target_link_libraries(main PRIVATE os)
+    target_link_libraries(test_program PRIVATE os)
 endif()
 
 include("${POSTBUILD_FILE}")

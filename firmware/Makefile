@@ -50,3 +50,6 @@ debug-openocd:
 
 debug-gdb:
 	arm-none-eabi-gdb "$(BUILD_DIR)/main.elf" -ex "target extended-remote localhost:3333" -ex "load"
+
+test:
+	cd $(BUILD_DIR) && ctest

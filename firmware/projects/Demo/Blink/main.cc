@@ -1,5 +1,10 @@
 #include "bindings.h"
 
+int add(int a, int b) {
+    return a + b;
+}
+
+#ifdef MAIN_PROGRAM
 int main() {
     bindings::Initialize();
 
@@ -12,3 +17,4 @@ int main() {
 
     return 0;
 }
+#endif
