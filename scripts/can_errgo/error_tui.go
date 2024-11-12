@@ -37,6 +37,7 @@ func deepCopy(rows []table.Row) []table.Row {
     return newRows
 }
 
+// Converts a 8-byte slice to a uint64, this is for masking purposes.
 func bytesToUint64(b []byte) uint64 {
     var result uint64
     for i := 0; i < len(b) && i < 8; i++ {
@@ -56,24 +57,30 @@ type CANMsg struct {
 	Value uint64
 }
 
+// Empty type for the tick message
 type TickMsg struct{}
 
 type model struct {
+	// Main table
     table        table.Model
 	tableKeys	 KeyMap	
 
+	// Submenu table
 	submenuTable  table.Model
 	submenuActive bool
 	submenuKeys   KeyMap
 
+	// Hidden error counts and error to bit mapping
     hiddenCounts map[string]int
     errorToBit   map[string]int
     ignoreMask   uint64
 
+	// Timeout flag and last CAN message time
 	isTimeout   bool
 	lastCANTime time.Time
 	t           time.Duration
 
+	// Box for displaying error descriptions
 	box box.Box
 	showBox bool
 }
@@ -117,6 +124,7 @@ func findRow(s []table.Row, e table.Row) int {
     return -1
 }
 
+// Find the index of a row with a specific error name.
 func findRowString(s []table.Row, e string) int {
     for i, a := range s {
         if a[0] == e {
@@ -126,6 +134,7 @@ func findRowString(s []table.Row, e string) int {
     return -1
 }
 
+// Check if the cursor is over bounds
 func overBounds(table table.Model) bool{
 	return len(table.Rows())==0 || table.Cursor() < 0 || table.Cursor() >= len(table.Rows()) 
 }
@@ -142,6 +151,7 @@ func (m *model) re_fresh(){
 	}
 }
 
+// Sort the table by the specified column index.
 func (m *model) SortByColumn(columnIndex int) error {
     rows := m.table.Rows()
     // Check if sorting should adjust cursor position (In the odd case that no cursor is set, we don't want to run into a panic)
@@ -197,6 +207,8 @@ func (m *model) SortByColumn(columnIndex int) error {
 
 func (m model) Init() tea.Cmd { return tickEvery(m.t) }
 
+
+// Table and ignore subtable update loop.
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
@@ -205,32 +217,22 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// If submenu is active, only let the submenu handle KeyMsg
 			switch msg.String() {
 			case "up":
-				if overBounds(m.submenuTable){
-					m.table.SetCursor(0)
-					return m, nil
-				}
 				m.submenuTable.MoveUp(1)			
 				return m,nil	
 			case "down":
-				if overBounds(m.submenuTable){
-					m.table.SetCursor(0)
-					return m, nil
-				}	
 				m.submenuTable.MoveDown(1)		
 				return m,nil			
 			case "i":
-				if overBounds(m.submenuTable){
-					m.table.SetCursor(0)
-					return m, nil
-				}
-				
 				if m.submenuTable.SelectedRow() == nil{
 					return m, nil
 				}
 				
+				// Toggle the mask for the selected error and delete the row. 
 				m.ignoreMask = toggleBit(m.ignoreMask, m.errorToBit[m.submenuTable.SelectedRow()[0]])
 				newRows := deleteElementRow(m.submenuTable.Rows(), m.submenuTable.Cursor())
 				m.submenuTable.SetRows(newRows)
+
+				// May be unnecessary, but just in case we update the cursor.
 				if m.submenuTable.Cursor() == 0{
 					m.submenuTable.MoveDown(1)
 				}else{
@@ -239,16 +241,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case "s":
 				m.submenuActive = false  // Hide submenu
-				m.table.Focus()  
-				m.submenuTable.Blur() 
-				m.table.SetShowCursor(true)
+				m.table.Focus()  // Refocus the main table
+				m.submenuTable.Blur() // Unfocus the submenu
+				m.table.SetShowCursor(true) // Reshow the cursor on the main table
 
-				if m.table.SelectedRow() == nil{
-					m.table.SetCursor(0)
-					return m, nil
-				}
 				return m, nil
-		
+	
 			case "q", "ctrl+c":
 				return m, tea.Quit
 			}
@@ -267,21 +265,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "q", "ctrl+c":
 			return m, tea.Quit
-		case "a":
-
-			if overBounds(m.table){
-				m.table.SetCursor(0)
-				return m, nil
-			}
+		case "a":	
 			
+			// Prevent panic if no row is selected
 			if m.table.SelectedRow() == nil{
-				m.table.SetCursor(0)
+				m.table.SetCursorAndViewport(0)
 				return m, nil
 			}
 
+			// Remove the row and reset its count.
 			m.hiddenCounts[m.table.SelectedRow()[0]] = 0
 			newRows := deleteElementRow(m.table.Rows(), m.table.Cursor())
 			m.table.SetRows(newRows)
+
+			// May be unnecessary, but just in case we update the cursor.
 			if m.table.Cursor() == 0{
 				m.table.MoveDown(1)
 			}else{
@@ -289,25 +286,25 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		case "i":
-			
-			if overBounds(m.table){
-				m.table.SetCursor(0)
-				return m, nil
-			}
-            
+
+			// Prevent panic if no row is selected
 			if m.table.SelectedRow() == nil{
-				m.table.SetCursor(0)
+				m.table.SetCursorAndViewport(0)
 				return m, nil
 			}
-			
+
+			// Toggle the mask for the selected error and move it to the ignore menu.
 			m.ignoreMask = toggleBit(m.ignoreMask, m.errorToBit[m.table.SelectedRow()[0]] )
 			newSubRow := append(m.submenuTable.Rows(), table.Row{m.table.SelectedRow()[0]})
 			m.submenuTable.SetRows(newSubRow)
 			m.submenuTable.UpdateViewport()
 
+			// Remove the row from the main table and reset its count.
 			m.hiddenCounts[m.table.SelectedRow()[0]] = 0
 			newRows := deleteElementRow(m.table.Rows(), m.table.Cursor())
 			m.table.SetRows(newRows)
+
+			// May be unnecessary, but just in case we update the cursor.
 			m.table.MoveDown(1)
 
 			return m, nil
@@ -323,41 +320,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
                 m.submenuTable.Focus()
 				m.table.SetShowCursor(false)
             }
-			if len(m.submenuTable.Rows()) > 0{
-				m.submenuTable.SetCursor(0)
-			}
 		case "up":
-			if overBounds(m.table){
-				m.table.SetCursor(0)
-				return m, nil
-			}		
-
-			if m.table.SelectedRow() == nil{
-				m.table.SetCursor(0)
-				return m, nil
-			}
-
 			m.table.MoveUp(1)
 			return m,nil	
 		case "down":
-			if overBounds(m.table){
-				m.table.SetCursor(0)
-				return m, nil
-			}			
-
-			if m.table.SelectedRow() == nil{
-				m.table.SetCursor(0)
-				return m, nil
-			}
-
 			m.table.MoveDown(1)
 			return m,nil			
 	}
 	case CANMsg:
+		// Reset the timeout flag and update the last CAN message time
 		m.lastCANTime = time.Now()
 		m.isTimeout = false
+		// Perform bitwise AND to filter out the bits that are not of interest
 		msg.Value = msg.Value & m.ignoreMask
+		// Update the freshness of the errors
 		m.re_fresh()
+
+
 		for k := 0; k < 64; k++ { // Iterate through all 64 bits
 			if msg.Value&(1<<k) != 0 { // Check if the k-th bit is set
 
@@ -372,7 +351,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.errorToBit["error" + errorNumberStr] = k
 				}
 
-
+				// If the error is not in the table, add it, otherwise update the count.
 				index := findRowString(m.table.Rows(),  "error" + errorNumberStr)
 				if index == -1{
 					newRow := append(m.table.Rows(), table.Row{ "error" + errorNumberStr, strconv.Itoa(m.hiddenCounts["error" + errorNumberStr]),"0"})
@@ -385,10 +364,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.table.SetRows(newRows)
 				}
 			}
+			
+			// Sort the table by the freshness.
 			m.SortByColumn(2)
 			m.table.UpdateViewport()
 		}
 		return m, nil
+	// If the message is a tick, check if the last CAN message was received more than the timeout duration ago
 	case TickMsg:
 		if time.Since(m.lastCANTime) > m.t {
 			m.isTimeout = true
@@ -396,6 +378,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tickEvery(m.t)
 	}
 
+	// Update the table with the new message
 	if _, ok := msg.(CANMsg); ok {
         // Update the mainTable regardless of submenu state
         m.table, cmd = m.table.Update(msg)
@@ -408,6 +391,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+// KeyMap is a set of keybindings for the application.
 type KeyMap struct {
 	a       key.Binding
 	i       key.Binding
@@ -530,11 +514,14 @@ func initViewer(warning int) model{
 	return m
 }
 
-func  createTable() table.Model{
+// Default setup for the main table
+func createTable() table.Model{
+
+	// True Width = 60 + 2(padding) * (# cols) = 66
 	columns := []table.Column{
 		{Title: "Error:", Width: 40},
 		{Title: "Count:", Width: 10},
-		{Title: "Freshness", Width: 10},
+		{Title: "Recency", Width: 10},
 
 	}
 	rows := []table.Row {}
@@ -544,6 +531,7 @@ func  createTable() table.Model{
 		table.WithColumns(columns),
 		table.WithRows(rows),
 		table.WithFocused(true),
+		// The header will take up 1 row. If we want N rows, we need to set the height to N+1
 		table.WithHeight(11),
 	)
 
@@ -563,6 +551,7 @@ func  createTable() table.Model{
 
 // Initialization of the submenu
 func createSubMenu() table.Model {
+	// Submenu has 1 column meaning it's true width is 60 + 2(padding) = 62, we need to account for the padding of the main table (66), so we add 4.
     columns := []table.Column{
         {Title: "Ignored Errors:", Width: 60 + 4} ,
     }
@@ -572,6 +561,7 @@ func createSubMenu() table.Model {
 		table.WithColumns(columns),
 		table.WithRows(rows),
 		table.WithFocused(true),
+		// The header will take up 1 row. If we want N rows, we need to set the height to N+1
 		table.WithHeight(5),
 	)
 
@@ -645,7 +635,7 @@ func main() {
 
 	var warning int
 	if *warnFlag == "" {
-		warning = 999 // Default value
+		warning = 5 // Default value
 	} else {
 		// Parse the value for the -w flag
 		var err error
@@ -657,9 +647,12 @@ func main() {
 		}
 	}
 
+	// Initialize the model and run the program
 	var m model = initViewer(warning)
+	// channel to listen for the quit signal
 	quit := make(chan struct{})
 
+	// Start the TUI
 	p := tea.NewProgram(m)
 	go func() {
 		if _, err := p.Run(); err != nil {
@@ -667,6 +660,7 @@ func main() {
 		}
 		close(quit)
 	}()
+	// Start the CAN listener
 	go can_listener(p)
 
 

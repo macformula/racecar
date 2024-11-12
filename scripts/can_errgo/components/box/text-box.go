@@ -1,4 +1,4 @@
-// component/box.go
+// Custom text-box component for rendering a box with a title and description, will dynamically wrap text to fit within the box width.
 package box
 
 import (
@@ -23,6 +23,7 @@ func (b *Box) SetText(title, description string) {
 	b.Description = description
 }
 
+// View renders the Box component
 func (b Box) View() string {
 	borderStyle := lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Padding(1, 2).BorderForeground(lipgloss.Color("57"))
 	titleStyle := lipgloss.NewStyle().Bold(true).Underline(true).Align(lipgloss.Center).Width(b.Width).MaxWidth(b.Width)
@@ -37,6 +38,7 @@ func (b Box) View() string {
 	return borderStyle.Width(b.Width).Height(boxHeight).Render(content)
 }
 
+// Function to wrap text to fit within the box width
 func (b Box) wrapText(text string) string {
 	var wrapped string
 	maxLineLength := b.Width - 4
