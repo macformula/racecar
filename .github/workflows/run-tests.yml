@@ -1,12 +1,38 @@
-name: Run tests
-on: 
+# name: Run tests
+# on: 
+#   push:
+# jobs:
+#   test-job:
+#     runs-on: windows-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#       - name: Build Project
+#         shell: pwsh
+#         run: |
+#           Write-Host "Building..."
+#       - name: Test Project
+#         shell: pwsh
+#         run: |
+#           Write-Host "Testing..."
+
+name: Build and Test Project
+on:
   push:
 jobs:
-  test-job:
+  build:
     runs-on: windows-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Print message
-        shell: pwsh
-        run: |
-          Write-Host "Hello, World!"
+    - uses: actions/checkout@v4
+
+    - name: Build
+      shell: bash
+      run: |
+        cd firmware
+        make PROJECT=Demo/Blink PLATFORM=cli build
+
+    - name: Test
+      shell: bash
+      run: |
+        cd firmware
+        make PROJECT=Demo/Blink PLATFORM=cli test
