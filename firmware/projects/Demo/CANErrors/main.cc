@@ -29,17 +29,17 @@ int main(void) {
         // Test #1: Iterate through each error, setting it and sending it
         for (int i = 0; i < 64; i++) {
             Error error = static_cast<Error>(i);
-            error_message.setError(error);
-            error_message.sendError(error_can_bus);
+            error_message.SetError(error);
+            error_message.SendError(error_can_bus);
         }
 
         // Test #2: Set random errors using the enum
-        error_message.setError(Error0);
-        error_message.setError(Error5);
-        error_message.setError(Error10);
-        error_message.setError(Error15);
-        error_message.setError(Error20);
-        error_message.sendError(error_can_bus);
+        error_message.SetError(Error::kError0);
+        error_message.SetError(Error::kError5);
+        error_message.SetError(Error::kError10);
+        error_message.SetError(Error::kError15);
+        error_message.SetError(Error::kError20);
+        error_message.SendError(error_can_bus);
 
         // Wait for 100ms before repeating the process
         bindings::TickBlocking(tick_duration);

@@ -12,99 +12,96 @@
 ***************************************************************/
 
 // Defines all possible errors to set
-enum Error {
-    Error0 = 0,
-    Error1 = 1,
-    Error2 = 2,
-    Error3 = 3,
-    Error4 = 4,
-    Error5 = 5,
-    Error6 = 6,
-    Error7 = 7,
-    Error8 = 8,
-    Error9 = 9,
-    Error10 = 10,
-    Error11 = 11,
-    Error12 = 12,
-    Error13 = 13,
-    Error14 = 14,
-    Error15 = 15,
-    Error16 = 16,
-    Error17 = 17,
-    Error18 = 18,
-    Error19 = 19,
-    Error20 = 20,
-    Error21 = 21,
-    Error22 = 22,
-    Error23 = 23,
-    Error24 = 24,
-    Error25 = 25,
-    Error26 = 26,
-    Error27 = 27,
-    Error28 = 28,
-    Error29 = 29,
-    Error30 = 30,
-    Error31 = 31,
-    Error32 = 32,
-    Error33 = 33,
-    Error34 = 34,
-    Error35 = 35,
-    Error36 = 36,
-    Error37 = 37,
-    Error38 = 38,
-    Error39 = 39,
-    Error40 = 40,
-    Error41 = 41,
-    Error42 = 42,
-    Error43 = 43,
-    Error44 = 44,
-    Error45 = 45,
-    Error46 = 46,
-    Error47 = 47,
-    Error48 = 48,
-    Error49 = 49,
-    Error50 = 50,
-    Error51 = 51,
-    Error52 = 52,
-    Error53 = 53,
-    Error54 = 54,
-    Error55 = 55,
-    Error56 = 56,
-    Error57 = 57,
-    Error58 = 58,
-    Error59 = 59,
-    Error60 = 60,
-    Error61 = 61,
-    Error62 = 62,
-    Error63 = 63
+enum class Error {
+    kError0 = 0,
+    kError1 = 1,
+    kError2 = 2,
+    kError3 = 3,
+    kError4 = 4,
+    kError5 = 5,
+    kError6 = 6,
+    kError7 = 7,
+    kError8 = 8,
+    kError9 = 9,
+    kError10 = 10,
+    kError11 = 11,
+    kError12 = 12,
+    kError13 = 13,
+    kError14 = 14,
+    kError15 = 15,
+    kError16 = 16,
+    kError17 = 17,
+    kError18 = 18,
+    kError19 = 19,
+    kError20 = 20,
+    kError21 = 21,
+    kError22 = 22,
+    kError23 = 23,
+    kError24 = 24,
+    kError25 = 25,
+    kError26 = 26,
+    kError27 = 27,
+    kError28 = 28,
+    kError29 = 29,
+    kError30 = 30,
+    kError31 = 31,
+    kError32 = 32,
+    kError33 = 33,
+    kError34 = 34,
+    kError35 = 35,
+    kError36 = 36,
+    kError37 = 37,
+    kError38 = 38,
+    kError39 = 39,
+    kError40 = 40,
+    kError41 = 41,
+    kError42 = 42,
+    kError43 = 43,
+    kError44 = 44,
+    kError45 = 45,
+    kError46 = 46,
+    kError47 = 47,
+    kError48 = 48,
+    kError49 = 49,
+    kError50 = 50,
+    kError51 = 51,
+    kError52 = 52,
+    kError53 = 53,
+    kError54 = 54,
+    kError55 = 55,
+    kError56 = 56,
+    kError57 = 57,
+    kError58 = 58,
+    kError59 = 59,
+    kError60 = 60,
+    kError61 = 61,
+    kError62 = 62,
+    kError63 = 63
 };
 
 // Interface to set/send all possible errors for the system
 class ErrorHandler {
-    private:
-        // Object that holds a 64 bit int, each bit representing an error
-        generated::can::TMS_ERROR error_message{};
-
-        // Resets all errors back to untriggered
-        void resetError() {
-            error_message.errors = 0;
-        }
     public:
         // Sets the error based on the error index given
-        void setError(Error error) {
-            if (error < 0 || error > 63) {
-                std::cerr << "Error index must be between 0 and 63!" << std::endl;
-                return;
-            }
-
-            error_message.errors |= (1ULL << error);
+        void SetError(Error error) {
+            uint64_t error_index = static_cast<uint64_t>(error);
+            error_message_.errors |= (1ULL << error_index);
         }
 
         // Sends the error message through the provided CAN bus
-        void sendError(shared::can::CanBus error_can_bus) {
-            error_can_bus.Send(error_message);
+        // TODO: Error message is only for a specific bus, change this when autogen code is created
+        void SendError(shared::can::CanBus error_can_bus) {
+            error_can_bus.Send(error_message_);
 
             // Reset after a send to not send duplicate errors
-            resetError();
+            ResetError();
+        }
+    private:
+        // Object that holds a 64 bit int, each bit representing an error
+        generated::can::TMS_ERROR error_message_{};
+
+        // Resets all errors back to untriggered
+        void ResetError() {
+            error_message_.errors = 0;
         }
 };
