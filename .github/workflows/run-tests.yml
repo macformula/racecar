@@ -1,12 +1,12 @@
-# On push, run tests
 name: Run tests
-on: [push]
+on: 
+  push:
 jobs:
   test-job:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - name: Print message
-      shell: pwsh
-      run: |
-        Write-Host "Hello, World!"
+        shell: pwsh
+        run: |
+          Write-Host "Hello, World!"
