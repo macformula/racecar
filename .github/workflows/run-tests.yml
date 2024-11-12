@@ -4,7 +4,7 @@ on:
   push:
 
 jobs:
-  build:
+  test-build:
     runs-on: windows-latest
 
     strategy:
@@ -17,39 +17,20 @@ jobs:
         platform:
           - cli
 
-    name: Build ${{ matrix.project }} on ${{ matrix.platform }}
+    name: Build and Test ${{ matrix.project }} on ${{ matrix.platform }}
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Build Project ${{ matrix.project }}
+    - name: Build Project
       shell: bash
       run: |
         cd firmware
         make PROJECT=${{ matrix.project }} PLATFORM=${{ matrix.platform }} build
-      continue-on-error: true
 
-  test:
-    runs-on: windows-latest
-    needs: build
-    strategy:
-      matrix:
-        project:
-          - Demo/Blink
-          - Demo/BasicIO
-          - Demo/AnalogPWM
-          - Demo/Mapper
-        platform:
-          - cli
-
-    name: Test ${{ matrix.project }} on ${{ matrix.platform }}
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Test Project ${{ matrix.project }}
+    - name: Test Project
       shell: bash
       run: |
         cd firmware
         make PROJECT=${{ matrix.project }} PLATFORM=${{ matrix.platform }} test
-      continue-on-error: true
+        
