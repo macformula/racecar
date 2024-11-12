@@ -38,5 +38,5 @@ jobs:
     - name: Upload Test Results
       uses: actions/upload-artifact@v3
       with:
-        name: ctest-results-${{ matrix.project | replace('/', '-') }}-${{ matrix.platform }}
+        name: ctest-results-Demo-Blink-${{ matrix.platform }}
         path: firmware/build/${{ matrix.project }}/${{ matrix.platform }}/Testing/Temporary
