@@ -170,7 +170,7 @@ def _camel_to_snake(text):
 
 def _create_output_file_name(output_dir: str, bus_name: str, template_file_name: str) -> str:
     return os.path.join(
-        output_dir, bus_name.lower() + "_" + template_file_name.removesuffix(".jninja2")
+        output_dir, bus_name.lower() + "_" + template_file_name.removesuffix(".jinja2")
     )
 
 def _generate_code(bus: Bus, output_dir: str):
