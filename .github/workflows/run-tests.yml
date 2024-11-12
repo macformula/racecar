@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
 
     strategy:
-      fail-fast: false
+      fail-fast: false # Do not stop all jobs if one fails
       matrix:
         project:
           - Demo/Blink
@@ -34,3 +34,9 @@ jobs:
       run: |
         cd firmware
         make PROJECT=${{ matrix.project }} PLATFORM=${{ matrix.platform }} test
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: ctest-results-${{ matrix.project }}-${{ matrix.platform }}
+        path: firmware/build/${{ matrix.project }}/${{ matrix.platform }}/Testing/Temporary
