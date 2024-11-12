@@ -8,6 +8,7 @@ jobs:
     runs-on: windows-latest
 
     strategy:
+      fail-fast: false
       matrix:
         project:
           - Demo/Blink
@@ -33,4 +34,3 @@ jobs:
       run: |
         cd firmware
         make PROJECT=${{ matrix.project }} PLATFORM=${{ matrix.platform }} test
-        
