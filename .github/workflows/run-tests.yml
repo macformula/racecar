@@ -14,7 +14,8 @@ jobs:
           - Demo/CAN
           - Demo/Mapper
           - Demo/RTOS
-        platform: cli  # Can add more platforms here if required
+        platform:
+          - cli
 
     name: Build and Test ${{ matrix.project }} on ${{ matrix.platform }}
 
