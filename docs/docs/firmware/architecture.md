@@ -1,5 +1,8 @@
 # Architecture
 
+![Architecture Organization](../assets/architecture-chart.svg)
+*A strategic organization of our firmware architecture, illustrating the powerful interplay between platform-specific and project-specific components.*
+
 Our firmware is separated in 2 layers: application and platform.
 
 The __application__ (app) layer describes the __what the project does__ at a high level. This includes:
