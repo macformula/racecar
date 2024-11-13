@@ -35,44 +35,59 @@
     <text x="20" y="150" text-anchor="middle" font-size="16" transform="rotate(-90,20,150)">Platform Specific</text>
     <text x="20" y="450" text-anchor="middle" font-size="16" transform="rotate(-90,20,450)">Non-Platform Specific</text>
 
+    <!-- Add style for underlined text -->
+    <style>
+        .underline {
+            text-decoration: underline;
+        }
+    </style>
+
+    <!-- Add style for background boxes -->
+    <style>
+        .bg-box {
+            fill: #f0f0f0;
+        }
+    </style>
+
     <!-- Quadrant content -->
     <!-- Q1: Top Left -->
     <text x="200" y="150" text-anchor="middle" font-size="18" font-weight="bold">MCAL</text>
     <g transform="translate(200,180)">
-        <rect x="-120" y="-15" width="240" height="20" fill="#f0f0f0" rx="5" />
-        <text text-anchor="middle" font-size="14">
-            <tspan font-style="italic">e.g.</tspan>
-            <tspan dx="5">mcal/periph/stm32f767/gpio.h</tspan>
-        </text>
+        <text text-anchor="middle" font-size="14">Example Path:</text>
+        <g transform="translate(0,20)">
+            <rect x="-105" y="-15" width="210" height="20" fill="#f0f0f0" rx="5" />
+            <text text-anchor="middle" font-size="14" font-style="italic">mcal/periph/stm32f767/gpio.h</text>
+        </g>
     </g>
 
     <!-- Q2: Top Right -->
     <text x="600" y="150" text-anchor="middle" font-size="18" font-weight="bold">Bindings</text>
     <g transform="translate(600,180)">
-        <rect x="-160" y="-15" width="320" height="20" fill="#f0f0f0" rx="5" />
-        <text text-anchor="middle" font-size="14">
-            <tspan font-style="italic">e.g.</tspan>
-            <tspan dx="5">projects/Demo/Blink/platforms/stm32f767/bindings.cc</tspan>
-        </text>
+        <text text-anchor="middle" font-size="14">Example Path:</text>
+        <g transform="translate(0,20)">
+            <rect x="-180" y="-15" width="360" height="20" fill="#f0f0f0" rx="5" />
+            <text text-anchor="middle" font-size="14"
+                font-style="italic">projects/Demo/Blink/platforms/stm32f767/bindings.cc</text>
+        </g>
     </g>
 
     <!-- Q3: Bottom Left -->
     <text x="200" y="450" text-anchor="middle" font-size="18" font-weight="bold">Shared</text>
     <g transform="translate(200,480)">
-        <rect x="-100" y="-15" width="200" height="20" fill="#f0f0f0" rx="5" />
-        <text text-anchor="middle" font-size="14">
-            <tspan font-style="italic">e.g.</tspan>
-            <tspan dx="5">shared/periph/gpio.h</tspan>
-        </text>
+        <text text-anchor="middle" font-size="14">Example Path:</text>
+        <g transform="translate(0,20)">
+            <rect x="-75" y="-15" width="150" height="20" fill="#f0f0f0" rx="5" />
+            <text text-anchor="middle" font-size="14" font-style="italic">shared/periph/gpio.h</text>
+        </g>
     </g>
 
     <!-- Q4: Bottom Right -->
     <text x="600" y="450" text-anchor="middle" font-size="18" font-weight="bold">App</text>
     <g transform="translate(600,480)">
-        <rect x="-120" y="-15" width="240" height="20" fill="#f0f0f0" rx="5" />
-        <text text-anchor="middle" font-size="14">
-            <tspan font-style="italic">e.g.</tspan>
-            <tspan dx="5">projects/Demo/Blink/main.cc</tspan>
-        </text>
+        <text text-anchor="middle" font-size="14">Example Path:</text>
+        <g transform="translate(0,20)">
+            <rect x="-100" y="-15" width="200" height="20" fill="#f0f0f0" rx="5" />
+            <text text-anchor="middle" font-size="14" font-style="italic">projects/Demo/Blink/main.cc</text>
+        </g>
     </g>
 </svg>
