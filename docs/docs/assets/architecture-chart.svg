@@ -52,7 +52,7 @@
         <rect x="-160" y="-15" width="320" height="20" fill="#f0f0f0" rx="5" />
         <text text-anchor="middle" font-size="14">
             <tspan font-style="italic">e.g.</tspan>
-            <tspan dx="5">projects/Demo/Blink/platforms/stm32f767/</tspan>
+            <tspan dx="5">projects/Demo/Blink/platforms/stm32f767/bindings.cc</tspan>
         </text>
     </g>
 
