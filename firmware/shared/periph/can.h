@@ -5,7 +5,6 @@
 
 #include <cstdint>
 
-// #include "shared/comms/can/bus.h"
 #include "shared/comms/can/msg.h"
 #include "shared/util/peripheral.h"
 
