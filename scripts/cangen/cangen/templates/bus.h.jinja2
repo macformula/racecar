@@ -20,15 +20,16 @@ class {{ bus }} : public shared::can::Bus {
 public:
     {{ bus }}(shared::periph::CanBase& can_base) : shared::can::Bus(can_base) {}
 
-    // Define the Getter and Popper for each message type.
     {% for msg in rx_msgs %}
     {% set msg_title = "Rx"+msg.name %}
 
+    // Get the latest message of type {{msg_title}}
     auto Get{{msg_title}}() -> std::optional<{{msg_title}}> {
         etl::lock_guard<etl::mutex> lock(msg_guard_);
         return {{ msg.name | camel_to_snake }}_msg_;
     }
 
+    // Get the latest message of type {{msg_title}} and clear it
     auto Pop{{msg_title}}() -> std::optional<{{msg_title}}> {
         etl::lock_guard<etl::mutex> lock(msg_guard_);
         auto temp = {{ msg.name | camel_to_snake }}_msg_;
@@ -60,8 +61,6 @@ private:
 
     friend class Base;
 };
-
-
 
 } // namespace generated::can
 
