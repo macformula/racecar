@@ -14,10 +14,10 @@ public:
     CanBase(std::string can_iface);
 
     void Setup();
-    void Send(const shared::can::RawMessage&);
+    void Send(const shared::can::RawMessage&) override;
 
 private:
-    uint32_t GetTimestamp() const;
+    uint32_t GetTimestamp() const override;
 
     struct vcan::VcanSocket socket_;
 

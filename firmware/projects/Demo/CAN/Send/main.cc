@@ -11,14 +11,22 @@ using namespace generated::can;
 
 DemobusBus can_bus{bindings::veh_can_base};
 
+typedef struct {
+    int a;
+    int b;
+} stri;
+
 int main(void) {
+    stri o{1};
+
     bindings::Initialize();
     uint32_t interval_ms = 50;
 
     while (true) {
-        TxButtonStatus btn_msg{bindings::button.Read()};
-
-        can_bus.Send(btn_msg);
+        TxButtonStatus msg{
+            .state = bindings::button.Read(),
+        };
+        can_bus.Send(msg.pack());
         bindings::TickBlocking(interval_ms);
     }
 

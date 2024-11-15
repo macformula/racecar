@@ -23,7 +23,7 @@ EIGHT_BITS = 8
 EIGHT_BYTES = 8
 TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
 
-TEMPLATE_FILE_NAMES = ["can_messages.h.jinja2", "msg_registry.h.jinja2"]
+TEMPLATE_FILE_NAMES =["messages.h.jinja2", "bus.h.jinja2"]
 
 
 def _parse_dbc_files(dbc_file: str) -> Database:

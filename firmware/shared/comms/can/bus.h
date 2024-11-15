@@ -12,8 +12,7 @@ class Bus {
 public:
     Bus(periph::CanBase& can_base);
 
-    template <TxMessage T>
-    void Send(T msg);
+    void Send(RawMessage msg);
 
 private:
     periph::CanBase& can_base_;
@@ -21,14 +20,5 @@ private:
     virtual void AddMessage(const RawMessage& msg, uint32_t timestamp) = 0;
     friend class shared::periph::CanBase;
 };
-
-/**
- * @brief Relay the message to the base.
- * @note This is a template method so it must be defined in the header.
- */
-template <TxMessage T>
-void Bus::Send(T msg) {
-    can_base_.Send(msg.encode());
-}
 
 }  // namespace shared::can

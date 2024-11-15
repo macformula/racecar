@@ -8,6 +8,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <chrono>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -33,7 +34,10 @@ private:
     std::string iface_;
 
     uint32_t GetTimestamp() const override {
-        return 0;
+        using namespace std::chrono;
+        auto t = system_clock::now().time_since_epoch();
+        auto ms = duration_cast<milliseconds>(t).count();
+        return ms;
     }
 };
 

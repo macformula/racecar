@@ -17,15 +17,6 @@ struct RawMessage {
     uint8_t data[8];
 };
 
-// TxMessage concept is required by Bus.Send()
-template <typename T>
-concept TxMessage = requires(const T msg) {
-    { msg.encode() } -> std::same_as<RawMessage>;
-};
-
-// We don't need an RxMessage cocept since no function takes in an arbitrary
-// RxMessage.
-
 }  // namespace shared::can
 
 // Convert RawMessage to string with `std::format`

@@ -36,7 +36,7 @@ private:
         etl::lock_guard<etl::mutex> lock(msg_guard_);
         switch(msg.id) {
             {% for msg in rx_msgs %}
-            case Rx{{msg.name}}::id():
+            case Rx{{msg.name}}::id:
                 {{ msg.name | camel_to_snake }}_msg_ = Rx{{msg.name}}(msg, timestamp);
                 break;
             {% endfor %}

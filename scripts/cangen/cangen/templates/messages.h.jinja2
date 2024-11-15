@@ -5,8 +5,6 @@
 
 /// @todo support enums
 /// @todo clang format
-/// @todo make Id static inline
-/// @todo make Clone work in a better way
 
 // clang-format off
 
@@ -71,12 +69,8 @@ private:
     // Timestamp is platform dependent. See mcal/PLATFORM/periph/can
     uint32_t timestamp_;
 
-    constexpr static uint32_t id() {
-        return {{ msg.frame_id }};
-    }
-    constexpr static uint8_t data_length() {
-        return {{ msg.length }};
-    }
+    constexpr static uint32_t id = {{ msg.frame_id }};
+    constexpr static uint8_t data_length = {{ msg.length }};
 
     {% for sig in msg.signals %}
     {% set sig_var = sig.name | camel_to_snake %}
@@ -128,28 +122,20 @@ private:
 {% set class_name = "Tx"+msg.name %}
 class {{ class_name }} {
 public:
-    {{class_name}}() = delete;
-    {{class_name}} (
-        {% for sig in msg.signals %}
-        {{ signal_types[msg.name][sig.name] }} {{ sig.name | camel_to_snake }}{{ ", " if not loop.last else "" }}
-        {% endfor %}
-    ) {
-        // @todo insert clamp checks here
-        {% for sig in msg.signals %}
-        {{ sig.name | camel_to_snake }}_ = {{ sig.name | camel_to_snake }};
-        {% endfor %}
-    }
+    {% for sig in msg.signals %}
+    {{ signal_types[msg.name][sig.name] }} {{ sig.name | camel_to_snake }};
+    {% endfor %}
 
-
-    shared::can::RawMessage encode() const {
-
+    shared::can::RawMessage pack() const {
         uint8_t data[{{msg.length}}] = {};
+
+        // @todo clamp data
 
         // temporary signal variables
         {% for sig in msg.signals %}
         {% set sig_var = sig.name | camel_to_snake %}
         {% set type = temp_signal_types[msg.name][sig.name] %}
-        {{ type }} temp_{{ sig.name | camel_to_snake }} = static_cast<{{ type }}>(static_cast<double>({{ sig_var }}_ - k{{sig.name}}Offset ) / k{{sig.name}}Scale);
+        {{ type }} temp_{{ sig.name | camel_to_snake }} = static_cast<{{ type }}>(static_cast<double>({{ sig_var }} - k{{sig.name}}Offset ) / k{{sig.name}}Scale);
         {% endfor %}
 
         {% for sig in msg.signals %}
@@ -169,20 +155,12 @@ public:
         {% endfor %}
         {% endfor %}
 
-        return shared::can::RawMessage(id(), data_length(), data);
+        return shared::can::RawMessage(id, data_length, data);
     }
 
 private:
-    {% for sig in msg.signals %}
-    {{ signal_types[msg.name][sig.name] }} {{ sig.name | camel_to_snake }}_;
-    {% endfor %}
-
-    constexpr static uint32_t id() {
-        return {{ msg.frame_id }};
-    }
-    constexpr static uint8_t data_length() {
-        return {{ msg.length }};
-    }
+    static constexpr uint32_t id = {{ msg.frame_id }};
+    static constexpr uint8_t data_length = {{ msg.length }};
 
     // Signal properties
     {% for sig in msg.signals %}

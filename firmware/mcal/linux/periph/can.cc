@@ -1,6 +1,7 @@
 #include <linux/can.h>
 #include <sys/types.h>
 
+#include <chrono>
 #include <cstring>
 #include <format>
 #include <iomanip>
@@ -60,7 +61,10 @@ void CanBase::StartReading() {
 }
 
 uint32_t CanBase::GetTimestamp() const {
-    return 0;  // @todo
+    using namespace std::chrono;
+    auto t = system_clock::now().time_since_epoch();
+    auto ms = duration_cast<milliseconds>(t).count();
+    return ms;
 }
 
 }  // namespace mcal::lnx::periph
