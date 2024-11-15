@@ -2,7 +2,6 @@
 
 #include <thread>
 
-#include "mcal/linux/periph/vcan/vcan.h"
 #include "shared/comms/can/msg.h"
 #include "shared/periph/can.h"
 #include "vcan/vcan.h"

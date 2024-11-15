@@ -1,6 +1,3 @@
-/// @author Samuel Parent
-/// @date 2024-02-09
-
 #pragma once
 
 #include "shared/comms/can/msg.h"

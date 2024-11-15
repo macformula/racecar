@@ -1,6 +1,3 @@
-/// @author Samuel Parent
-/// @date 2024-01-06
-
 #pragma once
 
 #include <concepts>
