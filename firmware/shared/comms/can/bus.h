@@ -22,4 +22,13 @@ private:
     friend class shared::periph::CanBase;
 };
 
+/**
+ * @brief Relay the message to the base.
+ * @note This is a template method so it must be defined in the header.
+ */
+template <TxMessage T>
+void Bus::Send(T msg) {
+    can_base_.Send(msg.encode());
+}
+
 }  // namespace shared::can

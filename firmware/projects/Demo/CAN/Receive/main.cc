@@ -4,27 +4,24 @@
 #include <cstdint>
 
 #include "bindings.h"
-#include "generated/can/demobus_can_messages.h"
-#include "generated/can/demobus_msg_registry.h"
-#include "shared/comms/can/can_bus.h"
+#include "generated/can/demobus_bus.h"
+#include "generated/can/demobus_messages.h"
+#include "shared/comms/can/bus.h"
 
-generated::can::DemobusMsgRegistry veh_can_registry{};
+using namespace generated::can;
 
-shared::can::CanBus veh_can_bus{
-    bindings::veh_can_base,
-    veh_can_registry,
-};
+DemobusBus veh_can_bus{bindings::veh_can_base};
 
 int main(void) {
     bindings::Initialize();
 
-    generated::can::ButtonStatus btn_msg{};
-
     while (true) {
-        veh_can_bus.Update();
-        veh_can_bus.Read(btn_msg);
+        auto btn_msg = veh_can_bus.PopLatest<RxButtonStatus>();
 
-        bindings::indicator.Set(btn_msg.state);
+        if (btn_msg.has_value()) {
+            auto msg = btn_msg.value();
+            bindings::indicator.Set(msg.State());
+        }
     }
 
     return 0;

@@ -5,17 +5,16 @@
 
 #include <concepts>
 #include <cstdint>
-#include <cstring>
 #include <format>
 
 namespace shared::can {
 
 struct RawMessage {
-    RawMessage(uint32_t id, uint8_t data_length, const uint8_t data[8]);
+    RawMessage(uint32_t id_, uint8_t data_length_, const uint8_t data_[8]);
 
-    uint32_t id_;
+    uint32_t id;
     uint8_t data_length;
-    uint8_t data_[8];
+    uint8_t data[8];
 };
 
 // TxMessage concept is required by Bus.Send()
@@ -38,9 +37,9 @@ struct std::formatter<shared::can::RawMessage> {
 
     template <typename FormatContext>
     auto format(const shared::can::RawMessage& msg, FormatContext& ctx) const {
-        std::string str = std::format("[{:02X}]", msg.id_);
+        std::string str = std::format("[{:02X}]", msg.id);
         for (int i = 0; i < msg.data_length; ++i) {
-            str += std::format(" {:02X}", msg.data_[i]);
+            str += std::format(" {:02X}", msg.data[i]);
         }
 
         return std::format_to(ctx.out(), "{}", str);

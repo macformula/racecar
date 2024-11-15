@@ -4,29 +4,21 @@
 #include <cstdint>
 
 #include "bindings.h"
-#include "generated/can/demobus_can_messages.h"
-#include "generated/can/demobus_msg_registry.h"
-#include "shared/comms/can/can_bus.h"
+#include "generated/can/demobus_bus.h"
+#include "generated/can/demobus_messages.h"
 
-generated::can::DemobusMsgRegistry veh_can_registry{};
+using namespace generated::can;
 
-shared::can::CanBus veh_can_bus{
-    bindings::veh_can_base,
-    veh_can_registry,
-};
+DemobusBus can_bus{bindings::veh_can_base};
 
 int main(void) {
     bindings::Initialize();
     uint32_t interval_ms = 50;
 
-    generated::can::ButtonStatus btn_msg{};
-
     while (true) {
-        veh_can_bus.Update();
+        TxButtonStatus btn_msg{bindings::button.Read()};
 
-        btn_msg.state = bindings::button.Read();
-
-        veh_can_bus.Send(btn_msg);
+        can_bus.Send(btn_msg);
         bindings::TickBlocking(interval_ms);
     }
 

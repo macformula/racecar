@@ -19,11 +19,11 @@ namespace shared::periph {
 class CanBase : public util::Peripheral {
 public:
     virtual void Send(const shared::can::RawMessage&) = 0;
-    void Receive(can::RawMessage msg);
+    void AddToBus(can::RawMessage msg);
 
 private:
     void RegisterBus(can::Bus* bus);
-    virtual uint32_t GetTimestamp() = 0;
+    virtual uint32_t GetTimestamp() const = 0;
 
     can::Bus* bus_;
 
