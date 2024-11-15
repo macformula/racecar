@@ -16,7 +16,7 @@ int main(void) {
     bindings::Initialize();
 
     while (true) {
-        auto btn_msg = veh_can_bus.PopLatest<RxButtonStatus>();
+        auto btn_msg = veh_can_bus.PopRxButtonStatus();
 
         if (btn_msg.has_value()) {
             auto msg = btn_msg.value();

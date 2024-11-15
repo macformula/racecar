@@ -20,14 +20,22 @@ class {{ bus }} : public shared::can::Bus {
 public:
     {{ bus }}(shared::periph::CanBase& can_base) : shared::can::Bus(can_base) {}
 
-    /// Get the latest message of any type. Uses templates to make it easy to call.
-    /// @example `auto msg = bus.GetLatest<AccumulatorStateMsg>();`
-    template <typename T>
-    std::optional<T> GetLatest();
+    // Define the Getter and Popper for each message type.
+    {% for msg in rx_msgs %}
+    {% set msg_title = "Rx"+msg.name %}
 
-    /// @brief Get and remove the latest message from the bus.
-    template <typename T>
-    std::optional<T> PopLatest();
+    auto Get{{msg_title}}() -> std::optional<{{msg_title}}> {
+        etl::lock_guard<etl::mutex> lock(msg_guard_);
+        return {{ msg.name | camel_to_snake }}_msg_;
+    }
+
+    auto Pop{{msg_title}}() -> std::optional<{{msg_title}}> {
+        etl::lock_guard<etl::mutex> lock(msg_guard_);
+        auto temp = {{ msg.name | camel_to_snake }}_msg_;
+        {{ msg.name | camel_to_snake }}_msg_ = std::nullopt;
+        return temp;
+    }
+    {% endfor %}
 
 private:
     etl::mutex msg_guard_;
@@ -53,24 +61,7 @@ private:
     friend class Base;
 };
 
-// Specialise the GetLatest and PopLatest templates for each message type.
-{% for msg in rx_msgs %}
-{% set msg_title = "Rx"+msg.name %}
 
-template<>
-auto {{ bus }}::GetLatest<{{msg_title}}>() -> std::optional<{{msg_title}}> {
-    etl::lock_guard<etl::mutex> lock(msg_guard_);
-    return {{ msg.name | camel_to_snake }}_msg_;
-}
-
-template <>
-auto {{ bus }}::PopLatest<{{msg_title}}>() -> std::optional<{{msg_title}}> {
-    etl::lock_guard<etl::mutex> lock(msg_guard_);
-    auto temp = {{ msg.name | camel_to_snake }}_msg_;
-    {{ msg.name | camel_to_snake }}_msg_ = std::nullopt;
-    return temp;
-}
-{% endfor %}
 
 } // namespace generated::can
 
