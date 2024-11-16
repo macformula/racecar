@@ -9,16 +9,9 @@
 
 using namespace generated::can;
 
-DemobusBus can_bus{bindings::veh_can_base};
-
-typedef struct {
-    int a;
-    int b;
-} stri;
+DemobusBus can_bus{bindings::demo_can_base};
 
 int main(void) {
-    stri o{1};
-
     bindings::Initialize();
     uint32_t interval_ms = 50;
 
