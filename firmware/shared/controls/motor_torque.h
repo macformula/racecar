@@ -1,8 +1,7 @@
 #pragma once
-#include <stdbool.h>
-
-#include <queue>
 #include <tuple>
+
+#include "../util/moving_average.h"
 
 // Peter Jabra and Aleeza Ali Zar
 
@@ -14,85 +13,58 @@ enum class State {
 namespace ctrl {
 
 template <typename T>
-class RunningAverageCalculator {
+class MotorTorqueCalculator {
 public:
-    RunningAverageCalculator() : sum(0.0) {}
+    static std::tuple<T, T> CalculateMotorTorque(T new_torque_value,
+                                                 T right_factor,
+                                                 T left_factor) {
+        running_average.LoadValue(new_torque_value);
 
-    T Compute(T new_sample) {
-        const int max_samples = 10;
+        T running_average_value = running_average.GetValue();
+        T scaled_running_average = running_average_value * 10;
 
-        sum += new_sample;
-        samples.push(new_sample);
+        T right_motor_torque_limit = scaled_running_average * right_factor;
+        T left_motor_torque_limit = scaled_running_average * left_factor;
 
-        if (samples.size() > max_samples) {
-            sum -= samples.front();
-            samples.pop();
-        }
-
-        return sum / samples.size();
+        return std::tuple(right_motor_torque_limit, left_motor_torque_limit);
     }
 
-    void Reset() {
-        sum = 0.0;
-        std::queue<T> empty;
-        std::swap(samples, empty);
+    static void Reset() {
+        running_average = shared::util::MovingAverage<T, 10>();
     }
 
 private:
-    std::queue<T> samples;
-    T sum;
+    static shared::util::MovingAverage<T, 10> running_average;
 };
 
 template <typename T>
-std::tuple<T, T> CalculateMotorTorque(T raw_torque_values[], int size,
-                                      T right_factor, T left_factor) {
-    T right_motor_torque_limit;
-    T left_motor_torque_limit;
-    RunningAverageCalculator<T> running_average_calculator;
-
-    for (int i = 0; i < size; i++) {
-        T running_average =
-            running_average_calculator.Compute(raw_torque_values[i] * 10);
-
-        right_motor_torque_limit = running_average * right_factor;
-        left_motor_torque_limit = running_average * left_factor;
-    }
-
-    return std::tuple(right_motor_torque_limit, left_motor_torque_limit);
-}
-
-template <typename T>
-bool CheckBrakePedalPosition(T brake_pedal_position) {
-    return brake_pedal_position > static_cast<T>(10);
-}
+shared::util::MovingAverage<T, 10> MotorTorqueCalculator<T>::running_average;
 
 template <typename T>
 T ComputeTorqueRequest(T driver_torque_request, T brake_pedal_position) {
-    State currentState = State::Stop;
-    bool brake_on = CheckBrakePedalPosition<T>(brake_pedal_position);
+    static State current_state = State::Stop;
+    bool brake_on = brake_pedal_position > static_cast<T>(10);
 
-    T motor_torque_request;
+    bool both_pedals_pressed =
+        driver_torque_request >= static_cast<T>(25) && brake_on;
+    bool neither_pedal_pressed =
+        driver_torque_request < static_cast<T>(5) && !brake_on;
 
-    while (true) {
-        switch (currentState) {
-            case State::Run:
-                motor_torque_request = driver_torque_request;
+    if (both_pedals_pressed) {
+        current_state = State::Stop;
+    }
+    if (neither_pedal_pressed) {
+        current_state = State::Run;
+    }
 
-                if (driver_torque_request >= static_cast<T>(25) && brake_on) {
-                    currentState = State::Stop;
-                } else {
-                    return motor_torque_request;
-                }
+    switch (current_state) {
+        case State::Run:
+            return driver_torque_request;
 
-            case State::Stop:
-                motor_torque_request = static_cast<T>(0.0);
-
-                if (driver_torque_request < static_cast<T>(5) && !brake_on) {
-                    currentState = State::Run;
-                } else {
-                    return motor_torque_request;
-                }
-        }
+        case State::Stop:
+            return static_cast<T>(0.0);
+        default:
+            return static_cast<T>(0.0);
     }
 }
 
