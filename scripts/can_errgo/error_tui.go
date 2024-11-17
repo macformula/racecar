@@ -21,10 +21,7 @@ import (
 )
 
 
-const (
-	canInterface = "vcan0"  // Use the virtual CAN interface
-	canFrameSize = 16      // CAN frame size (for a standard CAN frame)
-)
+const canFrameSize = 16      // CAN frame size (for a standard CAN frame)
 
 // Converts a 8-byte slice to a uint64, this is for masking purposes.
 func bytesToUint64(b []byte) uint64 {
@@ -65,8 +62,6 @@ func SortRowValuesBy(r []RowValues, column int) []RowValues {
 	return copied
 }
 
-
-
 func toTableRows(r []RowValues) []table.Row {
 	var rows []table.Row
 	for _, v := range r {
@@ -87,10 +82,22 @@ func (m model) getDescription(errorName string) string {
 	return "No description available"
 }
 
-func (m model) findError(errorName string) int {
-	for i := range(len(m.rowsValues)){
-		if m.rowsValues[i].Error == errorName{
+func findError(errorName string, rowValues []RowValues) int {
+	for i := range(len(rowValues)){
+		if rowValues[i].Error == errorName{
 			return i
+		}
+	}
+	return -1
+}
+func findErrorAfterSort(errorName string, rowValues []RowValues) int {
+	cnt := 0
+	for i := range(len(rowValues)){
+		if rowValues[i].Error != ""{
+			cnt += 1
+		} 
+		if rowValues[i].Error == errorName{
+			return cnt - 1
 		}
 	}
 	return -1
@@ -172,16 +179,6 @@ func tickEvery(t time.Duration) tea.Cmd {
 	}
 }
 
-// Find the index of a row with a specific error name.
-func findRowString(s []table.Row, e string) int {
-    for i, a := range s {
-        if a[0] == e {
-            return i
-        }
-    }
-    return -1
-}
-
 // Check if the cursor is over bounds
 func overBounds(table table.Model) bool{
 	return len(table.Rows())==0 || table.Cursor() < 0 || table.Cursor() >= len(table.Rows()) 
@@ -222,7 +219,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// newRows := deleteElementRow(m.submenuTable.Rows(), m.submenuTable.Cursor())
 				// m.submenuTable.SetRows(newRows)
 
-				errorIndex := m.findError(m.submenuTable.SelectedRow()[0])
+				errorIndex := findError(m.submenuTable.SelectedRow()[0], m.rowsValues)
 				m.ignoreMask = toggleBit(m.ignoreMask, errorIndex)
 				m.rowsValues[errorIndex].Active = true
 				newRows := m.getIgnoredRows()
@@ -270,7 +267,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			// Remove the row and reset its count.
-			errorIndex := m.findError(m.table.SelectedRow()[0])
+			errorIndex := findError(m.table.SelectedRow()[0], m.rowsValues)
 			m.rowsValues[errorIndex].Count = 0
 			newRows := toTableRows(m.rowsValues)
 			m.table.SetRows(newRows)
@@ -292,7 +289,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			// Toggle the mask for the selected error and move it to the ignore menu.
-			errorIndex := m.findError(m.table.SelectedRow()[0])
+			errorIndex := findError(m.table.SelectedRow()[0], m.rowsValues)
 			m.ignoreMask = toggleBit(m.ignoreMask, errorIndex)
 			m.rowsValues[errorIndex].Active = false
 
@@ -348,15 +345,15 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			// Sort the table by the recency.
 			currentError := m.table.SelectedRow()
-			newRows := toTableRows(SortRowValuesBy(m.rowsValues,2))
+			newRowValues :=  SortRowValuesBy(m.rowsValues,2)
+			newRows := toTableRows(newRowValues)
 			m.table.SetRows(newRows)
 
 			// Fix the cursor back onto the row it was on before the sort.
 			if currentError != nil{
-				newIndex := findRowString(newRows, currentError[0])
+				newIndex := findErrorAfterSort(currentError[0], newRowValues)
 				m.table.SetCursorAndViewport(newIndex)
 			}
-			m.table.UpdateViewport()
 		}
 		return m, nil
 	// If the message is a tick, check if the last CAN message was received more than the timeout duration ago
@@ -570,7 +567,7 @@ func createSubMenu() table.Model {
 }
 
 
-func can_listener(p *tea.Program) {
+func can_listener(p *tea.Program, canInterface string) {
 	// Create a raw CAN socket using the unix package
 	var sock int;
 	var err error;
@@ -619,6 +616,7 @@ func can_listener(p *tea.Program) {
 func main() {
 	// Define the command line flag
 	warnFlag := flag.Int("w", 5, "warning time for the table (integer value)")
+	canInterfaceFlag := flag.String("i", "vcan0", "CAN interface to listen on")
 
 	flag.Parse()
 	
@@ -636,7 +634,7 @@ func main() {
 		close(quit)
 	}()
 	// Start the CAN listener
-	go can_listener(p)
+	go can_listener(p, *canInterfaceFlag)
 
 
 	<-quit
