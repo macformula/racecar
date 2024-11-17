@@ -1,24 +1,16 @@
-To test the virtual can and go script:
+# To test the virtual can and go script
 
-kill all existing instances of can-dump, can-listen, and end ip-links:
+Kill all existing instances of ip-links:
 
-ps aux | grep candump
-ps aux | grep can-listen
-ip link show
+`ip link show`
+`sudo ip link delete <ip-link>`
 
+Setup the can network:
 
-kill <can-dump-id>
-kill <can-listen-id>
-sudo ip link delete <ip-link>
+`./setup_vcan.sh <CAN_PORT>`
 
-
-
-rerun (for now make CAN_PORT vcan0):
-
-./setup_vcan.sh <CAN_PORT>
-candump -L <CAN_PORT> > <LOG_FILE> &
-./can_errgo/can-listen &
+Start the CLI viewer:
+`go run error_tui.go -i <CAN_PORT>`
 
 You can now run:
-
-cansend <CAN_PORT> <MSG_ID>#<MSG_DATA> 
+`cansend <CAN_PORT>  <MSG_ID>#<MSG_DATA>`
