@@ -202,23 +202,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		if m.submenuActive{
 			// If submenu is active, only let the submenu handle KeyMsg
-			switch msg.String() {
-			case "up":
+			switch {
+			case key.Matches(msg, table.DefaultKeyMap().LineUp):
 				m.submenuTable.MoveUp(1)			
 				return m,nil	
-			case "down":
+			case key.Matches(msg, table.DefaultKeyMap().LineDown):
 				m.submenuTable.MoveDown(1)		
 				return m,nil			
-			case "i":
+			case key.Matches(msg, m.submenuKeys.i):
 				if m.submenuTable.SelectedRow() == nil{
 					return m, nil
 				}
 				
 				// Toggle the mask for the selected error and delete the row. 
-				// m.ignoreMask = toggleBit(m.ignoreMask, m.errorToBit[m.submenuTable.SelectedRow()[0]])
-				// newRows := deleteElementRow(m.submenuTable.Rows(), m.submenuTable.Cursor())
-				// m.submenuTable.SetRows(newRows)
-
 				errorIndex := findError(m.submenuTable.SelectedRow()[0], m.rowsValues)
 				m.ignoreMask = toggleBit(m.ignoreMask, errorIndex)
 				m.rowsValues[errorIndex].Active = true
@@ -232,7 +228,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.submenuTable.MoveUp(1)
 				}
 
-			case "s":
+			case key.Matches(msg, m.submenuKeys.s):
 				m.submenuActive = false  // Hide submenu
 				m.table.Focus()  // Refocus the main table
 				m.submenuTable.Blur() // Unfocus the submenu
@@ -240,7 +236,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				return m, nil
 	
-			case "q", "ctrl+c":
+			case key.Matches(msg, m.tableKeys.q):
 				return m, tea.Quit
 			}
 
@@ -249,16 +245,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 
-		switch msg.String() {
-		case "esc":
-			if m.table.Focused() {
-				m.table.Blur()
-			} else {
-				m.table.Focus()
-			}
-		case "q", "ctrl+c":
+		switch {
+		case key.Matches(msg, m.tableKeys.q):
 			return m, tea.Quit
-		case "a":	
+		case key.Matches(msg, m.tableKeys.a):	
 			
 			// Prevent panic if no row is selected
 			if m.table.SelectedRow() == nil{
@@ -280,7 +270,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.table.MoveUp(1)
 			}
 			return m, nil
-		case "i":
+		case key.Matches(msg, m.tableKeys.i):
 
 			// Prevent panic if no row is selected
 			if m.table.SelectedRow() == nil{
@@ -305,7 +295,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.table.MoveDown(1)
 
 			return m, nil
-        case "s":
+        case key.Matches(msg, m.tableKeys.s):
             if m.submenuActive {
                 // Hide submenu and return to main menu
                 m.submenuActive = false
@@ -317,10 +307,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
                 m.submenuTable.Focus()
 				m.table.SetShowCursor(false)
             }
-		case "up":
+		case key.Matches(msg, table.DefaultKeyMap().LineUp):
 			m.table.MoveUp(1)
 			return m,nil	
-		case "down":
+		case key.Matches(msg, table.DefaultKeyMap().LineDown):
 			m.table.MoveDown(1)
 			return m,nil			
 	}
@@ -408,7 +398,7 @@ func additionalKeyMap() KeyMap {
 			key.WithHelp("s", "Ignored Menu"),
 		),
 		q: key.NewBinding(
-			key.WithKeys("q"),
+			key.WithKeys("q", "ctrl+c"),
 			key.WithHelp("q/ctrl+c", "quit"),
 		),
 	}
