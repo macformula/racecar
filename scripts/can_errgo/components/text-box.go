@@ -1,5 +1,5 @@
 // Custom text-box component for rendering a box with a title and description, will dynamically wrap text to fit within the box width.
-package box
+package components
 
 import (
 	"strings"

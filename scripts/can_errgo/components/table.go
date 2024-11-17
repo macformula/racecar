@@ -1,5 +1,6 @@
+package components
+
 // Modified from "github.com/charmbracelet/bubbles/table"
-package table
 
 import (
 	"strings"

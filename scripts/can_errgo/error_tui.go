@@ -7,13 +7,12 @@ import (
 	"log"
 	"math"
 	"net"
-	"os"
 	"sort"
 	"strconv"
 	"time"
 
-	box "main/components/box"
-	table "main/components/table"
+	box "main/components"
+	table "main/components"
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -24,18 +23,8 @@ import (
 
 const (
 	canInterface = "vcan0"  // Use the virtual CAN interface
-	canFrameSize = 16       // CAN frame size (for a standard CAN frame)
+	canFrameSize = 16      // CAN frame size (for a standard CAN frame)
 )
-
-// Might have future use
-func deepCopy(rows []table.Row) []table.Row {
-    newRows := make([]table.Row, len(rows))
-    for i := range rows {
-        newRows[i] = make(table.Row, len(rows[i]))
-        copy(newRows[i], rows[i])
-    }
-    return newRows
-}
 
 // Converts a 8-byte slice to a uint64, this is for masking purposes.
 func bytesToUint64(b []byte) uint64 {
@@ -50,6 +39,90 @@ func bytesToUint64(b []byte) uint64 {
 var baseStyle = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).
 	BorderForeground(lipgloss.Color("240"))
+
+func RowValuesToRow(r RowValues) table.Row{
+	return table.Row{r.Error, strconv.Itoa(r.Count), strconv.Itoa(r.Recency)}
+}
+
+func SortRowValuesBy(r []RowValues, column int) []RowValues {
+	// Create a deep copy of the input slice
+	copied := make([]RowValues, len(r))
+	copy(copied, r)
+
+	// Sort the copied slice
+	sort.SliceStable(copied, func(i, j int) bool {
+		switch column {
+		case 0:
+			return copied[i].Error < copied[j].Error
+		case 1:
+			return copied[i].Count < copied[j].Count
+		case 2:
+			return copied[i].Recency < copied[j].Recency
+		}
+		return false
+	})
+
+	return copied
+}
+
+
+
+func toTableRows(r []RowValues) []table.Row {
+	var rows []table.Row
+	for _, v := range r {
+		// Check if the RowValues is "non-empty" and Active
+		if v.Error != "" && v.Count != 0 && v.Active{
+			rows = append(rows, RowValuesToRow(v))
+		}
+	}
+	return rows
+}
+
+func (m model) getDescription(errorName string) string {
+	for i := range(len(m.rowsValues)){
+		if m.rowsValues[i].Error == errorName{
+			return m.rowsValues[i].Description
+		}
+	}
+	return "No description available"
+}
+
+func (m model) findError(errorName string) int {
+	for i := range(len(m.rowsValues)){
+		if m.rowsValues[i].Error == errorName{
+			return i
+		}
+	}
+	return -1
+}
+
+func (m model) resetRowValue(errorName string) {
+	for i := range(len(m.rowsValues)){
+		if m.rowsValues[i].Error == errorName{
+			m.rowsValues[i].Count = 0
+			m.rowsValues[i].Recency = 0
+		}
+	}
+}
+
+
+func (m model) getIgnoredRows() []table.Row {
+	var rows []table.Row
+	for i := range(len(m.rowsValues)){
+		if !m.rowsValues[i].Active && m.rowsValues[i].Error != ""{
+		rows = append(rows, table.Row{m.rowsValues[i].Error})
+		}
+	}
+	return rows
+}
+
+type RowValues struct{
+	Error string
+	Count int
+	Recency int
+	Description string
+	Active bool
+}
 
 
 type CANMsg struct {
@@ -71,8 +144,7 @@ type model struct {
 	submenuKeys   KeyMap
 
 	// Hidden error counts and error to bit mapping
-    hiddenCounts map[string]int
-    errorToBit   map[string]int
+	rowsValues  []RowValues
     ignoreMask   uint64
 
 	// Timeout flag and last CAN message time
@@ -93,35 +165,11 @@ func toggleBit(n uint64, bitPosition int) uint64 {
     return n ^ mask
 }
 
-
-func deleteElementRow(slice []table.Row, index int) []table.Row {
-    // Create a new slice with the same length minus 1
-    newSlice := make([]table.Row, 0, len(slice)-1)
-                      
-    // Append the elements before the index
-    newSlice = append(newSlice, slice[:index]...)
-
-    // Append the elements after the index
-    newSlice = append(newSlice, slice[index+1:]...)
-
-    return newSlice
-}
-
 func tickEvery(t time.Duration) tea.Cmd {
 	return func() tea.Msg {
 		time.Sleep(t)
 		return TickMsg{}
 	}
-}
-
-// Might have future use
-func findRow(s []table.Row, e table.Row) int {
-    for i, a := range s {
-        if a[0] == e[0] {
-            return i
-        }
-    }
-    return -1
 }
 
 // Find the index of a row with a specific error name.
@@ -139,74 +187,16 @@ func overBounds(table table.Model) bool{
 	return len(table.Rows())==0 || table.Cursor() < 0 || table.Cursor() >= len(table.Rows()) 
 }
 
-
-func (m *model) re_fresh(){
-	rows := m.table.Rows()
-	for i:=0; i < len(rows); i++{
-		if val,err := strconv.Atoi(rows[i][2]); err != nil{
-			fmt.Printf("Something went wrong during refresh!")
-		} else{
-			rows[i][2] = strconv.Itoa(val + 1)
+func (m *model) refresh(){
+	rows := m.rowsValues
+	for i := range(len(rows)){
+		if m.rowsValues[i].Count !=0{
+			m.rowsValues[i].Recency += 1
 		}
 	}
 }
 
-// Sort the table by the specified column index.
-func (m *model) SortByColumn(columnIndex int) error {
-    rows := m.table.Rows()
-    // Check if sorting should adjust cursor position (In the odd case that no cursor is set, we don't want to run into a panic)
-    if !overBounds(m.table) {
-        // Capture the current row data before sorting
-        currentIndex := m.table.Cursor()
-        selectedRow := rows[currentIndex]
-        
-        // Perform sorting with a custom less function
-        sort.SliceStable(rows, func(i, j int) bool {
-            if columnIndex >= len(rows[i]) || columnIndex >= len(rows[j]) {
-                fmt.Println("Error: columnIndex out of bounds")
-                return false
-            }
-
-            val1, err1 := strconv.Atoi(rows[i][columnIndex])
-            val2, err2 := strconv.Atoi(rows[j][columnIndex])
-
-            if err1 == nil && err2 == nil {
-                return val1 < val2
-            }
-            return rows[i][columnIndex] < rows[j][columnIndex]
-        })
-
-        // Find new index of the originally selected row
-        for i, row := range rows {
-            if row[0] == selectedRow[0] {
-                m.table.SetCursorAndViewport(i)
-                break
-            }
-        }
-		
-    } else {
-        // Just sort if out of bounds
-        sort.SliceStable(rows, func(i, j int) bool {
-            if columnIndex >= len(rows[i]) || columnIndex >= len(rows[j]) {
-                fmt.Println("Error: columnIndex out of bounds")
-                return false
-            }
-
-            val1, err1 := strconv.Atoi(rows[i][columnIndex])
-            val2, err2 := strconv.Atoi(rows[j][columnIndex])
-
-            if err1 == nil && err2 == nil {
-                return val1 < val2
-            }
-            return rows[i][columnIndex] < rows[j][columnIndex]
-        })
-    }
-    return nil
-}
-
-
 func (m model) Init() tea.Cmd { return tickEvery(m.t) }
-
 
 // Table and ignore subtable update loop.
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -228,8 +218,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				
 				// Toggle the mask for the selected error and delete the row. 
-				m.ignoreMask = toggleBit(m.ignoreMask, m.errorToBit[m.submenuTable.SelectedRow()[0]])
-				newRows := deleteElementRow(m.submenuTable.Rows(), m.submenuTable.Cursor())
+				// m.ignoreMask = toggleBit(m.ignoreMask, m.errorToBit[m.submenuTable.SelectedRow()[0]])
+				// newRows := deleteElementRow(m.submenuTable.Rows(), m.submenuTable.Cursor())
+				// m.submenuTable.SetRows(newRows)
+
+				errorIndex := m.findError(m.submenuTable.SelectedRow()[0])
+				m.ignoreMask = toggleBit(m.ignoreMask, errorIndex)
+				m.rowsValues[errorIndex].Active = true
+				newRows := m.getIgnoredRows()
 				m.submenuTable.SetRows(newRows)
 
 				// May be unnecessary, but just in case we update the cursor.
@@ -274,9 +270,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			// Remove the row and reset its count.
-			m.hiddenCounts[m.table.SelectedRow()[0]] = 0
-			newRows := deleteElementRow(m.table.Rows(), m.table.Cursor())
+			errorIndex := m.findError(m.table.SelectedRow()[0])
+			m.rowsValues[errorIndex].Count = 0
+			newRows := toTableRows(m.rowsValues)
 			m.table.SetRows(newRows)
+
 
 			// May be unnecessary, but just in case we update the cursor.
 			if m.table.Cursor() == 0{
@@ -294,16 +292,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			// Toggle the mask for the selected error and move it to the ignore menu.
-			m.ignoreMask = toggleBit(m.ignoreMask, m.errorToBit[m.table.SelectedRow()[0]] )
-			newSubRow := append(m.submenuTable.Rows(), table.Row{m.table.SelectedRow()[0]})
-			m.submenuTable.SetRows(newSubRow)
-			m.submenuTable.UpdateViewport()
+			errorIndex := m.findError(m.table.SelectedRow()[0])
+			m.ignoreMask = toggleBit(m.ignoreMask, errorIndex)
+			m.rowsValues[errorIndex].Active = false
 
 			// Remove the row from the main table and reset its count.
-			m.hiddenCounts[m.table.SelectedRow()[0]] = 0
-			newRows := deleteElementRow(m.table.Rows(), m.table.Cursor())
+			m.rowsValues[errorIndex].Count = 0
+			newRows := toTableRows(m.rowsValues)
 			m.table.SetRows(newRows)
 
+			//Set add the ignored rows to submenu
+			ignoredRows := m.getIgnoredRows()
+			m.submenuTable.SetRows(ignoredRows)
 			// May be unnecessary, but just in case we update the cursor.
 			m.table.MoveDown(1)
 
@@ -334,39 +334,28 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Perform bitwise AND to filter out the bits that are not of interest
 		msg.Value = msg.Value & m.ignoreMask
 		// Update the freshness of the errors
-		m.re_fresh()
-
-
+		m.refresh()
 		for k := 0; k < 64; k++ { // Iterate through all 64 bits
 			if msg.Value&(1<<k) != 0 { // Check if the k-th bit is set
-
 				var errorNumberStr string = strconv.Itoa(k)
-
-				// Instead of "error" + #, this would be what the DBC file should map to, for now keep this for testing
-				if val, ok := m.hiddenCounts["error" + errorNumberStr]; ok{
-					m.hiddenCounts["error" + errorNumberStr ] = val + 1
-					
+				if m.rowsValues[k].Error == ""{
+					m.rowsValues[k] = RowValues{Error: "error" + errorNumberStr, Count: 1, Recency: 0, Description: "No description available for Error" + errorNumberStr, Active: true}
 				} else{
-					m.hiddenCounts["error" + errorNumberStr] = 1
-					m.errorToBit["error" + errorNumberStr] = k
-				}
-
-				// If the error is not in the table, add it, otherwise update the count.
-				index := findRowString(m.table.Rows(),  "error" + errorNumberStr)
-				if index == -1{
-					newRow := append(m.table.Rows(), table.Row{ "error" + errorNumberStr, strconv.Itoa(m.hiddenCounts["error" + errorNumberStr]),"0"})
-					m.table.SetRows(newRow)
-				} else{
-					// Potentially need deep copy. If there is new error come back to this.
-					newRows := m.table.Rows()
-					newRows[index][1] = strconv.Itoa(m.hiddenCounts[newRows[index][0]])
-					newRows[index][2] = "0"
-					m.table.SetRows(newRows)
+					m.rowsValues[k].Count += 1
+					m.rowsValues[k].Recency = 0
 				}
 			}
-			
-			// Sort the table by the freshness.
-			m.SortByColumn(2)
+
+			// Sort the table by the recency.
+			currentError := m.table.SelectedRow()
+			newRows := toTableRows(SortRowValuesBy(m.rowsValues,2))
+			m.table.SetRows(newRows)
+
+			// Fix the cursor back onto the row it was on before the sort.
+			if currentError != nil{
+				newIndex := findRowString(newRows, currentError[0])
+				m.table.SetCursorAndViewport(newIndex)
+			}
 			m.table.UpdateViewport()
 		}
 		return m, nil
@@ -406,7 +395,7 @@ func (km KeyMap) ShortHelp() []key.Binding {
 }
 
 
-// DefaultKeyMap returns a default set of keybindings.
+// key bindings for the main table
 func additionalKeyMap() KeyMap {
 	return KeyMap{
 		a: key.NewBinding(
@@ -416,7 +405,7 @@ func additionalKeyMap() KeyMap {
 		i: key.NewBinding(
 			key.WithKeys("i"),
 			key.WithHelp("i", "Ignore"),
-		),
+		),	
 		s: key.NewBinding(
 			key.WithKeys("s"),
 			key.WithHelp("s", "Ignored Menu"),
@@ -428,6 +417,7 @@ func additionalKeyMap() KeyMap {
 	}
 }
 
+// key bindings for the submenu
 func subMenuKeyMap() KeyMap {
 	return KeyMap{
 		i: key.NewBinding(
@@ -473,10 +463,10 @@ func (m model) View() string {
 
 	// Render the box 
 	if m.submenuActive && m.submenuTable.SelectedRow() != nil{
-		m.box.SetText(m.submenuTable.SelectedRow()[0], "temp description for " + m.submenuTable.SelectedRow()[0])
+		m.box.SetText(m.submenuTable.SelectedRow()[0], m.getDescription(m.submenuTable.SelectedRow()[0]))
 		out = out + m.box.View()
 	} else if m.table.SelectedRow() != nil && !m.submenuActive{
-		m.box.SetText(m.table.SelectedRow()[0], "temp description for " + m.table.SelectedRow()[0])
+		m.box.SetText(m.table.SelectedRow()[0], m.getDescription(m.table.SelectedRow()[0]))
 		out = out + m.box.View()
 	}
 
@@ -499,9 +489,8 @@ func initViewer(warning int) model{
 		table2,
 		false,
 		subMenuKeyMap(),
-		
-		map[string]int{},
-		map[string]int{},
+
+		make([]RowValues, 64),
 		^uint64(0),
 		
 		false,
@@ -629,26 +618,12 @@ func can_listener(p *tea.Program) {
 
 func main() {
 	// Define the command line flag
-	warnFlag := flag.String("w", "", "warning time for the table (integer value)")
+	warnFlag := flag.Int("w", 5, "warning time for the table (integer value)")
 
 	flag.Parse()
-
-	var warning int
-	if *warnFlag == "" {
-		warning = 5 // Default value
-	} else {
-		// Parse the value for the -w flag
-		var err error
-		warning, err = strconv.Atoi(*warnFlag)
-		if err != nil {
-			// If it's not a valid integer, show the usage message and exit
-			fmt.Println("Usage: [program name] -w [int]")
-			os.Exit(1)
-		}
-	}
-
+	
 	// Initialize the model and run the program
-	var m model = initViewer(warning)
+	var m model = initViewer(*warnFlag)
 	// channel to listen for the quit signal
 	quit := make(chan struct{})
 
