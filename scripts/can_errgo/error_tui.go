@@ -21,7 +21,7 @@ import (
 )
 
 
-const canFrameSize = 16      // CAN frame size (for a standard CAN frame)
+const canFrameSize = 16   // CAN frame size (for a standard CAN frame)
 
 // Converts a 8-byte slice to a uint64, this is for masking purposes.
 func bytesToUint64(b []byte) uint64 {
@@ -38,16 +38,16 @@ var baseStyle = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).
 	BorderForeground(lipgloss.Color("240"))
 
-// RowValuesToRow converts a RowValues struct to a table.Row
-func RowValuesToRow(r RowValues) table.Row{
-	return table.Row{r.Error, strconv.Itoa(r.Count), strconv.Itoa(r.Recency)}
+// RowValuesToRow converts a ErrorData struct to a table.Row
+func RowValuesToRow(r ErrorData) table.MetaRow{
+	return table.MetaRow{Row : table.Row{r.Error, strconv.Itoa(r.Count), strconv.Itoa(r.Recency)}, Index: r.ErrorIndex}
 }
 
-// Convert a slice of RowValues to a slice of table.Rows
-func toTableRows(r []RowValues) []table.Row {
-	var rows []table.Row
+// Convert a slice of ErrorData to a slice of table.Rows
+func toTableRows(r []ErrorData) []table.MetaRow {
+	var rows []table.MetaRow
 	for _, v := range r {
-		// Check if the RowValues is "non-empty" and Active
+		// Check if the ErrorData is "non-empty" and Active
 		if v.Error != "" && v.Count != 0 && !v.Ignored{
 			rows = append(rows, RowValuesToRow(v))
 		}
@@ -55,79 +55,64 @@ func toTableRows(r []RowValues) []table.Row {
 	return rows
 }
 
-// SortRowValuesBy sorts a slice of RowValues by the specified column, this creates a deep copy of the input slice.
-func SortRowValuesBy(r []RowValues, column int) []RowValues {
+// SortRowValuesByRecency sorts a slice of ErrorData by the Recency column.
+// This creates a deep copy of the input slice.
+func SortRowValuesByRecency(r []ErrorData) []ErrorData {
 	// Create a deep copy of the input slice
-	copied := make([]RowValues, len(r))
+	copied := make([]ErrorData, len(r))
 	copy(copied, r)
 
-	// Sort the copied slice
+	// Sort the copied slice by Recency
 	sort.SliceStable(copied, func(i, j int) bool {
-		switch column {
-		case 0:
-			return copied[i].Error < copied[j].Error
-		case 1:
-			return copied[i].Count < copied[j].Count
-		case 2:
-			return copied[i].Recency < copied[j].Recency
-		}
-		return false
+		return copied[i].Recency < copied[j].Recency
 	})
 
 	return copied
 }
 
-// getDescription returns the description of the error, if the error is not found it returns a default message.
-func (m model) getDescription(errorName string) string {
-	for i := range(len(m.rowsValues)){
-		if m.rowsValues[i].Error == errorName{
-			return m.rowsValues[i].Description
-		}
-	}
-	return "No description available"
-}
 
-// findError returns the index of the error in the slice of RowValues, if the error is not found it returns -1.
-func findError(errorName string, rowValues []RowValues) int {
+// findError returns the relative index (Row index) of the error in the slice of ErrorData, if the error is not found it returns -1.
+func findError(errorIndex int, rowValues []ErrorData) int {
 	cnt := 0
-	for i := range(len(rowValues)){
-		if rowValues[i].Error == ""{
+	for i ,row := range rowValues{
+		if row.Error == "" || row.Ignored{
 			cnt += 1
 		} 
-		if rowValues[i].Error == errorName{
-			return i - cnt
+		if row.ErrorIndex == errorIndex{
+			return i - cnt  
 		}
 	}
 	return -1
 }
 
-// resetRowValue resets the count and recency of the error in the slice of RowValues.
+// resetRowValue resets the count and recency of the error in the slice of ErrorData.
 func (m model) resetRowValue(errorName string) {
-	for i := range(len(m.rowsValues)){
-		if m.rowsValues[i].Error == errorName{
-			m.rowsValues[i].Count = 0
-			m.rowsValues[i].Recency = 0
+	for _,row := range m.errorData{
+		if row.Error == errorName{
+			row.Count = 0
+			row.Recency = 0
 		}
 	}
 }
 
 // getIgnoredRows returns a slice of table.Rows that are ignored and have an error message.
-func (m model) getIgnoredRows() []table.Row {
-	var rows []table.Row
-	for i := range(len(m.rowsValues)){
-		if m.rowsValues[i].Ignored && m.rowsValues[i].Error != ""{
-		rows = append(rows, table.Row{m.rowsValues[i].Error})
+func (m model) getIgnoredRows() []table.MetaRow {
+	var rows []table.MetaRow
+	for _,row := range m.errorData{
+		if row.Ignored && row.Error != ""{
+		rows = append(rows, table.MetaRow{Row: table.Row{row.Error}, Index: row.ErrorIndex})
 		}
 	}
 	return rows
 }
 
-type RowValues struct{
+type ErrorData struct{
 	Error string
 	Count int
 	Recency int
 	Description string
 	Ignored bool
+	ErrorIndex int
 }
 
 
@@ -150,7 +135,7 @@ type model struct {
 	submenuKeys   KeyMap
 
 	// Slice of row information and ignore mask for incoming errors/bits
-	rowsValues  []RowValues
+	errorData  []ErrorData
     ignoreMask   uint64
 
 	// Timeout flag and last CAN message time
@@ -179,13 +164,12 @@ func tickEvery(t time.Duration) tea.Cmd {
 }
 
 // Increment the recency of all errors
-func (m *model) refresh(){
-	rows := m.rowsValues
-	for i := range(len(rows)){
-		if m.rowsValues[i].Count !=0{
-			m.rowsValues[i].Recency += 1
+func (m *model) refresh() {
+	for i := range m.errorData { // Use index to modify the original slice
+		if m.errorData[i].Count != 0 {
+			m.errorData[i].Recency += 1
 		}
-	}
+	}	
 }
 
 func (m model) Init() tea.Cmd { return tickEvery(m.t) }
@@ -210,9 +194,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				
 				// Toggle the mask for the selected error and delete the row. 
-				errorIndex := findError(m.submenuTable.SelectedRow()[0], m.rowsValues)
+				errorIndex := m.submenuTable.SelectedIndex()
 				m.ignoreMask = toggleBit(m.ignoreMask, errorIndex)
-				m.rowsValues[errorIndex].Ignored = false
+				m.errorData[errorIndex].Ignored = false
 				newRows := m.getIgnoredRows()
 				m.submenuTable.SetRows(newRows)
 
@@ -252,9 +236,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			// Remove the row and reset its count.
-			errorIndex := findError(m.table.SelectedRow()[0], m.rowsValues)
-			m.rowsValues[errorIndex].Count = 0
-			newRows := toTableRows(m.rowsValues)
+			errorIndex := m.table.SelectedIndex()
+			m.errorData[errorIndex].Count = 0
+			newRows := toTableRows(m.errorData)
 			m.table.SetRows(newRows)
 
 
@@ -274,13 +258,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			// Toggle the mask for the selected error and move it to the ignore menu.
-			errorIndex := findError(m.table.SelectedRow()[0], m.rowsValues)
+			errorIndex := m.table.SelectedIndex()
 			m.ignoreMask = toggleBit(m.ignoreMask, errorIndex)
-			m.rowsValues[errorIndex].Ignored = true
+			m.errorData[errorIndex].Ignored = true
 
 			// Remove the row from the main table and reset its count.
-			m.rowsValues[errorIndex].Count = 0
-			newRows := toTableRows(m.rowsValues)
+			m.errorData[errorIndex].Count = 0
+			newRows := toTableRows(m.errorData)
 			m.table.SetRows(newRows)
 
 			//Set add the ignored rows to submenu
@@ -320,25 +304,24 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		for k := 0; k < 64; k++ { // Iterate through all 64 bits
 			if msg.Value&(1<<k) != 0 { // Check if the k-th bit is set
 				var errorNumberStr string = strconv.Itoa(k)
-				if m.rowsValues[k].Error == ""{
-					m.rowsValues[k] = RowValues{Error: "error" + errorNumberStr, Count: 1, Recency: 0, Description: "No description available for Error" + errorNumberStr, Ignored: false}
+				if m.errorData[k].Error == ""{
+					m.errorData[k] = ErrorData{Error: "error" + errorNumberStr, Count: 1, Recency: 0, Description: "No description available for Error" + errorNumberStr, Ignored: false, ErrorIndex: k}
 				} else{
-					m.rowsValues[k].Count += 1
-					m.rowsValues[k].Recency = 0
+					m.errorData[k].Count += 1
+					m.errorData[k].Recency = 0
 				}
 			}
+		}
+		// Sort the table by the recency.
+		currentError := m.table.SelectedIndex()
+		newRowValues :=  SortRowValuesByRecency(m.errorData)
+		newRows := toTableRows(newRowValues)
+		m.table.SetRows(newRows)
 
-			// Sort the table by the recency.
-			currentError := m.table.SelectedRow()
-			newRowValues :=  SortRowValuesBy(m.rowsValues,2)
-			newRows := toTableRows(newRowValues)
-			m.table.SetRows(newRows)
-
-			// Fix the cursor back onto the row it was on before the sort.
-			if currentError != nil{
-				newIndex := findError(currentError[0], newRowValues)
-				m.table.SetCursorAndViewport(newIndex)
-			}
+		// Fix the cursor back onto the row it was on before the sort.
+		if currentError != -1{
+			newIndex := findError(currentError, newRowValues)
+			m.table.SetCursorAndViewport(newIndex)
 		}
 		return m, nil
 	// If the message is a tick, check if the last CAN message was received more than the timeout duration ago
@@ -353,12 +336,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if _, ok := msg.(CANMsg); ok {
         // Update the mainTable regardless of submenu state
         m.table, cmd = m.table.Update(msg)
-    }else if m.submenuActive {
+    }else {
         m.submenuTable, cmd = m.submenuTable.Update(msg)
-    } else {
-        m.table, cmd = m.table.Update(msg)
-    }
-
+    } 
 	return m, cmd
 }
 
@@ -445,10 +425,10 @@ func (m model) View() string {
 
 	// Render the box 
 	if m.submenuActive && m.submenuTable.SelectedRow() != nil{
-		m.box.SetText(m.submenuTable.SelectedRow()[0], m.getDescription(m.submenuTable.SelectedRow()[0]))
+		m.box.SetText(m.submenuTable.SelectedRow()[0], m.errorData[m.submenuTable.SelectedIndex()].Description)
 		out = out + m.box.View()
 	} else if m.table.SelectedRow() != nil && !m.submenuActive{
-		m.box.SetText(m.table.SelectedRow()[0], m.getDescription(m.table.SelectedRow()[0]))
+		m.box.SetText(m.table.SelectedRow()[0],  m.errorData[m.table.SelectedIndex()].Description)
 		out = out + m.box.View()
 	}
 
@@ -472,7 +452,7 @@ func initViewer(warning int) model{
 		false,
 		subMenuKeyMap(),
 
-		make([]RowValues, 64),
+		make([]ErrorData, 64),
 		^uint64(0),
 		
 		false,
@@ -495,7 +475,7 @@ func createTable() table.Model{
 		{Title: "Recency", Width: 10},
 
 	}
-	rows := []table.Row {}
+	rows := []table.MetaRow{}
 	
 
 	t := table.New(
@@ -527,7 +507,7 @@ func createSubMenu() table.Model {
         {Title: "Ignored Errors:", Width: 60 + 4} ,
     }
 
-    rows := []table.Row{}
+    rows := []table.MetaRow{}
 	t := table.New(
 		table.WithColumns(columns),
 		table.WithRows(rows),
