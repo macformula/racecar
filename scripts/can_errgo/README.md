@@ -4,8 +4,8 @@ This is a Tangible User Interface program designed to track CAN Errors including
 
 Users can:
 
-- Acknowledge the error ( Hide and resets the error until it is sent again)
-- Ignore the error ( Hides, resets, and stops reading all future occurrences of the error)
+- Acknowledge the error (Hide and resets the error until it is sent again)
+- Ignore the error (Hides, resets, and stops reading all future occurrences of the error)
 - View ignored errors and choose to unignore those errors
 
 ## Setup
@@ -13,16 +13,16 @@ Users can:
 Install required dependencies:
 
 ```bash
-sudo  apt-get  update
-sudo  apt-get  upgrade
-sudo  apt  install  net-tools  iproute2  can-utils  linux-modules-extra-$(uname  -r)
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt install net-tools iproute2 can-utils linux-modules-extra-$(uname  -r)
 ```
 
 Kill all existing instances of ip-links:
 
 ```bash
-ip  link  show
-sudo  ip  link  delete <ip-link>
+ip link show
+sudo ip link delete <ip-link>
 ```
 
 Setup the can network:
@@ -36,7 +36,7 @@ Setup the can network:
 Start the CLI viewer for single use:
 
 ```bash
-go  run  error_tui.go  -i <CAN_PORT> -w <WARN_TIMER>
+go run error_tui.go -i <CAN_PORT> -w <WARN_TIMER>
 ```
 
 OR

@@ -24,7 +24,7 @@ type Model struct {
 	Help   help.Model
 
 	cols   []Column
-	metaRow []MetaRow
+	metaRows []MetaRow
 	cursor int
 	focus  bool
 	styles Styles
@@ -169,7 +169,7 @@ func WithColumns(cols []Column) Option {
 //WithRows sets the table rows (data).
 func WithRows(rows []MetaRow) Option {
 	return func(m *Model) {
-		m.metaRow = rows
+		m.metaRows = rows
 	}
 }
 
@@ -274,7 +274,7 @@ func (m Model) HelpView() string {
 // UpdateViewport updates the list content based on the previously defined
 // columns and rows.
 func (m *Model) UpdateViewport() {
-	renderedRows := make([]string, 0, len(m.metaRow))
+	renderedRows := make([]string, 0, len(m.metaRows))
 
 	// Render only rows from: m.cursor-m.viewport.Height to: m.cursor+m.viewport.Height
 	// Constant runtime, independent of number of rows in a table.
@@ -284,7 +284,7 @@ func (m *Model) UpdateViewport() {
 	} else {
 		m.start = 0
 	}
-	m.end = clamp(m.cursor+m.viewport.Height, m.cursor, len(m.metaRow))
+	m.end = clamp(m.cursor+m.viewport.Height, m.cursor, len(m.metaRows))
 	for i := m.start; i < m.end; i++ {
 		renderedRows = append(renderedRows, m.renderRow(i))
 	}
@@ -297,24 +297,24 @@ func (m *Model) UpdateViewport() {
 // SelectedRow returns the selected row.
 // You can cast it to your own implementation.
 func (m Model) SelectedRow() Row {
-	if m.cursor < 0 || m.cursor >= len(m.metaRow) {
+	if m.cursor < 0 || m.cursor >= len(m.metaRows) {
 		return nil
 	}
 
-	return m.metaRow[m.cursor].Row
+	return m.metaRows[m.cursor].Row
 }
 
 // SelectedIndex returns the Error Index of the selected row.
 func (m Model) SelectedIndex() int {
-	if m.cursor < 0 || m.cursor >= len(m.metaRow) {
+	if m.cursor < 0 || m.cursor >= len(m.metaRows) {
 		return -1
 	}
-	return m.metaRow[m.cursor].Index
+	return m.metaRows[m.cursor].Index
 }
 
-// Rows returns the current metaRow.
+// Rows returns the current metaRows.
 func (m Model) Rows() []MetaRow {
-	return m.metaRow
+	return m.metaRows
 }
 
 // Columns returns the current columns.
@@ -322,9 +322,9 @@ func (m Model) Columns() []Column {
 	return m.cols
 }
 
-// SetRows sets a new metaRow state.
+// SetRows sets a new metaRows state.
 func (m *Model) SetRows(r []MetaRow) {
-	m.metaRow = r
+	m.metaRows = r
 	m.UpdateViewport()
 }
 
@@ -364,23 +364,23 @@ func (m Model) Cursor() int {
 // ForceCursor forces the cursor to a specific row, regardless if the row is out of bounds.
 func (m *Model) ForceCursor(n int) {
     // Clamp the cursor position within bounds
-    m.cursor = clamp(n, 0, len(m.metaRow)-1)
+    m.cursor = clamp(n, 0, len(m.metaRows)-1)
     m.UpdateViewport()
 }
 
 // SetCursor sets the cursor position in the table.
 func (m *Model) SetCursor(n int) {
-	m.cursor = clamp(n, 0, len(m.metaRow)-1)
+	m.cursor = clamp(n, 0, len(m.metaRows)-1)
 	m.UpdateViewport()
 }
 // SetCursor sets the cursor position in the table.
 func (m *Model) SetCursorAndViewport(n int) {
-	m.cursor = clamp(n, 0, len(m.metaRow)-1)
+	m.cursor = clamp(n, 0, len(m.metaRows)-1)
 
 	switch {
 	case m.start == 0:
 		m.viewport.SetYOffset(clamp(m.viewport.YOffset, 0, m.cursor))
-	case m.end == len(m.metaRow) && m.cursor > m.viewport.Height:
+	case m.end == len(m.metaRows) && m.cursor > m.viewport.Height:
 		m.viewport.SetYOffset(clamp(m.viewport.YOffset-n, 1, m.viewport.Height))
 	}
 
@@ -392,10 +392,10 @@ func (m *Model) SetShowCursor(show bool) {
 	m.UpdateViewport()
 }
 
-// MoveUp moves the selection up by any number of metaRow.
+// MoveUp moves the selection up by any number of metaRows.
 // It can not go above the first row.
 func (m *Model) MoveUp(n int) {
-	m.cursor = clamp(m.cursor-n, 0, len(m.metaRow)-1)
+	m.cursor = clamp(m.cursor-n, 0, len(m.metaRows)-1)
 	switch {
 	case m.start == 0:
 		m.viewport.SetYOffset(clamp(m.viewport.YOffset, 0, m.cursor))
@@ -407,14 +407,14 @@ func (m *Model) MoveUp(n int) {
 	m.UpdateViewport()
 }
 
-// MoveDown moves the selection down by any number of metaRow.
+// MoveDown moves the selection down by any number of metaRows.
 // It can not go below the last row.
 func (m *Model) MoveDown(n int) {
-	m.cursor = clamp(m.cursor+n, 0, len(m.metaRow)-1)
+	m.cursor = clamp(m.cursor+n, 0, len(m.metaRows)-1)
 	m.UpdateViewport()
 
 	switch {
-	case m.end == len(m.metaRow) && m.viewport.YOffset > 0:
+	case m.end == len(m.metaRows) && m.viewport.YOffset > 0:
 		m.viewport.SetYOffset(clamp(m.viewport.YOffset-n, 1, m.viewport.Height))
 	case m.cursor > (m.end-m.start)/2 && m.viewport.YOffset > 0:
 		m.viewport.SetYOffset(clamp(m.viewport.YOffset-n, 1, m.cursor))
@@ -431,7 +431,7 @@ func (m *Model) GotoTop() {
 
 // GotoBottom moves the selection to the last row.
 func (m *Model) GotoBottom() {
-	m.MoveDown(len(m.metaRow))
+	m.MoveDown(len(m.metaRows))
 }
 
 func (m Model) headersView() string {
@@ -449,7 +449,7 @@ func (m Model) headersView() string {
 
 func (m *Model) renderRow(r int) string {
 	s := make([]string, 0, len(m.cols))
-	for i, value := range m.metaRow[r].Row {
+	for i, value := range m.metaRows[r].Row {
 		if m.cols[i].Width <= 0 {
 			continue
 		}
