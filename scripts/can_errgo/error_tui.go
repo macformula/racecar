@@ -89,7 +89,7 @@ func findError(errorIndex int, rowValues []ErrorData) int {
 func (m model) getIgnoredRows() []table.MetaRow {
 	var rows []table.MetaRow
 	for _,row := range m.errorData{
-		if row.Ignored && row.Error != ""{
+		if row.Ignored{
 		rows = append(rows, table.MetaRow{Row: table.Row{row.Error}, Index: row.ErrorIndex})
 		}
 	}
