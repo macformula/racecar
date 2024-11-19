@@ -48,7 +48,7 @@ func toTableRows(r []ErrorData) []table.MetaRow {
 	var rows []table.MetaRow
 	for _, v := range r {
 		// Check if the ErrorData is "non-empty" and Active
-		if v.Error != "" && v.Count != 0 && !v.Ignored{
+		if v.Count != 0 && !v.Ignored{
 			rows = append(rows, RowValuesToRow(v))
 		}
 	}
@@ -75,7 +75,7 @@ func SortRowValuesByRecency(r []ErrorData) []ErrorData {
 func findError(errorIndex int, rowValues []ErrorData) int {
 	cnt := 0
 	for i ,row := range rowValues{
-		if row.Error == "" || row.Ignored{
+		if row.Count == 0 || row.Ignored{
 			cnt += 1
 		} 
 		if row.ErrorIndex == errorIndex{
@@ -102,6 +102,7 @@ type ErrorData struct{
 	Recency int
 	Description string
 	Ignored bool
+	//  This is used for keeping track of the error bit after sorting
 	ErrorIndex int
 }
 
@@ -153,15 +154,6 @@ func tickEvery(t time.Duration) tea.Cmd {
 	}
 }
 
-// Increment the recency of all errors
-func (m *model) refresh() {
-	for i := range m.errorData { // Use index to modify the original slice
-		if m.errorData[i].Count != 0 {
-			m.errorData[i].Recency += 1
-		}
-	}	
-}
-
 func (m model) Init() tea.Cmd { return tickEvery(m.t) }
 
 // Table and ignore subtable update loop.
@@ -189,13 +181,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.errorData[errorIndex].Ignored = false
 				newRows := m.getIgnoredRows()
 				m.submenuTable.SetRows(newRows)
-
-				// May be unnecessary, but just in case we update the cursor.
-				if m.submenuTable.Cursor() == 0{
-					m.submenuTable.MoveDown(1)
-				}else{
-					m.submenuTable.MoveUp(1)
-				}
 
 			case key.Matches(msg, m.submenuKeys.s):
 				m.submenuActive = false  // Hide submenu
@@ -230,14 +215,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.errorData[errorIndex].Count = 0
 			newRows := toTableRows(m.errorData)
 			m.table.SetRows(newRows)
-
-
-			// May be unnecessary, but just in case we update the cursor.
-			if m.table.Cursor() == 0{
-				m.table.MoveDown(1)
-			}else{
-				m.table.MoveUp(1)
-			}
 			return m, nil
 		case key.Matches(msg, m.tableKeys.i):
 
@@ -260,8 +237,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			//Set add the ignored rows to submenu
 			ignoredRows := m.getIgnoredRows()
 			m.submenuTable.SetRows(ignoredRows)
-			// May be unnecessary, but just in case we update the cursor.
-			m.table.MoveDown(1)
 
 			return m, nil
         case key.Matches(msg, m.tableKeys.s):
@@ -289,17 +264,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.isTimeout = false
 		// Perform bitwise AND to filter out the bits that are not of interest
 		msg.Value = msg.Value & m.ignoreMask
-		// Update the freshness of the errors
-		m.refresh()
-		for k := 0; k < 64; k++ { // Iterate through all 64 bits
-			if msg.Value&(1<<k) != 0 { // Check if the k-th bit is set
-				var errorNumberStr string = strconv.Itoa(k)
-				if m.errorData[k].Error == ""{
-					m.errorData[k] = ErrorData{Error: "error" + errorNumberStr, Count: 1, Recency: 0, Description: "No description available for Error" + errorNumberStr, Ignored: false, ErrorIndex: k}
-				} else{
-					m.errorData[k].Count += 1
-					m.errorData[k].Recency = 0
-				}
+		for i,errorVal := range m.errorData{
+			m.errorData[i].Recency += 1
+			if msg.Value&(1<<errorVal.ErrorIndex) != 0{
+				m.errorData[i].Count += 1
+				m.errorData[i].Recency = 0
 			}
 		}
 		// Sort the table by the recency.
@@ -430,6 +399,74 @@ func initViewer(warning int) model{
 	mainTable := createTable()
 	table2 := createSubMenu()
 
+	// This can be determined at runtime later (DBC file parsing), for now it is hardcoded.
+	customErrors := []ErrorData{
+		{Error: "error0", Count: 0, Recency: 0, Description: "Description for error 0", Ignored: false, ErrorIndex: 0},
+		{Error: "error1", Count: 0, Recency: 0, Description: "Description for error 1", Ignored: false, ErrorIndex: 1},
+		{Error: "error2", Count: 0, Recency: 0, Description: "Description for error 2", Ignored: false, ErrorIndex: 2},
+		{Error: "error3", Count: 0, Recency: 0, Description: "Description for error 3", Ignored: false, ErrorIndex: 3},
+		{Error: "error4", Count: 0, Recency: 0, Description: "Description for error 4", Ignored: false, ErrorIndex: 4},
+		{Error: "error5", Count: 0, Recency: 0, Description: "Description for error 5", Ignored: false, ErrorIndex: 5},
+		{Error: "error6", Count: 0, Recency: 0, Description: "Description for error 6", Ignored: false, ErrorIndex: 6},
+		{Error: "error7", Count: 0, Recency: 0, Description: "Description for error 7", Ignored: false, ErrorIndex: 7},
+		{Error: "error8", Count: 0, Recency: 0, Description: "Description for error 8", Ignored: false, ErrorIndex: 8},
+		{Error: "error9", Count: 0, Recency: 0, Description: "Description for error 9", Ignored: false, ErrorIndex: 9},
+		{Error: "error10", Count: 0, Recency: 0, Description: "Description for error 10", Ignored: false, ErrorIndex: 10},
+		{Error: "error11", Count: 0, Recency: 0, Description: "Description for error 11", Ignored: false, ErrorIndex: 11},
+		{Error: "error12", Count: 0, Recency: 0, Description: "Description for error 12", Ignored: false, ErrorIndex: 12},
+		{Error: "error13", Count: 0, Recency: 0, Description: "Description for error 13", Ignored: false, ErrorIndex: 13},
+		{Error: "error14", Count: 0, Recency: 0, Description: "Description for error 14", Ignored: false, ErrorIndex: 14},
+		{Error: "error15", Count: 0, Recency: 0, Description: "Description for error 15", Ignored: false, ErrorIndex: 15},
+		{Error: "error16", Count: 0, Recency: 0, Description: "Description for error 16", Ignored: false, ErrorIndex: 16},
+		{Error: "error17", Count: 0, Recency: 0, Description: "Description for error 17", Ignored: false, ErrorIndex: 17},
+		{Error: "error18", Count: 0, Recency: 0, Description: "Description for error 18", Ignored: false, ErrorIndex: 18},
+		{Error: "error19", Count: 0, Recency: 0, Description: "Description for error 19", Ignored: false, ErrorIndex: 19},
+		{Error: "error20", Count: 0, Recency: 0, Description: "Description for error 20", Ignored: false, ErrorIndex: 20},
+		{Error: "error21", Count: 0, Recency: 0, Description: "Description for error 21", Ignored: false, ErrorIndex: 21},
+		{Error: "error22", Count: 0, Recency: 0, Description: "Description for error 22", Ignored: false, ErrorIndex: 22},
+		{Error: "error23", Count: 0, Recency: 0, Description: "Description for error 23", Ignored: false, ErrorIndex: 23},
+		{Error: "error24", Count: 0, Recency: 0, Description: "Description for error 24", Ignored: false, ErrorIndex: 24},
+		{Error: "error25", Count: 0, Recency: 0, Description: "Description for error 25", Ignored: false, ErrorIndex: 25},
+		{Error: "error26", Count: 0, Recency: 0, Description: "Description for error 26", Ignored: false, ErrorIndex: 26},
+		{Error: "error27", Count: 0, Recency: 0, Description: "Description for error 27", Ignored: false, ErrorIndex: 27},
+		{Error: "error28", Count: 0, Recency: 0, Description: "Description for error 28", Ignored: false, ErrorIndex: 28},
+		{Error: "error29", Count: 0, Recency: 0, Description: "Description for error 29", Ignored: false, ErrorIndex: 29},
+		{Error: "error30", Count: 0, Recency: 0, Description: "Description for error 30", Ignored: false, ErrorIndex: 30},
+		{Error: "error31", Count: 0, Recency: 0, Description: "Description for error 31", Ignored: false, ErrorIndex: 31},
+		{Error: "error32", Count: 0, Recency: 0, Description: "Description for error 32", Ignored: false, ErrorIndex: 32},
+		{Error: "error33", Count: 0, Recency: 0, Description: "Description for error 33", Ignored: false, ErrorIndex: 33},
+		{Error: "error34", Count: 0, Recency: 0, Description: "Description for error 34", Ignored: false, ErrorIndex: 34},
+		{Error: "error35", Count: 0, Recency: 0, Description: "Description for error 35", Ignored: false, ErrorIndex: 35},
+		{Error: "error36", Count: 0, Recency: 0, Description: "Description for error 36", Ignored: false, ErrorIndex: 36},
+		{Error: "error37", Count: 0, Recency: 0, Description: "Description for error 37", Ignored: false, ErrorIndex: 37},
+		{Error: "error38", Count: 0, Recency: 0, Description: "Description for error 38", Ignored: false, ErrorIndex: 38},
+		{Error: "error39", Count: 0, Recency: 0, Description: "Description for error 39", Ignored: false, ErrorIndex: 39},
+		{Error: "error40", Count: 0, Recency: 0, Description: "Description for error 40", Ignored: false, ErrorIndex: 40},
+		{Error: "error41", Count: 0, Recency: 0, Description: "Description for error 41", Ignored: false, ErrorIndex: 41},
+		{Error: "error42", Count: 0, Recency: 0, Description: "Description for error 42", Ignored: false, ErrorIndex: 42},
+		{Error: "error43", Count: 0, Recency: 0, Description: "Description for error 43", Ignored: false, ErrorIndex: 43},
+		{Error: "error44", Count: 0, Recency: 0, Description: "Description for error 44", Ignored: false, ErrorIndex: 44},
+		{Error: "error45", Count: 0, Recency: 0, Description: "Description for error 45", Ignored: false, ErrorIndex: 45},
+		{Error: "error46", Count: 0, Recency: 0, Description: "Description for error 46", Ignored: false, ErrorIndex: 46},
+		{Error: "error47", Count: 0, Recency: 0, Description: "Description for error 47", Ignored: false, ErrorIndex: 47},
+		{Error: "error48", Count: 0, Recency: 0, Description: "Description for error 48", Ignored: false, ErrorIndex: 48},
+		{Error: "error49", Count: 0, Recency: 0, Description: "Description for error 49", Ignored: false, ErrorIndex: 49},
+		{Error: "error50", Count: 0, Recency: 0, Description: "Description for error 50", Ignored: false, ErrorIndex: 50},
+		{Error: "error51", Count: 0, Recency: 0, Description: "Description for error 51", Ignored: false, ErrorIndex: 51},
+		{Error: "error52", Count: 0, Recency: 0, Description: "Description for error 52", Ignored: false, ErrorIndex: 52},
+		{Error: "error53", Count: 0, Recency: 0, Description: "Description for error 53", Ignored: false, ErrorIndex: 53},
+		{Error: "error54", Count: 0, Recency: 0, Description: "Description for error 54", Ignored: false, ErrorIndex: 54},
+		{Error: "error55", Count: 0, Recency: 0, Description: "Description for error 55", Ignored: false, ErrorIndex: 55},
+		{Error: "error56", Count: 0, Recency: 0, Description: "Description for error 56", Ignored: false, ErrorIndex: 56},
+		{Error: "error57", Count: 0, Recency: 0, Description: "Description for error 57", Ignored: false, ErrorIndex: 57},
+		{Error: "error58", Count: 0, Recency: 0, Description: "Description for error 58", Ignored: false, ErrorIndex: 58},
+		{Error: "error59", Count: 0, Recency: 0, Description: "Description for error 59", Ignored: false, ErrorIndex: 59},
+		{Error: "error60", Count: 0, Recency: 0, Description: "Description for error 60", Ignored: false, ErrorIndex: 60},
+		{Error: "error61", Count: 0, Recency: 0, Description: "Description for error 61", Ignored: false, ErrorIndex: 61},
+		{Error: "error62", Count: 0, Recency: 0, Description: "Description for error 62", Ignored: false, ErrorIndex: 62},
+		{Error: "error63", Count: 0, Recency: 0, Description: "Description for error 63", Ignored: false, ErrorIndex: 63},
+	}
+	
 	box := box.Box{};
 	// Each column has padding of 2, so the width is 60 + 2*3(error columns) = 66
 	box.SetWidth(66)
@@ -442,7 +479,7 @@ func initViewer(warning int) model{
 		false,
 		subMenuKeyMap(),
 
-		make([]ErrorData, 64),
+		customErrors,
 		^uint64(0),
 		
 		false,

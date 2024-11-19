@@ -4,7 +4,7 @@ This is a Tangible User Interface program designed to track CAN Errors including
 
 Users can:
 
-- Acknowledge the error ( Hide the error until it is sent again)
+- Acknowledge the error ( Hide and resets the error until it is sent again)
 - Ignore the error ( Hides, resets, and stops reading all future occurrences of the error)
 - View ignored errors and choose to unignore those errors
 
