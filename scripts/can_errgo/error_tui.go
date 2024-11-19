@@ -85,16 +85,6 @@ func findError(errorIndex int, rowValues []ErrorData) int {
 	return -1
 }
 
-// resetRowValue resets the count and recency of the error in the slice of ErrorData.
-func (m model) resetRowValue(errorName string) {
-	for _,row := range m.errorData{
-		if row.Error == errorName{
-			row.Count = 0
-			row.Recency = 0
-		}
-	}
-}
-
 // getIgnoredRows returns a slice of table.Rows that are ignored and have an error message.
 func (m model) getIgnoredRows() []table.MetaRow {
 	var rows []table.MetaRow
