@@ -18,8 +18,10 @@ int main(void) {
     while (true) {
         auto btn_msg = demo_can_bus.PopRxButtonStatus();
 
+        // We're not guaranteed to have message available, so we need to check.
         if (btn_msg.has_value()) {
-            auto msg = btn_msg.value();
+            // Unpack the value from the optional
+            RxButtonStatus msg = btn_msg.value();
             bindings::indicator.Set(msg.State());
         }
     }
