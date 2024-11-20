@@ -2,7 +2,8 @@
 
 Code in our monorepo is organized based on two binary traits: Project (ECU) Specificity and Platform Specificity.
 
-![Architecture Organization](arch_diagram.png){width=100%}
+![Architecture Organization](arch_diagram-Light.png#only-light){width=100%}
+![Architecture Organization](arch_diagram-Dark.png#only-dark){width=100%}
 
 Most of the architecture is described by the interplay in project-specific sections, i.e. the left column of this diagram.
 
