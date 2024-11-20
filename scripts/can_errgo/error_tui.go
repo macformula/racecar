@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/binary"
 	"flag"
 	"fmt"
 	"log"
 	"math"
 	"net"
+	"os"
 	"sort"
 	"strconv"
 	"time"
@@ -482,75 +484,93 @@ func createSubMenu() table.Model {
     return t
 }
 
+func gracefulExit(p *tea.Program, cancel context.CancelFunc, quit chan struct{}, errMsg string, err error) {
+    if cancel != nil {
+        cancel() 
+    }
 
-func can_listener(p *tea.Program, canInterface string) {
-	// Create a raw CAN socket using the unix package
-	var sock int;
-	var err error;
-	
-	sock, err = unix.Socket(unix.AF_CAN, unix.SOCK_RAW, unix.CAN_RAW)
-	if err != nil {
-		log.Fatalf("Error creating CAN socket: %v", err)
-	}
-	defer unix.Close(sock)
+    if p != nil {
+        p.Quit()
+    }
 
-	// Get the index of the interface 
-	ifi, err := net.InterfaceByName(canInterface)
-	if err != nil {
-		log.Fatalf("Error getting interface index: %v", err)
-	}
+    // Wait for the main loop to handle the quit signal
+    <-quit
 
-	// Bind the socket to the CAN interface
-	addr := &unix.SockaddrCAN{Ifindex: ifi.Index}
-	if err := unix.Bind(sock, addr); err != nil {
-		log.Fatalf("Error binding CAN socket: %v", err)
-	}
-
-	// Create a buffer to hold incoming CAN frames
-	buf := make([]byte, canFrameSize)
-
-	fmt.Println("Listening for CAN messages on", canInterface)
-
-	for {
-		// Receive CAN message
-		_, err := unix.Read(sock, buf)
-		if err != nil {
-			log.Printf("Error receiving CAN message: %v", err)
-			continue
-		}
-
-		// Extract CAN ID and data
-		canID := binary.LittleEndian.Uint32(buf[0:4]) & 0x1FFFFFFF // 29-bit CAN ID (masked)
-		data := bytesToUint64(buf[8:]) 
-		
-		msg := CANMsg{ ID : canID, Value: data}
-		p.Send(msg)
-	}
+    if err != nil {
+        log.Printf("%s: %v", errMsg, err)
+    } else {
+        log.Println(errMsg)
+    }
+    os.Exit(1) 
 }
 
+func can_listener(ctx context.Context, p *tea.Program, canInterface string, errChan chan error) {
+    sock, err := unix.Socket(unix.AF_CAN, unix.SOCK_RAW, unix.CAN_RAW)
+    if err != nil {
+        errChan <- fmt.Errorf("Error creating CAN socket: %w", err)
+        return
+    }
+    defer unix.Close(sock)
+
+    ifi, err := net.InterfaceByName(canInterface)
+    if err != nil {
+        errChan <- fmt.Errorf("Error getting interface index: %w", err)
+        return
+    }
+
+    addr := &unix.SockaddrCAN{Ifindex: ifi.Index}
+    if err := unix.Bind(sock, addr); err != nil {
+        errChan <- fmt.Errorf("Error binding socket to interface: %w", err)
+        return
+    }
+
+    buf := make([]byte, canFrameSize)
+    fmt.Println("Listening for CAN messages on", canInterface)
+
+    for {
+        select {
+        case <-ctx.Done(): // Exit loop when context is canceled
+            log.Println("CAN listener shutting down...")
+            return
+        default:
+            _, err := unix.Read(sock, buf)
+            if err != nil {
+                log.Printf("Error receiving CAN message: %v", err)
+                continue
+            }
+
+            canID := binary.LittleEndian.Uint32(buf[0:4]) & 0x1FFFFFFF
+            data := bytesToUint64(buf[8:])
+            msg := CANMsg{ID: canID, Value: data}
+            p.Send(msg)
+        }
+    }
+}
 
 func main() {
-	// Define the command line flag
-	warnFlag := flag.Int("w", 5, "warning time for the table (integer value)")
-	canInterfaceFlag := flag.String("i", "vcan0", "CAN interface to listen on")
-
-	flag.Parse()
+    warnFlag := flag.Int("w", 5, "warning time for the table (integer value)")
+    canInterfaceFlag := flag.String("i", "vcan0", "CAN interface to listen on")
+    flag.Parse()
+    m := initViewer(*warnFlag)
 	
-	// Initialize the model and run the program
-	var m model = initViewer(*warnFlag)
-	// channel to listen for the quit signal
-	quit := make(chan struct{})
+    quit := make(chan struct{})
+    errChan := make(chan error)
+    ctx, cancel := context.WithCancel(context.Background())
 
-	// Start the TUI
-	p := tea.NewProgram(m)
-	go func() {
-		if _, err := p.Run(); err != nil {
-			fmt.Println("Error running TUI:", err)
-		}
-		close(quit)
-	}()
-	// Start the CAN listener
-	go can_listener(p, *canInterfaceFlag)
+    p := tea.NewProgram(m)
+    go func() {
+        if _, err := p.Run(); err != nil {
+            errChan <- fmt.Errorf("Error running TUI: %w", err)
+        }
+        close(quit) // Notify the main loop that TUI has exited
+    }()
 
-	<-quit
+    go can_listener(ctx, p, *canInterfaceFlag, errChan)
+
+    select {
+    case err := <-errChan:
+        gracefulExit(p, cancel, quit, "Exiting due to error", err)
+    case <-quit:
+        cancel() // Ensure all goroutines stop
+    }
 }
