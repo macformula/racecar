@@ -1,9 +1,12 @@
 # Architecture
 
-![Architecture Organization](../assets/architecture-chart.svg)
-*A strategic organization of our firmware architecture, illustrating the powerful interplay between platform-specific and project-specific components.*
+Code in our monorepo is organized based on two binary traits: Project (ECU) Specificity and Platform Specificity.
 
-Our firmware is separated in 2 layers: application and platform.
+![Architecture Organization](arch_diagram.png){width=100%}
+
+Most of the architecture is described by the interplay in project-specific sections, i.e. the left column of this diagram.
+
+Our project-specific firmware is separated in 2 layers:
 
 The __application__ (app) layer describes the __what the project does__ at a high level. This includes:
 
@@ -17,7 +20,7 @@ The __platform__ layer __configures hardware__ to run the app code. In this laye
 - :fontawesome-solid-gear: Peripheral configurations.
 - :fontawesome-solid-power-off: Initialization functions.
 
-The interface between the app and platform layers is a contract called __bindings__. This contract declares a handle for each peripheral and function required by the application. The platform _binds_ a configured peripheral or function implementation to each handle.
+The interface between the app and platform layers is a contract called __bindings__. This contract declares a handle for each peripheral and function required by the application. The platform *binds* a configured peripheral or function implementation to each handle.
 
 ## Why separate these layers?
 
@@ -27,14 +30,14 @@ There are two major motivations for strictly separating the application and plat
 
 Since the application code is not tied to any specific platform, it can __run on any platform__, provided that platform can fulfill the bindings contract.
 
-I _cannot overstate_ how significant this is. Being able to arbitrarily swap platforms enables:
+I *cannot overstate* how significant this is. Being able to arbitrarily swap platforms enables:
 
 - :octicons-terminal-16: Running vehicle firmware on your local machine through its command line interface.
 - :material-test-tube: Testing application code with a HIL or SIL setup.
 - :fontawesome-solid-microchip: Writing portable code, should we ever change our microcontroller.
 - :fontawesome-solid-gears: Simultaneously having multiple hardware configurations for the same platform.
 
-Platform abstraction means that each device executes the _exact same_ application code. This greatly simplifies debugging:
+Platform abstraction means that each device executes the *exact same* application code. This greatly simplifies debugging:
 
 - If there is a bug when running the vehicle but the test platform works fine, then you immediately know that the vehicle platform layer was configured incorrectly.
 - If all platforms have the same bug, then you know that all hardware peripherals are responding and the bug exists at the app layer.

@@ -130,7 +130,7 @@ nav:
   - Firmware:
     - firmware/index.md
     - firmware/dev-setup.md
-    - firmware/architecture.md
+    - firmware/architecture/index.md
     - firmware/project-structure/index.md
     - firmware/compile-project.md
     - firmware/flashing/index.md
