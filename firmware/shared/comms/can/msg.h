@@ -14,6 +14,12 @@ struct RawMessage {
     uint8_t data[8];
 };
 
+// TxMessage concept is required by Bus.Send()
+template <typename T>
+concept TxMessage = requires(const T msg) {
+    { msg.pack() } -> std::same_as<RawMessage>;
+};
+
 }  // namespace shared::can
 
 // Convert RawMessage to string with `std::format`

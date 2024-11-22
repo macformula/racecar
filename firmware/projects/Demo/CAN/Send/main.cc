@@ -19,7 +19,7 @@ int main(void) {
         TxButtonStatus msg{
             .state = bindings::button.Read(),
         };
-        can_bus.Send(msg.pack());
+        can_bus.Send(msg);
         bindings::TickBlocking(interval_ms);
     }
 
