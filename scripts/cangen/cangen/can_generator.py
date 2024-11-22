@@ -23,7 +23,7 @@ EIGHT_BITS = 8
 EIGHT_BYTES = 8
 TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
 
-TEMPLATE_FILE_NAMES = ["can_messages.hpp.jinja2", "msg_registry.hpp.jinja2"]
+TEMPLATE_FILE_NAMES = ["messages.hpp.jinja2", "bus.hpp.jinja2"]
 
 
 def _parse_dbc_files(dbc_file: str) -> Database:
@@ -241,7 +241,8 @@ def _prepare_output_directory(output_dir: str):
 
 def generate_can_for_project(project_folder_name: str):
     """Generates C code for a given project.
-    Ensure the project folder contains a config.yaml file which specifies the relative path to its corresponding dbc file."""
+    Ensure the project folder contains a config.yaml file which specifies the relative path to its corresponding dbc file.
+    """
     os.chdir(project_folder_name)
     config = Config.from_yaml("config.yaml")
 
