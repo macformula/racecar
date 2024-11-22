@@ -9,14 +9,14 @@
 namespace mcal {
 using namespace lnx::periph;
 
-CanBase veh_can_base{"vcan0"};
+CanBase demo_can_base{"vcan0"};
 DigitalInput button{"Button"};
 
 }  // namespace mcal
 
 namespace bindings {
 
-shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
+shared::periph::CanBase& demo_can_base = mcal::demo_can_base;
 shared::periph::DigitalInput& button = mcal::button;
 
 void TickBlocking(uint32_t ms) {
@@ -25,7 +25,7 @@ void TickBlocking(uint32_t ms) {
 
 void Initialize() {
     std::cout << "Initializing Linux" << std::endl;
-    mcal::veh_can_base.Setup();
+    mcal::demo_can_base.Setup();
 }
 
 }  // namespace bindings
