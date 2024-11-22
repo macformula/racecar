@@ -7,7 +7,7 @@
 
 namespace bindings {
 
-extern shared::periph::CanBase& veh_can_base;
+extern shared::periph::CanBase& demo_can_base;
 extern shared::periph::DigitalInput& button;
 
 extern void Initialize();
