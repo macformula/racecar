@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <iostream>
@@ -21,12 +20,9 @@ namespace bindings {
         usleep(ms * 1000);
     }
 
-    // interupt function that uses the signal function for the cli/linux
-    // platform
-
     void Initialize() {
         std::cout << "Initializing the CLI...\n" << std::endl;
         signal(SIGINT, (__p_sig_fn_t)&ToggleInterruptHandler);
     }
 
-}  // namespace bindings
+    }  // namespace bindings
