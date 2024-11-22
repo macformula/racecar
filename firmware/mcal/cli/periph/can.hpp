@@ -8,11 +8,12 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <chrono>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
 
-#include "shared/comms/can/raw_can_msg.hpp"
+#include "shared/comms/can/msg.hpp"
 #include "shared/periph/can.hpp"
 
 namespace mcal::cli::periph {
@@ -25,27 +26,19 @@ public:
         std::cout << "can interface: " << iface_ << std::endl;
     }
 
-    void Send(const shared::can::RawCanMsg& can_tx_msg) {
-        std::cout << iface_ << " [" << std::hex << std::uppercase
-                  << std::setfill('0') << std::setw(2) << can_tx_msg.header.id
-                  << "] ";
-
-        // Loop through each data byte and print it in uppercase hex with
-        // leading zeros
-        for (int i = 0; i < sizeof(can_tx_msg.data); ++i) {
-            std::cout << std::hex << std::uppercase << std::setfill('0')
-                      << std::setw(2) << static_cast<int>(can_tx_msg.data[i])
-                      << " ";
-        }
-
-        std::cout << std::endl;
+    void Send(const shared::can::RawMessage& msg) {
+        std::cout << std::format("{} {}", iface_, msg) << std::endl;
     }
 
-    void ReadQueue(shared::can::RawCanMsg can_rx_msgs[], size_t len) {}
-
 private:
-    using RawCanMsg = shared::can::RawCanMsg;
     std::string iface_;
+
+    uint32_t GetTimestamp() const override {
+        using namespace std::chrono;
+        auto t = system_clock::now().time_since_epoch();
+        auto ms = duration_cast<milliseconds>(t).count();
+        return ms;
+    }
 };
 
 }  // namespace mcal::cli::periph

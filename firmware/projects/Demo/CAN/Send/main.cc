@@ -3,30 +3,23 @@
 
 #include <cstdint>
 
-#include "bindings.hpp"
-#include "generated/can/demobus_can_messages.hpp"
-#include "generated/can/demobus_msg_registry.hpp"
-#include "shared/comms/can/can_bus.hpp"
+#include "bindings.h"
+#include "generated/can/demobus_bus.hpp"
+#include "generated/can/demobus_messages.hpp"
 
-generated::can::DemobusMsgRegistry veh_can_registry{};
+using namespace generated::can;
 
-shared::can::CanBus veh_can_bus{
-    bindings::veh_can_base,
-    veh_can_registry,
-};
+DemobusBus can_bus{bindings::demo_can_base};
 
 int main(void) {
     bindings::Initialize();
     uint32_t interval_ms = 50;
 
-    generated::can::ButtonStatus btn_msg{};
-
     while (true) {
-        veh_can_bus.Update();
-
-        btn_msg.state = bindings::button.Read();
-
-        veh_can_bus.Send(btn_msg);
+        TxButtonStatus msg{
+            .state = bindings::button.Read(),
+        };
+        can_bus.Send(msg);
         bindings::TickBlocking(interval_ms);
     }
 

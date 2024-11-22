@@ -3,28 +3,27 @@
 
 #include <cstdint>
 
-#include "bindings.hpp"
-#include "generated/can/demobus_can_messages.hpp"
-#include "generated/can/demobus_msg_registry.hpp"
-#include "shared/comms/can/can_bus.hpp"
+#include "bindings.h"
+#include "generated/can/demobus_bus.pp"
+#include "generated/can/demobus_messages.hpp"
+#include "shared/comms/can/bus.hpp"
 
-generated::can::DemobusMsgRegistry veh_can_registry{};
+using namespace generated::can;
 
-shared::can::CanBus veh_can_bus{
-    bindings::veh_can_base,
-    veh_can_registry,
-};
+DemobusBus demo_can_bus{bindings::demo_can_base};
 
 int main(void) {
     bindings::Initialize();
 
-    generated::can::ButtonStatus btn_msg{};
-
     while (true) {
-        veh_can_bus.Update();
-        veh_can_bus.Read(btn_msg);
+        auto btn_msg = demo_can_bus.PopRxButtonStatus();
 
-        bindings::indicator.Set(btn_msg.state);
+        // We're not guaranteed to have message available, so we need to check.
+        if (btn_msg.has_value()) {
+            // Unpack the value from the optional
+            RxButtonStatus msg = btn_msg.value();
+            bindings::indicator.Set(msg.State());
+        }
     }
 
     return 0;
