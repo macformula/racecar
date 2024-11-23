@@ -94,8 +94,8 @@ const shared::util::CompositeMap<float> volt_stm_to_degC{
 
 /// Spin the fan faster when the acculumator is hotter.
 const float fan_lut_data[][2] = {
-    {-1, 0},
-    {0, 30},
+    {19, 0},
+    {20, 30},
     {50, 100},
 };
 
