@@ -17,6 +17,11 @@ jobs:
         sudo apt update
         sudo apt install -y ansible
 
+    - name: Add SSH key to runner
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+
     - name: Run Ansible Playbook
       run: |
         ansible-playbook -i scripts/hil/inventory.yml scripts/hil/test_setup.yml
