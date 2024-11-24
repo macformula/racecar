@@ -1,6 +1,7 @@
 name: Setup SSH on Raspberry Pi
 
 on:
+  push:
   workflow_dispatch:
 
 jobs:
