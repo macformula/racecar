@@ -17,13 +17,6 @@ jobs:
         sudo apt update
         sudo apt install -y ansible
 
-    - name: Set up SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-        chmod 600 ~/.ssh/id_ed25519
-        ssh-keyscan -H ${{ secrets.RPI_IP_ADDRESS }} >> ~/.ssh/known_hosts
-
     - name: Run Ansible Playbook
       run: |
         ansible-playbook -i scripts/hil/inventory.yml scripts/hil/test_setup.yml
