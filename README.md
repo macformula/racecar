@@ -1,7 +1,7 @@
-# racecar
+# 🏎⚡️ racecar ⚡️🏎
 
-Monorepo for all firmware running on our custom ECUs
+Building the fastest Formula SAE Electric car requires the fastest firmware.
 
-## Documentation
+## Want to see how we do it?
 
-Go to <https://macformula.github.io/racecar>.
+Check out our docs → <https://macformula.github.io/racecar>
