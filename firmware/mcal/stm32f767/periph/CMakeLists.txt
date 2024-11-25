@@ -1,1 +1,1 @@
-# Empty file - implicitly adds this folder as an include directory
+target_sources(mcal-stm32f767 PRIVATE can.cc)

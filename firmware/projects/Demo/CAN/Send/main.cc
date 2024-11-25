@@ -13,7 +13,7 @@ DemobusBus can_bus{bindings::demo_can_base};
 
 int main(void) {
     bindings::Initialize();
-    uint32_t interval_ms = 50;
+    uint32_t interval_ms = 5;
 
     while (true) {
         TxButtonStatus msg{

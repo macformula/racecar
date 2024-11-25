@@ -11,7 +11,7 @@
 #include "shared/comms/can/msg.h"
 #include "shared/periph/can.h"
 #include "{{bus_name | lower}}_messages.h"
-#include "etl/mutex.h"
+{# #include "etl/mutex.h" #}
 
 namespace generated::can {
 
@@ -25,13 +25,13 @@ public:
 
     // Get the latest message of type {{msg_title}}
     auto Get{{msg_title}}() -> std::optional<{{msg_title}}> {
-        etl::lock_guard<etl::mutex> lock(msg_guard_);
+        {# etl::lock_guard<etl::mutex> lock(msg_guard_); #}
         return {{ msg.name | camel_to_snake }}_msg_;
     }
 
     // Get the latest message of type {{msg_title}} and clear it
     auto Pop{{msg_title}}() -> std::optional<{{msg_title}}> {
-        etl::lock_guard<etl::mutex> lock(msg_guard_);
+        {# etl::lock_guard<etl::mutex> lock(msg_guard_); #}
         auto temp = {{ msg.name | camel_to_snake }}_msg_;
         {{ msg.name | camel_to_snake }}_msg_ = std::nullopt;
         return temp;
@@ -39,10 +39,10 @@ public:
     {% endfor %}
 
 private:
-    etl::mutex msg_guard_;
+    {# etl::mutex msg_guard_; #}
 
     void AddMessage(const shared::can::RawMessage& msg, uint32_t timestamp) override {
-        etl::lock_guard<etl::mutex> lock(msg_guard_);
+        {# etl::lock_guard<etl::mutex> lock(msg_guard_); #}
         switch(msg.id) {
             {% for msg in rx_msgs %}
             case Rx{{msg.name}}::id:
