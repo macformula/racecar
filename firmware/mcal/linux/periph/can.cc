@@ -53,7 +53,7 @@ void CanBase::StartReading() {
             exit(1);
         }
 
-        shared::can::RawMessage raw_msg(frame.can_id, frame.can_dlc,
+        shared::can::RawMessage raw_msg(frame.can_id, true, frame.can_dlc,
                                         frame.data);
 
         AddToBus(raw_msg);

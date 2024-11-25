@@ -155,12 +155,13 @@ public:
         {% endfor %}
         {% endfor %}
 
-        return shared::can::RawMessage(id, data_length, data);
+        return shared::can::RawMessage(id, extended_frame, data_length, data);
     }
 
 private:
     static constexpr uint32_t id = {{ msg.frame_id }};
     static constexpr uint8_t data_length = {{ msg.length }};
+    constexpr static uint8_t extended_frame = {{ msg.is_extended_frame | lower }};
 
     // Signal properties
     {% for sig in msg.signals %}

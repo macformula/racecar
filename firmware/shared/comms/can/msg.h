@@ -7,9 +7,12 @@
 namespace shared::can {
 
 struct RawMessage {
-    RawMessage(uint32_t id_, uint8_t data_length_, const uint8_t data_[8]);
+    RawMessage() = default;
+    RawMessage(uint32_t id_, bool is_extended_frame_, uint8_t data_length_,
+               const uint8_t data_[8]);
 
     uint32_t id;
+    bool is_extended_frame;
     uint8_t data_length;
     uint8_t data[8];
 };
