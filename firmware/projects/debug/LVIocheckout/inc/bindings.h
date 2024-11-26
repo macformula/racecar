@@ -5,8 +5,8 @@
 
 #include <cstdint>
 
-#include "shared/periph/gpio.h"
-#include "shared/periph/pwm.h"
+#include "shared/periph/gpio.hpp"
+#include "shared/periph/pwm.hpp"
 
 namespace bindings {
 

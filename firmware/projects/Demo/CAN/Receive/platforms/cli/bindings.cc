@@ -6,9 +6,9 @@
 #include <thread>
 
 #include "../../bindings.h"
-#include "mcal/cli/periph/can.h"
-#include "mcal/cli/periph/gpio.h"
-#include "shared/periph/can.h"
+#include "mcal/cli/periph/can.hpp"
+#include "mcal/cli/periph/gpio.hpp"
+#include "shared/periph/can.hpp"
 
 namespace mcal {
 using namespace cli::periph;

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "shared/periph/adc.h"
-#include "shared/periph/can.h"
-#include "shared/periph/gpio.h"
-#include "shared/periph/pwm.h"
+#include "shared/periph/adc.hpp"
+#include "shared/periph/can.hpp"
+#include "shared/periph/gpio.hpp"
+#include "shared/periph/pwm.hpp"
 
 namespace bindings {
 extern shared::periph::ADCInput& temp_sensor_adc_1;

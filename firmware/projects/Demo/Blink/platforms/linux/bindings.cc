@@ -1,8 +1,8 @@
 #include <unistd.h>
 
 #include "../../bindings.h"
-#include "mcal/linux/periph/digital_output.h"
-#include "shared/periph/gpio.h"
+#include "mcal/linux/periph/digital_output.hpp"
+#include "shared/periph/gpio.hpp"
 
 namespace mcal {
 

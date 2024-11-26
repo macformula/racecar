@@ -8,15 +8,15 @@
 #include <cstdint>
 #include <string>
 
-#include "../generated/can/veh_can_messages.h"
-#include "shared/comms/can/can_bus.h"
-#include "shared/periph/adc.h"
-#include "shared/periph/gpio.h"
-#include "shared/periph/pwm.h"
-#include "shared/util/mappers/clamper.h"
-#include "shared/util/mappers/linear_map.h"
-#include "shared/util/mappers/mapper.h"
-#include "shared/util/moving_average.h"
+#include "../generated/can/veh_can_messages.hpp"
+#include "shared/comms/can/can_bus.hpp"
+#include "shared/periph/adc.hpp"
+#include "shared/periph/gpio.hpp"
+#include "shared/periph/pwm.hpp"
+#include "shared/util/mappers/clamper.hpp"
+#include "shared/util/mappers/linear_map.hpp"
+#include "shared/util/mappers/mapper.hpp"
+#include "shared/util/moving_average.hpp"
 
 /***************************************************************
     App-level objects

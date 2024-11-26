@@ -2,11 +2,11 @@
 /// @date 2024-02-01
 
 #include "cmsis_os2.h"
-#include "mcal/stm32f767/os/fifo.h"
-#include "mcal/stm32f767/os/mutex.h"
-#include "mcal/stm32f767/os/semaphore.h"
-#include "mcal/stm32f767/os/tick.h"
-#include "mcal/stm32f767/os/timer.h"
+#include "mcal/stm32f767/os/fifo.hpp"
+#include "mcal/stm32f767/os/mutex.hpp"
+#include "mcal/stm32f767/os/semaphore.hpp"
+#include "mcal/stm32f767/os/tick.hpp"
+#include "mcal/stm32f767/os/timer.hpp"
 
 extern "C" {
 /**

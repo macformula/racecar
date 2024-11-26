@@ -14,12 +14,12 @@
 #include "tim.h"
 
 // Firmware
-#include "mcal/stm32f767/periph/gpio.h"
-#include "mcal/stm32f767/periph/pwm.h"
-#include "shared/periph/gpio.h"
-#include "shared/periph/pwm.h"
-#include "shared/util/mappers/identity.h"
-#include "shared/util/mappers/mapper.h"
+#include "mcal/stm32f767/periph/gpio.hpp"
+#include "mcal/stm32f767/periph/pwm.hpp"
+#include "shared/periph/gpio.hpp"
+#include "shared/periph/pwm.hpp"
+#include "shared/util/mappers/identity.hpp"
+#include "shared/util/mappers/mapper.hpp"
 
 extern "C" {
 /**

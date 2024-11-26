@@ -8,16 +8,16 @@
 #include <memory>
 #include <utility>
 
-#include "../generated/can/veh_can_messages.h"
+#include "../generated/can/veh_can_messages.hpp"
 #include "app.h"
-#include "shared/comms/can/can_bus.h"
-#include "shared/comms/can/can_msg.h"
-#include "shared/periph/adc.h"
-#include "shared/periph/can.h"
-#include "shared/periph/gpio.h"
-#include "shared/util/mappers/linear_map.h"
-#include "shared/util/mappers/mapper.h"
-#include "shared/util/moving_average.h"
+#include "shared/comms/can/can_bus.hpp"
+#include "shared/comms/can/can_msg.hpp"
+#include "shared/periph/adc.hpp"
+#include "shared/periph/can.hpp"
+#include "shared/periph/gpio.hpp"
+#include "shared/util/mappers/linear_map.hpp"
+#include "shared/util/mappers/mapper.hpp"
+#include "shared/util/moving_average.hpp"
 
 class AnalogInput {
     static constexpr size_t kMovingAverageLength = 20;

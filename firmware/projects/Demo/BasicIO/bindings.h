@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shared/periph/gpio.h"
+#include "shared/periph/gpio.hpp"
 
 namespace bindings {
 

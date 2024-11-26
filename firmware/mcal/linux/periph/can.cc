@@ -9,7 +9,7 @@
 #include <thread>
 
 #include "can.h"
-#include "shared/comms/can/raw_can_msg.h"
+#include "shared/comms/can/raw_can_msg.hpp"
 #include "vcan/vcan.h"
 
 static std::string message_to_string(const shared::can::RawCanMsg& msg) {

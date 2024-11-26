@@ -6,10 +6,10 @@
 
 #include "app.h"
 #include "bindings.h"
-#include "shared/periph/gpio.h"
-#include "shared/periph/pwm.h"
-#include "shared/util/mappers/identity.h"
-#include "shared/util/mappers/mapper.h"
+#include "shared/periph/gpio.hpp"
+#include "shared/periph/pwm.hpp"
+#include "shared/util/mappers/identity.hpp"
+#include "shared/util/mappers/mapper.hpp"
 
 Subsystem front_controller{bindings::front_controller_en};
 

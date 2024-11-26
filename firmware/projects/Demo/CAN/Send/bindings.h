@@ -2,8 +2,8 @@
 
 #include <cstdint>
 
-#include "shared/periph/can.h"
-#include "shared/periph/gpio.h"
+#include "shared/periph/can.hpp"
+#include "shared/periph/gpio.hpp"
 
 namespace bindings {
 

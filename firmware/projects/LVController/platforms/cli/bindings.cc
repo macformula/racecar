@@ -8,12 +8,12 @@
 #include <thread>
 
 #include "../../bindings.h"
-#include "mcal/cli/periph/can.h"
-#include "mcal/cli/periph/gpio.h"
-#include "mcal/cli/periph/pwm.h"
-#include "shared/periph/can.h"
-#include "shared/periph/gpio.h"
-#include "shared/util/mappers/identity.h"
+#include "mcal/cli/periph/can.hpp"
+#include "mcal/cli/periph/gpio.hpp"
+#include "mcal/cli/periph/pwm.hpp"
+#include "shared/periph/can.hpp"
+#include "shared/periph/gpio.hpp"
+#include "shared/util/mappers/identity.hpp"
 
 // clang-format off
 namespace mcal {

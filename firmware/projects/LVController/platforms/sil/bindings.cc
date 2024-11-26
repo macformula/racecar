@@ -10,12 +10,12 @@
 #include <string>
 #include <thread>
 
-#include "mcal/raspi/periph/can.h"
-#include "mcal/raspi/periph/gpio.h"
-#include "mcal/raspi/periph/pwm.h"
-#include "shared/periph/can.h"
-#include "shared/periph/gpio.h"
-#include "shared/util/mappers/identity.h"
+#include "mcal/raspi/periph/can.hpp"
+#include "mcal/raspi/periph/gpio.hpp"
+#include "mcal/raspi/periph/pwm.hpp"
+#include "shared/periph/can.hpp"
+#include "shared/periph/gpio.hpp"
+#include "shared/util/mappers/identity.hpp"
 #include "validation/sil/sil_client.h"
 
 const std::string ecu_name = "LvController";

@@ -66,7 +66,7 @@ inc/bindings.h:12:12
 
 We now add 3 elements to our contract.
 
-1. A digital output which we will call `indicator`. Include the `shared/periph/gpio.h` to gain access to the app-level `DigitalOutput` class.
+1. A digital output which we will call `indicator`. Include the `shared/periph/gpio.hpp` to gain access to the app-level `DigitalOutput` class.
 
     ```c++ title="projects/MyBlink/bindings.h" hl_lines="3 7"
     --8<--
@@ -115,7 +115,7 @@ Create a `main.cc` file in the project folder.
 
 In this simple project, all functions and peripherals are inside the `bindings` namespace. A more complex project could have app-level functions defined in `main.cc`.
 
-The `SetHigh` and `SetLow` methods of `indicator` are declared in the virtual class under `shared/periph/gpio.h`.
+The `SetHigh` and `SetLow` methods of `indicator` are declared in the virtual class under `shared/periph/gpio.hpp`.
 
 ### CMake Sources
 
@@ -143,7 +143,7 @@ We will create a platform implementation for the command line interface and the 
 
 Create a `cli` subfolder of `MyBlink/platforms`. We will satisfy the bindings contract in a `bindings.cc` file.
 
-1. Configure the `indicator` output. The concrete peripheral implementation is provided by `mcal/cli/periph/gpio.h`. Include this header and create a peripheral.
+1. Configure the `indicator` output. The concrete peripheral implementation is provided by `mcal/cli/periph/gpio.hpp`. Include this header and create a peripheral.
 
     ```c++ title="projects/MyBlink/platforms/cli/bindings.cc"
     --8<--

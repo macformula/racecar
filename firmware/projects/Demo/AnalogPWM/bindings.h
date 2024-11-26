@@ -1,7 +1,7 @@
 #pragma once
 
-#include "shared/periph/pwm.h"
-#include "shared/periph/analog_output.h"
+#include "shared/periph/analog_output.hpp"
+#include "shared/periph/pwm.hpp"
 
 namespace bindings {
 

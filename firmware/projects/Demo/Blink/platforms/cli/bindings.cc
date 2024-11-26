@@ -3,8 +3,8 @@
 #include <iostream>
 
 #include "../../bindings.h"
-#include "mcal/cli/periph/gpio.h"
-#include "shared/periph/gpio.h"
+#include "mcal/cli/periph/gpio.hpp"
+#include "shared/periph/gpio.hpp"
 
 namespace mcal {
 

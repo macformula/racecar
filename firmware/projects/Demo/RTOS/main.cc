@@ -5,10 +5,10 @@
 #include <cstring>
 
 #include "inc/app.h"
-#include "shared/os/fifo.h"
-#include "shared/os/mutex.h"
-#include "shared/os/os.h"
-#include "shared/os/timer.h"
+#include "shared/os/fifo.hpp"
+#include "shared/os/mutex.hpp"
+#include "shared/os/os.hpp"
+#include "shared/os/timer.hpp"
 
 namespace bindings {
 extern shared::periph::DigitalInput& button_di;

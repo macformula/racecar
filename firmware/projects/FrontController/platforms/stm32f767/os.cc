@@ -2,7 +2,7 @@
 /// @date 2024-02-01
 
 #include "cmsis_os2.h"
-#include "mcal/stm32f767/os/tick.h"
+#include "mcal/stm32f767/os/tick.hpp"
 
 extern "C" {
 /**

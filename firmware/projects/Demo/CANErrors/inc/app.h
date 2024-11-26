@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "../generated/can/error_can_messages.h"
-#include "shared/comms/can/can_bus.h"
+#include "../generated/can/error_can_messages.hpp"
+#include "shared/comms/can/can_bus.hpp"
 
 /***************************************************************
     App-level objects
@@ -81,27 +81,29 @@ enum class Error {
 
 // Interface to set/send all possible errors for the system
 class ErrorHandler {
-    public:
-        // Sets the error based on the error index given
-        void SetError(Error error) {
-            uint64_t error_index = static_cast<uint64_t>(error);
-            error_message_.errors |= (1ULL << error_index);
-        }
+public:
+    // Sets the error based on the error index given
+    void SetError(Error error) {
+        uint64_t error_index = static_cast<uint64_t>(error);
+        error_message_.errors |= (1ULL << error_index);
+    }
 
-        // Sends the error message through the provided CAN bus
-        // TODO: Error message is only for a specific bus, change this when autogen code is created
-        void SendError(shared::can::CanBus error_can_bus) {
-            error_can_bus.Send(error_message_);
+    // Sends the error message through the provided CAN bus
+    // TODO: Error message is only for a specific bus, change this when autogen
+    // code is created
+    void SendError(shared::can::CanBus error_can_bus) {
+        error_can_bus.Send(error_message_);
 
-            // Reset after a send to not send duplicate errors
-            ResetError();
-        }
-    private:
-        // Object that holds a 64 bit int, each bit representing an error
-        generated::can::TMS_ERROR error_message_{};
+        // Reset after a send to not send duplicate errors
+        ResetError();
+    }
 
-        // Resets all errors back to untriggered
-        void ResetError() {
-            error_message_.errors = 0;
-        }
+private:
+    // Object that holds a 64 bit int, each bit representing an error
+    generated::can::TMS_ERROR error_message_{};
+
+    // Resets all errors back to untriggered
+    void ResetError() {
+        error_message_.errors = 0;
+    }
 };

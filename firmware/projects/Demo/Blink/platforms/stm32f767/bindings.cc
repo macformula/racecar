@@ -5,8 +5,8 @@
 
 // project includes
 #include "../../bindings.h"
-#include "mcal/stm32f767/periph/gpio.h"
-#include "shared/periph/gpio.h"
+#include "mcal/stm32f767/periph/gpio.hpp"
+#include "shared/periph/gpio.hpp"
 
 extern "C" {
 /**

@@ -1,4 +1,4 @@
-#include "shared/periph/gpio.h"
+#include "shared/periph/gpio.hpp"
 
 class Subsystem {
 public:

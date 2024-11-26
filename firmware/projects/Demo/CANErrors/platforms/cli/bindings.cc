@@ -4,10 +4,10 @@
 #include <chrono>
 #include <thread>
 
-#include "../../generated/can/error_can_messages.h"
-#include "mcal/cli/periph/can.h"
-#include "shared/comms/can/can_bus.h"
-#include "shared/periph/can.h"
+#include "../../generated/can/error_can_messages.hpp"
+#include "mcal/cli/periph/can.hpp"
+#include "shared/comms/can/can_bus.hpp"
+#include "shared/periph/can.hpp"
 
 namespace mcal {
 using namespace cli::periph;

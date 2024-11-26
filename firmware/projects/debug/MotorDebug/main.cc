@@ -1,10 +1,10 @@
 #include <stdint.h>
 
 #include "bindings.h"
-#include "generated/can/vehicle_can_messages.h"
-#include "generated/can/vehicle_msg_registry.h"
-#include "shared/comms/can/can_bus.h"
-#include "shared/periph/can.h"
+#include "generated/can/vehicle_can_messages.hpp"
+#include "generated/can/vehicle_msg_registry.hpp"
+#include "shared/comms/can/can_bus.hpp"
+#include "shared/periph/can.hpp"
 
 namespace bindings {
 

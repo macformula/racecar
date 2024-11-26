@@ -4,12 +4,12 @@
 #include <chrono>
 #include <thread>
 
-#include "mcal/raspi/periph/adc.h"
-#include "mcal/raspi/periph/can.h"
-#include "mcal/raspi/periph/gpio.h"
-#include "shared/periph/adc.h"
-#include "shared/periph/can.h"
-#include "shared/periph/gpio.h"
+#include "mcal/raspi/periph/adc.hpp"
+#include "mcal/raspi/periph/can.hpp"
+#include "mcal/raspi/periph/gpio.hpp"
+#include "shared/periph/adc.hpp"
+#include "shared/periph/can.hpp"
+#include "shared/periph/gpio.hpp"
 #include "validation/sil/sil_client.h"
 
 const std::string ecu_name = "FrontController";

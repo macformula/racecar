@@ -8,10 +8,10 @@
 #include "gpio.h"
 
 // fw imports
-#include "mcal/stm32f767/periph/adc.h"
-#include "mcal/stm32f767/periph/can.h"
-#include "mcal/stm32f767/periph/gpio.h"
-#include "shared/periph/can.h"
+#include "mcal/stm32f767/periph/adc.hpp"
+#include "mcal/stm32f767/periph/can.hpp"
+#include "mcal/stm32f767/periph/gpio.hpp"
+#include "shared/periph/can.hpp"
 
 namespace mcal {
 using namespace stm32f767::periph;
