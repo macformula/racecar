@@ -1,0 +1,4 @@
+# Run tests from test_program (test.cc)
+add_test(NAME TestAddition COMMAND test_program)
+
+# Can add more tests here

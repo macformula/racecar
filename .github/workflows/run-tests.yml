@@ -1,0 +1,51 @@
+name: Build and Test Projects
+
+on:
+  push:
+
+jobs:
+  test-build:
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false # Do not stop all jobs if one fails
+      matrix:
+        project:
+          - Demo/Blink
+          - Demo/BasicIO
+          - Demo/AnalogPWM
+          - Demo/Mapper
+        platform:
+          - cli
+
+    name: ${{ matrix.project }} on ${{ matrix.platform }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build Project
+      shell: bash
+      run: |
+        cd firmware
+        make PROJECT=${{ matrix.project }} PLATFORM=${{ matrix.platform }} build
+
+    - name: Test Project
+      shell: bash
+      run: |
+        cd firmware
+        make PROJECT=${{ matrix.project }} PLATFORM=${{ matrix.platform }} test
+    
+    # - name: Set Artifact Name
+    #   shell: bash
+    #   env:
+    #     PROJECT_NAME: ${{ matrix.project }}
+    #   run: |
+    #     ARTIFACT_NAME="${PROJECT_NAME//\//-}"
+    #     echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> $GITHUB_ENV
+
+    # - name: Upload Test Results
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: ctest-results-${{ env.ARTIFACT_NAME }}-${{ matrix.platform }}
+    #     path: firmware/build/${{ matrix.project }}/${{ matrix.platform }}/Testing/Temporary
+    
