@@ -1,12 +1,5 @@
-# Blake Freer
-# January 8, 2024
+target_sources(main PRIVATE bindings.cc os.cc)
+target_link_libraries(main PUBLIC mcal-stm32f767)
 
-add_subdirectory(cubemx)
-
-target_sources(bindings PUBLIC bindings.cc)
-target_include_directories(bindings PUBLIC ${DIR_PROJECT})
-target_link_libraries(bindings PUBLIC driver mcal-stm32f767)
-
-add_library(os)
-target_sources(os PUBLIC os.cc)
-target_link_libraries(os PUBLIC driver mcal-stm32f767)
+add_subdirectory(cubemx/cmake/stm32cubemx)
+target_link_libraries(main PUBLIC stm32cubemx)
