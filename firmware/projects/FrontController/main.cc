@@ -1,19 +1,19 @@
 /// @author Blake Freer
 /// @date 2024-02-24
 
-#include "app.h"
 #include "bindings.h"
 #include "generated/can/pt_can_messages.h"
 #include "generated/can/pt_msg_registry.h"
 #include "generated/can/veh_can_messages.h"
 #include "generated/can/veh_msg_registry.h"
+#include "inc/app.h"
+#include "inc/simulink.h"
 #include "shared/comms/can/can_bus.h"
 #include "shared/os/os.h"
 #include "shared/periph/adc.h"
 #include "shared/periph/gpio.h"
 #include "shared/util/mappers/linear_map.h"
 #include "shared/util/mappers/mapper.h"
-#include "simulink.h"
 
 /***************************************************************
     CAN
