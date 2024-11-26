@@ -3,10 +3,10 @@
 
 #include <cstdint>
 
-#include "app.h"
 #include "bindings.h"
-#include "shared/comms/can/can_bus.h"
 #include "generated/can/error_msg_registry.h"
+#include "inc/app.h"
+#include "shared/comms/can/can_bus.h"
 
 // Initializing can bus that sends the error message
 generated::can::ErrorMsgRegistry error_can_registry{};
