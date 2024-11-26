@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "bindings.h"
+#include "../../bindings.h"
 #include "mcal/linux/periph/can.h"
 #include "mcal/linux/periph/digital_output.h"
 
