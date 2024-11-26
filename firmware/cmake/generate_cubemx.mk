@@ -30,11 +30,14 @@ CUBEMX_GEN_SCRIPT_TEMPLATE := $(BUILD_SYS_DIR)generate_cubemx_script.txt.templat
 
 cmake/racecar-toolchain.cmake: cmake/gcc-arm-none-eabi.cmake
 	@echo "Modifying autogen toolchain file."
+	cp $< $@
 # CubeMX incorrectly assumes that our top-level CMakeLists.txt is in the same
 # directory as the .ioc file. This means that the linker script directory is wrong.
-
 # Find the "-T ** .ld" line and replace the CMAKE variable with the current directory.
-	sed -e '/-T.*\.ld/s|$${CMAKE_SOURCE_DIR}|$(shell pwd)|g' $< > $@
+	sed -i '/-T.*\.ld/s|$$\{CMAKE_SOURCE_DIR\}|$(shell pwd)|g' $@
+# CubeMX also forces CMake to skip its automatic compiler detection, which messes
+# with our clangd setup. Remove the line that does this.
+	sed -i '/set(CMAKE.*COMPILER_FORCED.*$$/s/^/# /g' $@
 
 # This recipe will execute whenever IOC_FILE has a newer timestamp than the
 # generated toolchain file, i.e. whenever IOC_FILE has been updated but new code

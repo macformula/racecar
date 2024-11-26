@@ -1,4 +1,5 @@
-add_subdirectory(cubemx)
+target_sources(main PRIVATE bindings.cc)
+target_link_libraries(main PRIVATE mcal-stm32f767)
 
-target_sources(bindings PUBLIC bindings.cc)
-target_link_libraries(bindings PUBLIC driver mcal-stm32f767)
+add_subdirectory(cubemx/cmake/stm32cubemx)
+target_link_libraries(main PRIVATE stm32cubemx)

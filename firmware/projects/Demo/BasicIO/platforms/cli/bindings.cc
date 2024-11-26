@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include "../../bindings.h"
 #include "mcal/cli/periph/gpio.h"
 #include "shared/periph/gpio.h"
 
@@ -15,8 +16,8 @@ DigitalOutput indicator_do{"Indicator"};
 
 namespace bindings {
 
-const shared::periph::DigitalInput& button_di = mcal::button_di;
-const shared::periph::DigitalOutput& indicator_do = mcal::indicator_do;
+shared::periph::DigitalInput& button_di = mcal::button_di;
+shared::periph::DigitalOutput& indicator_do = mcal::indicator_do;
 
 void Initialize() {
     std::cout << "Initializing CLI..." << std::endl;
