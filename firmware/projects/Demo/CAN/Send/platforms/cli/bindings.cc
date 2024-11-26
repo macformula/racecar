@@ -4,7 +4,7 @@
 #include <chrono>
 #include <thread>
 
-#include "../../bindings.h"
+#include "../../bindings.hpp"
 #include "mcal/cli/periph/can.hpp"
 #include "mcal/cli/periph/gpio.hpp"
 #include "shared/periph/can.hpp"

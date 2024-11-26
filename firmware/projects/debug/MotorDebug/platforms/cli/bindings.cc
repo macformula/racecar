@@ -1,6 +1,6 @@
 #include <unistd.h>
 
-#include "bindings.h"
+#include "bindings.hpp"
 #include "shared/periph/adc.hpp"
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"

@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "../../bindings.h"
+#include "../../bindings.hpp"
 #include "mcal/cli/periph/gpio.hpp"
 #include "shared/periph/gpio.hpp"
 

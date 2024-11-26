@@ -7,7 +7,7 @@
 #include <string>
 #include <thread>
 
-#include "../../bindings.h"
+#include "../../bindings.hpp"
 #include "mcal/cli/periph/can.hpp"
 #include "mcal/cli/periph/gpio.hpp"
 #include "mcal/cli/periph/pwm.hpp"

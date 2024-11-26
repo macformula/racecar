@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <regex>
 
-#include "app.h"
-#include "bindings.h"
+#include "app.hpp"
+#include "bindings.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
 #include "shared/util/mappers/identity.hpp"

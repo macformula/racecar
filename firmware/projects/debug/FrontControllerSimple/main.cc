@@ -1,8 +1,8 @@
 /// @author Blake Freer
 /// @date 2024-02-24
 
-#include "app.h"
-#include "bindings.h"
+#include "app.hpp"
+#include "bindings.hpp"
 #include "generated/can/pt_can_messages.hpp"
 #include "generated/can/pt_msg_registry.hpp"
 #include "generated/can/veh_can_messages.hpp"

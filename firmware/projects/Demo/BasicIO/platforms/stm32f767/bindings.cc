@@ -6,7 +6,7 @@
 #include "main.h"
 
 // fw includes
-#include "../../bindings.h"
+#include "../../bindings.hpp"
 #include "mcal/stm32f767/periph/gpio.hpp"
 #include "shared/periph/gpio.hpp"
 

@@ -46,15 +46,15 @@ You should now have the following directory structure.
 
 A key feature of our firmware architecture is the complete abstraction of the app-level code from any specific platform implementation (See the [Architecture](../architecture.md) article). The two layers are interfaced by the "bindings" contract which we will write first.
 
-Create a new file `bindings.h` in the project directory. This is a header file since it only _declares_ the interface objects and methods rather than using or implementing them.
+Create a new file `bindings.hpp` in the project directory. This is a header file since it only _declares_ the interface objects and methods rather than using or implementing them.
 
-```c++ title="projects/MyBlink/bindings.h"
+```c++ title="projects/MyBlink/bindings.hpp"
 --8<--
-inc/bindings.h:1:1
+inc/bindings.hpp:1:1
 
-inc/bindings.h:5:5
+inc/bindings.hpp:5:5
 
-inc/bindings.h:12:12
+inc/bindings.hpp:12:12
 --8<--
 ```
 
@@ -68,11 +68,11 @@ We now add 3 elements to our contract.
 
 1. A digital output which we will call `indicator`. Include the `shared/periph/gpio.hpp` to gain access to the app-level `DigitalOutput` class.
 
-    ```c++ title="projects/MyBlink/bindings.h" hl_lines="3 7"
+    ```c++ title="projects/MyBlink/bindings.hpp" hl_lines="3 7"
     --8<--
-    inc/bindings.h:1:7
+    inc/bindings.hpp:1:7
 
-    inc/bindings.h:12:12
+    inc/bindings.hpp:12:12
     --8<--
     ```
 
@@ -80,18 +80,18 @@ We now add 3 elements to our contract.
 
 2. A function to wait between toggling. Time delay mechanisms are platform specific and thus must be included in the bindings contract. We will declare a `DelayMS` function which receives an `unsigned int` representing the number of milliseconds to delay for.
 
-    ```c++ title="projects/MyBlink/bindings.h" hl_lines="9"
+    ```c++ title="projects/MyBlink/bindings.hpp" hl_lines="9"
     --8<--
-    inc/bindings.h:1:9
+    inc/bindings.hpp:1:9
 
-    inc/bindings.h:12:12
+    inc/bindings.hpp:12:12
     --8<--
     ```
 
 3. An initialization function. Some platforms must execute initialization code before they are ready to run. For example, stm32f767 has several `HAL_*_Init` functions which configure the peripherals. We include an `Initialize` function in bindings so that each platform can define its own behaviour.
 
-    ```c++ title="projects/MyBlink/bindings.h" hl_lines="10"
-    --8<-- "inc/bindings.h"
+    ```c++ title="projects/MyBlink/bindings.hpp" hl_lines="10"
+    --8<-- "inc/bindings.hpp"
     ```
 
 This completes the bindings contract. We can now write the application code, knowing that the platforms will all satisfy this contract.
@@ -130,7 +130,7 @@ This concludes the app-level code. Your project directory should look like
     projects/
     └── MyBlink/
         ├── platforms/
-        ├── bindings.h
+        ├── bindings.hpp
         ├── CMakeLists.txt
         ├── main.cc
         └── README.md

@@ -1,13 +1,13 @@
 /// @author Blake Freer
 /// @date 2024-02-24
 
-#include "bindings.h"
+#include "bindings.hpp"
 #include "generated/can/pt_can_messages.hpp"
 #include "generated/can/pt_msg_registry.hpp"
 #include "generated/can/veh_can_messages.hpp"
 #include "generated/can/veh_msg_registry.hpp"
-#include "inc/app.h"
-#include "inc/simulink.h"
+#include "inc/app.hpp"
+#include "inc/simulink.hpp"
 #include "shared/comms/can/can_bus.hpp"
 #include "shared/os/os.hpp"
 #include "shared/periph/adc.hpp"

@@ -8,7 +8,7 @@
 #include <memory>
 #include <utility>
 
-#include "app.h"
+#include "app.hpp"
 #include "shared/comms/can/can_bus.hpp"
 #include "shared/comms/can/can_msg.hpp"
 #include "shared/periph/adc.hpp"

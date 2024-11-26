@@ -3,9 +3,9 @@
 
 #include <cstdint>
 
-#include "bindings.h"
+#include "bindings.hpp"
 #include "generated/can/error_msg_registry.hpp"
-#include "inc/app.h"
+#include "inc/app.hpp"
 #include "shared/comms/can/can_bus.hpp"
 
 // Initializing can bus that sends the error message

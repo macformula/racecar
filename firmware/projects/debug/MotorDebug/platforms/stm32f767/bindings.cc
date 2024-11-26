@@ -1,7 +1,7 @@
 #include <cstdint>
 
 #include "adc.h"
-#include "bindings.h"
+#include "bindings.hpp"
 #include "can.h"
 #include "gpio.h"
 #include "main.h"

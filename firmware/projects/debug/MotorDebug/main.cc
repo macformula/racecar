@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-#include "bindings.h"
+#include "bindings.hpp"
 #include "generated/can/vehicle_can_messages.hpp"
 #include "generated/can/vehicle_msg_registry.hpp"
 #include "shared/comms/can/can_bus.hpp"

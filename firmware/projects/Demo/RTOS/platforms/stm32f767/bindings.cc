@@ -6,6 +6,7 @@
 #include "main.h"
 
 // fw includes
+#include "../../bindings.hpp"
 #include "mcal/stm32f767/periph/gpio.hpp"
 #include "shared/periph/gpio.hpp"
 
@@ -26,9 +27,9 @@ DigitalOutput indicator2_do{LedPin2_GPIO_Port, LedPin2_Pin};
 }  // namespace mcal
 
 namespace bindings {
-const shared::periph::DigitalInput& button_di = mcal::button_di;
-const shared::periph::DigitalOutput& indicator_do = mcal::indicator_do;
-const shared::periph::DigitalOutput& indicator2_do = mcal::indicator2_do;
+shared::periph::DigitalInput& button_di = mcal::button_di;
+shared::periph::DigitalOutput& indicator_do = mcal::indicator_do;
+shared::periph::DigitalOutput& indicator2_do = mcal::indicator2_do;
 
 void Initialize() {
     SystemClock_Config();

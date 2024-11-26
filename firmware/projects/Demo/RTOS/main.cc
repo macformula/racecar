@@ -4,7 +4,8 @@
 #include <cstdint>
 #include <cstring>
 
-#include "inc/app.h"
+#include "bindings.hpp"
+#include "inc/app.hpp"
 #include "shared/os/fifo.hpp"
 #include "shared/os/mutex.hpp"
 #include "shared/os/os.hpp"

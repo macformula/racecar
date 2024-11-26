@@ -1,7 +1,7 @@
 /// @author Blake Freer
 /// @date 2023-12-25
 
-#include "bindings.h"
+#include "bindings.hpp"
 
 bool btn_value;
 
