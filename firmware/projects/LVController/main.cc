@@ -4,9 +4,9 @@
 #include <cstdint>
 #include <regex>
 
-#include "app.h"
 #include "bindings.h"
 #include "generated/can/veh_msg_registry.h"
+#include "inc/app.h"
 #include "shared/comms/can/can_bus.h"
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
