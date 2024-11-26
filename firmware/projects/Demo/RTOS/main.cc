@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <cstring>
 
-#include "app.h"
+#include "inc/app.h"
 #include "shared/os/fifo.h"
 #include "shared/os/mutex.h"
 #include "shared/os/os.h"
