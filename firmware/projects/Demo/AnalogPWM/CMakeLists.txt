@@ -1,1 +1,1 @@
-target_sources(main PUBLIC main.cc)
+target_sources(main PRIVATE main.cc)
