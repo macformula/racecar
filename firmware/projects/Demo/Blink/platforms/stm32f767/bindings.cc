@@ -4,7 +4,7 @@
 #include "stm32f7xx_hal.h"
 
 // project includes
-#include "bindings.h"
+#include "../../bindings.h"
 #include "mcal/stm32f767/periph/gpio.h"
 #include "shared/periph/gpio.h"
 
