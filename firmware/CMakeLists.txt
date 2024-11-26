@@ -41,7 +41,6 @@ if(NOT PROJECT_NAME)
 endif()
 
 # Check that the project and platform folders exist.
-
 set(DIR_PROJECT "${CMAKE_CURRENT_SOURCE_DIR}/projects/${PROJECT}")
 assert_exists(DIR PATH ${DIR_PROJECT}
     START "Verifying ${PROJECT} is a project"
@@ -70,6 +69,7 @@ assert_exists(FILE PATH ${MCAL_CONF_FILE}
 )
 
 include(${MCAL_CONF_FILE}) # Should define MCAL
+
 if(NOT DEFINED MCAL)
     message(FATAL_ERROR "Expected MCAL to be defined in \"${MCAL_CONF_FILE}\".")
 endif()
@@ -89,22 +89,14 @@ assert_exists(FILE PATH ${POSTBUILD_FILE}
     ${POSTBUILD_FILE} "\nand leave it empty."
 )
 
-# Sets the compiler, linker, etc based on the mcal's Toolchain.cmake file
-set(TOOLCHAIN_FILE "${DIR_MCAL}/Toolchain.cmake")
-assert_exists(FILE PATH ${TOOLCHAIN_FILE}
-    START "Finding MCAL toolchain file"
-    PASS "Found"
-    FAIL "Not found. If no toolchain setup is required, create the file\n"
-    ${TOOLCHAIN_FILE} "\nand leave it empty."
-)
-
 list(POP_BACK CMAKE_MESSAGE_INDENT)
 message(CHECK_PASS "Success")
 
 # Options are parsed. Start building
 message(STATUS "Building \"${PROJECT}\" for \"${PLATFORM}\" with mcal \"${MCAL}\".")
 
-set(CMAKE_TOOLCHAIN_FILE ${TOOLCHAIN_FILE})
+project(${PROJECT_NAME})
+
 enable_language(C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -113,8 +105,6 @@ set(CMAKE_CXX_STANDARD 20) # required for c++ concepts
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 set(CMAKE_CXX_EXTENSIONS ON)
-
-project(${PROJECT_NAME})
 
 # clangd export settings
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

@@ -9,6 +9,7 @@ endif
 # Find the JAVA which is installed with CubeMX. Spaces in path are escaped.
 space := $(subst ,, )
 
+# Known bug: Expanding CUBEMX_JAVA twice does not work.
 ifeq ($(shell uname), Darwin)
 # MacOS
 	CUBEMX_JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/Contents/Home/bin/java
@@ -16,8 +17,6 @@ else
 # Windows / Linux
 	CUBEMX_JAVA := $(dir $(subst $(space),\$(space),$(CUBEMX_PATH)))jre/bin/java
 endif
-
-# Known bug: Expanding CUBEMX_JAVA twice does not work.
 
 IOC_FILE = board_config.ioc
 
@@ -29,18 +28,20 @@ CUSTOM_TARGETS_FILE = $(BUILD_SYS_DIR)custom_cubemx_targets.mk
 
 CUBEMX_GEN_SCRIPT_TEMPLATE := $(BUILD_SYS_DIR)generate_cubemx_script.txt.template
 
-# Copy the CubeMX makefile and custom targets into a new makefile
-CustomMakefile.mk: Makefile $(CUSTOM_TARGETS_FILE)
-	@echo "Creating $@ from [$^]"
-	cat Makefile > $@
-	cat $(CUSTOM_TARGETS_FILE) >> $@ 
+cmake/racecar-toolchain.cmake: cmake/gcc-arm-none-eabi.cmake
+	@echo "Modifying autogen toolchain file."
+# CubeMX incorrectly assumes that our top-level CMakeLists.txt is in the same
+# directory as the .ioc file. This means that the linker script directory is wrong.
+
+# Find the "-T ** .ld" line and replace the CMAKE variable with the current directory.
+	sed -e '/-T.*\.ld/s|$${CMAKE_SOURCE_DIR}|$(shell pwd)|g' $< > $@
 
 # This recipe will execute whenever IOC_FILE has a newer timestamp than the
-# Makefile, i.e. whenever IOC_FILE has been updated but new code has not been
-# generated.
-Makefile: $(IOC_FILE) $(CUBEMX_GEN_SCRIPT_TEMPLATE)
+# generated toolchain file, i.e. whenever IOC_FILE has been updated but new code
+# has not been generated.
+cmake/gcc-arm-none-eabi.cmake: $(IOC_FILE) $(CUBEMX_GEN_SCRIPT_TEMPLATE)
 	@echo "Autogenerating from CubeMX. If you don't want to do this, you must manually 'Generate Code' before building."
-# Create an file containing commands to generate the cubemx code.
+# Create a file containing commands to generate the cubemx code.
 	sed -e 's/IOC_FILE/$(IOC_FILE)/g' $(CUBEMX_GEN_SCRIPT_TEMPLATE) > $(CUBEMX_GEN_SCRIPT)
 	
 # Run the cubemx program to generate code.
