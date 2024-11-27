@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
     - name: Install Tailscale
       run: |
         curl -fsSL https://tailscale.com/install.sh | sh
