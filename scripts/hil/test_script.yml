@@ -1,6 +1,7 @@
-- name: Verify basic Ansible setup on Raspberry Pi
+- name: Test Script
   hosts: raspberry_pi
   become: true
+
   tasks:
     - name: Create a test directory
       file:

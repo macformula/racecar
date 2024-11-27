@@ -1,4 +1,4 @@
-name: Test Connection to Raspberry Pi via Tailscale
+name: Setup Raspberry Pi
 
 on:
   push:
@@ -28,6 +28,6 @@ jobs:
         sudo apt update
         sudo apt install -y ansible
 
-    - name: Run Ansible Playbook
+    - name: Run Test Ansible Playbook
       run: |
-        ansible-playbook -i scripts/hil/inventory.yml scripts/hil/test_setup.yml
+        ansible-playbook -i scripts/hil/inventory.yml scripts/hil/setup_raspberry_pi.yml
