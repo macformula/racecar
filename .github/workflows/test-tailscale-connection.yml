@@ -1,0 +1,28 @@
+name: Test Connection to Raspberry Pi via Tailscale
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  connect-to-pi:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install Tailscale
+      run: |
+        curl -fsSL https://tailscale.com/install.sh | sh
+
+    - name: Tailscale
+      uses: tailscale/github-action@v2
+      with:
+        oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+        oauth-secret: ${{ secrets.TAILSCALE_OAUTH_CLIENT_SECRET }}
+        tags: tag:ci
+
+    - name: Add SSH key to Raspberry Pi
+      env:
+        RPI_USER: ${{ secrets.RPI_USER }}
+        RPI_IP_ADDRESS: ${{ secrets.RPI_IP_ADDRESS }}
+      run: |
+        ssh $RPI_USER@$RPI_IP_ADDRESS "echo 'Connected to Raspberry Pi via Tailscale'"
