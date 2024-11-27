@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "msg.h"
+#include "msg.hpp"
 
 namespace shared::can {
 

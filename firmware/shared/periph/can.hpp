@@ -8,6 +8,10 @@
 #include "shared/comms/can/msg.hpp"
 #include "shared/util/peripheral.hpp"
 
+namespace shared::can {
+class Bus;
+}  // namespace shared::can
+
 namespace shared::periph {
 
 class CanBase : public util::Peripheral {

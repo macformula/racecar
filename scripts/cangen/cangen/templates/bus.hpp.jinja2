@@ -7,10 +7,10 @@
 
 #include <optional>
 
-#include "shared/comms/can/bus.h"
-#include "shared/comms/can/msg.h"
-#include "shared/periph/can.h"
-#include "{{bus_name | lower}}_messages.h"
+#include "shared/comms/can/bus.hpp"
+#include "shared/comms/can/msg.hpp"
+#include "shared/periph/can.hpp"
+#include "{{bus_name | lower}}_messages.hpp"
 {# #include "etl/mutex.h" #}
 
 namespace generated::can {
