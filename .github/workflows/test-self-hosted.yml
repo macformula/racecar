@@ -12,7 +12,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Run tests
+      - name: Build for cli
         run: |
           cd firmware
           make PROJECT=Demo/Blink PLATFORM=cli build
+
+      - name: Build for stm32f767zi
+        run: |
+          cd firmware
+          make PROJECT=Demo/Blink PLATFORM=stm32f767 build
