@@ -17,7 +17,7 @@ jobs:
           cd firmware
           make PROJECT=Demo/Blink PLATFORM=cli build
 
-      - name: Build for stm32f767zi
+      - name: Build for stm32f767
         run: |
           cd firmware
           make PROJECT=Demo/Blink PLATFORM=stm32f767 build
