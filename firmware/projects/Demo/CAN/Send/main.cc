@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-#include "bindings.h"
+#include "bindings.hpp"
 #include "generated/can/demobus_bus.hpp"
 #include "generated/can/demobus_messages.hpp"
 

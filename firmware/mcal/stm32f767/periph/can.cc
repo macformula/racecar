@@ -1,7 +1,7 @@
 #include "stm32f7xx_hal.h"
 #ifdef HAL_CAN_MODULE_ENABLED
 
-#include "can.h"
+#include "can.hpp"
 
 // FIFO0 is the "high priority" queue on stm32f7. We do not use FIFO1
 constexpr uint32_t kCanFifo = CAN_RX_FIFO0;

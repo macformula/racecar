@@ -1,1 +1,1 @@
-target_sources(mcal-stm32f767 PRIVATE can.cc)
+target_sources(mcal-stm32f767 INTERFACE can.cc)

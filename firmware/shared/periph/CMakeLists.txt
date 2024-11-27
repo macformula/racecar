@@ -1,1 +1,1 @@
-target_sources(shared PRIVATE can.cc)
+target_sources(shared INTERFACE can.cc)
