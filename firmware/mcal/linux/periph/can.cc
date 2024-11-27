@@ -9,9 +9,9 @@
 #include <mutex>
 #include <thread>
 
-#include "can.h"
+#include "can.hpp"
 #include "shared/comms/can/msg.hpp"
-#include "vcan/vcan.h"
+#include "vcan/vcan.hpp"
 
 static can_frame to_can_frame(const shared::can::RawMessage& msg) {
     struct can_frame frame{
