@@ -25,4 +25,4 @@ jobs:
         RPI_USER: ${{ secrets.RPI_USER }}
         RPI_IP_ADDRESS: ${{ secrets.RPI_IP_ADDRESS }}
       run: |
-        ssh $RPI_USER@$RPI_IP_ADDRESS
+        ssh -o StrictHostKeyChecking=no $RPI_USER@$RPI_IP_ADDRESS
