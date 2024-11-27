@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  connect-to-pi:
+  setup-raspberry-pi:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,6 +28,6 @@ jobs:
         sudo apt update
         sudo apt install -y ansible
 
-    - name: Run Test Ansible Playbook
+    - name: Run Ansible Setup Playbook on Raspberry Pi
       run: |
         ansible-playbook -i scripts/hil/inventory.yml scripts/hil/setup_raspberry_pi.yml
