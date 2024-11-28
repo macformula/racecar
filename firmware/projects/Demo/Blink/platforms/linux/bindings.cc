@@ -1,6 +1,6 @@
 #include <unistd.h>
 
-#include "bindings.h"
+#include "../../bindings.h"
 #include "mcal/linux/periph/digital_output.h"
 #include "shared/periph/gpio.h"
 

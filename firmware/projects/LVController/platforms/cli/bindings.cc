@@ -7,14 +7,13 @@
 #include <string>
 #include <thread>
 
-#include "bindings.h"
+#include "../../bindings.h"
 #include "mcal/cli/periph/can.h"
 #include "mcal/cli/periph/gpio.h"
 #include "mcal/cli/periph/pwm.h"
 #include "shared/periph/can.h"
 #include "shared/periph/gpio.h"
 #include "shared/util/mappers/identity.h"
-
 
 // clang-format off
 namespace mcal {

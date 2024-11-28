@@ -3,14 +3,13 @@
 
 #include <cmath>
 
-#include "bindings.h"
+#include "../generated/can/veh_can_messages.h"
 #include "shared/comms/can/can_bus.h"
 #include "shared/os/mutex.h"
 #include "shared/periph/gpio.h"
 #include "shared/periph/pwm.h"
 #include "shared/util/mappers/clamper.h"
 #include "shared/util/mappers/mapper.h"
-#include "veh_can_messages.h"
 
 class StateBroadcaster {
 public:
@@ -151,7 +150,7 @@ public:
          shared::periph::DigitalOutput& led_output)
         : Subsystem(enable_output),
           valid_input_(valid_input),
-          led_(led_output){};
+          led_(led_output) {};
 
     bool CheckValid() {
         bool is_valid = valid_input_.Read();

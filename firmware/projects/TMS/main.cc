@@ -4,8 +4,10 @@
 #include <cstdint>
 #include <string>
 
-#include "app.h"
 #include "bindings.h"
+#include "generated/can/veh_can_messages.h"
+#include "generated/can/veh_msg_registry.h"
+#include "inc/app.h"
 #include "shared/comms/can/can_bus.h"
 #include "shared/os/tick.h"
 #include "shared/periph/adc.h"
@@ -16,8 +18,6 @@
 #include "shared/util/mappers/linear_map.h"
 #include "shared/util/mappers/lookup_table.h"
 #include "shared/util/mappers/mapper.h"
-#include "veh_can_messages.h"
-#include "veh_msg_registry.h"
 
 namespace os {
 extern void Tick(uint32_t ticks);

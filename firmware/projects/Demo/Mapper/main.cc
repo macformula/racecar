@@ -3,7 +3,7 @@
 
 #include <iostream>  // for demo only, will not work on other platforms
 
-#include "app.h"
+#include "inc/app.h"
 #include "shared/util/mappers/clamper.h"
 #include "shared/util/mappers/linear_map.h"
 #include "shared/util/mappers/mapper.h"

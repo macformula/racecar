@@ -12,7 +12,7 @@
 #include "tim.h"
 
 // fw imports
-#include "bindings.h"
+#include "../../bindings.h"
 #include "mcal/stm32f767/periph/adc.h"
 #include "mcal/stm32f767/periph/can.h"
 #include "mcal/stm32f767/periph/gpio.h"

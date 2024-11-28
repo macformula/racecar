@@ -7,6 +7,7 @@
 #include "main.h"
 
 // fw includes
+#include "../../bindings.h"
 #include "mcal/stm32f767/periph/can.h"
 #include "mcal/stm32f767/periph/gpio.h"
 #include "shared/periph/can.h"
