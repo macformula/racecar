@@ -1,12 +1,9 @@
 #include <linux/can.h>
-#include <sys/types.h>
 
 #include <chrono>
 #include <cstring>
 #include <format>
-#include <iomanip>
 #include <iostream>
-#include <mutex>
 #include <thread>
 
 #include "can.hpp"
