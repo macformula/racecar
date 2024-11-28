@@ -2,7 +2,7 @@
 
 Control an LED with a button over CAN.
 
-The `Send` node reads a button input then sends the input over CAN to the `Receive` node which then sets turns on an LED if the button is pressed.
+The `Send` node reads a button input and controls the `Receive` node's LED over CAN.
 
 ## DBC
 
@@ -14,9 +14,15 @@ C++ code for the DBC is generated using `scripts/cangen`. The code is placed int
 
 ## Platforms
 
+### stm32f767 Nucleo
+
+The `Send` node polls its built-in button and sends a message to the `Receive` node which sets its on-board LED to match the button. This looks like the `Send` button controlling the `Receive` LED.
+
+Both Send and Receive have CAN RX and TX on pins PB3 and PB4, respectively. See the Nucleo pinouts (`datasheets/nucleo/nucleo_f767zi_zio_right.png`) for the physical pin. For a complete circuit, you will also need 2 CAN drivers like the Analog Devices MAX33042E (see datasheets folder).
+
 ### Linux
 
-The projects communicate over virtual CAN (vcan). If using WSL, you need to recompile your kernel to enable vcan (instructions coming soon).
+The projects communicate over virtual CAN (vcan). If using WSL, you need to recompile your kernel to enable vcan. See <https://macformula.github.io/racecar/tutorials/wsl-can/>.
 
 Run `source vcan_setup.sh` to load the required modules.
 
@@ -49,9 +55,3 @@ CanBase vcan0: Received
 | [3AC] 00
 DigitalOutput "Indicator" => false
 ```
-
-### stm32f767 Nucleo
-
-Both Send and Receive have CAN RX and TX on pins PB3 and PB4, respectively. See the nucleo pinouts (`racecar/datasheets/nucleo/`) for the physical pin. For a complete circuit, you will also need 2 CAN drivers like the AD MAX33042E (see datasheets folder).
-
-The `Send` node polls its built-in button every 50 ms and sends a message to the `Receive` node which sets its on-board LED to match the button.

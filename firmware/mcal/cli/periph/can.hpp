@@ -10,6 +10,7 @@
 
 #include <chrono>
 #include <cstring>
+#include <format>
 #include <iomanip>
 #include <iostream>
 
@@ -27,7 +28,8 @@ public:
     }
 
     void Send(const shared::can::RawMessage& msg) {
-        std::cout << std::format("{} {}", iface_, msg) << std::endl;
+        std::cout << std::format("CanBase {}: Sending\n| {}", iface_, msg)
+                  << std::endl;
     }
 
 private:

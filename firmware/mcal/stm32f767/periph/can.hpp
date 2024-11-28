@@ -1,12 +1,12 @@
-/// @author Samuel Parent
-/// @date 2023-01-12
+/// @author Blake Freer
+/// @date 2024-11
 
 #pragma once
 
 #include "stm32f7xx_hal.h"
 #ifdef HAL_CAN_MODULE_ENABLED
 
-#include <cstddef>
+#include <cstdint>
 
 #include "shared/comms/can/msg.hpp"
 #include "shared/periph/can.hpp"

@@ -1,6 +1,8 @@
 #include "stm32f7xx_hal.h"
 #ifdef HAL_CAN_MODULE_ENABLED
 
+#include <cstdint>
+
 #include "can.hpp"
 
 // FIFO0 is the "high priority" queue on stm32f7. We do not use FIFO1
@@ -11,7 +13,7 @@ namespace {  // InterruptHandler is private to this file
 
 /// Prior to this class, we spent several hours debugging an issue where the
 /// interrupt was activated but the handler was not being called, causing the
-/// program to get repeatedly executed the interupt callback and stall the reset
+/// program to get repeatedly executed the interupt callback and stall the rest
 /// of the program.
 /// This class ensures that interrupts activated and handled together.
 class InterruptHandler {
@@ -80,10 +82,10 @@ void CanBase::Send(const shared::can::RawMessage& msg) {
         return;
     }
 
-    CAN_TxHeaderTypeDef stm_tx_header{
-        .RTR = CAN_RTR_DATA,  // we only support data frames currently
-        .DLC = msg.data_length,
-    };
+    CAN_TxHeaderTypeDef stm_tx_header;
+    stm_tx_header.RTR = CAN_RTR_DATA;  // we only support data frames currently
+    stm_tx_header.DLC = msg.data_length;
+
     if (msg.is_extended_frame) {
         stm_tx_header.IDE = CAN_ID_EXT;
         stm_tx_header.ExtId = msg.id;

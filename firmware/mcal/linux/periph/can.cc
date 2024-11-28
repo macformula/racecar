@@ -55,6 +55,9 @@ void CanBase::StartReading() {
 
         shared::can::RawMessage raw_msg(frame.can_id, true, frame.can_dlc,
                                         frame.data);
+        std::cout << std::format("CanBase {}: Received\n| {}",
+                                 socket_.GetIface(), raw_msg)
+                  << std::endl;
 
         AddToBus(raw_msg);
     }
