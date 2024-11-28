@@ -3,10 +3,10 @@
 
 #include <cstdint>
 
-#include "bindings.h"
-#include "generated/can/demobus_can_messages.h"
-#include "generated/can/demobus_msg_registry.h"
-#include "shared/comms/can/can_bus.h"
+#include "bindings.hpp"
+#include "generated/can/demobus_can_messages.hpp"
+#include "generated/can/demobus_msg_registry.hpp"
+#include "shared/comms/can/can_bus.hpp"
 
 generated::can::DemobusMsgRegistry veh_can_registry{};
 

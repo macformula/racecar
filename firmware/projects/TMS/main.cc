@@ -4,20 +4,20 @@
 #include <cstdint>
 #include <string>
 
-#include "bindings.h"
-#include "generated/can/veh_can_messages.h"
-#include "generated/can/veh_msg_registry.h"
-#include "inc/app.h"
-#include "shared/comms/can/can_bus.h"
-#include "shared/os/tick.h"
-#include "shared/periph/adc.h"
-#include "shared/periph/can.h"
-#include "shared/periph/gpio.h"
-#include "shared/periph/pwm.h"
-#include "shared/util/algorithms/arrays.h"
-#include "shared/util/mappers/linear_map.h"
-#include "shared/util/mappers/lookup_table.h"
-#include "shared/util/mappers/mapper.h"
+#include "bindings.hpp"
+#include "generated/can/veh_can_messages.hpp"
+#include "generated/can/veh_msg_registry.hpp"
+#include "inc/app.hpp"
+#include "shared/comms/can/can_bus.hpp"
+#include "shared/os/tick.hpp"
+#include "shared/periph/adc.hpp"
+#include "shared/periph/can.hpp"
+#include "shared/periph/gpio.hpp"
+#include "shared/periph/pwm.hpp"
+#include "shared/util/algorithms/arrays.hpp"
+#include "shared/util/mappers/linear_map.hpp"
+#include "shared/util/mappers/lookup_table.hpp"
+#include "shared/util/mappers/mapper.hpp"
 
 namespace os {
 extern void Tick(uint32_t ticks);

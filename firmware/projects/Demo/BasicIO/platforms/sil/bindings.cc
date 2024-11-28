@@ -1,8 +1,8 @@
 /// @author Samuel Parent
 /// @date 2024-05-01
 
-#include "mcal/raspi/periph/gpio.h"
-#include "shared/periph/gpio.h"
+#include "mcal/raspi/periph/gpio.hpp"
+#include "shared/periph/gpio.hpp"
 #include "validation/sil/sil_client.h"
 
 const std::string ecu_name = "DemoProject";

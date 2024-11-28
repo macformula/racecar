@@ -4,14 +4,14 @@
 #include <cstdint>
 #include <regex>
 
-#include "bindings.h"
-#include "generated/can/veh_msg_registry.h"
-#include "inc/app.h"
-#include "shared/comms/can/can_bus.h"
-#include "shared/periph/gpio.h"
-#include "shared/periph/pwm.h"
-#include "shared/util/mappers/identity.h"
-#include "shared/util/mappers/mapper.h"
+#include "bindings.hpp"
+#include "generated/can/veh_msg_registry.hpp"
+#include "inc/app.hpp"
+#include "shared/comms/can/can_bus.hpp"
+#include "shared/periph/gpio.hpp"
+#include "shared/periph/pwm.hpp"
+#include "shared/util/mappers/identity.hpp"
+#include "shared/util/mappers/mapper.hpp"
 
 using LvControllerState = generated::can::LvControllerState;
 

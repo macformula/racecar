@@ -1,14 +1,14 @@
 #include <unistd.h>
 
-#include "bindings.h"
-#include "shared/periph/adc.h"
-#include "shared/periph/can.h"
-#include "shared/periph/gpio.h"
+#include "bindings.hpp"
+#include "shared/periph/adc.hpp"
+#include "shared/periph/can.hpp"
+#include "shared/periph/gpio.hpp"
 
 // fw imports
-#include "mcal/cli/periph/adc.h"
-#include "mcal/cli/periph/can.h"
-#include "mcal/cli/periph/gpio.h"
+#include "mcal/cli/periph/adc.hpp"
+#include "mcal/cli/periph/can.hpp"
+#include "mcal/cli/periph/gpio.hpp"
 
 namespace mcal {
 using namespace cli::periph;

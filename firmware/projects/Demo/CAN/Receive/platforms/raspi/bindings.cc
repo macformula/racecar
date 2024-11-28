@@ -4,8 +4,8 @@
 #include <chrono>
 #include <thread>
 
-#include "mcal/raspi/periph/can.h"
-#include "shared/periph/can.h"
+#include "mcal/raspi/periph/can.hpp"
+#include "shared/periph/can.hpp"
 
 namespace mcal {
 using namespace raspi::periph;

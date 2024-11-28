@@ -3,9 +3,9 @@
 
 #include <iostream>
 
-#include "../../bindings.h"
-#include "mcal/cli/periph/gpio.h"
-#include "shared/periph/gpio.h"
+#include "../../bindings.hpp"
+#include "mcal/cli/periph/gpio.hpp"
+#include "shared/periph/gpio.hpp"
 
 namespace mcal {
 using namespace cli::periph;

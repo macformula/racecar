@@ -2,11 +2,10 @@
 /// @date 2024-03-21
 /// @details Tests the order of operations of CompositeMap.
 
-#include "shared/util/mappers/mapper.h"
-
 #include "gtest/gtest.h"
-#include "shared/util/mappers/clamper.h"
-#include "shared/util/mappers/linear_map.h"
+#include "shared/util/mappers/clamper.hpp"
+#include "shared/util/mappers/linear_map.hpp"
+#include "shared/util/mappers/mapper.hpp"
 
 namespace shared::util {
 

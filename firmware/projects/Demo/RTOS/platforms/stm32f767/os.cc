@@ -1,12 +1,13 @@
 /// @author Matteo Tullo
 /// @date 2024-02-01
 
+#include "../../bindings.hpp"
 #include "cmsis_os2.h"
-#include "mcal/stm32f767/os/fifo.h"
-#include "mcal/stm32f767/os/mutex.h"
-#include "mcal/stm32f767/os/semaphore.h"
-#include "mcal/stm32f767/os/tick.h"
-#include "mcal/stm32f767/os/timer.h"
+#include "mcal/stm32f767/os/fifo.hpp"
+#include "mcal/stm32f767/os/mutex.hpp"
+#include "mcal/stm32f767/os/semaphore.hpp"
+#include "mcal/stm32f767/os/tick.hpp"
+#include "mcal/stm32f767/os/timer.hpp"
 
 extern "C" {
 /**
@@ -31,10 +32,10 @@ Timer timer_test{&messageTimerHandle};
 }  // namespace mcal
 
 namespace os {
-const shared::os::Semaphore& sem_test = mcal::sem_test;
-const shared::os::Mutex& mutex_test = mcal::mutex_test;
-const shared::os::Fifo& message_queue_test = mcal::message_queue_test;
-const shared::os::Timer& timer_test = mcal::timer_test;
+shared::os::Semaphore& sem_test = mcal::sem_test;
+shared::os::Mutex& mutex_test = mcal::mutex_test;
+shared::os::Fifo& message_queue_test = mcal::message_queue_test;
+shared::os::Timer& timer_test = mcal::timer_test;
 
 void InitializeKernel(void) {
     // TODO: Implement error handling

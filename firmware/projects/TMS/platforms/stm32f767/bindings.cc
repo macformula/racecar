@@ -10,18 +10,18 @@
 #include "can.h"
 #include "gpio.h"
 #include "main.h"
-#include "mcal/stm32f767/periph/can.h"
-#include "shared/comms/can/can_msg.h"
+#include "mcal/stm32f767/periph/can.hpp"
+#include "shared/comms/can/can_msg.hpp"
 #include "tim.h"
 
 // fw imports
-#include "../../bindings.h"
-#include "mcal/stm32f767/periph/adc.h"
-#include "mcal/stm32f767/periph/gpio.h"
-#include "mcal/stm32f767/periph/pwm.h"
-#include "shared/periph/adc.h"
-#include "shared/periph/gpio.h"
-#include "shared/periph/pwm.h"
+#include "../../bindings.hpp"
+#include "mcal/stm32f767/periph/adc.hpp"
+#include "mcal/stm32f767/periph/gpio.hpp"
+#include "mcal/stm32f767/periph/pwm.hpp"
+#include "shared/periph/adc.hpp"
+#include "shared/periph/gpio.hpp"
+#include "shared/periph/pwm.hpp"
 
 extern "C" {
 /**

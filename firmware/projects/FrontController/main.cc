@@ -1,19 +1,19 @@
 /// @author Blake Freer
 /// @date 2024-02-24
 
-#include "bindings.h"
-#include "generated/can/pt_can_messages.h"
-#include "generated/can/pt_msg_registry.h"
-#include "generated/can/veh_can_messages.h"
-#include "generated/can/veh_msg_registry.h"
-#include "inc/app.h"
-#include "inc/simulink.h"
-#include "shared/comms/can/can_bus.h"
-#include "shared/os/os.h"
-#include "shared/periph/adc.h"
-#include "shared/periph/gpio.h"
-#include "shared/util/mappers/linear_map.h"
-#include "shared/util/mappers/mapper.h"
+#include "bindings.hpp"
+#include "generated/can/pt_can_messages.hpp"
+#include "generated/can/pt_msg_registry.hpp"
+#include "generated/can/veh_can_messages.hpp"
+#include "generated/can/veh_msg_registry.hpp"
+#include "inc/app.hpp"
+#include "inc/simulink.hpp"
+#include "shared/comms/can/can_bus.hpp"
+#include "shared/os/os.hpp"
+#include "shared/periph/adc.hpp"
+#include "shared/periph/gpio.hpp"
+#include "shared/util/mappers/linear_map.hpp"
+#include "shared/util/mappers/mapper.hpp"
 
 /***************************************************************
     CAN

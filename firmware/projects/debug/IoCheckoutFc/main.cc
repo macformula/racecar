@@ -3,12 +3,12 @@
 
 #include <cstdint>
 
-#include "generated/can/can_messages.h"
-#include "generated/can/msg_registry.h"
-#include "shared/comms/can/can_bus.h"
-#include "shared/periph/adc.h"
-#include "shared/periph/gpio.h"
-#include "shared/util/mappers/linear_map.h"
+#include "generated/can/can_messages.hpp"
+#include "generated/can/msg_registry.hpp"
+#include "shared/comms/can/can_bus.hpp"
+#include "shared/periph/adc.hpp"
+#include "shared/periph/gpio.hpp"
+#include "shared/util/mappers/linear_map.hpp"
 
 namespace bindings {
 extern shared::periph::CanBase& io_can_base;

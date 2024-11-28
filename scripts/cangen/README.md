@@ -29,10 +29,10 @@ FrontController
 ├─ fc_docs
 ├─ generated/can
 │  ├─ .gitignore
-│  ├─ pt_can_messages.h
-│  ├─ pt_msg_registry.h
-│  ├─ veh_can_messages.h
-│  └─ veh_msg_registry.h
+│  ├─ pt_can_messages.hpp
+│  ├─ pt_msg_registry.hpp
+│  ├─ veh_can_messages.hpp
+│  └─ veh_msg_registry.hpp
 ├─ inc
 ├─ platforms
 ├─ vehicle_control_system

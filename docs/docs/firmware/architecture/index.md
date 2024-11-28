@@ -98,7 +98,7 @@ The peripheral implementations are in the MCAL (Microcontroller Abstraction Laye
 
     At the app level, `DigitalInput` has just a single method `Read()`. This method takes no parameters and should return a boolean indicating the state of the input.
 
-    ```c++ title="shared/periph/gpio.h"
+    ```c++ title="shared/periph/gpio.hpp"
     #pragma once
 
     class DigitalInput {
@@ -117,11 +117,11 @@ The peripheral implementations are in the MCAL (Microcontroller Abstraction Laye
         
         We do not specify a port or pin in this class. They are provided when an object is constructed in the project's platform layer, allowing this class to be reused for any stm32f767 digital input.
 
-        ```c++ title="mcal/stm32f767/periph/gpio.h"
+        ```c++ title="mcal/stm32f767/periph/gpio.hpp"
         #pragma once
 
         #include <cstdint>
-        #include "shared/periph/gpio.h"
+        #include "shared/periph/gpio.hpp"
         #include "stm32f7xx_hal.h"
 
         namespace mcal::stm32f767::periph {
@@ -146,12 +146,12 @@ The peripheral implementations are in the MCAL (Microcontroller Abstraction Laye
 
         A command line interface does not have physical pins to read but the digital input behaviour can be implemented by prompting the user for a boolean input.
 
-        ```c++ title="mcal/cli/periph/gpio.h"
+        ```c++ title="mcal/cli/periph/gpio.hpp"
         #pragma once
 
         #include <iostream>
         #include <string>
-        #include "shared/periph/gpio.h"
+        #include "shared/periph/gpio.hpp"
 
         namespace mcal::cli::periph {
 

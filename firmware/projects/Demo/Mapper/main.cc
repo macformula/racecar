@@ -3,10 +3,9 @@
 
 #include <iostream>  // for demo only, will not work on other platforms
 
-#include "inc/app.h"
-#include "shared/util/mappers/clamper.h"
-#include "shared/util/mappers/linear_map.h"
-#include "shared/util/mappers/mapper.h"
+#include "shared/util/mappers/clamper.hpp"
+#include "shared/util/mappers/linear_map.hpp"
+#include "shared/util/mappers/mapper.hpp"
 
 using namespace shared::util;  // for demo only
 

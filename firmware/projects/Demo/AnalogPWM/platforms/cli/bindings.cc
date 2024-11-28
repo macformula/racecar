@@ -2,11 +2,11 @@
 
 #include <iostream>
 
-#include "../../bindings.h"
-#include "mcal/cli/periph/pwm.h"
-#include "shared/periph/pwm.h"
-#include "mcal/cli/periph/analog_output.h"
-#include "shared/periph/analog_output.h"
+#include "../../bindings.hpp"
+#include "mcal/cli/periph/analog_output.hpp"
+#include "mcal/cli/periph/pwm.hpp"
+#include "shared/periph/analog_output.hpp"
+#include "shared/periph/pwm.hpp"
 
 namespace mcal {
 

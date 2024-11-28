@@ -1,9 +1,8 @@
 /// @author Blake Freer
 /// @date 2024-03-21
 
-#include "shared/util/mappers/lookup_table.h"
-
 #include "gtest/gtest.h"
+#include "shared/util/mappers/lookup_table.hpp"
 
 namespace shared::util {
 

@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-#include "../../bindings.h"
-#include "mcal/linux/periph/can.h"
-#include "mcal/linux/periph/digital_input.h"
+#include "../../bindings.hpp"
+#include "mcal/linux/periph/can.hpp"
+#include "mcal/linux/periph/digital_input.hpp"
 
 namespace mcal {
 using namespace lnx::periph;

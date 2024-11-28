@@ -1,11 +1,10 @@
 /// @author Blake Freer
 /// @date 2024-03-21
 
-#include "shared/util/mappers/clamper.h"
-
 #include <limits.h>
 
 #include "gtest/gtest.h"
+#include "shared/util/mappers/clamper.hpp"
 
 namespace shared::util {
 

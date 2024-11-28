@@ -1,20 +1,20 @@
 #include <cstdint>
 
 #include "adc.h"
-#include "bindings.h"
+#include "bindings.hpp"
 #include "can.h"
 #include "gpio.h"
 #include "main.h"
-#include "shared/periph/adc.h"
-#include "shared/periph/can.h"
-#include "shared/periph/gpio.h"
+#include "shared/periph/adc.hpp"
+#include "shared/periph/can.hpp"
+#include "shared/periph/gpio.hpp"
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx_hal_adc.h"
 
 // fw imports
-#include "mcal/stm32f767/periph/adc.h"
-#include "mcal/stm32f767/periph/can.h"
-#include "mcal/stm32f767/periph/gpio.h"
+#include "mcal/stm32f767/periph/adc.hpp"
+#include "mcal/stm32f767/periph/can.hpp"
+#include "mcal/stm32f767/periph/gpio.hpp"
 
 extern "C" {
 /**
