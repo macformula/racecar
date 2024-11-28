@@ -3,7 +3,7 @@
 # in the `sed` replacement string.
 
 # CubeMX forces CMake to skip its automatic compiler detection, which messes
-# with our clangd setup. Remove the line that does this.
+# with our clangd setup. Comment out the lines that do this.
 sed -E '/set\(CMAKE.*COMPILER_FORCED.*$/s/^/# /g' $1 > tmp.txt
 mv tmp.txt $1
 

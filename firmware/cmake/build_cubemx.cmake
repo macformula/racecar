@@ -1,10 +1,11 @@
 # Blake Freer
-# April 13, 2023
-# This file is included in the cubemx/CMakeLists.txt file of all projects'
+# November 2024
+
+# Generate code from CubeMX. The Makefile modifies the toolchain to fit our
+# system.
+# This file is included in the mcal_conf.cmake file of all projects'
 # platforms that use the stm32f767 mcal
 
-# Calls generate_cubemx.mk in the context of this file, which is adjacent to
-# the board_config.ioc file.
 execute_process(
     COMMAND make "--file=${CMAKE_SOURCE_DIR}/cmake/generate_cubemx.mk"
     WORKING_DIRECTORY ${DIR_PLATFORM}/cubemx
