@@ -12,4 +12,3 @@ mv tmp.txt $1
 # Find the "-T ** .ld" line and replace the CMAKE variable with the current directory.
 sed -E "/-T.*\.ld/s|\\\$\{CMAKE_SOURCE_DIR\}|${PWD}|g" $1 > tmp.txt
 mv tmp.txt $1
-rm -f tmp.txt
