@@ -4,7 +4,7 @@
 
 # CubeMX forces CMake to skip its automatic compiler detection, which messes
 # with our clangd setup. Remove the line that does this.
-sed -i '/set(CMAKE.*COMPILER_FORCED.*$$/s/^/# /g' $1
+sed -i '/set(CMAKE.*COMPILER_FORCED.*$/s/^/# /g' $1
 
 # CubeMX incorrectly assumes that our top-level CMakeLists.txt is in the same
 # directory as the .ioc file. This means that the linker script directory is wrong.
