@@ -11,38 +11,33 @@ int main() {
     // Test Case 1: Smaller Sample Sizes
     {
         double new_torque_values[] = {5.0, 10.0, 15.0};
-        MotorTorqueCalculator<double>::Reset();
         for (int i = 0; i < 3; i++) {
-            MotorTorqueCalculator<double>::CalculateMotorTorque(
-                new_torque_values[i], 1.5, 1.2);
+            CalculateMotorTorque(new_torque_values[i], 1.5, 1.2, i == 0);
         }
         auto [right_motor_torque, left_motor_torque] =
-            MotorTorqueCalculator<double>::CalculateMotorTorque(20.0, 1.5, 1.2);
+            CalculateMotorTorque(20.0, 1.5, 1.2);
         ASSERT_CLOSE(right_motor_torque, 187.5);
-        ASSERT_CLOSE(left_motor_torque, 150);
+        ASSERT_CLOSE(left_motor_torque, 150.0);
     }
 
     {
         double new_torque_values[] = {2.0, 4.0};
-        MotorTorqueCalculator<double>::Reset();
         for (int i = 0; i < 2; i++) {
-            MotorTorqueCalculator<double>::CalculateMotorTorque(
-                new_torque_values[i], 1.1, 1.3);
+            CalculateMotorTorque(new_torque_values[i], 1.1, 1.3, i == 0);
         }
         auto [right_motor_torque, left_motor_torque] =
-            MotorTorqueCalculator<double>::CalculateMotorTorque(6.0, 1.1, 1.3);
-        ASSERT_CLOSE(right_motor_torque, 44);
-        ASSERT_CLOSE(left_motor_torque, 52);
+            CalculateMotorTorque(6.0, 1.1, 1.3);
+        ASSERT_CLOSE(right_motor_torque, 44.0);
+        ASSERT_CLOSE(left_motor_torque, 52.0);
     }
 
     // Test Case 2: Larger Sample Sizes
     {
-        MotorTorqueCalculator<double>::Reset();
-        for (int i = 1; i <= 9; i++) {
-            MotorTorqueCalculator<double>::CalculateMotorTorque(i, 1.5, 1.2);
+        for (double i = 1; i <= 9; i++) {
+            CalculateMotorTorque(i, 1.5, 1.2, i == 1);
         }
         auto [right_motor_torque, left_motor_torque] =
-            MotorTorqueCalculator<double>::CalculateMotorTorque(10.0, 1.5, 1.2);
+            CalculateMotorTorque(10.0, 1.5, 1.2);
         ASSERT_CLOSE(right_motor_torque, 82.5);
         ASSERT_CLOSE(left_motor_torque, 66.0);
     }
@@ -51,13 +46,11 @@ int main() {
     {
         double new_torque_values[] = {80, 21, 34, 43, 27, 47, 46,
                                       21, 73, 12, 11, 11, 14};
-        MotorTorqueCalculator<double>::Reset();
         for (int i = 0; i < 13; i++) {
-            MotorTorqueCalculator<double>::CalculateMotorTorque(
-                new_torque_values[i], 1.1, 1.2);
+            CalculateMotorTorque(new_torque_values[i], 1.1, 1.3, i == 0);
         }
         auto [right_motor_torque, left_motor_torque] =
-            MotorTorqueCalculator<double>::CalculateMotorTorque(12.0, 1.1, 1.2);
+            CalculateMotorTorque(12.0, 1.1, 1.2);
         ASSERT_CLOSE(right_motor_torque, 274 * 1.1);
         ASSERT_CLOSE(left_motor_torque, 274 * 1.2);
     }
@@ -65,24 +58,20 @@ int main() {
     // Test Case 4: Zero values in raw_torque_values
     {
         double new_torque_values[] = {0.0, 0.0, 0.0};
-        MotorTorqueCalculator<double>::Reset();
-        for (int i = 0; i < 2; i++) {
-            MotorTorqueCalculator<double>::CalculateMotorTorque(
-                new_torque_values[i], 1.1, 1.2);
+        for (int i = 0; i < 3; i++) {
+            CalculateMotorTorque(new_torque_values[i], 1.1, 1.2, i == 0);
         }
         auto [right_motor_torque, left_motor_torque] =
-            MotorTorqueCalculator<double>::CalculateMotorTorque(0.0, 1.8, 1.95);
-        ASSERT_CLOSE(right_motor_torque, 0);
-        ASSERT_CLOSE(left_motor_torque, 0);
+            CalculateMotorTorque(0.0, 1.8, 1.95);
+        ASSERT_CLOSE(right_motor_torque, 0.0);
+        ASSERT_CLOSE(left_motor_torque, 0.0);
     }
 
     // Test Case 5: Single element in raw_torque_values
     {
         double new_torque_value = 10.0;
-        MotorTorqueCalculator<double>::Reset();
         auto [right_motor_torque, left_motor_torque] =
-            MotorTorqueCalculator<double>::CalculateMotorTorque(
-                new_torque_value, 1.5, 1.2);
+            CalculateMotorTorque(new_torque_value, 1.5, 1.2, true);
         ASSERT_CLOSE(right_motor_torque, 150.0);
         ASSERT_CLOSE(left_motor_torque, 120.0);
     }

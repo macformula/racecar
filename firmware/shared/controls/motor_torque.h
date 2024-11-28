@@ -13,32 +13,24 @@ enum class State {
 namespace ctrl {
 
 template <typename T>
-class MotorTorqueCalculator {
-public:
-    static std::tuple<T, T> CalculateMotorTorque(T new_torque_value,
-                                                 T right_factor,
-                                                 T left_factor) {
-        running_average.LoadValue(new_torque_value);
+std::tuple<T, T> CalculateMotorTorque(T new_torque_value, T right_factor,
+                                      T left_factor, bool reset = false) {
+    static shared::util::MovingAverage<T, 10> running_average;
 
-        T running_average_value = running_average.GetValue();
-        T scaled_running_average = running_average_value * 10;
-
-        T right_motor_torque_limit = scaled_running_average * right_factor;
-        T left_motor_torque_limit = scaled_running_average * left_factor;
-
-        return std::tuple(right_motor_torque_limit, left_motor_torque_limit);
-    }
-
-    static void Reset() {
+    if (reset) {
         running_average = shared::util::MovingAverage<T, 10>();
     }
 
-private:
-    static shared::util::MovingAverage<T, 10> running_average;
-};
+    running_average.LoadValue(new_torque_value);
 
-template <typename T>
-shared::util::MovingAverage<T, 10> MotorTorqueCalculator<T>::running_average;
+    T running_average_value = running_average.GetValue();
+    T scaled_running_average = running_average_value * 10;
+
+    T right_motor_torque_limit = scaled_running_average * right_factor;
+    T left_motor_torque_limit = scaled_running_average * left_factor;
+
+    return std::tuple(right_motor_torque_limit, left_motor_torque_limit);
+}
 
 template <typename T>
 T ComputeTorqueRequest(T driver_torque_request, T brake_pedal_position) {
