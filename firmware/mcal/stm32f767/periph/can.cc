@@ -20,7 +20,7 @@ class InterruptHandler {
     using CanBase = mcal::stm32f767::periph::CanBase;
 
 public:
-    void RegisterInterrupt(CAN_HandleTypeDef* hcan, CanBase* can_base) {
+    void RegisterCanBase(CAN_HandleTypeDef* hcan, CanBase* can_base) {
         int index = HandleToIndex(hcan);
         if (index == -1) return;
 
@@ -71,7 +71,7 @@ CanBase::CanBase(CAN_HandleTypeDef* hcan) : hcan_{hcan} {}
 
 void CanBase::Setup() {
     ConfigFilters();
-    interrupt_handler.RegisterInterrupt(hcan_, this);
+    interrupt_handler.RegisterCanBase(hcan_, this);
     HAL_CAN_Start(hcan_);
 }
 
