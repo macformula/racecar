@@ -113,6 +113,8 @@ CubeMX is a program which generates configuration code for our microcontrollers.
     === "Linux"
 
             jre/bin/java -jar STM32CubeMX -i
+    === "MacOs (Terminal)" 
+            jre/Contents/Home/bin/java -jar STM32CubeMX -i
 
 4. Wait for the program to stop printing to your terminal. Press ++question+enter++ to display the `MX>` prompt. Login with your `username` and `password`.
 
