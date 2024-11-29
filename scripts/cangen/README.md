@@ -41,3 +41,17 @@ FrontController
 ├─ main.cc
 └─ README.md
 ```
+
+## Development
+
+We use Poetry to manage this package. Install the development environment with
+
+```bash
+poetry install
+```
+
+To run the tests:
+
+```bash
+poetry run pytest
+```
