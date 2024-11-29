@@ -1,0 +1,1 @@
+target_sources(shared PRIVATE msg.cc bus.cc)
