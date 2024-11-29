@@ -6,11 +6,11 @@
 // clang-format off
 
 #include <optional>
-#include <atomic>
 
 #include "shared/comms/can/bus.hpp"
 #include "shared/comms/can/msg.hpp"
 #include "shared/periph/can.hpp"
+#include "shared/util/buffer.hpp"
 #include "{{bus_name | lower}}_messages.hpp"
 
 namespace generated::can {
@@ -23,30 +23,23 @@ public:
     {% for msg in rx_msgs %}
     {% set msg_title = "Rx"+msg.name %}
     // Get the latest message of type {{msg_title}}
-    auto Get{{msg_title}}() -> std::optional<{{msg_title}}> {
-        int read_pos = static_cast<int>({{msg.name | camel_to_snake}}_read_pos_);
-        return {{ msg.name | camel_to_snake }}_buffer_[read_pos];
+    inline auto Get{{msg_title}}() -> std::optional<{{msg_title}}> {
+        return {{ msg.name | camel_to_snake }}_buffer_.Get();
     }
 
-    // Get the latest message of type {{msg_title}} and clear the optional
-    auto Pop{{msg_title}}() -> std::optional<{{msg_title}}> {
-        int read_pos = static_cast<int>({{msg.name | camel_to_snake}}_read_pos_);
-        auto temp = {{ msg.name | camel_to_snake }}_buffer_[read_pos];
-        {{ msg.name | camel_to_snake }}_buffer_[read_pos] = std::nullopt;
-        return temp;
+    // Get the latest message of type {{msg_title}} and clear the buffer.
+    inline auto Pop{{msg_title}}() -> std::optional<{{msg_title}}> {
+        return {{ msg.name | camel_to_snake }}_buffer_.Pop();
     }
     {% endfor %}
 
 private:
     void AddMessage(const shared::can::RawMessage& msg, uint32_t timestamp) override {
         {% if rx_msgs %}
-        bool write_pos_;
         switch(msg.id) {
             {% for msg in rx_msgs %}
             case Rx{{msg.name}}::id:
-                write_pos_ = !{{msg.name | camel_to_snake}}_read_pos_;
-                {{ msg.name | camel_to_snake }}_buffer_[static_cast<int>(write_pos_)] = Rx{{msg.name}}(msg, timestamp);
-                {{ msg.name | camel_to_snake }}_read_pos_ = write_pos_;
+                {{ msg.name | camel_to_snake }}_buffer_.Add(Rx{{msg.name}}(msg, timestamp));
                 break;
             {% endfor %}
             default:
@@ -64,14 +57,10 @@ private:
     
     {% if rx_msgs %}
     // All messages start empty and will be filled when the first instance arrives.
-    // Use a buffer to avoid race conditions between AddMessage() and Get()/Pop()
     {% for msg in rx_msgs %}
-    std::atomic_bool {{msg.name | camel_to_snake}}_read_pos_ = false;
-    std::optional<Rx{{ msg.name }}> {{msg.name | camel_to_snake}}_buffer_[2] = {std::nullopt, std::nullopt};
-
+    shared::util::AtomicBuffer<Rx{{ msg.name }}> {{msg.name | camel_to_snake}}_buffer_;
     {% endfor %}
     {% endif %}
-    friend class Base;
 };
 
 } // namespace generated::can
