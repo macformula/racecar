@@ -1,6 +1,0 @@
-*
-!*.ioc
-!.gitignore
-!README
-!CMakeLists.txt
-!generate.mk

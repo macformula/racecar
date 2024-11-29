@@ -1,1 +1,0 @@
-set(MCAL stm32f767)
