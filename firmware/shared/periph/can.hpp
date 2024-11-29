@@ -9,7 +9,7 @@
 #include "shared/util/peripheral.hpp"
 
 namespace shared::can {
-class Bus;
+class Bus;  // forward declare to avoid circular dependency
 }  // namespace shared::can
 
 namespace shared::periph {
