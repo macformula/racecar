@@ -3,15 +3,12 @@
 
 #pragma once
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 #include <chrono>
 #include <cstring>
 #include <format>
-#include <iomanip>
 #include <iostream>
 
 #include "shared/comms/can/msg.hpp"
@@ -27,7 +24,7 @@ public:
         std::cout << "can interface: " << iface_ << std::endl;
     }
 
-    void Send(const shared::can::RawMessage& msg) {
+    void Send(const shared::can::RawMessage& msg) override {
         std::cout << std::format("CanBase {}: Sending\n| {}", iface_, msg)
                   << std::endl;
     }
