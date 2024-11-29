@@ -145,11 +145,4 @@ void DelayMS(uint32_t milliseconds) {
     HAL_Delay(milliseconds);
 }
 
-extern "C" {
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
-    if (hcan == &hcan3) {
-        mcal::veh_can_base.AddRxMessageToQueue();
-    }
-}
-}
 }  // namespace bindings

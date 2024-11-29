@@ -5,22 +5,17 @@
 #include <regex>
 
 #include "bindings.hpp"
-#include "generated/can/veh_msg_registry.hpp"
+#include "generated/can/veh_bus.hpp"
+#include "generated/can/veh_messages.hpp"
 #include "inc/app.hpp"
-#include "shared/comms/can/can_bus.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
 #include "shared/util/mappers/identity.hpp"
 #include "shared/util/mappers/mapper.hpp"
 
-using LvControllerState = generated::can::LvControllerState;
+using namespace generated::can;
 
-generated::can::VehMsgRegistry veh_msg_registry{};
-
-shared::can::CanBus veh_can = shared::can::CanBus{
-    bindings::veh_can_base,
-    veh_msg_registry,
-};
+VehBus veh_can{bindings::veh_can_base};
 
 StateBroadcaster state_tx{veh_can};
 
@@ -146,31 +141,33 @@ void DoPowertrainDisableSequence() {
 }
 
 bool IsContactorsOpen() {
-    generated::can::ContactorStates contactor_states;
-    veh_can.ReadWithUpdate(contactor_states);
+    auto contactor_states = veh_can.GetRxContactorStates();
 
-    return (contactor_states.tick_timestamp != 0 &&
-            contactor_states.pack_positive == 0 &&
-            contactor_states.pack_negative == 0 &&
-            contactor_states.pack_precharge == 0);
+    if (contactor_states) {
+        return (contactor_states->PackPositive() == 0 &&
+                contactor_states->PackNegative() == 0 &&
+                contactor_states->PackPrecharge() == 0);
+    } else {
+        return false;  // No data received yet
+    }
 }
 
 bool IsContactorsClosed() {
-    generated::can::ContactorStates contactor_states;
-    veh_can.ReadWithUpdate(contactor_states);
+    auto contactor_states = veh_can.GetRxContactorStates();
 
-    return (contactor_states.tick_timestamp != 0 &&
-            contactor_states.pack_positive == 1 &&
-            contactor_states.pack_negative == 1 &&
-            contactor_states.pack_precharge == 0);
+    if (contactor_states) {
+        return (contactor_states->PackPositive() == 1 &&
+                contactor_states->PackNegative() == 1 &&
+                contactor_states->PackPrecharge() == 0);
+    } else {
+        return false;  // No data received yet
+    }
 }
 
 void DoInverterSwitchCheck() {
-    generated::can::InverterCommand inverter_command;
-    veh_can.ReadWithUpdate(inverter_command);
+    auto inverter_command = veh_can.GetRxInverterCommand();
 
-    if (inverter_command.tick_timestamp != 0 &&
-        inverter_command.enable_inverter == true) {
+    if (inverter_command && inverter_command->EnableInverter()) {
         inverter.Enable();
     } else {
         inverter.Disable();

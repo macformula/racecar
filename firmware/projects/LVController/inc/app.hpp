@@ -3,8 +3,8 @@
 
 #include <cmath>
 
-#include "../generated/can/veh_can_messages.hpp"
-#include "shared/comms/can/can_bus.hpp"
+#include "../generated/can/veh_bus.hpp"
+#include "../generated/can/veh_messages.hpp"
 #include "shared/os/mutex.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
@@ -13,17 +13,17 @@
 
 class StateBroadcaster {
 public:
-    StateBroadcaster(shared::can::CanBus& can_bus) : can_bus_(can_bus) {}
+    StateBroadcaster(generated::can::VehBus& can_bus) : can_bus_(can_bus) {}
 
     void UpdateState(generated::can::LvControllerState state) {
-        generated::can::LvControllerStatus lv_status;
-        lv_status.lv_controller_state = static_cast<uint8_t>(state);
+        generated::can::TxLvControllerStatus lv_status{
+            .lv_controller_state = static_cast<uint8_t>(state)};
 
         can_bus_.Send(lv_status);
     }
 
 private:
-    shared::can::CanBus can_bus_;
+    generated::can::VehBus& can_bus_;
 };
 
 /**
