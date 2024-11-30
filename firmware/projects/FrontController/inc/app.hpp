@@ -7,11 +7,9 @@
 #include <cstdint>
 
 #include "../generated/can/pt_bus.hpp"
+#include "../generated/can/veh_bus.hpp"
 #include "../generated/can/veh_messages.hpp"
 #include "shared/periph/adc.hpp"
-#include "shared/periph/can.hpp"
-#include "shared/periph/gpio.hpp"
-#include "shared/util/mappers/linear_map.hpp"
 #include "shared/util/mappers/mapper.hpp"
 #include "shared/util/moving_average.hpp"
 
@@ -40,45 +38,6 @@ private:
     shared::periph::ADCInput& adc_;
     shared::util::MovingAverage<uint16_t, kMovingAverageLength> moving_average_;
     const shared::util::Mapper<double, uint16_t>* adc_to_position_;
-};
-
-class Speaker {
-public:
-    Speaker(shared::periph::DigitalOutput& digital_output)
-        : digital_output_(digital_output) {}
-
-    void Update(bool state) const {
-        digital_output_.Set(state);
-    }
-
-private:
-    shared::periph::DigitalOutput& digital_output_;
-};
-
-class BrakeLight {
-public:
-    BrakeLight(shared::periph::DigitalOutput& digital_output)
-        : digital_output_(digital_output) {}
-
-    void Update(bool state) const {
-        digital_output_.Set(state);
-    }
-
-private:
-    shared::periph::DigitalOutput& digital_output_;
-};
-
-class Button {
-public:
-    Button(shared::periph::DigitalInput& digital_input)
-        : digital_input_(digital_input) {}
-
-    bool Read() const {
-        return digital_input_.Read();
-    }
-
-private:
-    shared::periph::DigitalInput& digital_input_;
 };
 
 /**
@@ -215,19 +174,4 @@ public:
 
 private:
     generated::can::VehBus& can_bus_;
-};
-
-class StatusLight {
-public:
-    StatusLight(shared::periph::DigitalOutput& digital_output)
-        : digital_output_(digital_output) {}
-
-    void Toggle() {
-        digital_output_.Set(next_value_);
-        next_value_ = !next_value_;
-    }
-
-private:
-    bool next_value_ = true;
-    shared::periph::DigitalOutput& digital_output_;
 };
