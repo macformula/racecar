@@ -11,7 +11,6 @@
 #include "main.h"
 #include "mcal/stm32f767/periph/can.hpp"
 #include "shared/periph/can.hpp"
-#include "stm32f767xx.h"
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx_hal_tim.h"
 #include "tim.h"
@@ -22,8 +21,6 @@
 #include "mcal/stm32f767/periph/pwm.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
-#include "shared/util/mappers/identity.hpp"
-#include "shared/util/mappers/mapper.hpp"
 
 extern "C" {
 /**
