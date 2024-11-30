@@ -9,14 +9,11 @@
 #include "../generated/can/veh_bus.hpp"
 #include "../generated/can/veh_messages.hpp"
 #include "shared/periph/adc.hpp"
-#include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
 #include "shared/util/mappers/clamper.hpp"
 #include "shared/util/mappers/linear_map.hpp"
 #include "shared/util/mappers/mapper.hpp"
 #include "shared/util/moving_average.hpp"
-
-using namespace generated::can;
 
 /***************************************************************
     App-level objects
@@ -27,6 +24,12 @@ public:
     TempSensor(shared::periph::ADCInput& adc,
                const shared::util::Mapper<float>& volt_to_temp)
         : adc_(adc), volt_to_temp_(volt_to_temp), rolling_temperature_() {}
+
+    float Update() {
+        float new_temperature = Read();
+        rolling_temperature_.LoadValue(new_temperature);
+        return rolling_temperature_.GetValue();
+    }
 
 private:
     shared::periph::ADCInput& adc_;
@@ -44,44 +47,6 @@ private:
         float temperature = volt_to_temp_.Evaluate(volt);
         return temperature;
     }
-
-    float Update() {
-        float new_temperature = Read();
-        rolling_temperature_.LoadValue(new_temperature);
-        return GetTemperature();
-    }
-
-    float GetTemperature() {
-        return rolling_temperature_.GetValue();
-    }
-
-    template <int sensor_count_>
-    friend class TempSensorManager;
-};
-
-template <int sensor_count_>
-class TempSensorManager {
-public:
-    TempSensorManager(TempSensor* sensors) : sensors_(sensors) {}
-
-    /// @brief Updates the temperature values from each temperature sensor.
-    void Update() {
-        for (int i = 0; i < sensor_count_; i++) {
-            temperatures_[i] = sensors_[i].Update();
-        }
-    }
-
-    /// @brief Copy temperature values to another buffer.
-    /// @param buffer
-    void GetTemperatures(float* buffer) {
-        for (int i = 0; i < sensor_count_; i++) {
-            buffer[i] = temperatures_[i];
-        }
-    }
-
-private:
-    TempSensor* sensors_;
-    float temperatures_[sensor_count_];
 };
 
 class FanContoller {
@@ -127,38 +92,9 @@ private:
     float pwm_step_size_;
 };
 
-class DebugIndicator {
-public:
-    DebugIndicator(shared::periph::DigitalOutput& digital_output)
-        : digital_output_(digital_output) {}
-
-    void Set() {
-        state_ = true;
-        UpdateDO();
-    }
-
-    void Reset() {
-        state_ = false;
-        UpdateDO();
-    }
-
-    void Toggle() {
-        state_ = !state_;
-        UpdateDO();
-    }
-
-private:
-    shared::periph::DigitalOutput& digital_output_;
-    bool state_ = false;
-
-    inline void UpdateDO() {
-        digital_output_.Set(state_);
-    }
-};
-
 class BmsBroadcaster {
 public:
-    BmsBroadcaster(VehBus& can_bus, uint8_t num_thermistors)
+    BmsBroadcaster(generated::can::VehBus& can_bus, uint8_t num_thermistors)
         : can_bus_(can_bus), num_thermistors_(num_thermistors) {}
 
     void SendBmsBroadcast(uint8_t high_thermistor_id,
@@ -166,7 +102,7 @@ public:
                           uint8_t low_thermistor_id,
                           int8_t low_thermistor_value,
                           int8_t avg_thermistor_value) {
-        TxBmsBroadcast bms_broadcast_{
+        generated::can::TxBmsBroadcast bms_broadcast_{
             .therm_module_num = kThermistorModuleNumber,
             .low_therm_value = low_thermistor_value,
             .high_therm_value = high_thermistor_value,
@@ -183,10 +119,11 @@ public:
 private:
     static constexpr uint8_t kThermistorModuleNumber = 0;
 
-    VehBus& can_bus_;
+    generated::can::VehBus& can_bus_;
     uint8_t num_thermistors_;
 
-    uint8_t CalculateBmsBroadcastChecksum(const TxBmsBroadcast& bms_broadcast) {
+    uint8_t CalculateBmsBroadcastChecksum(
+        const generated::can::TxBmsBroadcast& bms_broadcast) {
         // This is a constant defined by Orion. It was discovered by
         // decoding the CAN traffic coming from the Orion Thermal Expansion
         // Pack.
