@@ -6,7 +6,6 @@
 #include "generated/can/pt_messages.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
-#include "inc/app.hpp"
 #include "inc/simulink.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/util/mappers/linear_map.hpp"
@@ -27,50 +26,37 @@ ControlSystem control_system{};
 
 // See fc_docs/pedal_function and
 // vehicle_control_system/firmware_io/simulink_input.csv
-auto accel_pedal_1_map = shared::util::LinearMap<double, uint16_t>{
-    730.125,
-    -0.29412,
-};  // Asumming 3.3V = 4096
-AnalogInput accel_pedal_1{
-    bindings::accel_pedal_1,
-    &accel_pedal_1_map,
-};
 
-auto accel_pedal_2_map = shared::util::LinearMap<double, uint16_t>{
-    730.125,
-    -0.4706,
-};  // Asumming 3.3V = 4096
-AnalogInput accel_pedal_2{
-    bindings::accel_pedal_2,
-    &accel_pedal_2_map,
-};
+// Asumming 3.3V = 4096
+double ReadApps1() {
+    const auto map =
+        shared::util::LinearMap<double, uint16_t>{730.125, -0.29412};
+    return map.Evaluate(bindings::accel_pedal_1.Read());
+}
 
-auto brake_pedal_front_map = shared::util::LinearMap<double, uint16_t>{
-    730.125,
-    -0.29412,
-};  // TODO: Check this, no function is given, copied from accel_pedal_1
-AnalogInput brake_pedal_front{
-    bindings::brake_pedal_front,
-    &brake_pedal_front_map,
-};
+double ReadApps2() {
+    const auto map =
+        shared::util::LinearMap<double, uint16_t>{730.125, -0.4706};
+    return map.Evaluate(bindings::accel_pedal_2.Read());
+}
 
-auto brake_pedal_rear_map = shared::util::LinearMap<double, uint16_t>{
-    730.125,
-    -0.29412,
-};  // TODO: Check this, no function is given, copied from accel_pedal_1
-AnalogInput brake_pedal_rear{
-    bindings::brake_pedal_rear,
-    &brake_pedal_rear_map,
-};
+// TODO: Check BPPS maps. no function is given, copied from accel_pedal_1
+double ReadBrakePedalFront() {
+    const auto map =
+        shared::util::LinearMap<double, uint16_t>{730.125, -0.29412};
+    return map.Evaluate(bindings::brake_pedal_front.Read());
+}
 
-auto steering_wheel_map = shared::util::LinearMap<double, uint16_t>{
-    1.0 / 4096.0,
-    0,
-};  // Assuming 3.3V = 4096
-AnalogInput steering_wheel{
-    bindings::steering_wheel,
-    &steering_wheel_map,
-};
+double ReadBrakePedalRear() {
+    const auto map =
+        shared::util::LinearMap<double, uint16_t>{730.125, -0.29412};
+    return map.Evaluate(bindings::brake_pedal_rear.Read());
+}
+
+double ReadSteeringWheel() {
+    const auto map = shared::util::LinearMap<double, uint16_t>{1.0 / 4096.0, 0};
+    return map.Evaluate(bindings::steering_wheel.Read());
+}
 
 /***************************************************************
     Task Functions
@@ -91,42 +77,108 @@ extern void InitializeKernel();
 extern void StartKernel();
 }  // namespace os
 
-/**
- * @brief Read the inputs from all devices to send to the control system.
- * @note Replaces readFromAdc()
- *
- * @return SimulinkInput
- */
+/***************************************************************
+    Functions
+***************************************************************/
+
+enum class StatusLightMode {
+    OFF,
+    FLASHING,
+    SOLID,
+};
+volatile StatusLightMode status_light_mode = StatusLightMode::OFF;
+
+void UpdateStatusLight() {
+    static bool next_toggle = true;
+
+    switch (status_light_mode) {
+        case StatusLightMode::OFF:
+            bindings::status_light.Set(false);
+            next_toggle = true;
+            break;
+
+        case StatusLightMode::SOLID:
+            bindings::status_light.Set(true);
+            next_toggle = false;
+            break;
+
+        case StatusLightMode::FLASHING:
+            bindings::status_light.Set(next_toggle);
+            next_toggle = !next_toggle;
+            break;
+    }
+}
+
+struct DriverInput {
+    double steering_angle;
+    double front_brake_pressure;
+    double rear_brake_pressure;
+    bool start_button_pressed;
+    double accel_pedal_position1;
+    double accel_pedal_position2;
+    bool hvil_status;
+};
+
+DriverInput ReadDriverInput() {
+    return DriverInput{
+        .steering_angle = ReadSteeringWheel(),
+        .front_brake_pressure = ReadBrakePedalFront(),
+        .rear_brake_pressure = ReadBrakePedalRear(),
+        .start_button_pressed = bindings::start_button.Read(),
+        .accel_pedal_position1 = ReadApps1(),
+        .accel_pedal_position2 = ReadApps2(),
+        .hvil_status = false,  // is this going away in EV6?
+    };
+}
+/// @brief Read the inputs from all devices to send to the control system.
+/// @return SimulinkInput
 SimulinkInput ReadCtrlSystemInput() {
     SimulinkInput input{};  // zero initialize struct
 
-    // Driver Input
-    input.DI_SteeringAngle = steering_wheel.Update();
-    input.DI_FrontBrakePressure = brake_pedal_front.Update();
-    input.DI_RearBrakePressure = brake_pedal_rear.Update();
-    input.DI_StartButton = bindings::start_button.Read();
-    input.DI_AccelPedalPosition1 = accel_pedal_1.Update();
-    input.DI_AccelPedalPosition2 = accel_pedal_2.Update();
+    auto driver_input = ReadDriverInput();
+    veh_can_bus.Send(TxFC_msg{
+        .fc_apps1 = static_cast<float>(driver_input.accel_pedal_position1),
+        .fc_apps2 = static_cast<float>(driver_input.accel_pedal_position2),
+        .fc_bpps = static_cast<float>(driver_input.front_brake_pressure),
+        .fc_steering_angle = static_cast<float>(driver_input.steering_angle),
+        .fc_hvil_sts = driver_input.hvil_status,
+        .fc_ready_to_drive_btn_n = driver_input.start_button_pressed,
+    });
 
-    // Wheel Speed Sensors
-    input.VD_LFWheelSpeed = NULL;
-    input.VD_RFWheelSpeed = NULL;
+    // Driver Input
+    input.DI_SteeringAngle = driver_input.steering_angle;
+    input.DI_FrontBrakePressure = driver_input.front_brake_pressure;
+    input.DI_RearBrakePressure = driver_input.rear_brake_pressure;
+    input.DI_StartButton = driver_input.start_button_pressed;
+    input.DI_AccelPedalPosition1 = driver_input.accel_pedal_position1;
+    input.DI_AccelPedalPosition2 = driver_input.accel_pedal_position2;
+
+    // Wheel Speed Sensors - do these exist?
+    input.VD_LFWheelSpeed = 0;
+    input.VD_RFWheelSpeed = 0;
+    input.BM_HvilFeedback = driver_input.hvil_status;
 
     // Contactors
     auto contactor_states = veh_can_bus.GetRxContactor_Feedback();
     if (contactor_states) {
         input.BM_prechrgContactorSts =
             contactor_states->Pack_Precharge_Feedback();
-        // these were swapped in the 2023-24 code. i assume this was an error
+        // these were swapped in the EV5 code. i assume this was an error
         input.BM_HVposContactorSts = contactor_states->Pack_Positive_Feedback();
         input.BM_HVnegContactorSts = contactor_states->Pack_Negative_Feedback();
     }  // else values are already zero initialized
 
-    input.BM_HvilFeedback = contactor_states.HvilFeedback;
-    input.BM_LowThermValue = contactor_states.LowThermValue;
-    input.BM_HighThermValue = contactor_states.HighThermValue;
-    input.BM_AvgThermValue = contactor_states.AvgThermValue;
-    input.BM_PackSOC = contactor_states.PackSOC;
+    auto bm_temperatures = veh_can_bus.GetRxBmsBroadcast();
+    if (bm_temperatures) {
+        input.BM_LowThermValue = bm_temperatures->LowThermValue();
+        input.BM_HighThermValue = bm_temperatures->HighThermValue();
+        input.BM_AvgThermValue = bm_temperatures->AvgThermValue();
+    }
+
+    auto bms_states = veh_can_bus.GetRxPack_SOC();
+    if (bms_states) {
+        input.BM_PackSOC = bms_states->Pack_SOC();
+    }
 
     // Right Motor Input
     auto amk0_actual1 = pt_can_bus.GetRxAMK0_ActualValues1();
@@ -177,27 +229,27 @@ SimulinkInput ReadCtrlSystemInput() {
     return input;
 }
 
-/**
- * @brief Update output devices based on the results of the control system.
- * @note Replaces getControlSystemOutputs() setDigitalOutputs(),
- * transmitToAMKMotors(), and transmitToBMS()
- *
- * @param output
- */
+/// @brief Update output devices based on the results of the control system.
 void SetCtrlSystemOutput(const SimulinkOutput& output) {
     bindings::driver_speaker.Set(output.DI_DriverSpeaker);
-
     bindings::brake_light.Set(output.DI_BrakeLightEn);
 
     // @todo This Update() is not implemented
-    // status_light.Update(output.DI_p_PWMstatusLightCycle,
-    //                     output.DI_PWMstatusLightFreq);
+    // there is no login in the simulink model to update the status light
+    status_light_mode = StatusLightMode::SOLID;
 
-    // TODO the following 2 outputs
-    auto foo = output.GOV_Status;
-    auto bar = output.MI_InverterEn;
+    veh_can_bus.Send(TxVC_Status{
+        .vc_gov_status = output.GOV_Status,
+        // remaning statuses are not part of simulink output
+        .vc_di_status = 0,
+        .vc_mi_status = 0,
+        .vc_bm_status = 0,
+    });
 
-    // @todo the bool types should be set in simulink
+    veh_can_bus.Send(TxInverterCommand{
+        .enable_inverter = static_cast<bool>(output.MI_InverterEn)});
+
+    // @todo Simulink output should use the bool type
     // AMK0 = right motor
     veh_can_bus.Send(TxAMK0_SetPoints1{
         .amk_b_inverter_on = static_cast<bool>(output.AMK0_bInverterOn_tx),
@@ -232,47 +284,35 @@ void SetCtrlSystemOutput(const SimulinkOutput& output) {
     });
 }
 
-/**
- * @brief Update the status light
- * @note Replaces setPWMOutputs()
- *
- */
-void UpdateStatusLight() {
-    static bool toggle = true;
-    bindings::status_light.Set(toggle);
-    toggle = !toggle;
-}
-
 /***************************************************************
     RTOS Tasks
 ***************************************************************/
 
 void Task_5ms(void* arg) {
-    SimulinkInput simulink_input;
-    SimulinkOutput simulink_output;
+    (void)arg;  // unused
 
-    uint32_t task_delay_ms = os::GetTickCount();
+    uint32_t next_execution_time = os::GetTickCount();
 
     while (true) {
-        simulink_input = ReadCtrlSystemInput();
-        simulink_output = control_system.Update(&simulink_input);
-        SetCtrlSystemOutput(simulink_output);
+        SimulinkInput input = ReadCtrlSystemInput();
+        SimulinkOutput output = control_system.Update(&input);
+        SetCtrlSystemOutput(output);
 
-        // Repeat after another 5ms
-        task_delay_ms += 5;
-        os::TickUntil(task_delay_ms);
+        next_execution_time += 5;
+        os::TickUntil(next_execution_time);
     }
 }
 
 void Task_500ms(void* arg) {
-    uint32_t task_delay_ms = os::GetTickCount();
+    (void)arg;  // unused
+
+    uint32_t next_execution_time = os::GetTickCount();
 
     while (true) {
         UpdateStatusLight();
 
-        // Repeat after another 500ms
-        task_delay_ms += 500;
-        os::TickUntil(task_delay_ms);
+        next_execution_time += 500;
+        os::TickUntil(next_execution_time);
     }
 }
 
