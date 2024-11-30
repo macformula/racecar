@@ -3,40 +3,16 @@
 
 #include <cmath>
 
-#include "../generated/can/veh_bus.hpp"
-#include "../generated/can/veh_messages.hpp"
-#include "shared/os/mutex.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
 #include "shared/util/mappers/clamper.hpp"
 #include "shared/util/mappers/mapper.hpp"
 
-class StateBroadcaster {
-public:
-    StateBroadcaster(generated::can::VehBus& can_bus) : can_bus_(can_bus) {}
-
-    void UpdateState(generated::can::LvControllerState state) {
-        generated::can::TxLvControllerStatus lv_status{
-            .lv_controller_state = static_cast<uint8_t>(state)};
-
-        can_bus_.Send(lv_status);
-    }
-
-private:
-    generated::can::VehBus& can_bus_;
-};
-
-/**
- * @brief A Subsystem which can be enabled / disabled.
- */
+/// @brief A Subsystem which can be enabled / disabled.
 class Subsystem {
 public:
-    /**
-     * @brief Construct a new Subsystem object
-     *
-     * @param enable_output Digital Output which enables the subsystem.
-     * enabled).
-     */
+    // Use shared::periph::InverseDigitalOutput if the subsystem is enabled by
+    // a low signal.
     Subsystem(shared::periph::DigitalOutput& enable_output)
         : enable_output_(enable_output) {}
 
@@ -50,26 +26,6 @@ public:
 
 private:
     shared::periph::DigitalOutput& enable_output_;
-};
-
-class Indicator {
-public:
-    Indicator(shared::periph::DigitalOutput& output) : output_(output) {}
-
-    inline void TurnOn() {
-        output_.SetHigh();
-    }
-
-    inline void TurnOff() {
-        output_.SetLow();
-    }
-
-    inline void SetState(bool value) {
-        output_.Set(value);
-    }
-
-private:
-    shared::periph::DigitalOutput& output_;
 };
 
 class Fan : public Subsystem {
@@ -96,24 +52,16 @@ public:
         duty_per_second_ = max_duty_per_second;
     }
 
-    /**
-     * @brief Set the Power Now.
-     * @warning THIS IS DANGEROUS as large jumps can caused significant current
-     * rushes. Prefer SetTargetPower() and Update()
-     *
-     * @param power
-     */
+    /// @brief Set the Power Now.
+    /// @warning THIS IS DANGEROUS as large jumps can caused significant current
+    /// rushes. Prefer SetTargetPower() and Update()
     void Dangerous_SetPowerNow(float power) {
         SetPower(power);
     }
 
-    /**
-     * @brief Update the duty cycle towards the target duty cycle. The argument
-     * is the elapsed time between calls which is required to adjust the duty
-     * cycle by the rate specified in SetTargetPower.
-     *
-     * @param interval_sec
-     */
+    /// @brief Update the duty cycle towards the target duty cycle. The argument
+    /// is the elapsed time between calls which is required to adjust the duty
+    /// cycle by the rate specified in SetTargetPower.
     void Update(float interval_sec) const {
         // max_duty_step must be greater than any platform's PWM duty cycle
         // resolution
@@ -154,11 +102,11 @@ public:
 
     bool CheckValid() {
         bool is_valid = valid_input_.Read();
-        led_.SetState(is_valid);
+        led_.Set(is_valid);
         return is_valid;
     }
 
 private:
     shared::periph::DigitalInput& valid_input_;
-    Indicator led_;
+    shared::periph::DigitalOutput& led_;
 };
