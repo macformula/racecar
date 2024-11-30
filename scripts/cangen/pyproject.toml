@@ -18,6 +18,7 @@ cangen = "cangen.main:main"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.6.9"
+pytest = "^8.3.3"
 
 [build-system]
 requires = ["poetry-core"]
