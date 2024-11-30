@@ -115,7 +115,7 @@ void CanBase::Receive() {
 }
 
 inline uint32_t CanBase::GetTimestamp() const {
-    return HAL_GetTick() * HAL_GetTickFreq();
+    return HAL_GetTick();
 }
 
 void CanBase::ConfigFilters() {
