@@ -2,13 +2,12 @@
 /// @date 2024-02-24
 
 #include "bindings.hpp"
-#include "generated/can/pt_can_messages.hpp"
-#include "generated/can/pt_msg_registry.hpp"
-#include "generated/can/veh_can_messages.hpp"
-#include "generated/can/veh_msg_registry.hpp"
+#include "generated/can/pt_bus.hpp"
+#include "generated/can/pt_messages.hpp"
+#include "generated/can/veh_bus.hpp"
+#include "generated/can/veh_messages.hpp"
 #include "inc/app.hpp"
 #include "inc/simulink.hpp"
-#include "shared/comms/can/can_bus.hpp"
 #include "shared/os/os.hpp"
 #include "shared/periph/adc.hpp"
 #include "shared/periph/gpio.hpp"
@@ -18,18 +17,10 @@
 /***************************************************************
     CAN
 ***************************************************************/
+using namespace generated::can;
 
-generated::can::VehMsgRegistry veh_can_registry{};
-shared::can::CanBus veh_can_bus{
-    bindings::veh_can_base,
-    veh_can_registry,
-};
-
-generated::can::PtMsgRegistry pt_can_registry{};
-shared::can::CanBus pt_can_bus{
-    bindings::pt_can_base,
-    pt_can_registry,
-};
+VehBus veh_can_bus{bindings::veh_can_base};
+PtBus pt_can_bus{bindings::pt_can_base};
 
 /***************************************************************
     Objects
