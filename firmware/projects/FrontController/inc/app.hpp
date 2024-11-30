@@ -5,13 +5,9 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <memory>
-#include <utility>
 
-#include "../generated/can/veh_can_messages.hpp"
-#include "app.hpp"
-#include "shared/comms/can/can_bus.hpp"
-#include "shared/comms/can/can_msg.hpp"
+#include "../generated/can/pt_bus.hpp"
+#include "../generated/can/veh_messages.hpp"
 #include "shared/periph/adc.hpp"
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
@@ -123,7 +119,7 @@ struct AMKOutput {
 
 class AMKMotor {
 public:
-    AMKMotor(shared::can::CanBus& can_bus, uint8_t amk_num)
+    AMKMotor(generated::can::PtBus& can_bus, uint8_t amk_num)
         : can_bus_(can_bus), amk_num_(amk_num) {}
 
     /**
@@ -168,7 +164,7 @@ public:
     }
 
 private:
-    shared::can::CanBus& can_bus_;
+    generated::can::PtBus& can_bus_;
     uint8_t amk_num_ = 0;
 };
 
@@ -191,7 +187,7 @@ struct ContactorOutput {
 
 class Contactors {
 public:
-    Contactors(shared::can::CanBus& can_bus) : can_bus_(can_bus) {}
+    Contactors(generated::can::VehBus& can_bus) : can_bus_(can_bus) {}
 
     ContactorInput ReadInput() {
         /* (SAM) read from CAN and fill this struct */
@@ -208,7 +204,7 @@ public:
     }
 
     void Transmit(ContactorOutput output) {
-        generated::can::ContactorStates contactor_states;
+        generated::can::TxContactorStates contactor_states;
 
         contactor_states.pack_negative = output.HVnegContactorCMD;
         contactor_states.pack_positive = output.HVposContactorCMD;
@@ -218,7 +214,7 @@ public:
     }
 
 private:
-    shared::can::CanBus& can_bus_;
+    generated::can::VehBus& can_bus_;
 };
 
 class StatusLight {
