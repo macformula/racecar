@@ -2,22 +2,18 @@
 /// @date 2023-11-18
 
 #include <cstdint>
-#include <string>
 
 #include "bindings.hpp"
-#include "generated/can/veh_can_messages.hpp"
-#include "generated/can/veh_msg_registry.hpp"
+#include "generated/can/veh_bus.hpp"
+#include "generated/can/veh_messages.hpp"
 #include "inc/app.hpp"
-#include "shared/comms/can/can_bus.hpp"
 #include "shared/os/tick.hpp"
-#include "shared/periph/adc.hpp"
-#include "shared/periph/can.hpp"
-#include "shared/periph/gpio.hpp"
-#include "shared/periph/pwm.hpp"
 #include "shared/util/algorithms/arrays.hpp"
 #include "shared/util/mappers/linear_map.hpp"
 #include "shared/util/mappers/lookup_table.hpp"
 #include "shared/util/mappers/mapper.hpp"
+
+using namespace generated::can;
 
 namespace os {
 extern void Tick(uint32_t ticks);
@@ -107,12 +103,7 @@ shared::util::LookupTable<fan_lut_length> fan_temp_lut{fan_lut_data};
     Create CAN objects
 ***************************************************************/
 
-generated::can::VehMsgRegistry veh_can_registry{};
-
-shared::can::CanBus veh_can_bus{
-    bindings::veh_can_base,
-    veh_can_registry,
-};
+VehBus veh_can_bus{bindings::veh_can_base};
 
 /***************************************************************
     Create app objects
@@ -147,7 +138,6 @@ void Update() {
 
     debug_green.Toggle();
 
-    veh_can_bus.Update();
     ts_manager.Update();
     ts_manager.GetTemperatures(temperature_buffer);
 
@@ -168,6 +158,7 @@ void Update() {
 }
 
 void UpdateTask(void* argument) {
+    (void)argument;  // prevent unused variable warning
     const static uint32_t kTaskPeriodMs = 100;
 
     fan_controller.Start(0);
