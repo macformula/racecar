@@ -1,17 +1,14 @@
 #include <linux/can.h>
-#include <sys/types.h>
 
 #include <chrono>
 #include <cstring>
 #include <format>
-#include <iomanip>
 #include <iostream>
-#include <mutex>
 #include <thread>
 
-#include "can.h"
+#include "can.hpp"
 #include "shared/comms/can/msg.hpp"
-#include "vcan/vcan.h"
+#include "vcan/vcan.hpp"
 
 static can_frame to_can_frame(const shared::can::RawMessage& msg) {
     struct can_frame frame{
@@ -53,8 +50,11 @@ void CanBase::StartReading() {
             exit(1);
         }
 
-        shared::can::RawMessage raw_msg(frame.can_id, frame.can_dlc,
+        shared::can::RawMessage raw_msg(frame.can_id, true, frame.can_dlc,
                                         frame.data);
+        std::cout << std::format("CanBase {}: Received\n| {}",
+                                 socket_.GetIface(), raw_msg)
+                  << std::endl;
 
         AddToBus(raw_msg);
     }

@@ -1,6 +1,6 @@
-#include "can.h"
-#include "shared/comms/can/bus.h"
-#include "shared/comms/can/msg.h"
+#include "can.hpp"
+#include "shared/comms/can/bus.hpp"
+#include "shared/comms/can/msg.hpp"
 
 namespace shared::periph {
 
