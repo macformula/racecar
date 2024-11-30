@@ -4,13 +4,12 @@
 #include "shared/util/moving_average.h"
 
 // Peter Jabra and Aleeza Ali Zar
+namespace ctrl {
 
 enum class State {
     Run,
     Stop,
 };
-
-namespace ctrl {
 
 template <typename T>
 std::tuple<T, T> CalculateMotorTorque(T new_torque_value, T right_factor,
@@ -38,7 +37,7 @@ T ComputeTorqueRequest(T driver_torque_request, T brake_pedal_position) {
     bool brake_on = brake_pedal_position > static_cast<T>(10);
 
     bool both_pedals_pressed =
-        driver_torque_request >= static_cast<T>(25) && brake_on;
+        (driver_torque_request >= static_cast<T>(25) && brake_on);
     bool neither_pedal_pressed =
         driver_torque_request < static_cast<T>(5) && !brake_on;
 
@@ -49,15 +48,18 @@ T ComputeTorqueRequest(T driver_torque_request, T brake_pedal_position) {
         current_state = State::Run;
     }
 
+    T driver_torque;
+
     switch (current_state) {
         case State::Run:
-            return driver_torque_request;
-
+            driver_torque = driver_torque_request;
+            break;
         case State::Stop:
-            return static_cast<T>(0.0);
-        default:
-            return static_cast<T>(0.0);
+            driver_torque = static_cast<T>(0.0);
+            break;
     }
+
+    return driver_torque;
 }
 
 }  // namespace ctrl
