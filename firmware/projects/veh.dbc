@@ -53,19 +53,19 @@ BO_ 113 SuspensionTravel34: 2 LVC
  SG_ STP3 : 0|8@1+ (1,0) [0|255] "" FC,RPI
  SG_ STP4 : 8|8@1+ (1,0) [0|255] "" FC,RPI
 
-BO_ 255 VC_Status: 4 PC_SG
- SG_ VC_bmStatus : 24|4@1+ (1,0) [0|15] ""  FC
- SG_ VC_diStatus : 8|4@1+ (1,0) [0|15] ""  FC
- SG_ VC_miStatus : 16|3@1+ (1,0) [0|7] ""  FC
- SG_ VC_govStatus : 0|4@1+ (1,0) [0|15] ""  FC
+BO_ 255 VC_Status: 4 FC
+ SG_ VC_bmStatus : 24|4@1+ (1,0) [0|15] ""  Vector__XXX
+ SG_ VC_diStatus : 8|4@1+ (1,0) [0|15] ""  Vector__XXX
+ SG_ VC_miStatus : 16|3@1+ (1,0) [0|7] ""  Vector__XXX
+ SG_ VC_govStatus : 0|4@1+ (1,0) [0|15] ""  Vector__XXX
 
-BO_ 511 FC_msg: 8 FC
- SG_ FC_hvilSts : 60|1@1+ (1,0) [0|1] ""  PC_SG
- SG_ FC_steeringAngle : 48|12@1+ (1,0) [0|4095] ""  PC_SG
- SG_ FC_bpps : 32|12@1+ (1,0) [0|4095] ""  PC_SG
- SG_ FC_apps2 : 16|12@1+ (1,0) [0|4095] ""  PC_SG
- SG_ FC_apps1 : 0|12@1+ (1,0) [0|4095] ""  PC_SG
- SG_ FC_readyToDriveBtn_n : 61|1@1+ (1,0) [0|1] ""  PC_SG
+BO_ 511 FC_msg: 6 FC
+ SG_ FC_apps1 : 0|8@1+ (0.01,0) [0|100] ""  PC_SG
+ SG_ FC_apps2 : 8|8@1+ (0.01,0) [0|100] ""  PC_SG
+ SG_ FC_bpps : 16|8@1+ (0.01,0) [0|100] ""  PC_SG
+ SG_ FC_steeringAngle : 24|8@1+ (0.01,0) [0|100] ""  PC_SG
+ SG_ FC_hvilSts : 32|1@1+ (1,0) [0|1] ""  PC_SG
+ SG_ FC_readyToDriveBtn_n : 40|1@1+ (1,0) [0|1] ""  PC_SG
 
 BO_ 256 FC_cmd: 1 PC_SG
  SG_ FC_readyToDriveSpeaker : 1|1@1+ (1,0) [0|1] ""  FC
@@ -97,9 +97,9 @@ BO_ 1574 Contactor_Feedback: 3 BMS
 
 BO_ 2553934720 BmsBroadcast: 8 TMS
  SG_ ThermModuleNum : 0|8@1+ (1,0) [0|0] ""  BMS
- SG_ LowThermValue : 8|8@1- (1,0) [0|0] " C"  BMS
- SG_ HighThermValue : 16|8@1- (1,0) [0|0] " C"  BMS
- SG_ AvgThermValue : 24|8@1- (1,0) [0|0] " C"  BMS
+ SG_ LowThermValue : 8|8@1- (1,0) [0|0] " C"  BMS,FC
+ SG_ HighThermValue : 16|8@1- (1,0) [0|0] " C"  BMS,FC
+ SG_ AvgThermValue : 24|8@1- (1,0) [0|0] " C"  BMS,FC
  SG_ NumThermEn : 32|8@1+ (1,0) [0|0] ""  BMS
  SG_ HighThermID : 40|8@1+ (1,0) [0|0] ""  BMS
  SG_ LowThermID : 48|8@1+ (1,0) [0|0] ""  BMS
