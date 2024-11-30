@@ -6,8 +6,6 @@
 
 #include <cstdint>
 
-#include "../generated/can/veh_bus.hpp"
-#include "../generated/can/veh_messages.hpp"
 #include "shared/periph/adc.hpp"
 #include "shared/periph/pwm.hpp"
 #include "shared/util/mappers/clamper.hpp"
@@ -90,49 +88,4 @@ private:
     /// @todo Express pwm_step_size in pwm/second and use Update() frequency
     /// to determine it.
     float pwm_step_size_;
-};
-
-class BmsBroadcaster {
-public:
-    BmsBroadcaster(generated::can::VehBus& can_bus, uint8_t num_thermistors)
-        : can_bus_(can_bus), num_thermistors_(num_thermistors) {}
-
-    void SendBmsBroadcast(uint8_t high_thermistor_id,
-                          int8_t high_thermistor_value,
-                          uint8_t low_thermistor_id,
-                          int8_t low_thermistor_value,
-                          int8_t avg_thermistor_value) {
-        generated::can::TxBmsBroadcast bms_broadcast_{
-            .therm_module_num = kThermistorModuleNumber,
-            .low_therm_value = low_thermistor_value,
-            .high_therm_value = high_thermistor_value,
-            .avg_therm_value = avg_thermistor_value,
-            .num_therm_en = num_thermistors_,
-            .high_therm_id = high_thermistor_id,
-            .low_therm_id = low_thermistor_id,
-        };
-        bms_broadcast_.checksum = CalculateBmsBroadcastChecksum(bms_broadcast_);
-
-        can_bus_.Send(bms_broadcast_);
-    }
-
-private:
-    static constexpr uint8_t kThermistorModuleNumber = 0;
-
-    generated::can::VehBus& can_bus_;
-    uint8_t num_thermistors_;
-
-    uint8_t CalculateBmsBroadcastChecksum(
-        const generated::can::TxBmsBroadcast& bms_broadcast) {
-        // This is a constant defined by Orion. It was discovered by
-        // decoding the CAN traffic coming from the Orion Thermal Expansion
-        // Pack.
-        constexpr uint8_t kChecksumConstant = 0x41;
-
-        return static_cast<uint8_t>(
-            bms_broadcast.high_therm_id + bms_broadcast.high_therm_value +
-            bms_broadcast.low_therm_id + bms_broadcast.low_therm_value +
-            bms_broadcast.avg_therm_value + bms_broadcast.num_therm_en +
-            bms_broadcast.therm_module_num + kChecksumConstant);
-    }
 };
