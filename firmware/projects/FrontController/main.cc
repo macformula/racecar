@@ -8,11 +8,8 @@
 #include "generated/can/veh_messages.hpp"
 #include "inc/app.hpp"
 #include "inc/simulink.hpp"
-#include "shared/os/os.hpp"
-#include "shared/periph/adc.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/util/mappers/linear_map.hpp"
-#include "shared/util/mappers/mapper.hpp"
 
 /***************************************************************
     CAN
@@ -27,10 +24,6 @@ PtBus pt_can_bus{bindings::pt_can_base};
 ***************************************************************/
 
 ControlSystem control_system{};
-
-Speaker driver_speaker{bindings::driver_speaker};
-BrakeLight brake_light{bindings::brake_light};
-StatusLight status_light{bindings::status_light};
 
 // See fc_docs/pedal_function and
 // vehicle_control_system/firmware_io/simulink_input.csv
@@ -79,8 +72,6 @@ AnalogInput steering_wheel{
     &steering_wheel_map,
 };
 
-Button start_button{bindings::start_button};
-
 AMKMotor motor_left{pt_can_bus, 1};
 AMKMotor motor_right{pt_can_bus, 0};
 
@@ -120,7 +111,7 @@ SimulinkInput ReadCtrlSystemInput() {
     input.DI_SteeringAngle = steering_wheel.Update();
     input.DI_FrontBrakePressure = brake_pedal_front.Update();
     input.DI_RearBrakePressure = brake_pedal_rear.Update();
-    input.DI_StartButton = start_button.Read();
+    input.DI_StartButton = bindings::start_button.Read();
     input.DI_AccelPedalPosition1 = accel_pedal_1.Update();
     input.DI_AccelPedalPosition2 = accel_pedal_2.Update();
 
@@ -188,9 +179,9 @@ SimulinkInput ReadCtrlSystemInput() {
  * @param output
  */
 void SetCtrlSystemOutput(const SimulinkOutput& output) {
-    driver_speaker.Update(output.DI_DriverSpeaker);
+    bindings::driver_speaker.Set(output.DI_DriverSpeaker);
 
-    brake_light.Update(output.DI_BrakeLightEn);
+    bindings::brake_light.Set(output.DI_BrakeLightEn);
 
     // @todo This Update() is not implemented
     // status_light.Update(output.DI_p_PWMstatusLightCycle,
@@ -232,7 +223,9 @@ void SetCtrlSystemOutput(const SimulinkOutput& output) {
  *
  */
 void UpdateStatusLight() {
-    status_light.Toggle();
+    static bool toggle = true;
+    bindings::status_light.Set(toggle);
+    toggle = !toggle;
 }
 
 /***************************************************************
