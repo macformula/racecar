@@ -71,4 +71,8 @@ void Initialize() {
     mcal::veh_can_base.Setup();
 }
 
+uint32_t GetCurrentTimeMs() {
+    return HAL_GetTick();
+}
+
 }  // namespace bindings
