@@ -16,8 +16,8 @@ int main() {
         }
         auto [right_motor_torque, left_motor_torque] =
             CalculateMotorTorque(20.0, 1.5, 1.2);
-        ASSERT_CLOSE(right_motor_torque, 187.5);
-        ASSERT_CLOSE(left_motor_torque, 150.0);
+        ASSERT_CLOSE(right_motor_torque, 18.75);
+        ASSERT_CLOSE(left_motor_torque, 15.00);
     }
 
     {
@@ -27,8 +27,8 @@ int main() {
         }
         auto [right_motor_torque, left_motor_torque] =
             CalculateMotorTorque(6.0, 1.1, 1.3);
-        ASSERT_CLOSE(right_motor_torque, 44.0);
-        ASSERT_CLOSE(left_motor_torque, 52.0);
+        ASSERT_CLOSE(right_motor_torque, 4.40);
+        ASSERT_CLOSE(left_motor_torque, 5.20);
     }
 
     // Test Case 2: Larger Sample Sizes
@@ -38,8 +38,8 @@ int main() {
         }
         auto [right_motor_torque, left_motor_torque] =
             CalculateMotorTorque(10.0, 1.5, 1.2);
-        ASSERT_CLOSE(right_motor_torque, 82.5);
-        ASSERT_CLOSE(left_motor_torque, 66.0);
+        ASSERT_CLOSE(right_motor_torque, 8.25);
+        ASSERT_CLOSE(left_motor_torque, 6.60);
     }
 
     // Test Case 3: Sample Size over 10 Entities
@@ -51,8 +51,8 @@ int main() {
         }
         auto [right_motor_torque, left_motor_torque] =
             CalculateMotorTorque(12.0, 1.1, 1.2);
-        ASSERT_CLOSE(right_motor_torque, 274 * 1.1);
-        ASSERT_CLOSE(left_motor_torque, 274 * 1.2);
+        ASSERT_CLOSE(right_motor_torque, 27.4 * 1.1);
+        ASSERT_CLOSE(left_motor_torque, 27.4 * 1.2);
     }
 
     // Test Case 4: Zero values in raw_torque_values
@@ -72,8 +72,8 @@ int main() {
         double new_torque_value = 10.0;
         auto [right_motor_torque, left_motor_torque] =
             CalculateMotorTorque(new_torque_value, 1.5, 1.2, true);
-        ASSERT_CLOSE(right_motor_torque, 150.0);
-        ASSERT_CLOSE(left_motor_torque, 120.0);
+        ASSERT_CLOSE(right_motor_torque, 15.00);
+        ASSERT_CLOSE(left_motor_torque, 12.00);
     }
 
     // Test cases for ComputeTorqueRequest

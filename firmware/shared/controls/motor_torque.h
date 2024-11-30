@@ -23,10 +23,9 @@ std::tuple<T, T> CalculateMotorTorque(T new_torque_value, T right_factor,
     running_average.LoadValue(new_torque_value);
 
     T running_average_value = running_average.GetValue();
-    T scaled_running_average = running_average_value * 10;
 
-    T right_motor_torque_limit = scaled_running_average * right_factor;
-    T left_motor_torque_limit = scaled_running_average * left_factor;
+    T right_motor_torque_limit = running_average_value * right_factor;
+    T left_motor_torque_limit = running_average_value * left_factor;
 
     return std::tuple(right_motor_torque_limit, left_motor_torque_limit);
 }
