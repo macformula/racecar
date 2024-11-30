@@ -1,8 +1,29 @@
 # Project Structure
 
+<!-- Folder diagrams are created with https://tree.nathanfriend.com -->
+
 A __project__ is a compilable program that will run on a single device. It should have one `main()` function. Each ECU in our vehicle has its own project.
 
-This article will explain our project structure through a tutorial in which you will create a project from scratch.
+The simplest project is Blink (see `projects/Demo/Blink`). This project toggles a digital output indefinitely, toggling the state every 1 second.
+
+We will __recreate the Blink project from scratch__ for multiple platforms. You will learn how projects are structured, how to configure an CubeMX for the stm32f767 platform, and how to build and run a project.
+
+    MyBlink/
+    ├── README.md
+    ├── main.cc
+    ├── bindings.hpp
+    ├── CMakeLists.txt
+    └── platforms/
+        ├── cli/
+        │   ├── mcal_conf.cmake
+        │   ├── bindings.cc
+        │   └── CMakeLists.txt
+        └── stm32f767/
+            ├── mcal_conf.cmake
+            ├── bindings.cc
+            ├── CMakeLists.txt
+            └── cubemx/
+                └── board_config.ioc
 
 !!! warning
 
@@ -11,12 +32,6 @@ This article will explain our project structure through a tutorial in which you 
 !!! note
 
     Unless otherwise mentioned, all file paths are relative to `racecar/firmware`.
-
----
-
-The simplest project is Blink (see `projects/Demo/Blink`). This project toggles a digital output indefinitely, toggling the state every 1 second.
-
-In this tutorial, we will __recreate the Blink project from scratch__ for multiple platforms. You will learn how projects are structured, how to configure an CubeMX for the stm32f767 platform, and how to build and run a project.
 
 ## Prepare the project folder
 
@@ -39,8 +54,8 @@ You should now have the following directory structure.
 
     projects/
     └── MyBlink/
-        ├── platforms/
-        └── README.md
+        ├── README.md
+        └── platforms/
 
 ## Bindings contract
 
@@ -129,11 +144,11 @@ This concludes the app-level code. Your project directory should look like
 
     projects/
     └── MyBlink/
-        ├── platforms/
+        ├── README.md
         ├── bindings.hpp
-        ├── CMakeLists.txt
         ├── main.cc
-        └── README.md
+        ├── CMakeLists.txt
+        └── platforms/
 
 ## Platform code
 
