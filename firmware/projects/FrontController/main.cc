@@ -72,11 +72,6 @@ AnalogInput steering_wheel{
     &steering_wheel_map,
 };
 
-AMKMotor motor_left{pt_can_bus, 1};
-AMKMotor motor_right{pt_can_bus, 0};
-
-Contactors contactors{veh_can_bus};
-
 /***************************************************************
     Task Functions
 ***************************************************************/
@@ -96,8 +91,6 @@ extern void InitializeKernel();
 extern void StartKernel();
 }  // namespace os
 
-void ReadContactorFeedback(SimulinkInput& input) {}
-
 /**
  * @brief Read the inputs from all devices to send to the control system.
  * @note Replaces readFromAdc()
@@ -105,7 +98,7 @@ void ReadContactorFeedback(SimulinkInput& input) {}
  * @return SimulinkInput
  */
 SimulinkInput ReadCtrlSystemInput() {
-    SimulinkInput input;
+    SimulinkInput input{};  // zero initialize struct
 
     // Driver Input
     input.DI_SteeringAngle = steering_wheel.Update();
@@ -120,10 +113,15 @@ SimulinkInput ReadCtrlSystemInput() {
     input.VD_RFWheelSpeed = NULL;
 
     // Contactors
-    auto contactor_states = contactors.ReadInput();
-    input.BM_prechrgContactorSts = contactor_states.Pack_Precharge_Feedback;
-    input.BM_HVposContactorSts = contactor_states.Pack_Negative_Feedback;
-    input.BM_HVnegContactorSts = contactor_states.Pack_Positive_Feedback;
+    auto contactor_states = veh_can_bus.GetRxContactor_Feedback();
+    if (contactor_states) {
+        input.BM_prechrgContactorSts =
+            contactor_states->Pack_Precharge_Feedback();
+        // these were swapped in the 2023-24 code. i assume this was an error
+        input.BM_HVposContactorSts = contactor_states->Pack_Positive_Feedback();
+        input.BM_HVnegContactorSts = contactor_states->Pack_Negative_Feedback();
+    }  // else values are already zero initialized
+
     input.BM_HvilFeedback = contactor_states.HvilFeedback;
     input.BM_LowThermValue = contactor_states.LowThermValue;
     input.BM_HighThermValue = contactor_states.HighThermValue;
@@ -131,42 +129,50 @@ SimulinkInput ReadCtrlSystemInput() {
     input.BM_PackSOC = contactor_states.PackSOC;
 
     // Right Motor Input
-    auto amk_right_in = motor_right.UpdateInputs();
-    input.AMK0_bReserve = amk_right_in.bReserve;
-    input.AMK0_bSystemReady = amk_right_in.bSystemReady;
-    input.AMK0_bError = amk_right_in.bError;
-    input.AMK0_bWarn = amk_right_in.bWarn;
-    input.AMK0_bQuitDcOn = amk_right_in.bQuitDcOn;
-    input.AMK0_bDcOn = amk_right_in.bDcOn;
-    input.AMK0_bQuitInverterOn = amk_right_in.bQuitInverterOn;
-    input.AMK0_bInverterOn = amk_right_in.bInverterOn;
-    input.AMK0_bDerating = amk_right_in.bDerating;
-    input.AMK0_ActualVelocity = amk_right_in.ActualVelocity;
-    input.AMK0_TorqueCurrent = amk_right_in.TorqueCurrent;
-    input.AMK0_MagnetizingCurrent = amk_right_in.MagnetizingCurrent;
-    input.AMK0_TempMotor = amk_right_in.TempMotor;
-    input.AMK0_TempInverter = amk_right_in.TempInverter;
-    input.AMK0_ErrorInfo = amk_right_in.ErrorInfo;
-    input.AMK0_TempIGBT = amk_right_in.TempIGBT;
+    auto amk0_actual1 = pt_can_bus.GetRxAMK0_ActualValues1();
+    if (amk0_actual1) {
+        input.AMK0_bSystemReady = amk0_actual1->AMK_bSystemReady();
+        input.AMK0_bError = amk0_actual1->AMK_bError();
+        input.AMK0_bWarn = amk0_actual1->AMK_bWarn();
+        input.AMK0_bQuitDcOn = amk0_actual1->AMK_bQuitDcOn();
+        input.AMK0_bDcOn = amk0_actual1->AMK_bDcOn();
+        input.AMK0_bQuitInverterOn = amk0_actual1->AMK_bQuitInverterOn();
+        input.AMK0_bInverterOn = amk0_actual1->AMK_bInverterOn();
+        input.AMK0_bDerating = amk0_actual1->AMK_bDerating();
+        input.AMK0_ActualVelocity = amk0_actual1->AMK_ActualVelocity();
+        input.AMK0_TorqueCurrent = amk0_actual1->AMK_TorqueCurrent();
+        input.AMK0_MagnetizingCurrent = amk0_actual1->AMK_MagnetizingCurrent();
+    }
+    auto amk0_actual2 = pt_can_bus.GetRxAMK0_ActualValues2();
+    if (amk0_actual2) {
+        input.AMK0_TempMotor = amk0_actual2->AMK_TempMotor();
+        input.AMK0_TempInverter = amk0_actual2->AMK_TempInverter();
+        input.AMK0_ErrorInfo = amk0_actual2->AMK_ErrorInfo();
+        input.AMK0_TempIGBT = amk0_actual2->AMK_TempIGBT();
+    }
 
     // Left Motor Input
-    auto amk_left_in = motor_left.UpdateInputs();
-    input.AMK1_bReserve = amk_left_in.bReserve;
-    input.AMK1_bSystemReady = amk_left_in.bSystemReady;
-    input.AMK1_bError = amk_left_in.bError;
-    input.AMK1_bWarn = amk_left_in.bWarn;
-    input.AMK1_bQuitDcOn = amk_left_in.bQuitDcOn;
-    input.AMK1_bDcOn = amk_left_in.bDcOn;
-    input.AMK1_bQuitInverterOn = amk_left_in.bQuitInverterOn;
-    input.AMK1_bInverterOn = amk_left_in.bInverterOn;
-    input.AMK1_bDerating = amk_left_in.bDerating;
-    input.AMK1_ActualVelocity = amk_left_in.ActualVelocity;
-    input.AMK1_TorqueCurrent = amk_left_in.TorqueCurrent;
-    input.AMK1_MagnetizingCurrent = amk_left_in.MagnetizingCurrent;
-    input.AMK1_TempMotor = amk_left_in.TempMotor;
-    input.AMK1_TempInverter = amk_left_in.TempInverter;
-    input.AMK1_ErrorInfo = amk_left_in.ErrorInfo;
-    input.AMK1_TempIGBT = amk_left_in.TempIGBT;
+    auto amk1_actual1 = pt_can_bus.GetRxAMK1_ActualValues1();
+    if (amk1_actual1) {
+        input.AMK1_bSystemReady = amk1_actual1->AMK_bSystemReady();
+        input.AMK1_bError = amk1_actual1->AMK_bError();
+        input.AMK1_bWarn = amk1_actual1->AMK_bWarn();
+        input.AMK1_bQuitDcOn = amk1_actual1->AMK_bQuitDcOn();
+        input.AMK1_bDcOn = amk1_actual1->AMK_bDcOn();
+        input.AMK1_bQuitInverterOn = amk1_actual1->AMK_bQuitInverterOn();
+        input.AMK1_bInverterOn = amk1_actual1->AMK_bInverterOn();
+        input.AMK1_bDerating = amk1_actual1->AMK_bDerating();
+        input.AMK1_ActualVelocity = amk1_actual1->AMK_ActualVelocity();
+        input.AMK1_TorqueCurrent = amk1_actual1->AMK_TorqueCurrent();
+        input.AMK1_MagnetizingCurrent = amk1_actual1->AMK_MagnetizingCurrent();
+    }
+    auto amk1_actual2 = pt_can_bus.GetRxAMK1_ActualValues2();
+    if (amk1_actual2) {
+        input.AMK1_TempMotor = amk1_actual2->AMK_TempMotor();
+        input.AMK1_TempInverter = amk1_actual2->AMK_TempInverter();
+        input.AMK1_ErrorInfo = amk1_actual2->AMK_ErrorInfo();
+        input.AMK1_TempIGBT = amk1_actual2->AMK_TempIGBT();
+    }
 
     return input;
 }
@@ -191,29 +197,38 @@ void SetCtrlSystemOutput(const SimulinkOutput& output) {
     auto foo = output.GOV_Status;
     auto bar = output.MI_InverterEn;
 
-    motor_right.Transmit(AMKOutput{
-        .bInverterOn_tx = output.AMK0_bInverterOn_tx,
-        .bDcOn_tx = output.AMK0_bDcOn_tx,
-        .bEnable = output.AMK0_bEnable,
-        .bErrorReset = output.AMK0_bErrorReset,
-        .TargetVelocity = output.AMK0_TargetVelocity,
-        .TorqueLimitPositiv = output.AMK0_TorqueLimitPositiv,
-        .TorqueLimitNegativ = output.AMK0_TorqueLimitNegativ,
+    // @todo the bool types should be set in simulink
+    // AMK0 = right motor
+    veh_can_bus.Send(TxAMK0_SetPoints1{
+        .amk_b_inverter_on = static_cast<bool>(output.AMK0_bInverterOn_tx),
+        .amk_b_dc_on = static_cast<bool>(output.AMK0_bDcOn_tx),
+        .amk_b_enable = static_cast<bool>(output.AMK0_bEnable),
+        .amk_b_error_reset = static_cast<bool>(output.AMK0_bErrorReset),
+        .amk__target_velocity =
+            static_cast<int16_t>(output.AMK0_TargetVelocity),
+        .amk__torque_limit_positiv =
+            static_cast<int16_t>(output.AMK0_TorqueLimitPositiv),
+        .amk__torque_limit_negativ =
+            static_cast<int16_t>(output.AMK0_TorqueLimitNegativ),
     });
-    motor_left.Transmit(AMKOutput{
-        .bInverterOn_tx = output.AMK1_bInverterOn_tx,
-        .bDcOn_tx = output.AMK1_bDcOn_tx,
-        .bEnable = output.AMK1_bEnable,
-        .bErrorReset = output.AMK1_bErrorReset,
-        .TargetVelocity = output.AMK1_TargetVelocity,
-        .TorqueLimitPositiv = output.AMK1_TorqueLimitPositiv,
-        .TorqueLimitNegativ = output.AMK1_TorqueLimitNegativ,
+    // AMK1 = left motor
+    veh_can_bus.Send(TxAMK1_SetPoints1{
+        .amk_b_inverter_on = static_cast<bool>(output.AMK1_bInverterOn_tx),
+        .amk_b_dc_on = static_cast<bool>(output.AMK1_bDcOn_tx),
+        .amk_b_enable = static_cast<bool>(output.AMK1_bEnable),
+        .amk_b_error_reset = static_cast<bool>(output.AMK1_bErrorReset),
+        .amk__target_velocity =
+            static_cast<int16_t>(output.AMK1_TargetVelocity),
+        .amk__torque_limit_positiv =
+            static_cast<int16_t>(output.AMK1_TorqueLimitPositiv),
+        .amk__torque_limit_negativ =
+            static_cast<int16_t>(output.AMK1_TorqueLimitNegativ),
     });
 
-    contactors.Transmit(ContactorOutput{
-        // .prechargeContactorCMD = output.BM_PrechargeContactorCmd,
-        // .HVposContactorCMD = output.BM_HVposContactorCmd,
-        // .HVnegContactorCMD = output.BM_HVnegContactorCmd, // TODO uncomment
+    veh_can_bus.Send(TxContactorStates{
+        .pack_positive = static_cast<uint8_t>(output.BM_HVposContactorCmd),
+        .pack_precharge = static_cast<uint8_t>(output.BM_PrechargeContactorCmd),
+        .pack_negative = static_cast<uint8_t>(output.BM_HVnegContactorCmd),
     });
 }
 
