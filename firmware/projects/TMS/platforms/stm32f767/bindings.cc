@@ -1,17 +1,12 @@
 /// @author Blake Freer
 /// @date 2023-12-25
 
-#include <stdio.h>
-
-#include <string>
-
 // cubemx files
 #include "adc.h"
 #include "can.h"
 #include "gpio.h"
 #include "main.h"
 #include "mcal/stm32f767/periph/can.hpp"
-#include "shared/comms/can/can_msg.hpp"
 #include "tim.h"
 
 // fw imports
@@ -77,12 +72,3 @@ void Initialize() {
 }
 
 }  // namespace bindings
-
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
-    CAN_RxHeaderTypeDef RxHeader;
-    uint8_t RxData[8];
-
-    // TMS doesn't care about any Rx messages but we need to call this to
-    // clear the interrupt flag.
-    HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData);
-}

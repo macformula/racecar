@@ -4,12 +4,10 @@
 
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
-#include <string>
 
-#include "../generated/can/veh_can_messages.hpp"
-#include "shared/comms/can/can_bus.hpp"
+#include "../generated/can/veh_bus.hpp"
+#include "../generated/can/veh_messages.hpp"
 #include "shared/periph/adc.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
@@ -17,6 +15,8 @@
 #include "shared/util/mappers/linear_map.hpp"
 #include "shared/util/mappers/mapper.hpp"
 #include "shared/util/moving_average.hpp"
+
+using namespace generated::can;
 
 /***************************************************************
     App-level objects
@@ -158,7 +158,7 @@ private:
 
 class BmsBroadcaster {
 public:
-    BmsBroadcaster(shared::can::CanBus& can_bus, uint8_t num_thermistors)
+    BmsBroadcaster(VehBus& can_bus, uint8_t num_thermistors)
         : can_bus_(can_bus), num_thermistors_(num_thermistors) {}
 
     void SendBmsBroadcast(uint8_t high_thermistor_id,
@@ -166,13 +166,15 @@ public:
                           uint8_t low_thermistor_id,
                           int8_t low_thermistor_value,
                           int8_t avg_thermistor_value) {
-        bms_broadcast_.high_therm_id = high_thermistor_id;
-        bms_broadcast_.high_therm_value = high_thermistor_value;
-        bms_broadcast_.low_therm_id = low_thermistor_id;
-        bms_broadcast_.low_therm_value = low_thermistor_value;
-        bms_broadcast_.avg_therm_value = avg_thermistor_value;
-        bms_broadcast_.num_therm_en = num_thermistors_;
-        bms_broadcast_.therm_module_num = kThermistorModuleNumber;
+        TxBmsBroadcast bms_broadcast_{
+            .therm_module_num = kThermistorModuleNumber,
+            .low_therm_value = low_thermistor_value,
+            .high_therm_value = high_thermistor_value,
+            .avg_therm_value = avg_thermistor_value,
+            .num_therm_en = num_thermistors_,
+            .high_therm_id = high_thermistor_id,
+            .low_therm_id = low_thermistor_id,
+        };
         bms_broadcast_.checksum = CalculateBmsBroadcastChecksum(bms_broadcast_);
 
         can_bus_.Send(bms_broadcast_);
@@ -181,12 +183,10 @@ public:
 private:
     static constexpr uint8_t kThermistorModuleNumber = 0;
 
-    shared::can::CanBus& can_bus_;
-    generated::can::BmsBroadcast bms_broadcast_;
+    VehBus& can_bus_;
     uint8_t num_thermistors_;
 
-    uint8_t CalculateBmsBroadcastChecksum(
-        const generated::can::BmsBroadcast& bms_broadcast) {
+    uint8_t CalculateBmsBroadcastChecksum(const TxBmsBroadcast& bms_broadcast) {
         // This is a constant defined by Orion. It was discovered by
         // decoding the CAN traffic coming from the Orion Thermal Expansion
         // Pack.
