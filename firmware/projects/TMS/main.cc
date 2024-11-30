@@ -8,21 +8,10 @@
 #include "generated/can/veh_messages.hpp"
 #include "inc/app.hpp"
 #include "inc/tempsensor.hpp"
-#include "shared/os/tick.hpp"
 #include "shared/util/algorithms/arrays.hpp"
 #include "shared/util/mappers/lookup_table.hpp"
 
 using namespace generated::can;
-
-namespace os {
-extern void Tick(uint32_t ticks);
-extern void InitializeKernel();
-extern void StartKernel();
-}  // namespace os
-
-extern "C" {
-void UpdateTask(void* argument);
-}
 
 TempSensor temp_sensors[] = {
     TempSensor{bindings::temp_sensor_adc_1, tempsensor::volt_stm_to_degC},
@@ -45,7 +34,7 @@ constexpr int fan_lut_length =
     (sizeof(fan_lut_data) / (sizeof(fan_lut_data[0])));
 shared::util::LookupTable<fan_lut_length> fan_temp_lut{fan_lut_data};
 
-FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut, 2.0f};
+FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut};
 
 VehBus veh_can_bus{bindings::veh_can_base};
 
@@ -88,7 +77,7 @@ TxBmsBroadcast PackBmsBroadcast(float temperatures[]) {
 /***************************************************************
     Program Logic
 ***************************************************************/
-void Update() {
+void Update(float update_period_ms) {
     // Read the temperature sensors
     float temperatures[kSensorCount];
     for (int i = 0; i < kSensorCount; i++) {
@@ -102,7 +91,7 @@ void Update() {
     // Adjust the fan speed based on the average temperature
     float avg_temperature =
         shared::util::GetAverage<float, kSensorCount>(temperatures);
-    fan_controller.Update(avg_temperature);
+    fan_controller.Update(avg_temperature, update_period_ms);
 
     // Toggle the green LED to indicate the program is running
     static bool toggle = true;
@@ -110,25 +99,16 @@ void Update() {
     toggle = !toggle;
 }
 
-void UpdateTask(void* argument) {
-    (void)argument;  // prevent unused variable warning
-    const static uint32_t kTaskPeriodMs = 100;
-
-    fan_controller.Start(0);
-    while (true) {
-        uint32_t start_time_ms = os::GetTickCount();
-        Update();
-        os::TickUntil(start_time_ms + kTaskPeriodMs);
-    }
-}
-
 int main(void) {
     bindings::Initialize();
-    os::InitializeKernel();
 
-    os::StartKernel();
+    const uint32_t kUpdatePeriodMs = 100;
 
-    while (true) continue;
+    while (true) {
+        uint32_t start_time_ms = bindings::GetCurrentTimeMs();
+        Update(kUpdatePeriodMs);
+        while (bindings::GetCurrentTimeMs() <= start_time_ms + kUpdatePeriodMs);
+    }
 
     return 0;
 }

@@ -50,18 +50,15 @@ private:
 class FanContoller {
 public:
     FanContoller(shared::periph::PWMOutput& pwm,
-                 shared::util::Mapper<float>& temp_to_power,
-                 float pwm_step_size)
-        : pwm_(pwm),
-          temp_to_power_(temp_to_power),
-          pwm_step_size_(pwm_step_size) {}
+                 shared::util::Mapper<float>& temp_to_power)
+        : pwm_(pwm), temp_to_power_(temp_to_power) {}
 
     void Start(float initial_power) {
         pwm_.Start();
         pwm_.SetDutyCycle(power_to_pwm_.Evaluate(initial_power));
     }
 
-    void Update(float temperature) {
+    void Update(float temperature, float update_period_ms) {
         // convert pwm = 100 - power since the fan runs on inverse logic
         // ex. pwm=20% => fan is running at 80%
         float desired_pwm =
@@ -69,8 +66,9 @@ public:
         float current_pwm = pwm_.GetDutyCycle();
         float delta_pwm = desired_pwm - current_pwm;
 
+        float elapsed_sec = update_period_ms / 1000.0f;
         float pwm_step = shared::util::Clamper<float>::Evaluate(
-            delta_pwm, -pwm_step_size_, pwm_step_size_);
+            delta_pwm, -pwm_roc_ * elapsed_sec, pwm_roc_ * elapsed_sec);
 
         pwm_.SetDutyCycle(current_pwm + pwm_step);
     }
@@ -84,8 +82,6 @@ private:
     /// @brief Fan pwm signal is inverted (high duty = low power)
     const shared::util::LinearMap<float> power_to_pwm_{-1.0f, 100.0f};
 
-    /// @brief Largest allowable PWM per Update() call.
-    /// @todo Express pwm_step_size in pwm/second and use Update() frequency
-    /// to determine it.
-    float pwm_step_size_;
+    /// @brief Maximum PWM rate of change in %/second.
+    const float pwm_roc_ = 20.0f;
 };
