@@ -21,23 +21,35 @@ jobs:
         with:
             submodules: true
 
+      - name: Setup Python
+        # if: ${{ inputs.platform == 'self-hosted' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Configure and activate Python Virtual Environment
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install -r -e scripts/cangen
+
       - name: Build ${{ inputs.project }} for ${{ inputs.platform }}
         run: |
           cd firmware
           make PROJECT=${{ inputs.project }} PLATFORM=${{ inputs.platform }} build
 
-      - name: Replace slashes in project name and get first 7 characters of SHA
-        id: replace-slashes
+      - name: Prepare artifact name
+        id: prepare-artifact-name
         run: |
           project_name="${{ inputs.project }}" 
           project_name="${project_name//\//-}"
-          echo "project_name=${project_name}" >> $GITHUB_OUTPUT
           github_sha="${{ github.sha }}"
           github_sha="${github_sha:0:7}"
-          echo "github_sha=${github_sha}" >> $GITHUB_OUTPUT
+          artifact_name="build-${project_name}-${inputs.platform}-${github_sha}"
+          echo "artifact_name=${artifact_name}" >> $GITHUB_OUTPUT
 
-      - name: Upload artifacts
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           path: firmware/build/${{ inputs.project }}/${{ inputs.platform }}
-          name: build-${{ steps.replace-slashes.outputs.project_name }}-${{ inputs.platform }}-${{ github.sha }}
+          name: ${{ steps.prepare-artifact-name.outputs.artifact_name }}
