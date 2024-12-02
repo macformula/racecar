@@ -6,20 +6,30 @@ import os
 import subprocess
 import sys
 
-def get_modified_projects(projects_dir, base_branch):
+def get_all_projects(projects_dir):
+    all_projects = set()
+
+    for root, dirs, _ in os.walk(projects_dir):
+        if "platforms" in dirs:
+            project_path = os.path.relpath(root, projects_dir)
+            all_projects.add(project_path)
+
+    return list(all_projects)
+
+def get_modified_projects(projects_dir, projects, base_branch):
     modified_files = subprocess.check_output(
         ["git", "diff", "--name-only", base_branch, '--', projects_dir],
         universal_newlines=True
     ).splitlines()
-    print(f"Modified files: {modified_files}")
 
     modified_projects = set()
     for modified_file in modified_files:
-        project_name = os.path.relpath(os.path.dirname(modified_file), projects_dir)
-        modified_projects.add(project_name)
+        for project in projects:
+            if project in modified_file:
+                modified_projects.add(project)
+                break
 
     modified_projects = list(modified_projects)
-    print(f"Modified projects: {modified_projects}")
     return modified_projects
 
 def get_project_platforms(projects_dir, project_dir):
@@ -36,7 +46,7 @@ def filter_platforms(platforms, remove_list):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python modified_projects.py <projects_dir> <base_branch>")
+        print("Usage: python modified_projects.py <base_branch>")
         sys.exit(1)
 
     projects_dir = "firmware/projects"
@@ -46,8 +56,12 @@ if __name__ == "__main__":
         print(f"Error: {projects_dir} is not a directory")
         sys.exit(1)
 
-    modified_projects = get_modified_projects(projects_dir, base_branch)
+    projects = get_all_projects(projects_dir)
+    print(f"Projects: {projects}")
+
+    modified_projects = get_modified_projects(projects_dir, projects, base_branch)
     modified_projects = filter_projects(modified_projects, ["debug"])
+    print(f"Modified projects: {modified_projects}")
 
     matrix = []
     for project in modified_projects:

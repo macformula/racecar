@@ -2,6 +2,11 @@ name: Test Self-Hosted Runner
 
 on:
   push:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
   workflow_dispatch:
 
 jobs:
