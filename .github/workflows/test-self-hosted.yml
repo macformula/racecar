@@ -15,7 +15,7 @@ jobs:
   setup:
     runs-on: self-hosted
     outputs:
-      matrix-all-projects: ${{ steps.all-projects.outputs.matrix }}
+      all_projects_matrix: ${{ steps.all-projects.outputs.matrix }}
       matrix-modified-projects: ${{ steps.modified-projects.outputs.matrix }}
     steps:
       - name: Checkout repository
@@ -41,17 +41,12 @@ jobs:
           python3 scripts/actions/modified_projects.py origin/$BASE_REF
           echo "matrix=$(cat modified_projects_matrix.json)" >> $GITHUB_OUTPUT
 
-      - name: Debug Outputs
-        run: |
-          echo "matrix_all_projects=${{ steps.all-projects.outputs.matrix }}"
-          echo "matrix_modified_projects=${{ steps.modified-projects.outputs.matrix }}"
-
   build-all-projects:
     needs: setup
     strategy:
       fail-fast: false
       matrix: 
-        include: ${{ fromJson(needs.setup.outputs.matrix-all-projects) }}
+        include: ${{ fromJson(needs.setup.outputs.all_projects_matrix) }}
     uses: ./.github/workflows/reusable-build-project.yml
     with:
       project: ${{ matrix.project }}
