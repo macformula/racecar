@@ -1,14 +1,17 @@
 name: Build, Test, and Deploy Project
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       project:
         description: 'Project to build (i.e. Demo/Blink)'
         required: true
+        default: 'Demo/Blink'
       platform:
         description: 'Platform to build for (i.e. cli, stm32f767)'
         required: true
+        default: 'cli'
 
 jobs:
   build:
@@ -29,12 +32,18 @@ jobs:
           path: firmware/build/${{ github.event.inputs.project }}/${{ github.event.inputs.platform }}
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: build
     environment: deploy
     steps:
+
+      - name: Sanitize project name
+        id: sanitize
+        run: |
+          run: echo "::set-output name=project_name::${GITHUB_EVENT_INPUTS_PROJECT//\//-}"
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           path: firmware/build/${{ github.event.inputs.project }}/${{ github.event.inputs.platform }}
-          name: build-artifact-${{ github.event.inputs.project }}-${{ github.event.inputs.platform }}
+          name: build-artifact-${{ steps.sanitize.outputs.project_name }}-${{ github.event.inputs.platform }}
