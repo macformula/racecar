@@ -19,11 +19,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-            fetch-depth: 0
             submodules: true
-
-      - name: Fetch all branches
-        run: git fetch origin ${{ github.base_ref || 'main' }} --depth=1
 
       - name: Setup Python
         run: |
@@ -40,7 +36,7 @@ jobs:
         id: modified-projects
         run: |
           source .venv/bin/activate
-          python3 scripts/actions/modified_projects.py ${{ github.base_ref || 'main' }}
+          python3 scripts/actions/modified_projects.py origin/${{ github.base_ref || 'main' }}
           echo "matrix=$(cat modified_projects.json)" >> $GITHUB_OUTPUT
 
   build-all-projects:
