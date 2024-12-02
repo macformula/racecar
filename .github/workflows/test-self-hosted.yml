@@ -25,14 +25,7 @@ jobs:
         run: |
           python3 -m venv .venv
 
-      # - name: Get all projects
-      #   id: all-projects
-      #   run: |
-      #     source .venv/bin/activate
-      #     python3 scripts/actions/all_projects.py
-      #     echo "all_projects_matrix=$(cat all_projects_matrix.json)" >> $GITHUB_OUTPUT
-
-      - name: Get modified projects
+      - name: Get projects
         id: projects
         run: |
           source .venv/bin/activate
