@@ -59,13 +59,13 @@ jobs:
       platform: ${{ matrix.platform }}
 
   deploy-modified-projects:
-    needs: build-modified-projects
+    needs: [setup, build-modified-projects]
     runs-on: ubuntu-latest
     environment: deploy
     strategy:
       fail-fast: false
       matrix: 
-        include: ${{ fromJson(needs.setup.outputs.matrix_all_projects) }}
+        include: ${{ fromJson(needs.setup.outputs.matrix_modified_projects) }}
 
     steps:
     - name: Checkout repository
