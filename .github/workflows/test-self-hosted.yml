@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-    test-self-hosted:
+    test-self-hosted-build:
       runs-on: self-hosted
 
       steps:
@@ -27,3 +27,12 @@ jobs:
         with:
           name: Test Build Artifact
           path: firmware/build/
+
+    test-self-hosted-deploy:
+      needs: test-self-hosted-build
+      runs-on: self-hosted
+      environment: test-deploy
+
+      steps:
+        - name: Test Deploy
+          run: echo "Deploying to test environment"
