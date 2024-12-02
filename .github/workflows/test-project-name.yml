@@ -9,9 +9,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
   build-project:
     uses: ./.github/workflows/reusable-build-project.yml
     with:
-      project: Demo/Blink
-      platform: cli
+      project: "Demo/Blink"
+      platform: "cli"
