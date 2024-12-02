@@ -17,6 +17,7 @@ jobs:
     outputs:
       matrix_all_projects: ${{ steps.projects.outputs.matrix_all_projects }}
       matrix_modified_projects: ${{ steps.projects.outputs.matrix_modified_projects }}
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -66,6 +67,8 @@ jobs:
       fail-fast: false
       matrix: 
         include: ${{ fromJson(needs.setup.outputs.matrix_modified_projects) }}
+    outputs:
+      artifact_name: ${{ steps.build.outputs.artifact_name }}
 
     steps:
     - name: Checkout repository
@@ -83,13 +86,13 @@ jobs:
         tags: tag:ci
 
     - name: Download artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
-        name: build-Demo-Blink-cli-31324e8
+        name: ${{ needs.build-modified-projects.outputs.artifact_name }}
 
     - name: Deploy to Raspberry Pi
       run: |
-        scp -r build-Demo-Blink-cli-31324e8 macformula@100.73.87.83:
+        scp -r ${{ needs.build-modified-projects.outputs.artifact_name }} macformula@100.73.87.83:
 
     - name: Verify deployment
       run: |

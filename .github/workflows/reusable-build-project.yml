@@ -15,6 +15,9 @@ on:
 jobs:
   build-upload-project:
     runs-on: 'self-hosted'
+    outputs:
+      artifact_name: ${{ steps.prepare-artifact-name.outputs.artifact_name }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -48,3 +51,4 @@ jobs:
         with:
           path: firmware/build/${{ inputs.project }}/${{ inputs.platform }}
           name: ${{ steps.prepare-artifact-name.outputs.artifact_name }}
+
