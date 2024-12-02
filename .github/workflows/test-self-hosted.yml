@@ -34,6 +34,8 @@ jobs:
 
       - name: Get modified projects
         id: modified-projects
+        env:
+          BASE_REF: ${{ github.base_ref || 'HEAD^' }}
         run: |
           source .venv/bin/activate
           # if [ "${{ github.event_name }}" == "pull_request" ]; then
@@ -43,8 +45,9 @@ jobs:
           #   echo "BASE_REF=HEAD^"
           #   BASE_REF="HEAD^" # Previous commit for push events
           # fi
+          BASE_REF="${{ github.base_ref }}" # Directly use the GitHub Actions variable
+          BASE_REF="${BASE_REF:-HEAD^}" # Bash fallback if BASE_REF is empty
           python3 scripts/actions/modified_projects.py origin/$BASE_REF
-          python3 scripts/actions/modified_projects.py origin/${{ github.base_ref || 'HEAD^' }}
 
           echo "matrix=$(cat modified_projects.json)" >> $GITHUB_OUTPUT
 
