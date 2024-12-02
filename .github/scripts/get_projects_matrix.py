@@ -6,7 +6,7 @@
 # The format of the JSON files are as follows: [ { "project": "project_name", "platform": "platform_name" }, ... ]
 
 # Usage: python3 get_projects_matrix.py <base_git_branch>
-# Example: python3 get_projects_matrix.py origin/main
+# Example: python3 get_projects_matrix.py main
 
 import json
 import os
@@ -31,8 +31,10 @@ def get_all_projects(projects_dir):
 
 # Get projects that have been modified compared to the base branch
 def get_modified_projects(projects_dir, projects, base_branch):
+    subprocess.run(["git", "fetch", "origin", base_branch])
+
     modified_files = subprocess.check_output(
-        ["git", "diff", "--name-only", base_branch, '--', projects_dir],
+        ["git", "diff", "--name-only", f"origin/{base_branch}", '--', projects_dir],
         universal_newlines=True
     ).splitlines()
 
