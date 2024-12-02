@@ -69,4 +69,4 @@ jobs:
     with:
       project: ${{ matrix.project }}
       platform: ${{ matrix.platform }}
-      commit: "b486d6c"
+      commit: ""
