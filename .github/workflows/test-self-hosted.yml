@@ -5,34 +5,79 @@ on:
   workflow_dispatch:
 
 jobs:
-    test-self-hosted-build:
-      runs-on: self-hosted
-
-      steps:
+  test-self-hosted-setup:
+    runs-on: self-hosted
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build for cli
-        run: |
-          cd firmware
-          make PROJECT=Demo/Blink PLATFORM=cli build
-
-      - name: Build for stm32f767
-        run: |
-          cd firmware
-          make PROJECT=Demo/Blink PLATFORM=stm32f767 build
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - name: Set up Python
+        uses: action/setup-python@v4
         with:
-          name: Test Build Artifact
-          path: firmware/build/
+          python-version: '3.x'
 
-    test-self-hosted-deploy:
-      needs: test-self-hosted-build
-      runs-on: self-hosted
-      environment: test-deploy
+      - name: Generate Matrix
+        id: generate-matrix
+        run: |
+          python generate_matrix.py firmware/projects
+          echo "::set-output name=matrix::$(cat matrix.json)"
+  
+  test-self-hosted-build:
+    runs-on: self-hosted
+    needs: test-self-hosted-setup
+    strategy:
+      matrix: ${{fromJson(needs.test-self-hosted-setup.outputs.matrix)}}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      steps:
-        - name: Test Deploy
-          run: echo "Deploying to test environment"
+      - name: Build ${{ matrix.project }} for ${{ matrix.platform }}
+        run: |
+          cd firmware
+          make PROJECT=${{ matrix.project }} PLATFORM=${{ matrix.platform }} build
+
+      # - name: Upload artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: Test Build Artifact
+    
+  #    test-self-hosted-build:
+  #     runs-on: self-hosted
+
+  #     steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+
+  #     - name: Build for cli
+  #       run: |
+  #         cd firmware
+  #         make PROJECT=Demo/Blink PLATFORM=cli build
+
+  #     - name: Build for stm32f767
+  #       run: |
+  #         cd firmware
+  #         make PROJECT=Demo/Blink PLATFORM=stm32f767 build
+
+  #     - name: Upload artifacts
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: Test Build Artifact
+  #         path: firmware/build/
+
+  #   test-self-hosted-deploy:
+  #     needs: test-self-hosted-build
+  #     runs-on: self-hosted
+  #     # environment: test-deploy
+
+  #     steps:
+  #       - name: Download artifacts
+  #         uses: actions/download-artifact@v4
+  #         with:
+  #           name: Test Build Artifact
+
+  #       - name: Deploy to Raspberry Pi
+  #         run: |
+  #           echo "Deploying to Raspberry Pi"
+  #           scp -r 'Test Build Deploy' macformula@100.73.87.83:
