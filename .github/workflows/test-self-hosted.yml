@@ -33,6 +33,8 @@ jobs:
           BASE_REF=${BASE_REF:-HEAD^} # Previous commit on push to main
           python3 scripts/actions/all_projects.py
           python3 scripts/actions/modified_projects.py origin/$BASE_REF
+          cat all_projects_matrix.json
+          cat modified_projects_matrix.json
           echo "all_projects_matrix=$(cat all_projects_matrix.json)" >> $GITHUB_OUTPUT
           echo "modified_projects_matrix=$(cat modified_projects_matrix.json)" >> $GITHUB_OUTPUT
 
