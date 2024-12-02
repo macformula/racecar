@@ -31,8 +31,7 @@ jobs:
           source .venv/bin/activate
           BASE_REF="${{ github.base_ref }}" # Target branch of the PR
           BASE_REF="${BASE_REF:-HEAD^}" # Previous commit on push to main
-          python3 scripts/actions/all_projects.py
-          python3 scripts/actions/modified_projects.py origin/$BASE_REF
+          python3 scripts/actions/get_projects_matrix.py origin/$BASE_REF
           echo "matrix_all_projects=$(cat all_projects_matrix.json)" >> $GITHUB_OUTPUT
           echo "matrix_modified_projects=$(cat modified_projects_matrix.json)" >> $GITHUB_OUTPUT
 

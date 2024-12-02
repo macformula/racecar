@@ -1,10 +1,23 @@
-# Usage: python modified_projects.py <base_git_branch>
-# Usage: python3 modified_projects.py <base_git_branch>
+# Usage: python get_projects_matrix.py <base_git_branch>
+# Usage: python3 get_projects_matrix.py <base_git_branch>
+# Example: python3 get_projects_matrix.py origin/main
+
+# Outputs two JSON files:
+# - all_projects_matrix.json: Contains all projects and platforms
+# - modified_projects_matrix.json: Contains only the modified projects and platforms from the base branch
+
+# JSON format:
+# [ { "project": "project_name", "platform": "platform_name" }, ... ]
 
 import json
 import os
 import subprocess
 import sys
+
+# Global variables
+projects_dir = "firmware/projects"
+filter_projects_list = ["debug"]
+filter_platforms_list = ["linux", "raspi", "sil"]
 
 def get_all_projects(projects_dir):
     all_projects = set()
@@ -36,6 +49,21 @@ def get_project_platforms(projects_dir, project_dir):
     platforms_dir = os.path.join(projects_dir, project_dir, "platforms")
     return os.listdir(platforms_dir)
 
+def create_matrix(projects):
+    matrix = []
+    for project in projects:
+        platforms = get_project_platforms(projects_dir, project)
+        platforms = filter_platforms(platforms, filter_platforms_list)
+
+        for platform in platforms:
+            matrix.append({"project": project, "platform": platform})
+
+    return matrix
+
+def save_matrix(matrix, filename):
+    with open(filename, "w") as f:
+        json.dump(matrix, f, indent=4)
+
 # Remove projects that contain any of the items in the remove_list
 def filter_projects(projects, remove_list):
     return [project for project in projects if not any(item in project for item in remove_list)]
@@ -49,7 +77,6 @@ if __name__ == "__main__":
         print("Usage: python modified_projects.py <base_branch>")
         sys.exit(1)
 
-    projects_dir = "firmware/projects"
     base_branch = sys.argv[1]
 
     print(f"Base branch: {base_branch}")
@@ -59,19 +86,14 @@ if __name__ == "__main__":
         sys.exit(1)
 
     projects = get_all_projects(projects_dir)
+    projects = filter_projects(projects, filter_projects_list)
     print(f"Projects: {projects}")
 
     modified_projects = get_modified_projects(projects_dir, projects, base_branch)
-    modified_projects = filter_projects(modified_projects, ["debug"])
     print(f"Modified projects: {modified_projects}")
 
-    matrix = []
-    for project in modified_projects:
-        platforms = get_project_platforms(projects_dir, project)
-        platforms = filter_platforms(platforms, ["linux", "raspi", "sil"])
+    all_projects_matrix = create_matrix(projects)
+    modified_projects_matrix = create_matrix(modified_projects)
 
-        for platform in platforms:
-            matrix.append({"project": project, "platform": platform})
-
-    print(json.dumps(matrix, indent=4))
-    with open("modified_projects_matrix.json", "w") as f: json.dump(matrix, f)
+    save_matrix(all_projects_matrix, "all_projects_matrix.json")
+    save_matrix(modified_projects_matrix, "modified_projects_matrix.json")
