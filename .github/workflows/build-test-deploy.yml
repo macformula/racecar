@@ -44,19 +44,13 @@ jobs:
           cd firmware
           make PROJECT=${{ steps.defaults.outputs.project_name }} PLATFORM=${{ steps.defaults.outputs.platform }} build
 
+  deploy:
+    runs-on: self-hosted
+    needs: build
+    environment: deploy
+    steps:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact-${{ steps.defaults.outputs.sanitized_project_name }}-${{ steps.defaults.outputs.platform }}
           path: firmware/build/${{ steps.defaults.outputs.project_name }}/${{ steps.defaults.outputs.platform }}
-
-#   deploy:
-#     runs-on: self-hosted
-#     needs: build
-#     environment: deploy
-#     steps:
-#       - name: Upload sanitized project artifacts
-#         uses: actions/upload-artifact@v4
-#         with:
-#           path: firmware/build/${{ steps.defaults.outputs.sanitized_project_name }}-${{ steps.defaults.outputs.platform }}
-#           name: build-artifact-${{ steps.defaults.outputs.sanitized_project_name }}-${{ steps.defaults.outputs.platform }}

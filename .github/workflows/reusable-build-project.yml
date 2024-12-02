@@ -1,0 +1,25 @@
+name: Build Project
+
+on:
+  workflow_call:
+    inputs:
+      project:
+        description: 'Project to build (i.e. Demo/Blink)'
+        required: true
+        type: string
+      platform:
+        description: 'Platform to build for (i.e. cli, stm32f767)'
+        required: true
+        type: string
+
+jobs:
+    build:
+      runs-on: self-hosted
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Build ${{ github.event.inputs.project }} for ${{ github.event.inputs.platform }}
+          run: |
+            cd firmware
+            make PROJECT=${{ github.event.inputs.project }} PLATFORM=${{ github.event.inputs.platform }} build
