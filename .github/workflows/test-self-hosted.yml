@@ -90,10 +90,10 @@ jobs:
 
     - name: Deploy to Raspberry Pi
       run: |
-        scp -r ${{ needs.build-modified-projects.outputs.artifact_name }} macformula@100.73.87.83:
+        scp -o StrictHostKeyChecking=no -r ${{ needs.build-modified-projects.outputs.artifact_name }} macformula@100.73.87.83:
 
     - name: Verify deployment
       run: |
-        ssh macformula@100.73.87.83
+        ssh -o StrictHostKeyChecking=no macformula@100.73.87.83
         ls ${{ needs.build-modified-projects.outputs.artifact_name }}
 
