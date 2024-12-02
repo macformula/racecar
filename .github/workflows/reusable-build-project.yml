@@ -14,12 +14,18 @@ on:
 
 jobs:
   build-upload-project:
-    runs-on: ${{ (inputs.platform == 'raspi' || inputs.platform == 'linux') && 'ubuntu-latest' || 'self-hosted' }}
+    runs-on: 'self-hosted'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
             submodules: true
+
+      - name: Setup Python
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install -e script/cangen
 
       - name: Build ${{ inputs.project }} for ${{ inputs.platform }}
         run: |
