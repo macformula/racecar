@@ -15,7 +15,7 @@ jobs:
   setup:
     runs-on: self-hosted
     outputs:
-      all_projects_matrix: ${{ steps.all-projects.outputs.matrix }}
+      all_projects_matrix: ${{ steps.all-projects.outputs.all_projects_matrix }}
       matrix-modified-projects: ${{ steps.modified-projects.outputs.matrix }}
     steps:
       - name: Checkout repository
@@ -30,7 +30,7 @@ jobs:
         run: |
           source .venv/bin/activate
           python3 scripts/actions/all_projects.py
-          echo "matrix=$(cat all_projects_matrix.json)" >> $GITHUB_OUTPUT
+          echo "all_projects_matrix=$(cat all_projects_matrix.json)" >> $GITHUB_OUTPUT
 
       - name: Get modified projects
         id: modified-projects
