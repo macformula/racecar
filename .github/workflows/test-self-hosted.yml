@@ -15,8 +15,8 @@ jobs:
   setup:
     runs-on: self-hosted
     outputs:
-      all_projects_matrix: ${{ steps.modified-projects.outputs.all_projects_matrix }}
-      modified_projects_matrix: ${{ steps.modified-projects.outputs.modified_projects_matrix }}
+      all_projects_matrix: ${{ steps.projects.outputs.all_projects_matrix }}
+      modified_projects_matrix: ${{ steps.projects.outputs.modified_projects_matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
       #     echo "all_projects_matrix=$(cat all_projects_matrix.json)" >> $GITHUB_OUTPUT
 
       - name: Get modified projects
-        id: modified-projects
+        id: projects
         run: |
           source .venv/bin/activate
           BASE_REF="${{ github.base_ref }}" # Target branch of the PR
