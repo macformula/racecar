@@ -15,7 +15,7 @@ jobs:
   setup:
     runs-on: self-hosted
     outputs:
-      all_projects_matrix: ${{ steps.projects.outputs.all_projects_matrix }}
+      matrix_all_projects: ${{ steps.projects.outputs.matrix_all_projects }}
       modified_projects_matrix: ${{ steps.projects.outputs.modified_projects_matrix }}
     steps:
       - name: Checkout repository
@@ -33,7 +33,7 @@ jobs:
           BASE_REF="${BASE_REF:-HEAD^}" # Previous commit on push to main
           python3 scripts/actions/all_projects.py
           python3 scripts/actions/modified_projects.py origin/$BASE_REF
-          echo "all_projects_matrix=$(cat all_projects_matrix.json)" >> $GITHUB_OUTPUT
+          echo "matrix_all_projects=$(cat all_projects_matrix.json)" >> $GITHUB_OUTPUT
           echo "modified_projects_matrix=$(cat modified_projects_matrix.json)" >> $GITHUB_OUTPUT
 
   build-all-projects:
@@ -41,7 +41,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: 
-        include: ${{ fromJson(needs.setup.outputs.all_projects_matrix) }}
+        include: ${{ fromJson(needs.setup.outputs.matrix_all_projects) }}
     uses: ./.github/workflows/reusable-build-project.yml
     with:
       project: ${{ matrix.project }}
