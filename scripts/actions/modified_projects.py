@@ -74,4 +74,4 @@ if __name__ == "__main__":
             matrix.append({"project": project, "platform": platform})
 
     print(json.dumps(matrix, indent=4))
-    with open("modified_projects.json", "w") as f: json.dump(matrix, f)
+    with open("modified_projects_matrix.json", "w") as f: json.dump(matrix, f)
