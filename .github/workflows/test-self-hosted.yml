@@ -15,8 +15,8 @@ jobs:
   setup:
     runs-on: self-hosted
     outputs:
-      matrix_all_projects: ${{ steps.projects.outputs.matrix_all_projects }}
-      matrix_modified_projects: ${{ steps.projects.outputs.matrix_modified_projects }}
+      matrix-all-projects: ${{ steps.all-projects.outputs.matrix }}
+      matrix-modified-projects: ${{ steps.modified-projects.outputs.matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,28 +25,33 @@ jobs:
         run: |
           python3 -m venv .venv
 
-      - name: Get projects
-        id: projects
+      - name: Get all projects
+        id: all-projects
+        run: |
+          source .venv/bin/activate
+          python3 scripts/actions/all_projects.py
+          echo "matrix=$(cat all_projects_matrix.json)" >> $GITHUB_OUTPUT
+
+      - name: Get modified projects
+        id: modified-projects
         run: |
           source .venv/bin/activate
           BASE_REF="${{ github.base_ref }}" # Target branch of the PR
           BASE_REF="${BASE_REF:-HEAD^}" # Previous commit on push to main
-          python3 scripts/actions/all_projects.py
           python3 scripts/actions/modified_projects.py origin/$BASE_REF
-          echo "all_projects_matrix=$(cat all_projects_matrix.json)" >> $GITHUB_OUTPUT
-          echo "modified_projects_matrix=$(cat modified_projects_matrix.json)" >> $GITHUB_OUTPUT
+          echo "matrix=$(cat modified_projects_matrix.json)" >> $GITHUB_OUTPUT
 
       - name: Debug Outputs
         run: |
-          echo "matrix_all_projects=${{ steps.projects.outputs.matrix_all_projects }}"
-          echo "matrix_modified_projects=${{ steps.projects.outputs.matrix_modified_projects }}"
+          echo "matrix_all_projects=${{ steps.all-projects.outputs.matrix }}"
+          echo "matrix_modified_projects=${{ steps.modified-projects.outputs.matrix }}"
 
   build-all-projects:
     needs: setup
     strategy:
       fail-fast: false
       matrix: 
-        include: ${{ fromJson(needs.setup.outputs.matrix_all_projects) }}
+        include: ${{ fromJson(needs.setup.outputs.matrix-all-projects) }}
     uses: ./.github/workflows/reusable-build-project.yml
     with:
       project: ${{ matrix.project }}
@@ -57,7 +62,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: 
-        include: ${{ fromJson(needs.setup.outputs.matrix_modified_projects) }}
+        include: ${{ fromJson(needs.setup.outputs.matrix-modified-projects) }}
     uses: ./.github/workflows/reusable-build-project.yml
     with:
       project: ${{ matrix.project }}
