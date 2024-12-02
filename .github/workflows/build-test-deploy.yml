@@ -6,10 +6,16 @@ on:
     inputs:
       project:
         description: 'Project to build (i.e. Demo/Blink)'
+        required: false
         default: 'Demo/Blink'
       platform:
         description: 'Platform to build for (i.e. cli, stm32f767)'
+        required: false
         default: 'cli'
+
+env:
+  DEFAULT_PROJECT: Demo/Blink
+  DEFAULT_PLATFORM: 'cli'
 
 jobs:
   build:
@@ -18,30 +24,39 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build ${{ github.event.inputs.project }} for ${{ github.event.inputs.platform }}
+      - name: Set effective project and platform
+        id: defaults
+        run: |
+          echo "Effective project: ${{ github.event.inputs.project || env.DEFAULT_PROJECT }}"
+          echo "Effective platform: ${{ github.event.inputs.platform || env.DEFAULT_PLATFORM }}"
+          echo "::set-output name=project::${{ github.event.inputs.project || env.DEFAULT_PROJECT }}"
+          echo "::set-output name=platform::${{ github.event.inputs.platform || env.DEFAULT_PLATFORM }}"
+
+      - name: Build ${{ steps.defaults.outputs.project }} for ${{ steps.defaults.outputs.platform }}
         run: |
           cd firmware
-          make PROJECT=${{ github.event.inputs.project }} PLATFORM=${{ github.event.inputs.platform }} build
+          make PROJECT=${{ steps.defaults.outputs.project }} PLATFORM=${{ steps.defaults.outputs.platform }} build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifact-${{ github.event.inputs.project }}-${{ github.event.inputs.platform }}
-          path: firmware/build/${{ github.event.inputs.project }}/${{ github.event.inputs.platform }}
+          name: build-artifact-${{ steps.defaults.outputs.project }}-${{ steps.defaults.outputs.platform }}
+          path: firmware/build/${{ steps.defaults.outputs.project }}/${{ steps.defaults.outputs.platform }}
 
   deploy:
     runs-on: self-hosted
     needs: build
     environment: deploy
     steps:
-
       - name: Sanitize project name
         id: sanitize
         run: |
-          run: echo "::set-output name=project_name::${GITHUB_EVENT_INPUTS_PROJECT//\//-}"
+          sanitized_name="${{ steps.defaults.outputs.project || env.DEFAULT_PROJECT }}"
+          sanitized_name="${sanitized_name//\//-}"
+          echo "::set-output name=project_name::$sanitized_name"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          path: firmware/build/${{ github.event.inputs.project }}/${{ github.event.inputs.platform }}
-          name: build-artifact-${{ steps.sanitize.outputs.project_name }}-${{ github.event.inputs.platform }}
+          path: firmware/build/${{ steps.defaults.outputs.project }}-${{ steps.defaults.outputs.platform }}
+          name: build-artifact-${{ steps.sanitize.outputs.project_name }}-${{ steps.defaults.outputs.platform }}
