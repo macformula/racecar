@@ -29,6 +29,7 @@ jobs:
 
       - name: Build ${{ inputs.project }} for ${{ inputs.platform }}
         run: |
+          source .venv/bin/activate
           cd firmware
           make PROJECT=${{ inputs.project }} PLATFORM=${{ inputs.platform }} build
 
