@@ -14,16 +14,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        run: |
+          python3 -m venv .venv
+
       - name: Get all projects
         id: all-projects
         run: |
+          source .venv/bin/activate
           python3 scripts/actions/all_projects.py
           echo "matrix=$(cat all_projects.json)" >> $GITHUB_OUTPUT
 
       - name: Get modified projects
         id: modified-projects
         run: |
-          python3 scripts/actions/modified_projects.py ${{ github.base_ref }}
+          source .venv/bin/activate
+          python3 scripts/actions/modified_projects.py ${{ github.base_ref || 'main' }}
           echo "matrix=$(cat modified_projects.json)" >> $GITHUB_OUTPUT
 
   build-all-projects:
