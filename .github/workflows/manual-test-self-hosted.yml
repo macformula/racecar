@@ -26,7 +26,8 @@ jobs:
         run: |
           project_name="${{ inputs.project }}" 
           project_name="${project_name//\//-}"
-          github_sha="${{ github.sha }}"
+          github_sha="${{ inputs.commit }}"
+          github_sha="${github_sha:-${{ github.sha }}}"
           github_sha="${github_sha:0:7}"
           artifact_name="build-${project_name}-${{ inputs.platform }}-${github_sha}"
           echo "artifact_name=${artifact_name}" >> $GITHUB_OUTPUT
