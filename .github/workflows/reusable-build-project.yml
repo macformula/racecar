@@ -14,7 +14,7 @@ on:
 
 jobs:
   build-upload-project:
-    runs-on: self-hosted
+    runs-on: ${{ inputs.platform == 'cli' && 'ubuntu-latest' || 'self-hosted' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,4 +35,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: firmware/build/${{ inputs.project }}/${{ inputs.platform }}
-          name: ${{ steps.replace-slashes.outputs.project_name }}-$(echo ${{ github.sha }} | cut -c1-7)
+          name: build-${{ steps.replace-slashes.outputs.project_name }}-${{ inputs.platform }}-${{ github.sha}}
