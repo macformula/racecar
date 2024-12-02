@@ -22,7 +22,7 @@ jobs:
             submodules: true
 
       - name: Setup Python
-        # if: ${{ inputs.platform == 'self-hosted' }}
+        if: ${{ inputs.platform != 'self-hosted' }}
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
