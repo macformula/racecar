@@ -18,12 +18,13 @@ jobs:
         run: |
           python3 scripts/actions/generate_matrix.py firmware/projects
           echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
-  
+
   test-self-hosted-build:
     runs-on: self-hosted
     needs: test-self-hosted-setup
     strategy:
-      matrix: ${{fromJson(needs.test-self-hosted-setup.outputs.matrix)}}
+      matrix: 
+        include: ${{ fromJson(needs.test-self-hosted-setup.outputs.matrix) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
