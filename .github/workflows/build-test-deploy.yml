@@ -6,11 +6,9 @@ on:
     inputs:
       project:
         description: 'Project to build (i.e. Demo/Blink)'
-        required: true
         default: 'Demo/Blink'
       platform:
         description: 'Platform to build for (i.e. cli, stm32f767)'
-        required: true
         default: 'cli'
 
 jobs:
