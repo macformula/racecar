@@ -10,7 +10,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-  build-project:
+#   build-project:
+#     uses: ./.github/workflows/reusable-build-project.yml
+#     with:
+#       project: "Demo/Blink"
+#       platform: "cli"
+      
+  build-projects:
     strategy:
       matrix:
         config:
@@ -18,10 +24,7 @@ jobs:
             platform: "cli"
           - project: "Demo/Blink"
             platform: "stm32f767"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Invoke Reusable Workflow
-        uses: ./.github/workflows/reusable-build-project.yml
-        with:
-          project: ${{ matrix.config.project }}
-          platform: ${{ matrix.config.platform }}
+    uses: ./.github/workflows/reusable-build-project.yml
+    with:
+      project: ${{ matrix.config.project }}
+      platform: ${{ matrix.config.platform }}
