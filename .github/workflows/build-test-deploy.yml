@@ -52,7 +52,7 @@ jobs:
         id: sanitize
         run: |
           sanitized_name="${{ steps.defaults.outputs.project || env.DEFAULT_PROJECT }}"
-          sanitized_name="${sanitized_name//\//-}"
+          sanitized_name=$(echo "$project_name" | sed 's/\//-/g')
           echo "::set-output name=project_name::$sanitized_name"
 
       - name: Upload artifacts
