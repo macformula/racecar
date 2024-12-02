@@ -23,7 +23,7 @@ jobs:
             submodules: true
 
       - name: Fetch all branches
-        run: git fetch --all
+        run: git fetch origin ${{ github.base_ref || 'main' }} --depth=1
 
       - name: Setup Python
         run: |
