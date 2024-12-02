@@ -1,0 +1,21 @@
+name: Test Project Name
+
+on:
+  push:
+
+jobs:
+  test-string-replacement:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test project name sanitization
+        id: sanitize
+        run: |
+          project_name="Demo/Blink"
+          sanitized_name="${project_name//\//-}"
+          echo "Original project name: $project_name"
+          echo "Sanitized project name: $sanitized_name"
+          echo "::set-output name=sanitized_name::$sanitized_name"
+
+      - name: Display sanitized project name
+        run: |
+          echo "Sanitized project name is: ${{ steps.sanitize.outputs.sanitized_name }}"

@@ -59,4 +59,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: firmware/build/${{ steps.defaults.outputs.project }}-${{ steps.defaults.outputs.platform }}
-          name: build-artifact-${{ steps.sanitize.outputs.project_name }}-${{ steps.defaults.outputs.platform }}
+          name: build-artifact-${{ steps.sanitize.outputs.sanitized_name }}-${{ steps.defaults.outputs.platform }}
