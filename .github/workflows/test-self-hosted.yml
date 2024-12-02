@@ -2,6 +2,8 @@ name: Test Self-Hosted Runner
 
 on:
   push:
+    branches:
+      - main
   pull_request:
     types:
       - opened
@@ -39,16 +41,16 @@ jobs:
           python3 scripts/actions/modified_projects.py origin/${{ github.base_ref || 'main' }}
           echo "matrix=$(cat modified_projects.json)" >> $GITHUB_OUTPUT
 
-  build-all-projects:
-    needs: setup
-    strategy:
-      fail-fast: false
-      matrix: 
-        include: ${{ fromJson(needs.setup.outputs.matrix-all-projects) }}
-    uses: ./.github/workflows/reusable-build-project.yml
-    with:
-      project: ${{ matrix.project }}
-      platform: ${{ matrix.platform }}
+  # build-all-projects:
+  #   needs: setup
+  #   strategy:
+  #     fail-fast: false
+  #     matrix: 
+  #       include: ${{ fromJson(needs.setup.outputs.matrix-all-projects) }}
+  #   uses: ./.github/workflows/reusable-build-project.yml
+  #   with:
+  #     project: ${{ matrix.project }}
+  #     platform: ${{ matrix.platform }}
 
   build-modified-projects:
     needs: setup
