@@ -10,5 +10,7 @@ int main() {
         bindings::DelayMS(1000);
     }
 
+    // Test comment
+
     return 0;
 }

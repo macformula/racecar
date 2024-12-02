@@ -27,15 +27,8 @@ def generate_matrix(projects_dir):
 
     return matrix
 
-
 if __name__ == "__main__":
-    print("Generating matrix for projects")
-
-    if len(sys.argv) < 2:
-        print("Usage: python generate_matrix.py <projects_dir>")
-        sys.exit(1)
-
-    projects_dir = sys.argv[1]
+    projects_dir = 'firmware/projects'
     if not os.path.isdir(projects_dir):
         print(f"Error: {projects_dir} is not a directory")
         sys.exit(1)
@@ -44,4 +37,4 @@ if __name__ == "__main__":
     print(json.dumps(matrix, indent=4))
 
     # Save the matrix to a file
-    with open("matrix.json", "w") as f: json.dump(matrix, f)
+    with open("all_projects.json", "w") as f: json.dump(matrix, f)

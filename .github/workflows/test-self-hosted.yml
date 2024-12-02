@@ -8,68 +8,42 @@ jobs:
   setup:
     runs-on: self-hosted
     outputs:
-      matrix: ${{ steps.generate-matrix.outputs.matrix }}
+      matrix-all-projects: ${{ steps.all-projects.outputs.matrix }}
+      matrix-modified-projects: ${{ steps.modified-projects.outputs.matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate Matrix
-        id: generate-matrix
+      - name: Get all projects
+        id: all-projects
         run: |
-          python3 scripts/actions/generate_matrix.py firmware/projects
-          echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
+          python3 scripts/actions/all_projects.py
+          echo "matrix=$(cat all_projects.json)" >> $GITHUB_OUTPUT
 
-  build:
+      - name: Get modified projects
+        id: modified-projects
+        run: |
+          python3 scripts/actions/modified_projects.py ${{ github.base_ref }}
+          echo "matrix=$(cat modified_projects.json)" >> $GITHUB_OUTPUT
+
+  build-all-projects:
     needs: setup
     strategy:
       fail-fast: false
       matrix: 
-        include: ${{ fromJson(needs.setup.outputs.matrix) }}
+        include: ${{ fromJson(needs.setup.outputs.matrix-all-projects) }}
     uses: ./.github/workflows/reusable-build-project.yml
     with:
       project: ${{ matrix.project }}
       platform: ${{ matrix.platform }}
 
-      # - name: Upload artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: Test Build Artifact
-    
-  #    test-self-hosted-build:
-  #     runs-on: self-hosted
-
-  #     steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
-
-  #     - name: Build for cli
-  #       run: |
-  #         cd firmware
-  #         make PROJECT=Demo/Blink PLATFORM=cli build
-
-  #     - name: Build for stm32f767
-  #       run: |
-  #         cd firmware
-  #         make PROJECT=Demo/Blink PLATFORM=stm32f767 build
-
-  #     - name: Upload artifacts
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: Test Build Artifact
-  #         path: firmware/build/
-
-  #   test-self-hosted-deploy:
-  #     needs: test-self-hosted-build
-  #     runs-on: self-hosted
-  #     # environment: test-deploy
-
-  #     steps:
-  #       - name: Download artifacts
-  #         uses: actions/download-artifact@v4
-  #         with:
-  #           name: Test Build Artifact
-
-  #       - name: Deploy to Raspberry Pi
-  #         run: |
-  #           echo "Deploying to Raspberry Pi"
-  #           scp -r 'Test Build Deploy' macformula@100.73.87.83:
+  build-modified-projects:
+    needs: setup
+    strategy:
+      fail-fast: false
+      matrix: 
+        include: ${{ fromJson(needs.setup.outputs.matrix-modified-projects) }}
+    uses: ./.github/workflows/reusable-build-project.yml
+    with:
+      project: ${{ matrix.project }}
+      platform: ${{ matrix.platform }}
