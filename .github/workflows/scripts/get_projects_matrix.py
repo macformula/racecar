@@ -1,13 +1,12 @@
-# Usage: python get_projects_matrix.py <base_git_branch>
+# This file is used to generate a matrix of projects and platforms for GitHub Actions
+# The matrix is used to build all projects its respective platforms
+# The output is two JSON files: all_projects_matrix.json and modified_projects_matrix.json
+# The all_projects_matrix.json contains all projects and platforms
+# The modified_projects_matrix.json contains only the modified projects and platforms from the base branch
+# The format of the JSON files are as follows: [ { "project": "project_name", "platform": "platform_name" }, ... ]
+
 # Usage: python3 get_projects_matrix.py <base_git_branch>
 # Example: python3 get_projects_matrix.py origin/main
-
-# Outputs two JSON files:
-# - all_projects_matrix.json: Contains all projects and platforms
-# - modified_projects_matrix.json: Contains only the modified projects and platforms from the base branch
-
-# JSON format:
-# [ { "project": "project_name", "platform": "platform_name" }, ... ]
 
 import json
 import os
