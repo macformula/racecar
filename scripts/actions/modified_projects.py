@@ -52,6 +52,8 @@ if __name__ == "__main__":
     projects_dir = "firmware/projects"
     base_branch = sys.argv[1]
 
+    print(f"Base branch: {base_branch}")
+
     if not os.path.isdir(projects_dir):
         print(f"Error: {projects_dir} is not a directory")
         sys.exit(1)
