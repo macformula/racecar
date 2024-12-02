@@ -13,13 +13,13 @@ on:
         type: string
 
 jobs:
-    build:
-      runs-on: self-hosted
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-        - name: Build ${{ github.event.inputs.project }} for ${{ github.event.inputs.platform }}
-          run: |
-            cd firmware
-            make PROJECT=${{ github.event.inputs.project }} PLATFORM=${{ github.event.inputs.platform }} build
+      - name: Build ${{ inputs.project }} for ${{ inputs.platform }}
+        run: |
+          cd firmware
+          make PROJECT=${{ inputs.project }} PLATFORM=${{ inputs.platform }} build
