@@ -67,8 +67,6 @@ jobs:
       fail-fast: false
       matrix: 
         include: ${{ fromJson(needs.setup.outputs.matrix_modified_projects) }}
-    outputs:
-      artifact_name: ${{ steps.build.outputs.artifact_name }}
 
     steps:
     - name: Checkout repository
@@ -97,4 +95,5 @@ jobs:
     - name: Verify deployment
       run: |
         ssh macformula@100.73.87.83
-        ls build-Demo-Blink-cli-31324e8
+        ls ${{ needs.build-modified-projects.outputs.artifact_name }}
+
