@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build project
-        uses: ./github-actions/reusable-build-project
+        uses: ./.github/workflows/reusable-build-project.yml
         with:
           project: Demo/Blink
           platform: cli
