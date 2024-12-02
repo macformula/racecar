@@ -61,8 +61,7 @@ def create_matrix(projects):
     return matrix
 
 def save_matrix(matrix, filename):
-    with open(filename, "w") as f:
-        json.dump(matrix, f, indent=4)
+    with open(filename, "w") as f: json.dump(matrix, f)
 
 # Remove projects that contain any of the items in the remove_list
 def filter_projects(projects, remove_list):
