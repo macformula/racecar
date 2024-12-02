@@ -38,7 +38,13 @@ jobs:
         id: modified-projects
         run: |
           source .venv/bin/activate
-          python3 scripts/actions/modified_projects.py origin/${{ github.base_ref || 'main' }}
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE_REF="${{ github.base_ref }}" # Target branch of the PR
+          else
+            BASE_REF="HEAD^" # Previous commit for push events
+          fi
+          python3 scripts/actions/modified_projects.py origin/$BASE_REF
+          python3 scripts/actions/modified_projects.py origin/${BASE_REF}
           echo "matrix=$(cat modified_projects.json)" >> $GITHUB_OUTPUT
 
   # build-all-projects:
