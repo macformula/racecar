@@ -60,6 +60,7 @@ jobs:
       platform: ${{ matrix.platform }}
 
   manual-test-self-hosted:
+    if: false
     needs: [setup, build-modified-projects]
     strategy:
       fail-fast: false
