@@ -21,8 +21,9 @@ def generate_matrix(projects_dir):
                 print(f"Found platform: {platform} in project: {project_name}")
                 matrix.append({"project": project_name, "platform": platform})
 
-    # Remove linux, raspi, sil projects from matrix (frmat is {platform:"", project:""} for each element)
+    # Remove linux/raspi/sil platforms and debug projects
     matrix = [item for item in matrix if item["platform"] not in ["linux", "raspi", "sil"]]
+    matrix = [item for item in matrix if "debug" not in item["project"]]
 
     return matrix
 
