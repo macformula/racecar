@@ -1,7 +1,7 @@
 name: Build, Test, and Deploy Project
 
 on:
-  push:
+  # push:
   workflow_dispatch:
     inputs:
       project:

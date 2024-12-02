@@ -14,25 +14,30 @@ on:
 
 jobs:
   build-upload-project:
-    runs-on: ${{ inputs.platform == 'cli' && 'ubuntu-latest' || 'self-hosted' }}
+    runs-on: ${{ (inputs.platform == 'raspi' || inputs.platform == 'linux') && 'ubuntu-latest' || 'self-hosted' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+            submodules: true
 
       - name: Build ${{ inputs.project }} for ${{ inputs.platform }}
         run: |
           cd firmware
           make PROJECT=${{ inputs.project }} PLATFORM=${{ inputs.platform }} build
 
-      - name: Replace slashes in project name
+      - name: Replace slashes in project name and get first 7 characters of SHA
         id: replace-slashes
         run: |
           project_name="${{ inputs.project }}" 
           project_name="${project_name//\//-}"
           echo "project_name=${project_name}" >> $GITHUB_OUTPUT
+          github_sha="${{ github.sha }}"
+          github_sha="${github_sha:0:7}"
+          echo "github_sha=${github_sha}" >> $GITHUB_OUTPUT
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           path: firmware/build/${{ inputs.project }}/${{ inputs.platform }}
-          name: build-${{ steps.replace-slashes.outputs.project_name }}-${{ inputs.platform }}-${{ github.sha}}
+          name: build-${{ steps.replace-slashes.outputs.project_name }}-${{ inputs.platform }}-${{ github.sha }}
