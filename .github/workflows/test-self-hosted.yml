@@ -23,6 +23,7 @@ jobs:
     runs-on: self-hosted
     needs: test-self-hosted-setup
     strategy:
+      fail-fast: false
       matrix: 
         include: ${{ fromJson(needs.test-self-hosted-setup.outputs.matrix) }}
     steps:

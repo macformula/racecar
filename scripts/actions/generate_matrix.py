@@ -11,7 +11,7 @@ def generate_matrix(projects_dir):
     # Walk through the projects directory
     for root, dirs, files in os.walk(projects_dir):
         if "platforms" in dirs:  # Check if 'platforms' directory exists
-            project_name = os.path.basename(root)  # Get the project name
+            project_name = os.path.relpath(root, projects_dir)  # Get the project name
             platforms_dir = os.path.join(root, "platforms")
             platforms = [
                 platform for platform in os.listdir(platforms_dir)
