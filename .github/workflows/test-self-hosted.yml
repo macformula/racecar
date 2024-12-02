@@ -20,8 +20,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-            submodules: true
 
       - name: Setup Python
         run: |
@@ -39,12 +37,13 @@ jobs:
         run: |
           source .venv/bin/activate
           if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "BASE_REF=${{ github.base_ref }}"
             BASE_REF="${{ github.base_ref }}" # Target branch of the PR
           else
+            echo "BASE_REF=HEAD^"
             BASE_REF="HEAD^" # Previous commit for push events
           fi
           python3 scripts/actions/modified_projects.py origin/$BASE_REF
-          python3 scripts/actions/modified_projects.py origin/${BASE_REF}
           echo "matrix=$(cat modified_projects.json)" >> $GITHUB_OUTPUT
 
   # build-all-projects:
