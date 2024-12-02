@@ -58,3 +58,15 @@ jobs:
     with:
       project: ${{ matrix.project }}
       platform: ${{ matrix.platform }}
+
+  manual-test-self-hosted:
+    needs: [setup, build-modified-projects]
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.setup.outputs.matrix_all_projects) }}
+    uses: ./.github/workflows/manual-test-self-hosted.yml
+    with:
+      project: ${{ matrix.project }}
+      platform: ${{ matrix.platform }}
+      commit: "b486d6c"

@@ -1,7 +1,7 @@
 name: Manual Test Self-Hosted Runner
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       project:
         description: 'Project to build (i.e. Demo/Blink)'
