@@ -21,18 +21,6 @@ jobs:
         with:
             submodules: true
 
-      - name: Setup Python
-        if: inputs.platform != 'self-hosted'
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
-      - name: Configure and activate Python Virtual Environment
-        run: |
-          python3 -m venv .venv
-          source .venv/bin/activate
-          pip install -r -e scripts/cangen
-
       - name: Build ${{ inputs.project }} for ${{ inputs.platform }}
         run: |
           cd firmware
