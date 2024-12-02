@@ -4,13 +4,14 @@ on:
   push:
 
 jobs:
-  test-project-name:
+  setup-project:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - uses: ./.github/workflows/reusable-build-project.yml
-        with:
-          project: Demo/Blink
-          platform: cli
+        
+  build-project:
+    uses: ./.github/workflows/reusable-build-project.yml
+    with:
+      project: Demo/Blink
+      platform: cli
