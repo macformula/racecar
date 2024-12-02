@@ -36,16 +36,21 @@ jobs:
           echo "all_projects_matrix=$(cat all_projects_matrix.json)" >> $GITHUB_OUTPUT
           echo "modified_projects_matrix=$(cat modified_projects_matrix.json)" >> $GITHUB_OUTPUT
 
-  # build-all-projects:
-  #   needs: setup
-  #   strategy:
-  #     fail-fast: false
-  #     matrix: 
-  #       include: ${{ fromJson(needs.setup.outputs.matrix_all_projects) }}
-  #   uses: ./.github/workflows/reusable-build-project.yml
-  #   with:
-  #     project: ${{ matrix.project }}
-  #     platform: ${{ matrix.platform }}
+      - name: Debug Outputs
+        run: |
+          echo "matrix_all_projects=${{ steps.projects.outputs.matrix_all_projects }}"
+          echo "matrix_modified_projects=${{ steps.projects.outputs.matrix_modified_projects }}"
+
+  build-all-projects:
+    needs: setup
+    strategy:
+      fail-fast: false
+      matrix: 
+        include: ${{ fromJson(needs.setup.outputs.matrix_all_projects) }}
+    uses: ./.github/workflows/reusable-build-project.yml
+    with:
+      project: ${{ matrix.project }}
+      platform: ${{ matrix.platform }}
 
   build-modified-projects:
     needs: setup
