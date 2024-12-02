@@ -39,16 +39,16 @@ jobs:
           echo "::set-output name=sanitized_project_name::$sanitized_project_name"
           echo "::set-output name=platform::$platform"
 
-      - name: Build ${{ steps.defaults.outputs.sanitized_project_name }} for ${{ steps.defaults.outputs.platform }}
+      - name: Build ${{ github.event.inputs.project }} for ${{ steps.defaults.outputs.platform }}
         run: |
           cd firmware
-          make PROJECT=${{ steps.defaults.outputs.sanitized_project_name }} PLATFORM=${{ steps.defaults.outputs.platform }} build
+          make PROJECT=${{ github.event.inputs.project }} PLATFORM=${{ steps.defaults.outputs.platform }} build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact-${{ steps.defaults.outputs.sanitized_project_name }}-${{ steps.defaults.outputs.platform }}
-          path: firmware/build/${{ steps.defaults.outputs.sanitized_project_name }}/${{ steps.defaults.outputs.platform }}
+          path: firmware/build/${{ github.event.inputs.project }}/${{ steps.defaults.outputs.platform }}
 
 #   deploy:
 #     runs-on: self-hosted
