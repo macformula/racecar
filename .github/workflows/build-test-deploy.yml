@@ -35,7 +35,7 @@ jobs:
           echo "Sanitized project name: $sanitized_project_name"
           echo "Effective platform: $platform"
 
-          echo "::set-output name=project::$project_name"
+          echo "::set-output name=project_name::$project_name"
           echo "::set-output name=sanitized_project_name::$sanitized_project_name"
           echo "::set-output name=platform::$platform"
 
