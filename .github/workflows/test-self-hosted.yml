@@ -64,7 +64,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.setup.outputs.matrix_all_projects) }}
+        include: ${{ fromJson(needs.setup.outputs.matrix_modified_projects) }}
     uses: ./.github/workflows/manual-test-self-hosted.yml
     with:
       project: ${{ matrix.project }}
