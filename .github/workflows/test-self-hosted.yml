@@ -8,7 +8,7 @@ jobs:
   test-self-hosted-setup:
     runs-on: self-hosted
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      matrix: ${{ steps.generate-matrix.outputs.matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -17,7 +17,7 @@ jobs:
         id: generate-matrix
         run: |
           python3 scripts/actions/generate_matrix.py firmware/projects
-          echo "::set-output name=matrix::$(cat matrix.json)"
+          echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
   
   test-self-hosted-build:
     runs-on: self-hosted
