@@ -1,10 +1,11 @@
 name: Test Self-Hosted Runner
 
 on:
+  push:
   workflow_dispatch:
 
 jobs:
-  test-self-hosted-setup:
+  setup:
     runs-on: self-hosted
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
@@ -18,22 +19,17 @@ jobs:
           python3 scripts/actions/generate_matrix.py firmware/projects
           echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
 
-  test-self-hosted-build:
-    runs-on: self-hosted
-    needs: test-self-hosted-setup
+  build:
+    needs: setup
     strategy:
       fail-fast: false
       matrix: 
-        include: ${{ fromJson(needs.test-self-hosted-setup.outputs.matrix) }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+        include: ${{ fromJson(needs.setup.outputs.matrix) }}
+    uses: ./.github/workflows/reusable-build-project.yml
+    with:
+      project: ${{ matrix.project }}
+      platform: ${{ matrix.platform }}
 
-      - name: Build ${{ matrix.project }} for ${{ matrix.platform }}
-        run: |
-          cd firmware
-          make PROJECT=${{ matrix.project }} PLATFORM=${{ matrix.platform }} build
-  
       # - name: Upload artifacts
       #   uses: actions/upload-artifact@v4
       #   with:

@@ -1,7 +1,7 @@
 name: Setup Raspberry Pi
 
 on:
-  push:
+  # push:
   workflow_dispatch:
 
 jobs:
