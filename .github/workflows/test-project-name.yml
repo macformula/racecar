@@ -4,14 +4,15 @@ on:
   push:
 
 jobs:
-  setup-project:
+  build-project:
+    strategy:
+      matrix:
+        project: ["Demo/Blink", "Demo/Blink"]
+        platform: ["cli", "stm32f767"]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-  build-project:
-    uses: ./.github/workflows/reusable-build-project.yml
-    with:
-      project: "Demo/Blink"
-      platform: "cli"
+      - name: Invoke Reusable Workflow
+        uses: ./.github/workflows/reusable-build-project.yml
+        with:
+          project: ${{ matrix.project }}
+          platform: ${{ matrix.platform }}
