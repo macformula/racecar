@@ -11,17 +11,10 @@ on:
         description: 'Platform to build for (i.e. cli, stm32f767)'
         required: true
         type: string
-    outputs:
-      artifact_name:
-        description: 'The name of the artifact created by the build'
-        value: ${{ jobs.build-upload-project.outputs.artifact_name }}
 
 jobs:
   build-upload-project:
     runs-on: 'self-hosted'
-    outputs:
-      artifact_name: ${{ steps.prepare-artifact-name.outputs.artifact_name }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -55,4 +48,3 @@ jobs:
         with:
           path: firmware/build/${{ inputs.project }}/${{ inputs.platform }}
           name: ${{ steps.prepare-artifact-name.outputs.artifact_name }}
-
