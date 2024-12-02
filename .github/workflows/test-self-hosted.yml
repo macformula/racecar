@@ -39,6 +39,7 @@ jobs:
   build-all-projects:
     needs: setup
     strategy:
+      fail-fast: false
       matrix: 
         include: ${{ fromJson(needs.setup.outputs.matrix_all_projects) }}
     uses: ./.github/workflows/reusable-build-project.yml
