@@ -40,4 +40,4 @@ if __name__ == "__main__":
     print(json.dumps(matrix, indent=4))
 
     # Save the matrix to a file
-    with open("matrix.json", "w") as f: json.dump(matrix, f, indent=4)
+    with open("matrix.json", "w") as f: json.dump(matrix, f)
