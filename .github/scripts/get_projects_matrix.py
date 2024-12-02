@@ -31,7 +31,7 @@ def get_all_projects(projects_dir):
 
 # Get projects that have been modified compared to the base branch
 def get_modified_projects(projects_dir, projects, base_branch):
-    subprocess.run(["git", "fetch", "origin", base_branch])
+    # subprocess.run(["git", "fetch", "origin", base_branch])
 
     modified_files = subprocess.check_output(
         ["git", "diff", "--name-only", f"origin/{base_branch}", '--', projects_dir],
