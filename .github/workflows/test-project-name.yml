@@ -4,10 +4,9 @@ on:
   push:
 
 jobs:
-  test-string-replacement:
+  test-project-name:
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
 

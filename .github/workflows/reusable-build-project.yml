@@ -16,6 +16,9 @@ jobs:
     build:
       runs-on: self-hosted
       steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
         - name: Build ${{ github.event.inputs.project }} for ${{ github.event.inputs.platform }}
           run: |
             cd firmware
