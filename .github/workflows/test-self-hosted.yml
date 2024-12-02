@@ -16,7 +16,7 @@ jobs:
       - name: Generate Matrix
         id: generate-matrix
         run: |
-          python generate_matrix.py firmware/projects
+          python3 scripts/actions/generate_matrix.py firmware/projects
           echo "::set-output name=matrix::$(cat matrix.json)"
   
   test-self-hosted-build:
