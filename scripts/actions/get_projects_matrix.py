@@ -19,6 +19,7 @@ projects_dir = "firmware/projects"
 filter_projects_list = ["debug"]
 filter_platforms_list = ["linux", "raspi", "sil"]
 
+# Get all projects in projects directory with a "platforms" subdirectory
 def get_all_projects(projects_dir):
     all_projects = set()
 
@@ -29,6 +30,7 @@ def get_all_projects(projects_dir):
 
     return list(all_projects)
 
+# Get projects that have been modified compared to the base branch
 def get_modified_projects(projects_dir, projects, base_branch):
     modified_files = subprocess.check_output(
         ["git", "diff", "--name-only", base_branch, '--', projects_dir],
@@ -45,10 +47,12 @@ def get_modified_projects(projects_dir, projects, base_branch):
     modified_projects = list(modified_projects)
     return modified_projects
 
+# Search for directories in the "platforms" subdirectory of a project
 def get_project_platforms(projects_dir, project_dir):
     platforms_dir = os.path.join(projects_dir, project_dir, "platforms")
     return os.listdir(platforms_dir)
 
+# Format projects and platforms into a list for GitHub Actions matrix
 def create_matrix(projects):
     matrix = []
     for project in projects:
@@ -59,9 +63,6 @@ def create_matrix(projects):
             matrix.append({"project": project, "platform": platform})
 
     return matrix
-
-def save_matrix(matrix, filename):
-    with open(filename, "w") as f: json.dump(matrix, f)
 
 # Remove projects that contain any of the items in the remove_list
 def filter_projects(projects, remove_list):
@@ -77,7 +78,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     base_branch = sys.argv[1]
-
     print(f"Base branch: {base_branch}")
 
     if not os.path.isdir(projects_dir):
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
     projects = get_all_projects(projects_dir)
     projects = filter_projects(projects, filter_projects_list)
-    print(f"Projects: {projects}")
+    print(f"All projects: {projects}")
 
     modified_projects = get_modified_projects(projects_dir, projects, base_branch)
     print(f"Modified projects: {modified_projects}")
@@ -94,5 +94,8 @@ if __name__ == "__main__":
     all_projects_matrix = create_matrix(projects)
     modified_projects_matrix = create_matrix(modified_projects)
 
-    save_matrix(all_projects_matrix, "all_projects_matrix.json")
-    save_matrix(modified_projects_matrix, "modified_projects_matrix.json")
+    print(f"All projects matrix: {json.dumps(all_projects_matrix, indent=4)}")
+    print(f"Modified projects matrix: {json.dumps(modified_projects_matrix, indent=4)}")
+
+    with open("all_projects_matrix.json", "w") as f: json.dump(all_projects_matrix, f)
+    with open("modified_projects_matrix.json", "w") as f: json.dump(modified_projects_matrix, f)
