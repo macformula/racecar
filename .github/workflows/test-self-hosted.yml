@@ -9,8 +9,8 @@ jobs:
       runs-on: self-hosted
 
       steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Build for cli
         run: |
@@ -21,3 +21,9 @@ jobs:
         run: |
           cd firmware
           make PROJECT=Demo/Blink PLATFORM=stm32f767 build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test Build Artifact
+          path: firmware/build/
