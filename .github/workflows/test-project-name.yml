@@ -7,6 +7,10 @@ jobs:
   test-string-replacement:
     runs-on: ubuntu-latest
     steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Build project
         uses: ./github-actions/reusable-build-project
         with:
