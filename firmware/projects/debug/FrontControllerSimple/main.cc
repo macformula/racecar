@@ -299,5 +299,7 @@ int main(void) {
 
     while (true) continue;  // logic is handled by OS tasks
 
+    // Test comment
+
     return 0;
 }
