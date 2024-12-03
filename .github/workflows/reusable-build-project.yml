@@ -48,3 +48,19 @@ jobs:
         with:
           path: firmware/build/${{ inputs.project }}/${{ inputs.platform }}
           name: ${{ steps.prepare-artifact-name.outputs.artifact_name }}
+
+      - name: Install Tailscale
+        run: |
+          curl -fsSL https://tailscale.com/install.sh | sh
+    
+      - name: Add Machine to Tailscale Network
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TAILSCALE_OAUTH_CLIENT_SECRET }}
+          tags: tag:ci
+
+      - name: Upload File to Raspberry Pi
+        run: |
+          tailscale up --accept-dns=false
+          tailscale file cp firmware/build/${{ inputs.project }}/${{ inputs.platform }}/main macformula@100.73.87.83
