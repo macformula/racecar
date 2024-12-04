@@ -2,27 +2,17 @@
 /// @date 2023-12-25
 
 #include <cstdint>
-#include <regex>
 
 #include "bindings.hpp"
-#include "generated/can/veh_msg_registry.hpp"
+#include "generated/can/veh_bus.hpp"
+#include "generated/can/veh_messages.hpp"
 #include "inc/app.hpp"
-#include "shared/comms/can/can_bus.hpp"
 #include "shared/periph/gpio.hpp"
-#include "shared/periph/pwm.hpp"
 #include "shared/util/mappers/identity.hpp"
-#include "shared/util/mappers/mapper.hpp"
 
-using LvControllerState = generated::can::LvControllerState;
+using namespace generated::can;
 
-generated::can::VehMsgRegistry veh_msg_registry{};
-
-shared::can::CanBus veh_can = shared::can::CanBus{
-    bindings::veh_can_base,
-    veh_msg_registry,
-};
-
-StateBroadcaster state_tx{veh_can};
+VehBus veh_can{bindings::veh_can_base};
 
 Subsystem tsal{bindings::tsal_en};
 Subsystem raspberry_pi{bindings::raspberry_pi_en};
@@ -34,19 +24,11 @@ Subsystem motor_ctrl{bindings::motor_ctrl_en};
 Subsystem imu_gps{bindings::imu_gps_en};
 Subsystem shutdown_circuit{bindings::shutdown_circuit_en};
 Subsystem inverter{bindings::inverter_switch_en};
+Subsystem powertrain_pump{bindings::powertrain_pump_en};
 
-auto dcdc_en_inverted =
-    shared::periph::InvertedDigitalOutput(bindings::dcdc_en);
+shared::periph::InvertedDigitalOutput dcdc_en_inverted(bindings::dcdc_en);
 
-DCDC dcdc{
-    dcdc_en_inverted,
-    bindings::dcdc_valid,
-    bindings::dcdc_led_en,
-};
-
-Subsystem powertrain_pump{
-    bindings::powertrain_pump_en,
-};
+DCDC dcdc{dcdc_en_inverted, bindings::dcdc_valid, bindings::dcdc_led_en};
 
 auto powertrain_fan_power_to_duty = shared::util::IdentityMap<float>();
 Fan powertrain_fan{
@@ -58,119 +40,118 @@ Fan powertrain_fan{
 Subsystem all_subsystems[] = {
     tsal,        raspberry_pi,         front_controller, speedgoat,
     accumulator, motor_ctrl_precharge, motor_ctrl,       imu_gps,
-    dcdc,        powertrain_pump,      powertrain_fan,
-};
+    dcdc,        powertrain_pump,      powertrain_fan,   shutdown_circuit};
+
+void BroadcastState(LvControllerState state) {
+    veh_can.Send(TxLvControllerStatus{static_cast<uint8_t>(state)});
+}
 
 void DoPowerupSequence() {
     tsal.Enable();
-
-    state_tx.UpdateState(LvControllerState::TsalEnabled);
+    BroadcastState(LvControllerState::TsalEnabled);
 
     bindings::DelayMS(50);
 
-    // raspberry_pi.Enable();
-    state_tx.UpdateState(LvControllerState::RaspiEnabled);
+    raspberry_pi.Enable();
+    BroadcastState(LvControllerState::RaspiEnabled);
 
     bindings::DelayMS(50);
 
     front_controller.Enable();
-    state_tx.UpdateState(LvControllerState::FrontControllerEnabled);
+    BroadcastState(LvControllerState::FrontControllerEnabled);
 
     bindings::DelayMS(100);
 
-    // speedgoat.Enable();
-    state_tx.UpdateState(LvControllerState::SpeedgoatEnabled);
+    speedgoat.Enable();
+    BroadcastState(LvControllerState::SpeedgoatEnabled);
 
     bindings::DelayMS(100);
 
     motor_ctrl_precharge.Enable();
-    state_tx.UpdateState(LvControllerState::MotorControllerPrechargeEnabled);
+    BroadcastState(LvControllerState::MotorControllerPrechargeEnabled);
 
     bindings::DelayMS(2000);
 
     motor_ctrl.Enable();
-    state_tx.UpdateState(LvControllerState::MotorControllerEnabled);
+    BroadcastState(LvControllerState::MotorControllerEnabled);
 
     bindings::DelayMS(50);
 
     motor_ctrl_precharge.Disable();
-    state_tx.UpdateState(LvControllerState::MotorControllerPrechargeDisabled);
+    BroadcastState(LvControllerState::MotorControllerPrechargeDisabled);
 
     bindings::DelayMS(50);
 
-    // imu_gps.Enable();
-    state_tx.UpdateState(LvControllerState::ImuGpsEnabled);
+    imu_gps.Enable();
+    BroadcastState(LvControllerState::ImuGpsEnabled);
 }
 
-void DoPowertrainEnableSequence() {
+void SweepFanBlocking() {
     constexpr float kDutyInitial = 30.0f;
     constexpr float kDutyFinal = 100.0f;
     constexpr float kSweepPeriodSec = 3.0f;
     constexpr float kMaxDutyRate =
         (kDutyFinal - kDutyInitial) / kSweepPeriodSec;
-    constexpr float kUpdatePeriodSec = 0.01f;
-
-    dcdc.Enable();
-    state_tx.UpdateState(LvControllerState::DcdcEnabled);
-
-    do {
-        state_tx.UpdateState(LvControllerState::WaitingForDcdcValid);
-        bindings::DelayMS(50);
-    } while (!dcdc.CheckValid());
-
-    bindings::DelayMS(50);
-
-    powertrain_pump.Enable();
-    state_tx.UpdateState(LvControllerState::DcdcLedEnabled);
-
-    bindings::DelayMS(100);
-
-    powertrain_fan.Enable();
-    state_tx.UpdateState(LvControllerState::PowertrainFanEnabled);
-
-    bindings::DelayMS(50);
+    constexpr uint32_t kUpdatePeriodMS = 10;
 
     powertrain_fan.Dangerous_SetPowerNow(kDutyInitial);
     powertrain_fan.SetTargetPower(kDutyFinal, kMaxDutyRate);
 
-    do {
-        state_tx.UpdateState(LvControllerState::PowertrainFanSweeping);
-        bindings::DelayMS(uint32_t(kUpdatePeriodSec * 1000));
-        powertrain_fan.Update(kUpdatePeriodSec);
-    } while (!powertrain_fan.IsAtTarget());
+    while (!powertrain_fan.IsAtTarget()) {
+        bindings::DelayMS(kUpdatePeriodMS);
+        powertrain_fan.Update(kUpdatePeriodMS / 1000.0f);
+    }
 }
 
-void DoPowertrainDisableSequence() {
-    powertrain_pump.Disable();
-    powertrain_fan.Disable();
+void DoPowertrainEnableSequence() {
+    dcdc.Enable();
+    BroadcastState(LvControllerState::DcdcEnabled);
+
+    BroadcastState(LvControllerState::WaitingForDcdcValid);
+    while (!dcdc.CheckValid()) bindings::DelayMS(50);
+
+    bindings::DelayMS(50);
+
+    powertrain_pump.Enable();
+    BroadcastState(LvControllerState::DcdcLedEnabled);
+
+    bindings::DelayMS(100);
+
+    powertrain_fan.Enable();
+    BroadcastState(LvControllerState::PowertrainFanEnabled);
+
+    bindings::DelayMS(50);
+
+    BroadcastState(LvControllerState::PowertrainFanSweeping);
+    SweepFanBlocking();  // is it possible that this never returns?
 }
 
 bool IsContactorsOpen() {
-    generated::can::ContactorStates contactor_states;
-    veh_can.ReadWithUpdate(contactor_states);
+    auto logic = [](auto contactor_states) {
+        return (contactor_states.PackPositive() == 0 &&
+                contactor_states.PackNegative() == 0 &&
+                contactor_states.PackPrecharge() == 0);
+    };
 
-    return (contactor_states.tick_timestamp != 0 &&
-            contactor_states.pack_positive == 0 &&
-            contactor_states.pack_negative == 0 &&
-            contactor_states.pack_precharge == 0);
+    // If the contactor states are not available, return false.
+    return veh_can.GetRxContactorStates().transform(logic).value_or(false);
 }
 
 bool IsContactorsClosed() {
-    generated::can::ContactorStates contactor_states;
-    veh_can.ReadWithUpdate(contactor_states);
+    auto logic = [](auto contactor_states) {
+        return (contactor_states.PackPositive() == 1 &&
+                contactor_states.PackNegative() == 1 &&
+                contactor_states.PackPrecharge() == 0);
+    };
 
-    return (contactor_states.tick_timestamp != 0 &&
-            contactor_states.pack_positive == 1 &&
-            contactor_states.pack_negative == 1 &&
-            contactor_states.pack_precharge == 0);
+    // If the contactor states are not available, return false.
+    return veh_can.GetRxContactorStates().transform(logic).value_or(false);
 }
 
 void DoInverterSwitchCheck() {
-    generated::can::InverterCommand inverter_command;
-    veh_can.ReadWithUpdate(inverter_command);
+    auto inverter_command = veh_can.GetRxInverterCommand();
 
-    if (inverter_command.tick_timestamp != 0 &&
-        inverter_command.enable_inverter == true) {
+    if (inverter_command && inverter_command->EnableInverter()) {
         inverter.Enable();
     } else {
         inverter.Disable();
@@ -180,44 +161,43 @@ void DoInverterSwitchCheck() {
 int main(void) {
     bindings::Initialize();
 
-    state_tx.UpdateState(LvControllerState::Startup);
+    BroadcastState(LvControllerState::Startup);
 
     // Ensure all subsystems are disabled to start.
-    for (auto sys : all_subsystems) {
+    for (auto& sys : all_subsystems) {
         sys.Disable();
     }
 
-    // Powerup sequence
     DoPowerupSequence();
 
-    while (true) continue;  // stop after fc enable debug
-
-    do {
-        state_tx.UpdateState(LvControllerState::WaitingForOpenContactors);
+    BroadcastState(LvControllerState::WaitingForOpenContactors);
+    while (!IsContactorsOpen()) {
         bindings::DelayMS(50);
-    } while (!IsContactorsOpen());
+    }
 
     shutdown_circuit.Enable();
 
-    state_tx.UpdateState(LvControllerState::ShutdownCircuitEnabled);
+    BroadcastState(LvControllerState::ShutdownCircuitEnabled);
 
     while (true) {
-        do {
-            state_tx.UpdateState(LvControllerState::WaitingForClosedContactors);
+        BroadcastState(LvControllerState::WaitingForClosedContactors);
+        while (!IsContactorsClosed()) {
             bindings::DelayMS(50);
-        } while (!IsContactorsClosed());
+        }
 
         DoPowertrainEnableSequence();
+        BroadcastState(LvControllerState::SequenceComplete);
 
-        do {
-            state_tx.UpdateState(LvControllerState::SequenceComplete);
+        while (dcdc.CheckValid()) {
             DoInverterSwitchCheck();
-        } while (dcdc.CheckValid());
+            bindings::DelayMS(50);
+        }
 
-        state_tx.UpdateState(LvControllerState::LostDcdcValid);
+        BroadcastState(LvControllerState::LostDcdcValid);
 
         inverter.Disable();
-        DoPowertrainDisableSequence();
+        powertrain_pump.Disable();
+        powertrain_fan.Disable();
     }
 
     return 0;
