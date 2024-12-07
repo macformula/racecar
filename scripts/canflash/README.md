@@ -10,11 +10,11 @@ Type ``ping [ip address]`` in terminal, where ip address is the ip address of th
 
 Run the script by using the command ``sh cantransfer.sh 'bin_files' 'pi_username' 'host' 'destination_path``.
 
-Where the inputs are 'bin_files' 'pi_username' 'host' 'destination_path':
+Where the inputs are 'bin files' 'pi username' 'ip address' 'destination path':
 
 - Bin files is the path to where the compiled firmware .bin files are located.
 - Pi_username is the username of the raspberry pi.
-- Host is the ip address of the pi.
+- ip_address is the ip address of the pi.
 - Destination path is the folder in the pi where the bin files will be transferred to.
 
-If there is no specific path to sent the file to the directory ``/home/pi_username/`` will work.
+If no directory is given, the bin file will be sent to the home directory of the pi: ``/home/pi_username/``.
