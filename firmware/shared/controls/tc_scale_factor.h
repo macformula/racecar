@@ -22,8 +22,23 @@ T CalculateActualSlip(T left_rear_wheel_speed, T right_rear_wheel_speed,
 }
 
 template <typename T>
-T CalculateTCScaleFactor(T actual_slip, T target_slip) {
+T CalculateTCScaleFactor(T actual_slip, T target_slip, int time_ms) {
     // Stateflow: Multi-Stage TC
-    return 0;
+    T scale_factor;
+
+    if (time_ms > 50 && time_ms <= 83 && actual_slip > target_slip) {
+        scale_factor = 0.0f;
+    } 
+    else if (time_ms > 83 && time_ms <= 116 && actual_slip <= target_slip) {
+        scale_factor = 0.25f;
+    }
+    else if (time_ms > 116 && time_ms <= 149) {
+        scale_factor = 0.5f;
+    }
+    else {
+        scale_factor = 1.0f;
+    }
+
+    return scale_factor;
 }
 }  // namespace ctrl
