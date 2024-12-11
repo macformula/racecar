@@ -24,12 +24,12 @@ void SystemClock_Config();
 namespace mcal {
 using namespace stm32f767::periph;
 
-CanBase veh_can_base{&hcan3};
+CanBase demo_can_base{&hcan3};
 DigitalInput button{ButtonPin_GPIO_Port, ButtonPin_Pin};
 }  // namespace mcal
 
 namespace bindings {
-shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
+shared::periph::CanBase& demo_can_base = mcal::demo_can_base;
 shared::periph::DigitalInput& button = mcal::button;
 
 void Initialize() {
@@ -37,19 +37,11 @@ void Initialize() {
     HAL_Init();
     MX_GPIO_Init();
     MX_CAN3_Init();
-    mcal::veh_can_base.Setup();
+    mcal::demo_can_base.Setup();
 }
 
 void TickBlocking(uint32_t ticks) {
     HAL_Delay(ticks);
-}
-
-extern "C" {
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
-    if (hcan == &hcan3) {
-        mcal::veh_can_base.AddRxMessageToQueue();
-    }
-}
 }
 
 }  // namespace bindings

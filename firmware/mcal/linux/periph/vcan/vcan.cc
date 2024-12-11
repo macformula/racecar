@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string>
 
-#include "vcan.h"
+#include "vcan.hpp"
 
 namespace mcal::lnx::periph::vcan {
 
