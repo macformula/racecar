@@ -299,13 +299,12 @@ void Task_5ms(void* arg) {
     uint32_t next_execution_time = os::GetTickCount();
 
     while (true) {
-        continue;
         SimulinkInput input = ReadCtrlSystemInput();
         SimulinkOutput output = control_system.Update(&input);
         SetCtrlSystemOutput(output);
 
         next_execution_time += 5;
-        os::TickUntil(next_execution_time);
+        bindings::DelayMS(5);
     }
 }
 
@@ -329,13 +328,6 @@ void Task_500ms(void* arg) {
 int main(void) {
     bindings::Initialize();
     control_system.Initialize();
-
-    while (true) {
-        bindings::debug_led.Set(true);
-        bindings::DelayMS(100);
-        bindings::debug_led.Set(false);
-        bindings::DelayMS(100);
-    }
 
     os::InitializeKernel();
 
