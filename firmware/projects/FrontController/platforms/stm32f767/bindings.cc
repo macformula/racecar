@@ -153,4 +153,8 @@ void Initialize() {
     mcal::pt_can_base.Setup();
 }
 
+void DelayMS(uint32_t ms) {
+    HAL_Delay(ms);
+}
+
 }  // namespace bindings
