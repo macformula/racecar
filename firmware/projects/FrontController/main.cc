@@ -89,6 +89,9 @@ enum class StatusLightMode {
 volatile StatusLightMode status_light_mode = StatusLightMode::OFF;
 
 void UpdateStatusLight() {
+    // TODO -> this is gone in EV6 -> system on dashboard
+    // flash when precharging
+    // solid when ready to drive
     static bool next_toggle = true;
 
     switch (status_light_mode) {
@@ -123,7 +126,7 @@ DriverInput ReadDriverInput() {
     return DriverInput{
         .steering_angle = ReadSteeringWheel(),
         .front_brake_pressure = ReadBrakePedalFront(),
-        .rear_brake_pressure = ReadBrakePedalRear(),
+        .rear_brake_pressure = 0,  // no rear brake pedal in EV6
         .start_button_pressed = bindings::start_button.Read(),
         .accel_pedal_position1 = ReadApps1(),
         .accel_pedal_position2 = ReadApps2(),
@@ -154,6 +157,8 @@ SimulinkInput ReadCtrlSystemInput() {
     input.DI_AccelPedalPosition2 = driver_input.accel_pedal_position2;
 
     // Wheel Speed Sensors - do these exist?
+    // two PWM square waves -> like an encoder, 90deg offset
+    // convert to direction & tick
     input.VD_LFWheelSpeed = 0;
     input.VD_RFWheelSpeed = 0;
     input.BM_HvilFeedback = driver_input.hvil_status;
@@ -294,6 +299,7 @@ void Task_5ms(void* arg) {
     uint32_t next_execution_time = os::GetTickCount();
 
     while (true) {
+        continue;
         SimulinkInput input = ReadCtrlSystemInput();
         SimulinkOutput output = control_system.Update(&input);
         SetCtrlSystemOutput(output);
@@ -308,8 +314,12 @@ void Task_500ms(void* arg) {
 
     uint32_t next_execution_time = os::GetTickCount();
 
+    bool debug_state = true;
+
     while (true) {
         UpdateStatusLight();
+        bindings::debug_led.Set(debug_state);
+        debug_state = !debug_state;
 
         next_execution_time += 500;
         os::TickUntil(next_execution_time);
@@ -319,6 +329,13 @@ void Task_500ms(void* arg) {
 int main(void) {
     bindings::Initialize();
     control_system.Initialize();
+
+    while (true) {
+        bindings::debug_led.Set(true);
+        bindings::DelayMS(100);
+        bindings::debug_led.Set(false);
+        bindings::DelayMS(100);
+    }
 
     os::InitializeKernel();
 

@@ -21,5 +21,9 @@ extern shared::periph::DigitalInput& start_button;
 extern shared::periph::CanBase& veh_can_base;
 extern shared::periph::CanBase& pt_can_base;
 
+extern shared::periph::DigitalOutput& debug_led;
+
+extern void DelayMS(uint32_t ms);
+
 extern void Initialize();
 }  // namespace bindings
