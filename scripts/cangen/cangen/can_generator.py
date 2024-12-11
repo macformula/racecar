@@ -201,6 +201,7 @@ def _generate_code(bus: Bus, output_dir: str):
         "unpack_info": _get_masks_shifts(rx_msgs),
         "pack_info": _get_masks_shifts(tx_msgs),
         "bus_name": bus.bus_name,
+        "node_name": bus.node,
     }
 
     logger.debug("Generating code for can messages and msg registry.")

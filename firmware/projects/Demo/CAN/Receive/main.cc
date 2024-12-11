@@ -3,8 +3,8 @@
 
 #include <cstdint>
 
-#include "bindings.h"
-#include "generated/can/demobus_bus.pp"
+#include "bindings.hpp"
+#include "generated/can/demobus_bus.hpp"
 #include "generated/can/demobus_messages.hpp"
 #include "shared/comms/can/bus.hpp"
 

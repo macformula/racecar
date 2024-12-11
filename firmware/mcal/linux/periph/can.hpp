@@ -4,7 +4,7 @@
 
 #include "mcal/linux/periph/vcan/vcan.hpp"
 #include "shared/periph/can.hpp"
-#include "vcan/vcan.h"
+#include "vcan/vcan.hpp"
 
 namespace mcal::lnx::periph {
 
