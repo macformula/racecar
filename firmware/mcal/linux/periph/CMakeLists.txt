@@ -1,5 +1,5 @@
 target_sources(mcal-linux
-    PRIVATE
+    INTERFACE
     adc.cc
     can.cc
     digital_input.cc
@@ -7,4 +7,4 @@ target_sources(mcal-linux
 )
 
 add_subdirectory(vcan)
-target_link_libraries(mcal-linux PUBLIC vcan pthread)
+target_link_libraries(mcal-linux INTERFACE vcan pthread)

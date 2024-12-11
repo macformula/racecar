@@ -3,14 +3,12 @@
 
 #pragma once
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 #include <chrono>
 #include <cstring>
-#include <iomanip>
+#include <format>
 #include <iostream>
 
 #include "shared/comms/can/msg.hpp"
@@ -26,8 +24,9 @@ public:
         std::cout << "can interface: " << iface_ << std::endl;
     }
 
-    void Send(const shared::can::RawMessage& msg) {
-        std::cout << std::format("{} {}", iface_, msg) << std::endl;
+    void Send(const shared::can::RawMessage& msg) override {
+        std::cout << std::format("CanBase {}: Sending\n| {}", iface_, msg)
+                  << std::endl;
     }
 
 private:

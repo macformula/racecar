@@ -1,5 +1,5 @@
-#include "bus.h"
-#include "shared/periph/can.h"
+#include "bus.hpp"
+#include "shared/periph/can.hpp"
 
 namespace shared::can {
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "shared/comms/can/msg.h"
-#include "shared/periph/can.h"
+#include "shared/comms/can/msg.hpp"
+#include "shared/periph/can.hpp"
 
 namespace shared::can {
 
