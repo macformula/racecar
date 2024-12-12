@@ -15,7 +15,17 @@ void test_sequence1() {
 
     AmkOutput output1 = amk.update(
         AmkInput{
-
+            .cmd = MiCmd::CMD_STARTUP,
+            .amk_actual_values_1_left = AMK0_ActualValues1{},
+            .amk_actual_values_2_left = AMK0_ActualValues2{},
+            .amk_actual_values_1_right = AMK1_ActualValues1{},
+            .amk_actual_values_2_right = AMK1_ActualValues2{},
+            .vd_left_motor_speed_request = 0.0,
+            .vd_left_motor_torque_limit_positive = 0.0,
+            .vd_left_motor_torque_limit_negative = 0.0,
+            .vd_right_motor_speed_request = 0.0,
+            .vd_right_motor_torque_limit_positive = 0.0,
+            .vd_right_motor_torque_limit_negative = 0.0,
         }
         time_ms);
 
@@ -27,11 +37,21 @@ void test_sequence1() {
         // this input matches the condition to move from InitialState to
         // StartupState1 in Simulink
         AmkInput{
-            
+            .cmd = MiCmd::CMD_STARTUP,
+            .amk_actual_values_1_left = AMK0_ActualValues1{},
+            .amk_actual_values_2_left = AMK0_ActualValues2{},
+            .amk_actual_values_1_right = AMK1_ActualValues1{},
+            .amk_actual_values_2_right = AMK1_ActualValues2{},
+            .vd_left_motor_speed_request = 0.0,
+            .vd_left_motor_torque_limit_positive = 0.0,
+            .vd_left_motor_torque_limit_negative = 0.0,
+            .vd_right_motor_speed_request = 0.0,
+            .vd_right_motor_torque_limit_positive = 0.0,
+            .vd_right_motor_torque_limit_negative = 0.0,
         },
         time_ms);
 
-    assert(output2.status == MiStatus::IDLE);
+    assert(output2.status == MiStatus::STARTUP);
 
     // extend the test sequence to cover more states and transitions
 }
