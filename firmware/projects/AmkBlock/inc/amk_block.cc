@@ -6,7 +6,6 @@ AmkBlock::AmkBlock() {
 
 AmkOutput AmkBlock::update(const AmkInput& input, int time_ms) {
     AmkOutput output;
-
     // put logic here
 
     // you will need to implement a state machine of some form. For now, I

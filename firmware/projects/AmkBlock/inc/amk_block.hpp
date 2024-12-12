@@ -18,10 +18,10 @@ enum class MiCmd {
 
 struct AmkInput {
     MiCmd cmd;
-    AMK0_ActualValues1 amk_actual_values_1_left;
-    AMK0_ActualValues2 amk_actual_values_2_left;
-    AMK1_ActualValues1 amk_actual_values_1_right;
-    AMK1_ActualValues2 amk_actual_values_2_right;
+    generated::can::AMK0_ActualValues1 amk_actual_values_1_left;
+    generated::can::AMK0_ActualValues2 amk_actual_values_2_left;
+    generated::can::AMK1_ActualValues1 amk_actual_values_1_right;
+    generated::can::AMK1_ActualValues2 amk_actual_values_2_right;
     double vd_left_motor_speed_request;
     double vd_left_motor_torque_limit_positive;
     double vd_left_motor_torque_limit_negative;
@@ -32,8 +32,8 @@ struct AmkInput {
 
 struct AmkOutput {
     MiStatus status;
-    AMK1_SetPoints1 amk_setpoints_1_right;
-    AMK0_SetPoints1 amk_setpoints_1_left;
+    generated::can::AMK1_SetPoints1 amk_setpoints_1_right;
+    generated::can::AMK0_SetPoints1 amk_setpoints_1_left;
     bool inverter;
 };
 
