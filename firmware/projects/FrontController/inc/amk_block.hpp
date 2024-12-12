@@ -17,7 +17,7 @@ enum class MiCmd {
 };
 
 struct AmkInput {
-    AmkCmd cmd;
+    MiCmd cmd;
     AMK0_ActualValues1 amk_actual_values_1_left;
     AMK0_ActualValues2 amk_actual_values_2_left;
     AMK1_ActualValues1 amk_actual_values_1_right;
@@ -31,7 +31,7 @@ struct AmkInput {
 };
 
 struct AmkOutput {
-    AmkStatus status;
+    MiStatus status;
     AMK1_SetPoints1 amk_setpoints_1_right;
     AMK0_SetPoints1 amk_setpoints_1_left;
     bool inverter;
