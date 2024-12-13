@@ -1,6 +1,12 @@
+/// @author Teghveer Singh Ateliey
+/// @date 2024-11-23
+
 #pragma once
 
 #include "app.h"
+#include "shared/controls/motor_torque.h"
+#include "shared/controls/tc_scale_factor.h"
+#include "shared/controls/tvFactor.h"
 
 struct VdInput {
     float driver_torque_request;
@@ -24,9 +30,15 @@ struct VdOutput {
 
 class SimpVdInterface {
 public:
-    SimpVdInterface();
+    SimpVdInterface(
+        float target_slip = 0.2f);  // default target slip is float 0.2
     VdOutput update(const VdInput& input, int time_ms);
 
 private:
-    
+    float target_slip;
+    float motor_torque_request;
+    float actual_slip;
+    float tc_scale_factor;
+    float tv_factor_left;
+    float tv_factor_right;
 };
