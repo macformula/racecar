@@ -2,7 +2,11 @@ VERSION ""
 
 BS_:
 
-BU_: SEND BITSET
+BU_: BITSET
     
-BO_ 940 ButtonStatus: 1 SEND
-    SG_ State : 0|1@1+ (1,0) [0|1] "bool" BITSET
+BO_ 940 SampleMessage: 4 BITSET
+    SG_ Val1a : 0|4@1+ (1,0) [0|1] "unitless" BITSET
+    SG_ Val1b : 4|4@1+ (1,0) [0|1] "unitless" BITSET
+    SG_ Val2 : 8|8@1+ (1,0) [0|1] "unitless" BITSET
+    SG_ Val3 : 16|8@1+ (1,0) [0|1] "unitless" BITSET
+    SG_ Val4 : 24|8@1+ (1,0) [0|1] "unitless" BITSET
