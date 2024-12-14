@@ -1,0 +1,8 @@
+VERSION ""
+
+BS_:
+
+BU_: SEND BITSET
+    
+BO_ 940 ButtonStatus: 1 SEND
+    SG_ State : 0|1@1+ (1,0) [0|1] "bool" BITSET
