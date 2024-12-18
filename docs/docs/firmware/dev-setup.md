@@ -82,7 +82,7 @@ git --version     # >= 2.40
 python --version  # >= 3.10, use python3 on Linux / Mac
 make --version    # >= 4.0
 cmake --version   # >= 3.27
-g++ --version     # >= 10
+g++ --version     # >= 13
 arm-none-eabi-g++ --version     # >= 13.0
 ```
 
