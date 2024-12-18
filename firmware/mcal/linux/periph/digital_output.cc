@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 
-#include "digital_output.h"
+#include "digital_output.hpp"
 
 namespace mcal::lnx::periph {
 

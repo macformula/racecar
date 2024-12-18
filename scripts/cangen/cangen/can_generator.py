@@ -23,7 +23,7 @@ EIGHT_BITS = 8
 EIGHT_BYTES = 8
 TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
 
-TEMPLATE_FILE_NAMES = ["can_messages.hpp.jinja2", "msg_registry.hpp.jinja2"]
+TEMPLATE_FILE_NAMES = ["messages.hpp.jinja2", "bus.hpp.jinja2"]
 
 
 def _parse_dbc_files(dbc_file: str) -> Database:
@@ -168,10 +168,13 @@ def _camel_to_snake(text):
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
-def _create_output_file_name(output_dir: str, bus_name: str, template_file_name: str) -> str:
+def _create_output_file_name(
+    output_dir: str, bus_name: str, template_file_name: str
+) -> str:
     return os.path.join(
         output_dir, bus_name.lower() + "_" + template_file_name.removesuffix(".jinja2")
     )
+
 
 def _generate_code(bus: Bus, output_dir: str):
     """
@@ -198,6 +201,7 @@ def _generate_code(bus: Bus, output_dir: str):
         "unpack_info": _get_masks_shifts(rx_msgs),
         "pack_info": _get_masks_shifts(tx_msgs),
         "bus_name": bus.bus_name,
+        "node_name": bus.node,
     }
 
     logger.debug("Generating code for can messages and msg registry.")
@@ -212,7 +216,9 @@ def _generate_code(bus: Bus, output_dir: str):
         template = env.get_template(template_file_name)
         rendered_code = template.render(**context)
 
-        output_file_name = _create_output_file_name(output_dir, bus.bus_name, template_file_name)
+        output_file_name = _create_output_file_name(
+            output_dir, bus.bus_name, template_file_name
+        )
         with open(output_file_name, "w") as output_file:
             output_file.write(rendered_code)
         logger.info(f"Rendered code written to '{os.path.abspath(output_file_name)}'")
@@ -236,7 +242,8 @@ def _prepare_output_directory(output_dir: str):
 
 def generate_can_for_project(project_folder_name: str):
     """Generates C code for a given project.
-    Ensure the project folder contains a config.yaml file which specifies the relative path to its corresponding dbc file."""
+    Ensure the project folder contains a config.yaml file which specifies the relative path to its corresponding dbc file.
+    """
     os.chdir(project_folder_name)
     config = Config.from_yaml("config.yaml")
 

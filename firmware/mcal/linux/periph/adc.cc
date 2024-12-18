@@ -2,7 +2,7 @@
 #include <format>
 #include <iostream>
 
-#include "adc.h"
+#include "adc.hpp"
 
 namespace mcal::lnx::periph {
 
