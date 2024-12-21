@@ -13,8 +13,11 @@ Run the script by using the command ``sh cantransfer.sh 'bin_files' 'pi_username
 Where the inputs are 'bin files' 'pi username' 'ip address' 'destination path':
 
 - Bin files is the path to where the compiled firmware .bin files are located.
-- Pi_username is the username of the raspberry pi.
-- ip_address is the ip address of the pi.
-- Destination path is the folder in the pi where the bin files will be transferred to.
+- Pi_username is the username of the raspberry Pi.
+- ip_address is the ip address of the Pi.
+- Destination path is the folder in the pi where the bin files will be transferred to in the Pi.
 
-If no directory is given, the bin file will be sent to the home directory of the pi: ``/home/pi_username/``.
+The script will create the path in the pi, if the directory does not exist in the pi.
+
+If no directory is given in destination path, the bin file will be sent to the home directory of the pi: ``/home/pi_username/``.
+
