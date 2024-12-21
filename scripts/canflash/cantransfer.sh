@@ -39,11 +39,11 @@ fi
 
 # Perform file transfer
 if [ ! -z $DESTINATION_PATH ]; then
-  echo "Transferring $BIN_FILE to $PI_USERNAME@$IP_ADDRESS:$DESTINATION_PATH.."
+  echo "Transferring $BIN_FILE to $PI_USERNAME@$IP_ADDRESS:$DESTINATION_PATH."
   scp "$BIN_FILE" "$PI_USERNAME@$IP_ADDRESS:$DESTINATION_PATH"
 else
 # If destination path is empty
 # The file will be placed in the the home directory
-  echo "Transferring $BIN_FILE to $PI_USERNAME@$IP_ADDRESS:/home/$PI_USERNAME.."
+  echo "Transferring $BIN_FILE to $PI_USERNAME@$IP_ADDRESS:/home/$PI_USERNAME."
   scp "$BIN_FILE" "$PI_USERNAME@$IP_ADDRESS:/home/$PI_USERNAME"
 fi
