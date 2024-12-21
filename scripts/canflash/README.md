@@ -16,8 +16,9 @@ Where the inputs are 'bin files' 'pi username' 'ip address' 'destination path':
 - Pi_username is the username of the raspberry Pi.
 - ip_address is the ip address of the Pi.
 - Destination path is the folder in the pi where the bin files will be transferred to in the Pi.
+  They will be placed relative to the Raspberry Pi's home directory.
 
-The script will create the path in the pi, if the directory does not exist in the pi.
+If the directory does not exist in the pi, the script will create the path in the pi relative to the home directory.
 
 If no directory is given in destination path, the bin file will be sent to the home directory of the pi: ``/home/pi_username/``.
 
