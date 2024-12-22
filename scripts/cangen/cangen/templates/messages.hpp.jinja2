@@ -12,6 +12,7 @@
 
 #include <cstdint>
 #include "shared/comms/can/msg.hpp"
+#include "etl/bitset.h"
 
 namespace generated::can {
 
@@ -80,14 +81,20 @@ public: // HACK for testing
             {% set i = loop.index0 %}
             {% set shift = shifts[i] %}
             {% if mask != 0 %}
+        etl::bitset<8> temp_bitset_{{ sig_var | camel_to_snake }}(raw_msg.data[{{ i }}]);
+        etl::bitset<8> temp_mask_{{ sig_var | camel_to_snake }}({{ mask | decimal_to_hex }}U);
+        temp_bitset_{{ sig_var | camel_to_snake }} &= temp_mask_{{ sig_var | camel_to_snake }};
                 {% if shift >= 0 %}
-        {{ temp_sig_var }} |= shared::can::unpack_left_shift<{{ temp_sig_var_type }}>(raw_msg.data[{{ i }}], {{ shift }}U, {{ mask | decimal_to_hex }}U);
+        temp_bitset_{{ sig_var | camel_to_snake }} <<= {{ shift }}U;
                 {% else %}
-        {{ temp_sig_var }} |= shared::can::unpack_right_shift<{{ temp_sig_var_type }}>(raw_msg.data[{{ i }}], {{ -shift }}U, {{ mask | decimal_to_hex }}U);
+        temp_bitset_{{ sig_var | camel_to_snake }} >>= {{ -shift }}U;
                 {% endif %}
+        {{ temp_sig_var }} |= static_cast<{{ temp_sig_var_type }}>((int)(temp_bitset_{{ sig_var | camel_to_snake }}.to_ulong()));
             {% endif %}
+            
         {% endfor %}
         {{ sig_var }}_ = static_cast<{{ sig_var_type }}>(static_cast<double>({{ temp_sig_var }}) * {{ sig_var_scale }} + {{ sig_var_offset }});
+
         {% endfor %}
     }
     {{ class_name }}() = delete;
@@ -126,11 +133,16 @@ public:
             {% set i = loop.index0 %}
             {% set shift = shifts[i] %}
             {% if mask != 0 %}
+        etl::bitset<8> temp_bitset_{{ sig_var | camel_to_snake }}(temp_{{ sig_var }});
+        etl::bitset<8> temp_mask_{{ sig_var | camel_to_snake }}({{ mask | decimal_to_hex }}U);
                 {% if shift >= 0 %}
-        data[{{ i }}] |= shared::can::pack_right_shift(temp_{{ sig_var }}, {{ shift }}U, {{ mask | decimal_to_hex }}U);
+        temp_bitset_{{ sig_var | camel_to_snake }} >>= {{ shift }}U;
                 {% else %}
-        data[{{ i }}] |= shared::can::pack_left_shift(temp_{{ sig_var }}, {{ -(shift) }}U, {{ mask | decimal_to_hex }}U);
+        temp_bitset_{{ sig_var | camel_to_snake }} <<= {{ -shift }}U;
                 {% endif %}
+        temp_bitset_{{ sig_var | camel_to_snake }} &= temp_mask_{{ sig_var | camel_to_snake }};
+        data[{{ i }}] |= static_cast<unsigned char>((int)(temp_bitset_{{ sig_var | camel_to_snake }}.to_ulong()));
+
             {% endif %}
         {% endfor %}
         {% endfor %}
