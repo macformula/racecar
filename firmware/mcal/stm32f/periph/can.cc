@@ -11,12 +11,13 @@
 #include <cstdint>
 
 #include "can.hpp"
+#include "etl/queue_spsc_atomic.h"
 
 // FIFO0 is the "high priority" queue on stm32f7. We do not use FIFO1
 constexpr uint32_t kCanFifo = CAN_RX_FIFO0;
 constexpr uint32_t kCanInterrupt = CAN_IT_RX_FIFO0_MSG_PENDING;
 
-namespace {  // InterruptHandler is private to this file
+namespace mcal::stm32f767::periph::priv {
 
 /// Prior to this class, we spent several hours debugging an issue where the
 /// interrupt was activated but the handler was not being called, causing the
@@ -33,15 +34,24 @@ public:
 
         can_bases[index] = can_base;
         HAL_CAN_ActivateNotification(hcan, kCanInterrupt);
+        HAL_CAN_ActivateNotification(hcan, CAN_IT_TX_MAILBOX_EMPTY);
     }
 
-    void Handle(CAN_HandleTypeDef* hcan) {
-        int index = HandleToIndex(hcan);
-        if (index == -1) return;
+    void Receive(CAN_HandleTypeDef* hcan) {
+        auto can_base = HandleToCanBase(hcan);
+        if (can_base == nullptr) return;
 
-        auto can_base = can_bases[index];
-        if (can_base != nullptr) {
-            can_bases[index]->Receive();
+        can_base->Receive();
+    }
+
+    void LoadTx(CAN_HandleTypeDef* hcan) {
+        auto can_base = HandleToCanBase(hcan);
+        if (can_base == nullptr) return;
+
+        shared::can::RawMessage msg;
+        auto msg_loaded = can_base->tx_queue_.pop(msg);
+        if (msg_loaded) {
+            can_base->SendLL(msg);
         }
     }
 
@@ -62,15 +72,36 @@ private:
             return -1;
         }
     }
-};
-}  // namespace
 
-static InterruptHandler interrupt_handler;
+    CanBase* HandleToCanBase(CAN_HandleTypeDef* hcan) {
+        int index = HandleToIndex(hcan);
+        if (index == -1) return nullptr;
+
+        return can_bases[index];
+    }
+};
+}  // namespace mcal::stm32f767::periph::priv
+
+// Define the HAL Interrupt callbacks, overriding the "weak" callbacks
+// defined by CubeMX. By statically declaring the callbacks, the firmware
+// applications can "just use" CanBase without needing to set up interrupts.
+static mcal::stm32f767::periph::priv::InterruptHandler interrupt_handler;
 
 extern "C" {
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
-    // Overrides the "weak" callback defined by CubeMX
-    interrupt_handler.Handle(hcan);
+    // Message was received
+    interrupt_handler.Receive(hcan);
+}
+
+// All tx empty callbacks are the same.
+void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef* hcan) {
+    interrupt_handler.LoadTx(hcan);
+}
+void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef* hcan) {
+    interrupt_handler.LoadTx(hcan);
+}
+void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef* hcan) {
+    interrupt_handler.LoadTx(hcan);
 }
 }
 
@@ -85,12 +116,17 @@ void CanBase::Setup() {
 }
 
 void CanBase::Send(const shared::can::RawMessage& msg) {
-    uint32_t tx_mailboxes_free_level = HAL_CAN_GetTxMailboxesFreeLevel(hcan_);
-    if (tx_mailboxes_free_level < 1) {
-        dropped_tx_frames_ += 1;
-        return;
+    if (HAL_CAN_GetTxMailboxesFreeLevel(hcan_) > 0) {
+        SendLL(msg);
+    } else {
+        bool msg_dropped = !tx_queue_.push(msg);
+        if (msg_dropped) {  // Queue is full
+            dropped_tx_frames_ += 1;
+        }
     }
+}
 
+void CanBase::SendLL(const shared::can::RawMessage& msg) {
     CAN_TxHeaderTypeDef stm_tx_header;
     stm_tx_header.RTR = CAN_RTR_DATA;  // we only support data frames currently
     stm_tx_header.DLC = msg.data_length;
@@ -103,6 +139,7 @@ void CanBase::Send(const shared::can::RawMessage& msg) {
         stm_tx_header.StdId = msg.id;
     }
 
+    uint32_t tx_mailbox_addr_;  // Which mailbox the msg is placed in. Unused.
     HAL_CAN_AddTxMessage(hcan_, &stm_tx_header, msg.data, &tx_mailbox_addr_);
 }
 

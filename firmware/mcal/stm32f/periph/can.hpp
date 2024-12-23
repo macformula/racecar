@@ -13,10 +13,15 @@
 
 #include <cstdint>
 
+#include "etl/queue_spsc_atomic.h"
 #include "shared/comms/can/msg.hpp"
 #include "shared/periph/can.hpp"
 
 namespace mcal::stm32f::periph {
+
+namespace priv {
+class InterruptHandler;
+}  // namespace priv
 
 class CanBase : public shared::periph::CanBase {
 public:
@@ -24,17 +29,23 @@ public:
 
     void Setup();
     void Send(const shared::can::RawMessage& can_tx_msg) override;
-    void Receive();
 
 private:
     uint32_t GetTimestamp() const override;
     void ConfigFilters();
+    void Receive();
+    void SendLL(const shared::can::RawMessage& msg);
+
+    CAN_HandleTypeDef* hcan_;
+
+    /// The STM32F7 CAN peripheral only has 3 Tx mailboxes. This queue provides
+    /// more space to ensure bursts of `.Send()` don't overflow them.
+    etl::queue_spsc_atomic<shared::can::RawMessage, 16> tx_queue_;
 
     /// @todo broadcast these over a can message
     uint32_t dropped_tx_frames_ = 0;
 
-    CAN_HandleTypeDef* hcan_;
-    uint32_t tx_mailbox_addr_;
+    friend class priv::InterruptHandler;
 };
 
 }  // namespace mcal::stm32f::periph
