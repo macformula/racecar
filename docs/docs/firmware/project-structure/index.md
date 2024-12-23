@@ -27,7 +27,7 @@ We will __recreate the Blink project from scratch__ for multiple platforms. You 
 
 !!! warning
 
-    Knowledge of our firmware architecture is assumed. Read the [Architecture](../architecture.md) article before continuing.
+    Knowledge of our firmware architecture is assumed. Read the [Architecture](../architecture/index.md) article before continuing.
 
 !!! note
 
@@ -59,7 +59,7 @@ You should now have the following directory structure.
 
 ## Bindings contract
 
-A key feature of our firmware architecture is the complete abstraction of the app-level code from any specific platform implementation (See the [Architecture](../architecture.md) article). The two layers are interfaced by the "bindings" contract which we will write first.
+A key feature of our firmware architecture is the complete abstraction of the app-level code from any specific platform implementation (See the [Architecture](../architecture/index.md) article). The two layers are interfaced by the "bindings" contract which we will write first.
 
 Create a new file `bindings.hpp` in the project directory. This is a header file since it only _declares_ the interface objects and methods rather than using or implementing them.
 
