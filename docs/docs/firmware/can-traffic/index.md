@@ -38,7 +38,7 @@ Each CAN frame consists of several fields with fixed bit lengths, plus a variabl
 
 The maximum total frame length is:
 
-\[ 1 + 11 + 1 + 6 + 16 + 2 + 7 + 9.6x = 44 + 8x \text{ bits}\]
+\[ 1 + 11 + 1 + 6 + 16 + 2 + 7 + 8x = 44 + 8x \text{ bits}\]
 
 where \(x\) represents the number of bytes in the variable data field.
 
