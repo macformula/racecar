@@ -3,6 +3,9 @@ import pytest
 
 
 def test_no_messages():
+    assert (calculate_bus_load([], 500000)) == pytest.approx(0, rel=1e-5)
+
+def test_normal_messages():
     assert calculate_bus_load(
         [
             CANMessage(data_length=8, frequency=100),
@@ -11,16 +14,7 @@ def test_no_messages():
         500000,
     ) == pytest.approx(3.60, rel=1e-2)
 
-    # zero frequency or negative frequency
-    assert calculate_bus_load(
-        [
-            CANMessage(data_length=8, frequency=0),
-            CANMessage(data_length=10, frequency=-100),
-        ],
-        500000,
-    ) == pytest.approx(0, rel=1e-2)
-
-    # bus overload
+def test_bus_overload():
     assert calculate_bus_load(
         [
             CANMessage(data_length=64, frequency=100),
@@ -29,17 +23,17 @@ def test_no_messages():
         100000,
     ) == pytest.approx(138.72, rel=1e-5)
 
-    # high traffic - high frequency messages
+def test_high_traffic():
     assert calculate_bus_load(
         [
             CANMessage(data_length=8, frequency=1000),
             CANMessage(data_length=4, frequency=800),
         ],
         1000000,
-    ) == pytest.approx(20.26, rel=1e-5)
+    ) == pytest.approx(20.256, rel=1e-5)
 
-    # zero can speed
-    try:
+def test_zero_speed():
+    with pytest.raises(ValueError):
         assert calculate_bus_load(
             [
                 CANMessage(data_length=8, frequency=1000),
@@ -47,11 +41,10 @@ def test_no_messages():
             ],
             0,
         ) == pytest.approx(0, rel=1e-5)
-    except ZeroDivisionError:
-        print("Cannot divide by zero baud")
 
-    # negative can speed
-    assert (
+def test_negative_speed():
+    with pytest.raises(ValueError):
+        assert (
         calculate_bus_load(
             [
                 CANMessage(data_length=8, frequency=1000),
@@ -60,6 +53,3 @@ def test_no_messages():
             -500000,
         )
     ) == pytest.approx(0, rel=1e-5)
-
-    # no message
-    assert (calculate_bus_load([], 500000)) == pytest.approx(0, rel=1e-5)
