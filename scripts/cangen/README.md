@@ -55,3 +55,9 @@ To run the tests:
 ```bash
 poetry run pytest
 ```
+
+To format the code using `ruff`:
+
+```bash
+poetry run ruff format
+```
