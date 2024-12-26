@@ -168,10 +168,13 @@ def _camel_to_snake(text):
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
-def _create_output_file_name(output_dir: str, bus_name: str, template_file_name: str) -> str:
+def _create_output_file_name(
+    output_dir: str, bus_name: str, template_file_name: str
+) -> str:
     return os.path.join(
         output_dir, bus_name.lower() + "_" + template_file_name.removesuffix(".jinja2")
     )
+
 
 def _generate_code(bus: Bus, output_dir: str):
     """
@@ -212,7 +215,9 @@ def _generate_code(bus: Bus, output_dir: str):
         template = env.get_template(template_file_name)
         rendered_code = template.render(**context)
 
-        output_file_name = _create_output_file_name(output_dir, bus.bus_name, template_file_name)
+        output_file_name = _create_output_file_name(
+            output_dir, bus.bus_name, template_file_name
+        )
         with open(output_file_name, "w") as output_file:
             output_file.write(rendered_code)
         logger.info(f"Rendered code written to '{os.path.abspath(output_file_name)}'")
