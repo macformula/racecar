@@ -29,9 +29,17 @@ jobs:
         with:
           path: ~/.local
           key: poetry-0
+      - name: Configure Cached Poetry
+        if: steps.cached-poetry.outputs.cache-hit == 'true'
+        run: |
+          poetry config virtualenvs.in-project true
+          poetry config virtualenvs.path true
       - name: Install Poetry
         if: steps.cached-poetry.outputs.cache-hit != 'true'
         uses: snok/install-poetry@v1
+        with:
+           virtualenvs-in-project: true
+           virtualenvs-path: .venv
       - name: Load cached virtual environment
         id: cached-poetry-dependencies
         uses: actions/cache@v4
