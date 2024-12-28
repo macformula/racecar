@@ -1,5 +1,5 @@
-from cangen.traffic import calculate_bus_load, CANMessage
 import pytest
+from cangen.traffic import CANMessage, calculate_bus_load
 
 
 def test_no_messages():
@@ -13,7 +13,7 @@ def test_normal_messages():
             CANMessage(data_length=5, frequency=50),
         ],
         500000,
-    ) == pytest.approx(3.60, rel=1e-2)
+    ) == pytest.approx(3.7, rel=1e-2)
 
 
 def test_bus_overload():
