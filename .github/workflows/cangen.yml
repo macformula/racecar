@@ -50,7 +50,8 @@ jobs:
         run: poetry install --no-interaction --no-root # Install dependencies before cangen to help isolate errors.
       - name: Install cangen
         run: poetry install --no-interaction
-      - run: source $VENV
+      - name: Activate virtual environment
+        run: source .venv/bin/activate
       - name: Run tests
         run: poetry run pytest
       - name: Verify formatting
