@@ -1,0 +1,46 @@
+name: cangen
+run-name: ${{ github.actor }} is formatting and testing cangen
+on:
+  pull_request:
+    paths:
+      - 'scripts/cangen/**'
+jobs:
+  cangen_check:
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.13"]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python ${{ matrix.python-version }}
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Load cached Poetry installation
+        id: cached-poetry
+        uses: actions/cache@v4
+        with:
+          path: ~/.local
+          key: poetry-0
+      - name: Install Poetry
+        if: steps.cached-poetry.outputs.cache-hit != 'true'
+        uses: snok/install-poetry@v1
+      - name: Load cached virtual environment
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install cangen dependencies
+        run: poetry install --no-interaction --no-root # Install dependencies before cangen to help isolate errors.
+      - name: Install cangen
+        run: poetry install --no-interation
+      - run: source $VENV
+      - name: Run tests
+        run: poetry run pytest
+      - name: Verify formatting
+        run: poetry run ruff format --diff
