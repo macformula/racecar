@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'scripts/cangen/**'
+defaults:
+  run:
+    working-directory: scripts/cangen
 jobs:
   cangen_check:
     strategy:
