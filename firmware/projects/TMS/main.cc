@@ -86,8 +86,8 @@ const shared::util::LinearMap<float> volt_stm_to_volt_ts{
 /// Compose the two maps to get the final map from the STM voltage to the
 /// temperature in degrees C.
 const shared::util::CompositeMap<float> volt_stm_to_degC{
-    volt_ts_to_degC,      // outer (second) function
-    volt_stm_to_volt_ts,  // inner (first) function
+    volt_stm_to_volt_ts,
+    volt_ts_to_degC,
 };
 
 }  // namespace tempsensor

@@ -24,25 +24,21 @@ public:
 template <typename Tf, typename Tg = Tf, typename U = Tg>
 class CompositeMap : public Mapper<Tf, U> {
 public:
-    /// @param f Outer function.
     /// @param g Inner function.
+    /// @param f Outer function.
     /// @note Evaulates `f(g(x))`, so `g` is applied before `f`.
-    CompositeMap(const Mapper<Tf, Tg>& f, const Mapper<Tg, U>& g)
-        : f_(f), g_(g) {}
-
-    /// @brief Evaluates `f(g(x))`.
-    static inline Tf Evaluate(Tg x, const Mapper<Tf, Tg>& f,
-                              const Mapper<Tg, U>& g) {
-        return f.Evaluate(g.Evaluate(x));
-    }
+    CompositeMap(const Mapper<Tg, U>& g, const Mapper<Tf, Tg>& f)
+        : g_(g), f_(f) {}
 
     inline Tf Evaluate(U x) const override {
-        return CompositeMap<Tf, Tg, U>::Evaluate(x, f_, g_);
+        return f_.Evaluate(g_.Evaluate(x));
     }
 
+    // No static `Evaluate()` since you should directly compose the functions.
+
 private:
-    const Mapper<Tf, Tg>& f_;
     const Mapper<Tg, U>& g_;
+    const Mapper<Tf, Tg>& f_;
 };
 
 }  // namespace shared::util
