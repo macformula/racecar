@@ -14,8 +14,8 @@ using namespace shared::util;  // for demo only
 LinearMap<float> double_plus_one{2, 1.0f};
 Clamper<float> zero_to_ten{5, 10};
 
-CompositeMap comp1{zero_to_ten, double_plus_one};
-CompositeMap comp2{double_plus_one, comp1};
+CompositeMap comp1{double_plus_one, zero_to_ten};
+CompositeMap comp2{comp1, double_plus_one};
 
 // Lookup table example
 const float lut_data[][2]{
