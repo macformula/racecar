@@ -7,13 +7,11 @@
 
 namespace shared::util {
 
-/**
- * @brief Clamps a value between an `upper` and `lower` limit.
- * @tparam T Output type.
- * @tparam U Input type.
- * @note To only clamp from above, pass `std::numeric_limits<T>().minimum()` as
- * `lower`, and `.maximum()` as `upper` for a clamp from below.
- */
+/// @brief Clamps a value between an `upper` and `lower` limit.
+/// @tparam T Output type.
+/// @tparam U Input type.
+/// @note To only clamp from above, pass `std::numeric_limits<T>().minimum()` as
+/// `lower`, and `.maximum()` as `upper` for a clamp from below.
 template <typename T, typename U = T>
 class Clamper : public Mapper<T, U> {
 public:

@@ -7,11 +7,9 @@
 
 namespace shared::util {
 
-/**
- * @brief Evaluates the linear function `f(x) = mx + b`.
- * @tparam T Ouput type.
- * @tparam U Input type.
- */
+/// @brief Evaluates the linear function `f(x) = mx + b`.
+/// @tparam T Ouput type.
+/// @tparam U Input type.
 template <typename T, typename U = T>
 class LinearMap : public Mapper<T, U> {
 public:
