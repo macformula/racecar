@@ -17,8 +17,8 @@ This variation affects the total bits transmitted and, in turn, the bus load. To
 The message length in a CAN frame can be calculated as a function of the data length. This calculation includes several fixed fields and a variable data field, which changes based on the message's data content.
 
 <figure markdown="span">
-![](img/canbusdiagram.svg){ width="100%" }
-<figcaption>CAN Bus Frame Diagram. Source: <a href="https://www.csselectronics.com/pages/can-bus-simple-intro-tutorial">CSS Electronics CAN Bus Tutorial</a></figcaption>
+![Can Frame Bits](img/can-frame.png)
+<figcaption>Standard CAN frame bit composition.<br>Adapted from <a href="https://www.csselectronics.com/pages/can-bus-simple-intro-tutorial">CSS Electronics</a></figcaption>
 </figure>
 
 Each CAN frame consists of several fields with fixed bit lengths, plus a variable-length data field. Let \(x\) be the number of bytes. Here’s the breakdown:
@@ -78,7 +78,6 @@ Baud Rate: 500 kbaud (500,000 bits transferred per second)
 &= 1.2 \times 15000\text{ bits per second}\\
 &= 18000\text{ bits per second}
 \end{align}
-
 
 The bus load is the previous example can be calculated as:
 
