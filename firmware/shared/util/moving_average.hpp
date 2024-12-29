@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <concepts>
 #include <cstddef>
+#include <type_traits>
 
-#include "shared/util/data_structures/circular_queue.hpp"
+#include "shared/util/circular_queue.hpp"
 
 namespace shared::util {
 
