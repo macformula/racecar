@@ -11,6 +11,7 @@
 #include <cstring>
 #include <iomanip>
 #include <iostream>
+#include <format>
 
 #include "shared/comms/can/raw_can_msg.hpp"
 #include "shared/periph/can.hpp"
@@ -26,18 +27,13 @@ public:
     }
 
     void Send(const shared::can::RawCanMsg& can_tx_msg) {
-        std::cout << iface_ << " [" << std::hex << std::uppercase
-                  << std::setfill('0') << std::setw(2) << can_tx_msg.header.id
-                  << "] ";
+        "[ "<< std::format("{} {:02X}", iface_ can_tx.msg.header.id) << "] ";
 
         // Loop through each data byte and print it in uppercase hex with
         // leading zeros
         for (int i = 0; i < sizeof(can_tx_msg.data); ++i) {
-            std::cout << std::hex << std::uppercase << std::setfill('0')
-                      << std::setw(2) << static_cast<int>(can_tx_msg.data[i])
-                      << " ";
+            std::cout << std::format("{:02X} ", static_cast<int>(can_tx_msg.data[i]));
         }
-
         std::cout << std::endl;
     }
 

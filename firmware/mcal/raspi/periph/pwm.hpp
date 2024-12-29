@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <string>
+#include <format>
 
 #include "shared/periph/pwm.hpp"
 #include "shared/util/mappers/clamper.hpp"
@@ -16,23 +17,21 @@ public:
     PWMOutput(std::string name) : name_(name) {}
 
     void Start() override {
-        std::cout << "Starting PWM " << name_ << std::endl;
+        std::cout << std::format("Starting PWM {}", name_) << std::endl;
     }
 
     void Stop() override {
-        std::cout << "Stopping PWM " << name_ << std::endl;
+        std::cout << std::format("Stopping PWM {}", name_) << std::endl;
     }
 
     void SetDutyCycle(float duty_cycle) override {
         duty_cycle_ =
             shared::util::Clamper<float>::Evaluate(duty_cycle, 0, 100);
 
-        std::cout << "Setting PWM " << name_ << " to " << duty_cycle_ << "%"
-                  << std::endl;
+        std::cout << std::format("Setting PWM {} to {}%", name_, duty_cycle_) << std::endl; 
     }
     float GetDutyCycle() override {
-        std::cout << "PWM " << name_ << " has duty cycle " << duty_cycle_ << "%"
-                  << std::endl;
+        std::cout << std::format("PWM {} has duty cycle {}%", name_, duty_cycle_) << std::endl; 
         return duty_cycle_;
     }
 
