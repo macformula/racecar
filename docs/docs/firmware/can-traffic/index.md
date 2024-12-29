@@ -17,30 +17,16 @@ This variation affects the total bits transmitted and, in turn, the bus load. To
 The message length in a CAN frame can be calculated as a function of the data length. This calculation includes several fixed fields and a variable data field, which changes based on the message's data content.
 
 <figure markdown="span">
-![Can Frame Bits](img/can-frame.png)
+![Can Frame Bits](img/can-frame-Light.png#only-light)
+![Can Frame Bits](img/can-frame-Dark.png#only-dark)
 <figcaption>Standard CAN frame bit composition.<br>Adapted from <a href="https://www.csselectronics.com/pages/can-bus-simple-intro-tutorial">CSS Electronics</a></figcaption>
 </figure>
 
-Each CAN frame consists of several fields with fixed bit lengths, plus a variable-length data field. Let \(x\) be the number of bytes. Here’s the breakdown:
+Each CAN frame consists of several fields with fixed bit lengths, plus a variable-length data field. The total frame length is:
 
-|Frame Element| Length (bits)|
-|--------------|------------|
-|Start of Frame (SOF) |     1   |
-|Identifier (ID)|      11     |
-|Remote Transmission Request (RTR)| 1|
-| Control (DLC)| 6|
-|Data| 8 bits per byte = 8x|
-|Cyclic Redundancy Check (CRC) | 16 |
-|Acknowledgement (ACK)| 2 |
-|End of Frame (EOF)| 7|
+\[ 1 + 11 + 1 + 6 + 8x + 16 + 2 + 7 = 44 + 8x \text{ bits}\]
 
-### Final Formula
-
-The maximum total frame length is:
-
-\[ 1 + 11 + 1 + 6 + 16 + 2 + 7 + 8x = 44 + 8x \text{ bits}\]
-
-where \(x\) represents the number of bytes in the variable data field.
+where \(x\) represents the number of bytes in the data field.
 
 --------------------------------------
 
