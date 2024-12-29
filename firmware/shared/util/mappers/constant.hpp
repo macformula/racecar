@@ -17,6 +17,7 @@ public:
     ConstantMap(T c) : c_(c) {}
 
     inline T Evaluate(U x) const override {
+        (void)x;
         return c_;
     }
 
