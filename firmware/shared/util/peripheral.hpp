@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "shared/util/noncopyable.hpp"
-
 namespace shared::util {
 
 /**
