@@ -54,8 +54,8 @@ Baud Rate: 500 kbaud (500,000 bits transferred per second)
 
 |Message Type | Data Length| Frequency (Hz)| Message Length (Bits)|
 |--------------|------------|---------------|---------------------|
-|Battery Status|     8      |     100       | 44 + 8 x 8 = 108|
-|Motor Control|      5      |     50        | 44 + 8 x 5 = 84|
+|Battery Status|     8      |     100       | \(44 + 8 \times 8 = 108\)|
+|Motor Control|      5      |     50        | \(44 + 8 \times 5 = 84\)|
 
 \begin{align}
 \text{Total Bits Per Second} &= 1.2 \times \sum_{i=1}^n \left(\text{Frequency}_i \times \text{Message Length}_i \right)\\
