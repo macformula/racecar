@@ -1,5 +1,4 @@
-name: cangen
-run-name: ${{ github.actor }} is formatting and testing cangen
+name: cangen Format and Test
 on:
   pull_request:
     paths:
