@@ -40,8 +40,7 @@ VehBus veh_can_bus{bindings::veh_can_base};
 
 TxBmsBroadcast PackBmsBroadcast(float temperatures[]) {
     // This is a constant defined by Orion. It was discovered by
-    // decoding the CAN traffic coming from the Orion Thermal Expansion
-    // Pack.
+    // decoding the CAN traffic coming from the Orion Thermal Expansion Pack.
     const uint8_t kBmsChecksumConstant = 0x41;
     const uint8_t kThermistorModuleNumber = 0;
 
