@@ -7,6 +7,7 @@
 #include "shared/controls/motor_torque.h"
 #include "shared/controls/tc_scale_factor.h"
 #include "shared/controls/tvFactor.h"
+#include "shared/util/mappers/lookup_table.h"
 
 struct VdInput {
     float driver_torque_request;
@@ -36,9 +37,4 @@ public:
 
 private:
     float target_slip;
-    float motor_torque_request;
-    float actual_slip;
-    float tc_scale_factor;
-    float tv_factor_left;
-    float tv_factor_right;
 };
