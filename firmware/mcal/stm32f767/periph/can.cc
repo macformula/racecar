@@ -108,7 +108,7 @@ void CanBase::Send(const shared::can::RawMessage& msg) {
     if (HAL_CAN_GetTxMailboxesFreeLevel(hcan_) > 0) {
         SendLL(msg);
     } else {
-        auto msg_dropped = !tx_queue_.push(msg);
+        bool msg_dropped = !tx_queue_.push(msg);
         if (msg_dropped) {  // Queue is full
             dropped_tx_frames_ += 1;
         }
