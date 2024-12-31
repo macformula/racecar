@@ -14,7 +14,7 @@
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
-#include "shared/util/algorithms/arrays.hpp"
+#include "shared/util/arrays.hpp"
 #include "shared/util/mappers/linear_map.hpp"
 #include "shared/util/mappers/lookup_table.hpp"
 #include "shared/util/mappers/mapper.hpp"

@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include <concepts>
-#include <cstdint>
+#include <cstddef>
 
 namespace shared::util {
 

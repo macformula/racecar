@@ -7,7 +7,7 @@
 
 #include "shared/comms/can/raw_can_msg.hpp"
 #include "shared/periph/can.hpp"
-#include "shared/util/data_structures/circular_queue.hpp"
+#include "shared/util/circular_queue.hpp"
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx_hal_can.h"
 
