@@ -27,7 +27,7 @@ public:
     }
 
     void Send(const shared::can::RawCanMsg& can_tx_msg) {
-        "[ "<< std::format("{} {:02X}", iface_ can_tx.msg.header.id) << "] ";
+        std::cout << std::format("{} [{:02X}] ", iface_, can_tx_msg.header.id) << std::endl;
 
         // Loop through each data byte and print it in uppercase hex with
         // leading zeros

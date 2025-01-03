@@ -20,10 +20,10 @@ public:
 
     bool Read() override {
         int value;
-        std::cout <<, std::format("Reading DigitalInput {}", name_ ) << std::endl;
+        std::cout << std::format("Reading DigitalInput {}", name_) << std::endl;
         std::cout << " | Enter 0 for False, 1 for True: ";
         std::cin >> value;
-        std::cout << std::format("| Value was {}", (value ? "true": "false" )) << std::endl; 
+        std::cout << std::format(" | Value was {}", value ? "true": "false") << std::endl; 
         return value;
     }
 };
@@ -36,7 +36,7 @@ public:
     DigitalOutput(std::string name) : name_(name) {}
 
     void Set(bool value) override {
-        std::cout << std::format("Setting DigitalOutput Channel {} to {}", name_, (value ? "true": "false") ) << std::endl;
+        std::cout << std::format("Setting DigitalOutput Channel {} to {}", name_, value) << std::endl;
     }
 
     void SetHigh() override {
