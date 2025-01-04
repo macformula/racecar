@@ -21,4 +21,5 @@ extern shared::periph::DigitalOutput& debug_led_red;
 extern shared::periph::CanBase& veh_can_base;
 
 extern void Initialize();
+extern uint32_t GetCurrentTimeMs();
 }  // namespace bindings
