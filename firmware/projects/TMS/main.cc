@@ -2,95 +2,26 @@
 /// @date 2023-11-18
 
 #include <cstdint>
-#include <string>
 
 #include "bindings.hpp"
-#include "generated/can/veh_can_messages.hpp"
-#include "generated/can/veh_msg_registry.hpp"
+#include "generated/can/veh_bus.hpp"
+#include "generated/can/veh_messages.hpp"
 #include "inc/app.hpp"
-#include "shared/comms/can/can_bus.hpp"
-#include "shared/os/tick.hpp"
-#include "shared/periph/adc.hpp"
-#include "shared/periph/can.hpp"
-#include "shared/periph/gpio.hpp"
-#include "shared/periph/pwm.hpp"
+#include "inc/tempsensor.hpp"
 #include "shared/util/arrays.hpp"
-#include "shared/util/mappers/linear_map.hpp"
 #include "shared/util/mappers/lookup_table.hpp"
-#include "shared/util/mappers/mapper.hpp"
 
-namespace os {
-extern void Tick(uint32_t ticks);
-extern void InitializeKernel();
-extern void StartKernel();
-}  // namespace os
+using namespace generated::can;
 
-extern "C" {
-void UpdateTask(void* argument);
-}
-
-namespace tempsensor {
-
-/// This table is directly copied from Table 4 of the temperature sensor
-/// datasheet. `datasheets/energus/Datasheet_with_VTC6_rev_A(2021-10-26).pdf`
-const float ts_table[][2] = {
-    // clang-format off
-    {1.30f, 120.0f},
-    {1.31f, 115.0f},
-    {1.32f, 110.0f},
-    {1.33f, 105.0f},
-    {1.34f, 100.0f},
-    {1.35f,  95.0f},
-    {1.37f,  90.0f},
-    {1.38f,  85.0f},
-    {1.40f,  80.0f},
-    {1.43f,  75.0f},
-    {1.45f,  70.0f},
-    {1.48f,  65.0f},
-    {1.51f,  60.0f},
-    {1.55f,  55.0f},
-    {1.59f,  50.0f},
-    {1.63f,  45.0f},
-    {1.68f,  40.0f},
-    {1.74f,  35.0f},
-    {1.80f,  30.0f},
-    {1.86f,  25.0f},
-    {1.92f,  20.0f},
-    {1.99f,  15.0f},
-    {2.05f,  10.0f},
-    {2.11f,   5.0f},
-    {2.17f,   0.0f},
-    {2.23f,  -5.0f},
-    {2.27f, -10.0f},
-    {2.32f, -15.0f},
-    {2.35f, -20.0f},
-    {2.38f, -25.0f},
-    {2.40f, -30.0f},
-    {2.42f, -35.0f},
-    {2.44f, -40.0f}
-    // clang-format on
+TempSensor temp_sensors[] = {
+    TempSensor{bindings::temp_sensor_adc_1, tempsensor::volt_stm_to_degC},
+    TempSensor{bindings::temp_sensor_adc_2, tempsensor::volt_stm_to_degC},
+    TempSensor{bindings::temp_sensor_adc_3, tempsensor::volt_stm_to_degC},
+    TempSensor{bindings::temp_sensor_adc_4, tempsensor::volt_stm_to_degC},
+    TempSensor{bindings::temp_sensor_adc_5, tempsensor::volt_stm_to_degC},
+    TempSensor{bindings::temp_sensor_adc_6, tempsensor::volt_stm_to_degC},
 };
-constexpr int lut_length = (sizeof(ts_table)) / (sizeof(ts_table[0]));
-const shared::util::LookupTable<lut_length> volt_ts_to_degC{ts_table};
-
-/// Calculate the voltage at the temperature sensor from the voltage at the STM.
-/// They are not equal because there is a non-unity gain buffer between them.
-/// V_STM = 1.44 + 0.836 * V_TS / 2
-/// So the inverse is
-/// V_TS = 2 * (V_STM - 1.44) / 0.836 = 2/0.836 * V_STM - 2*1.44/0.836
-const shared::util::LinearMap<float> volt_stm_to_volt_ts{
-    2.0f / 0.836f,
-    -2.0f * 1.44f / 0.836f,
-};
-
-/// Compose the two maps to get the final map from the STM voltage to the
-/// temperature in degrees C.
-const shared::util::CompositeMap<float> volt_stm_to_degC{
-    volt_stm_to_volt_ts,
-    volt_ts_to_degC,
-};
-
-}  // namespace tempsensor
+constexpr int kSensorCount = sizeof(temp_sensors) / sizeof(temp_sensors[0]);
 
 /// Spin the fan faster when the acculumator is hotter.
 const float fan_lut_data[][2] = {
@@ -103,88 +34,80 @@ constexpr int fan_lut_length =
     (sizeof(fan_lut_data) / (sizeof(fan_lut_data[0])));
 shared::util::LookupTable<fan_lut_length> fan_temp_lut{fan_lut_data};
 
-/***************************************************************
-    Create CAN objects
-***************************************************************/
+FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut};
 
-generated::can::VehMsgRegistry veh_can_registry{};
+VehBus veh_can_bus{bindings::veh_can_base};
 
-shared::can::CanBus veh_can_bus{
-    bindings::veh_can_base,
-    veh_can_registry,
-};
+TxBmsBroadcast PackBmsBroadcast(float temperatures[]) {
+    // This is a constant defined by Orion. It was discovered by
+    // decoding the CAN traffic coming from the Orion Thermal Expansion Pack.
+    const uint8_t kBmsChecksumConstant = 0x41;
+    const uint8_t kThermistorModuleNumber = 0;
 
-/***************************************************************
-    Create app objects
-***************************************************************/
-FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut, 2.0f};
+    uint8_t low_index;
+    int8_t low_temp =
+        static_cast<int8_t>(shared::util::GetMinimum<float, kSensorCount>(
+            temperatures, &low_index));
 
-DebugIndicator debug_green{bindings::debug_led_green};
-DebugIndicator debug_red{bindings::debug_led_red};
+    uint8_t high_index;
+    int8_t high_temp =
+        static_cast<int8_t>(shared::util::GetMaximum<float, kSensorCount>(
+            temperatures, &high_index));
 
-TempSensor temp_sensors[] = {
-    TempSensor{bindings::temp_sensor_adc_1, tempsensor::volt_stm_to_degC},
-    TempSensor{bindings::temp_sensor_adc_2, tempsensor::volt_stm_to_degC},
-    TempSensor{bindings::temp_sensor_adc_3, tempsensor::volt_stm_to_degC},
-    TempSensor{bindings::temp_sensor_adc_4, tempsensor::volt_stm_to_degC},
-    TempSensor{bindings::temp_sensor_adc_5, tempsensor::volt_stm_to_degC},
-    TempSensor{bindings::temp_sensor_adc_6, tempsensor::volt_stm_to_degC},
-};
+    int8_t temp_avg = static_cast<int8_t>(
+        shared::util::GetAverage<float, kSensorCount>(temperatures));
 
-const int kSensorCount = 6;
-TempSensorManager<kSensorCount> ts_manager{temp_sensors};
+    uint8_t checksum = kThermistorModuleNumber + low_temp + high_temp +
+                       temp_avg + kSensorCount + high_index + low_index +
+                       kBmsChecksumConstant;
 
-BmsBroadcaster bms_broadcaster(veh_can_bus, kSensorCount);
+    return TxBmsBroadcast{
+        .therm_module_num = kThermistorModuleNumber,
+        .low_therm_value = low_temp,
+        .high_therm_value = high_temp,
+        .avg_therm_value = temp_avg,
+        .num_therm_en = kSensorCount,
+        .high_therm_id = high_index,
+        .low_therm_id = low_index,
+        .checksum = checksum,
+    };
+}
 
 /***************************************************************
     Program Logic
 ***************************************************************/
-
-void Update() {
-    static float temperature_buffer[kSensorCount];
-    static uint8_t low_thermistor_idx;
-    static uint8_t high_thermistor_idx;
-
-    debug_green.Toggle();
-
-    veh_can_bus.Update();
-    ts_manager.Update();
-    ts_manager.GetTemperatures(temperature_buffer);
-
-    float temp_min = shared::util::GetMinimum<float, kSensorCount>(
-        temperature_buffer, &low_thermistor_idx);
-
-    float temp_max = shared::util::GetMaximum<float, kSensorCount>(
-        temperature_buffer, &high_thermistor_idx);
-
-    float temp_avg =
-        shared::util::GetAverage<float, kSensorCount>(temperature_buffer);
-
-    bms_broadcaster.SendBmsBroadcast(
-        high_thermistor_idx, static_cast<int8_t>(temp_max), low_thermistor_idx,
-        static_cast<int8_t>(temp_min), static_cast<int8_t>(temp_avg));
-
-    fan_controller.Update(temp_avg);
-}
-
-void UpdateTask(void* argument) {
-    const static uint32_t kTaskPeriodMs = 100;
-
-    fan_controller.Start(0);
-    while (true) {
-        uint32_t start_time_ms = os::GetTickCount();
-        Update();
-        os::TickUntil(start_time_ms + kTaskPeriodMs);
+void Update(float update_period_ms) {
+    // Read the temperature sensors
+    float temperatures[kSensorCount];
+    for (int i = 0; i < kSensorCount; i++) {
+        temperatures[i] = temp_sensors[i].Update();
     }
+
+    // Send the temperatures to the BMS
+    TxBmsBroadcast bms_broadcast = PackBmsBroadcast(temperatures);
+    veh_can_bus.Send(bms_broadcast);
+
+    // Adjust the fan speed based on the average temperature
+    float avg_temperature =
+        shared::util::GetAverage<float, kSensorCount>(temperatures);
+    fan_controller.Update(avg_temperature, update_period_ms);
+
+    // Toggle the green LED to indicate the program is running
+    static bool toggle = true;
+    bindings::debug_led_green.Set(toggle);
+    toggle = !toggle;
 }
 
 int main(void) {
     bindings::Initialize();
-    os::InitializeKernel();
 
-    os::StartKernel();
+    const uint32_t kUpdatePeriodMs = 100;
 
-    while (true) continue;
+    while (true) {
+        uint32_t start_time_ms = bindings::GetCurrentTimeMs();
+        Update(kUpdatePeriodMs);
+        while (bindings::GetCurrentTimeMs() <= start_time_ms + kUpdatePeriodMs);
+    }
 
     return 0;
 }
