@@ -6,11 +6,9 @@
 #include "mapper.hpp"
 
 namespace shared::util {
-/**
- * @brief Evaluates the quadratic function `f(x) = axx + bx + c`.
- * @tparam T Ouptut type.
- * @tparam U Input type.
- */
+/// @brief Evaluates the quadratic function `f(x) = axx + bx + c`.
+/// @tparam T Ouptut type.
+/// @tparam U Input type.
 template <typename T, typename U = T>
 class QuadraticMap : public Mapper<T, U> {
 public:

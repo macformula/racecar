@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <type_traits>
+
 #include "mapper.hpp"
 
 namespace shared::util {
