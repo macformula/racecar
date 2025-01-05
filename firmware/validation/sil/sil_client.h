@@ -38,7 +38,7 @@ private:
         signals::SignalType sig_type);
     void SetRegister(std::string ecu_name, std::string sig_name, bool level);
     void ReadRegister(std::string ecu_name, std::string sig_name, signals::SignalDirection sig_dir, 
-        signals::SignalType sig_type, signals::ReadSignalResponse read_response);
+        signals::SignalType sig_type, signals::ReadSignalResponse &read_response);
 
 };
 

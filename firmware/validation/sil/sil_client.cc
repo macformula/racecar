@@ -167,7 +167,7 @@ bool SilClient::ReadDigitalLevel(std::string ecu_name, std::string sig_name) {
 
     ReadRegister(ecu_name, sig_name, 
         signals::SignalDirection::SIGNAL_DIRECTION_INPUT, 
-        signals::SignalType::SIGNAL_TYPE_ANALOG, &read_response);
+        signals::SignalType::SIGNAL_TYPE_ANALOG, read_response);
 
     return read_response.value_digital().level();
 
@@ -202,7 +202,7 @@ double SilClient::ReadAdcVoltage(std::string ecu_name, std::string sig_name) {
 
     ReadRegister(ecu_name, sig_name, 
         signals::SignalDirection::SIGNAL_DIRECTION_INPUT, 
-        signals::SignalType::SIGNAL_TYPE_ANALOG, &read_response);
+        signals::SignalType::SIGNAL_TYPE_ANALOG, read_response);
 
     if (!read_response.has_value_analog()) {
         std::cout << "expected adc value got: " << read_response.value_case()
