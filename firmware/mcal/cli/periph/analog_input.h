@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include "shared/periph/analog_input.h"
+#include <format>
 
 namespace mcal::cli::periph{
 
@@ -18,11 +19,11 @@ public:
 
     float Read() override {
         Start();
-        float adc_val;
-        std::cout << " | Enter an unsigned 32-bit value: ";
-        std::cin >> adc_val;
-        std::cout << " | Obtained value " <<  (adc_val/4095.0f * 3.3f) << std::endl;
-        return adc_val/4095.0f * 3.3f;
+        float voltage;
+        std::cout << " | Enter a voltage level: ";
+        std::cin >> voltage;
+        std::cout << std::format( " | Obtained value {:.3f}",voltage )  << std::endl;
+        return  voltage;
     }
     private:
         std::string name_;
