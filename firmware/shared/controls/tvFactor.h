@@ -1,9 +1,10 @@
 #pragma once
 #include <algorithm>
 #include <tuple>
-#include "../util/mappers/lookup_table.h"
 
-namespace ctrl{
+#include "shared/util/mappers/lookup_table.hpp"
+
+namespace ctrl {
 
 template <typename T>
 T CreateTorqueVectoringFactor(T steering_angle) {
@@ -41,4 +42,4 @@ std::tuple<T, T> AdjustTorqueVectoring(T steering_angle,
 
     return std::tuple(left_torque_vector, right_torque_vector);
 }
-}
+}  // namespace ctrl

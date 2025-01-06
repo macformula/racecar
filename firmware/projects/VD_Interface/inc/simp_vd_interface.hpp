@@ -3,11 +3,12 @@
 
 #pragma once
 
-#include "app.h"
+#include <cstdint>
+
 #include "shared/controls/motor_torque.h"
 #include "shared/controls/tc_scale_factor.h"
 #include "shared/controls/tvFactor.h"
-#include "shared/util/mappers/lookup_table.h"
+#include "shared/util/mappers/lookup_table.hpp"
 
 struct VdInput {
     float driver_torque_request;
