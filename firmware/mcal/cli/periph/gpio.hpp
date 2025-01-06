@@ -23,7 +23,7 @@ public:
         std::cout << std::format("Reading DigitalInput {}", name_) << std::endl;
         std::cout << " | Enter 0 for False, 1 for True: ";
         std::cin >> value;
-        std::cout << std::format(" | Value was {}", value ? "true": "false") << std::endl; 
+        std::cout << std::format(" | Value was {}", value) << std::endl; 
         return value;
     }
 };

@@ -7,8 +7,8 @@
 #include <iostream>
 #include <string>
 
-#include "shared/periph/pwm.hpp"
-#include "shared/util/mappers/clamper.hpp"
+#include "shared/periph/pwm.h"
+#include "shared/util/mappers/clamper.h"
 
 namespace mcal::cli::periph {
 
@@ -17,24 +17,24 @@ public:
     PWMOutput(std::string name) : name_(name) {}
 
     void Start() override {
-        std::cout << std::format("Starting PWN {}", name_) << std : endl;
+        std::cout << std::format("Starting PWM {}", name_) << std::endl;
     }
 
     void Stop() override {
-        std::cout << std::format("Stopping PWN {}", name_) << std::endl;
+        std::cout << std::format("Stopping PWM {}", name_) << std::endl;
     }
 
     void SetDutyCycle(float duty_cycle) override {
         duty_cycle_ =
             shared::util::Clamper<float>::Evaluate(duty_cycle, 0, 100);
 
-        std::cout << std::format("Setting PWM {} duty cycle to {:.3f} %", name_,
+        std::cout << std::format("Setting PWM {} duty cycle to {:.3g}%", name_,
                                  duty_cycle_)
                   << std::endl;
     }
 
     float GetDutyCycle() override {
-        std::cout << std::format("PWM {} has duty cycle {:.3f} %", name_,
+        std::cout << std::format("PWM {} has duty cycle {:.3g} %", name_,
                                  duty_cycle_)
                   << std::endl;
         return duty_cycle_;
@@ -49,7 +49,7 @@ public:
     }
 
     float GetFrequency() override {
-        std::cout << std::format("PWM {} has frequency {:.3f} Hz", name_,
+        std::cout << std::format("PWM {} has frequency {:.3f} %", name_,
                                  frequency_)
                   << std::endl;
         return frequency_;

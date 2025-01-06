@@ -32,7 +32,7 @@ public:
         // Loop through each data byte and print it in uppercase hex with
         // leading zeros
         for (int i = 0; i < sizeof(can_tx_msg.data); ++i) {
-            std::cout << std::format("{:02X} ", static_cast<int>(can_tx_msg.data[i]));
+            std::cout << std::format("{:02X} ", can_tx_msg.data[i]); 
         }
         std::cout << std::endl;
     }
