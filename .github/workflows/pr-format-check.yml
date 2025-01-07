@@ -4,10 +4,7 @@ on:
       - main
       - dev/**
     paths:
-      - firmware/**/*.cc
-      - firmware/**/*.h
-      - firmware/**/*.hpp
-      - firmware/**/*.cpp
+      - firmware/**
 jobs:
   clang_format_check:
     name: Check Clang Format
