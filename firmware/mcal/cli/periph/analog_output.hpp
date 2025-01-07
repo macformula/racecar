@@ -15,8 +15,9 @@ public:
     AnalogOutput(std::string name) : name_(name) {}
 
     void SetVoltage(float voltage) override {
-        std::cout << "Setting AnalogOutput " << name_ << " to " << voltage
-                  << " V" << std::endl;
+        std::cout << std::format("Setting AnalogOutput {} to {} V", name_,
+                                 voltage)
+                  << std::endl;
     }
 
 private:

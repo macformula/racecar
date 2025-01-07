@@ -16,7 +16,7 @@ public:
     ADCInput(std::string name) : name_(name) {}
 
     void Start() override {
-        std::cout << "Reading ADC " << name_ << "..." << std::endl;
+        std::cout << std::format("Reading ADC {}...", name_) << std::endl;
     }
 
     uint32_t Read() override {
@@ -24,7 +24,7 @@ public:
         uint32_t adc_val;
         std::cout << " | Enter an unsigned 32-bit value: ";
         std::cin >> adc_val;
-        std::cout << " | Obtained value " << adc_val << std::endl;
+        std::cout << std::format(" | Obtained value {}", adc_val) << std::endl;
         return adc_val;
     }
 
