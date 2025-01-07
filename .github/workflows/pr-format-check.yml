@@ -2,7 +2,9 @@ on:
   pull_request:
     branches:
       - main
-
+      - dev/**
+    paths:
+      - firmware/**
 jobs:
   clang_format_check:
     name: Check Clang Format
