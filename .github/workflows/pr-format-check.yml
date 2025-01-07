@@ -7,6 +7,7 @@ on:
       - firmware/**/*.cc
       - firmware/**/*.h
       - firmware/**/*.hpp
+      - firmware/**/*.cpp
 jobs:
   clang_format_check:
     name: Check Clang Format
