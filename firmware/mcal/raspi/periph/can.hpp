@@ -16,6 +16,7 @@
 #include <chrono>
 #include <cstdint>
 #include <cstring>
+#include <format>
 #include <iostream>
 #include <queue>
 #include <thread>
@@ -43,7 +44,7 @@ public:
         // Specify the can interface
         strncpy(ifreq_.ifr_name, iface_.c_str(), sizeof(ifreq_.ifr_name) - 1);
 
-        std::cout << "can interface: " << iface_ << std::endl;
+        std::cout << std::format("can interface: {}", iface_) << std::endl;
 
         ioctl(sock_, SIOCGIFINDEX, &ifreq_);
 

@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include <cstring>
+#include <format>
 #include <iomanip>
 #include <iostream>
 
@@ -22,22 +23,18 @@ public:
     CanBase(std::string can_iface) : iface_(can_iface) {};
 
     void Setup() {
-        std::cout << "can interface: " << iface_ << std::endl;
+        std::cout << std::format("can interface: {}", iface_) << std::endl;
     }
 
     void Send(const shared::can::RawCanMsg& can_tx_msg) {
-        std::cout << iface_ << " [" << std::hex << std::uppercase
-                  << std::setfill('0') << std::setw(2) << can_tx_msg.header.id
-                  << "] ";
+        std::cout << std::format("{} [{:02X}] ", iface_, can_tx_msg.header.id)
+                  << std::endl;
 
         // Loop through each data byte and print it in uppercase hex with
         // leading zeros
         for (int i = 0; i < sizeof(can_tx_msg.data); ++i) {
-            std::cout << std::hex << std::uppercase << std::setfill('0')
-                      << std::setw(2) << static_cast<int>(can_tx_msg.data[i])
-                      << " ";
+            std::cout << std::format("{:02X} ", can_tx_msg.data[i]);
         }
-
         std::cout << std::endl;
     }
 
