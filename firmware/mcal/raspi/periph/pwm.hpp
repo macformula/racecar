@@ -28,11 +28,12 @@ public:
         duty_cycle_ =
             shared::util::Clamper<float>::Evaluate(duty_cycle, 0, 100);
 
-        std::cout << std::format("Setting PWM {} to {}%", name_, duty_cycle_)
+        std::cout << std::format("Setting PWM {} to {:.3g}%", name_,
+                                 duty_cycle_)
                   << std::endl;
     }
     float GetDutyCycle() override {
-        std::cout << std::format("PWM {} has duty cycle {}%", name_,
+        std::cout << std::format("PWM {} has duty cycle {:.3f} Hz", name_,
                                  duty_cycle_)
                   << std::endl;
         return duty_cycle_;

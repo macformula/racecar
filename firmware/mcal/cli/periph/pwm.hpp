@@ -7,8 +7,8 @@
 #include <iostream>
 #include <string>
 
-#include "shared/periph/pwm.h"
-#include "shared/util/mappers/clamper.h"
+#include "shared/periph/pwm.hpp"
+#include "shared/util/mappers/clamper.hpp"
 
 namespace mcal::cli::periph {
 
@@ -34,7 +34,7 @@ public:
     }
 
     float GetDutyCycle() override {
-        std::cout << std::format("PWM {} has duty cycle {:.3g} %", name_,
+        std::cout << std::format("PWM {} has duty cycle {:.3g}%", name_,
                                  duty_cycle_)
                   << std::endl;
         return duty_cycle_;
@@ -49,7 +49,7 @@ public:
     }
 
     float GetFrequency() override {
-        std::cout << std::format("PWM {} has frequency {:.3f} %", name_,
+        std::cout << std::format("PWM {} has frequency {:.3f} Hz", name_,
                                  frequency_)
                   << std::endl;
         return frequency_;
