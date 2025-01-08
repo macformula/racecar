@@ -77,26 +77,34 @@ public: // HACK for testing
         {% set sig_var_type = signal_types[msg.name][sig.name] %}
         {% set sig_var_scale = "k" + sig.name + "Scale" %}
         {% set sig_var_offset = "k" + sig.name + "Offset" %}
+        {% set counter = 0 %}
         {% for mask in masks %}
             {% set i = loop.index0 %}
             {% set shift = shifts[i] %}
             {% if mask != 0 %}
                 {% if shift >= 0 %}
         etl::bitset<8 + {{ shift }}U> temp_bitset_{{ sig_var | camel_to_snake }}_{{ i }}(raw_msg.data[{{ i }}]);
-        etl::bitset<8 + {{shift }}U> temp_mask_{{ sig_var | camel_to_snake }}_{{ i }}({{ mask | decimal_to_hex }}U);
-        temp_bitset_{{ sig_var | camel_to_snake }}_{{ i }} &= temp_mask_{{ sig_var | camel_to_snake }}_{{ i }};       
+        constexpr etl::bitset<8 + {{ shift }}U> temp_mask_{{ sig_var | camel_to_snake }}_{{ i }}({{ mask | decimal_to_hex }}U);
+        constexpr size_t count_mask_{{ sig_var | camel_to_snake }}_{{ i }} = temp_mask_{{ sig_var | camel_to_snake }}_{{ i }}.count();
+                    {% if shift != 0 %}
+                        {% set counter = counter + 1 %}
         temp_bitset_{{ sig_var | camel_to_snake }}_{{ i }} <<= {{ shift }}U;
+        {{ temp_sig_var }} |= temp_bitset_{{ sig_var | camel_to_snake }}_{{ i }}.extract<{{ temp_sig_var_type }}, {{ 0 }}U, count_mask_{{ sig_var | camel_to_snake }}_{{ i }} + {{ shift }}U>();
+                    {% else %}
+        {{ temp_sig_var }} |= temp_bitset_{{ sig_var | camel_to_snake }}_{{ i }}.extract<{{ temp_sig_var_type }}, {{ 0 }}U, count_mask_{{ sig_var | camel_to_snake }}_{{ i }}>();
+                    {% endif %}
                 {% else %}
+                    {% set counter = 0 %}
         etl::bitset<8> temp_bitset_{{ sig_var | camel_to_snake }}_{{ i }}(raw_msg.data[{{ i }}]);
-        etl::bitset<8> temp_mask_{{ sig_var | camel_to_snake }}_{{ i }}({{ mask | decimal_to_hex }}U);
-        temp_bitset_{{ sig_var | camel_to_snake }}_{{ i }} &= temp_mask_{{ sig_var | camel_to_snake }}_{{ i }};
-        temp_bitset_{{ sig_var | camel_to_snake }}_{{ i }} >>= {{ -shift }}U;
+        constexpr etl::bitset<8> temp_mask_{{ sig_var | camel_to_snake }}_{{ i }}({{ mask | decimal_to_hex }}U);
+        constexpr size_t count_mask_{{ sig_var | camel_to_snake }}_{{ i }} = temp_mask_{{ sig_var | camel_to_snake }}_{{ i }}.count();
+        {{ temp_sig_var }} |= temp_bitset_{{ sig_var | camel_to_snake }}_{{ i }}.extract<{{ temp_sig_var_type }}, {{ -shift }}U, count_mask_{{ sig_var | camel_to_snake }}_{{ i }}>();
                 {% endif %}
-        {{ temp_sig_var }} |= static_cast<{{ temp_sig_var_type }}>((int)(temp_bitset_{{ sig_var | camel_to_snake }}_{{ i }}.to_ulong()));
-        
+
             {% endif %}
         {% endfor %}
         {{ sig_var }}_ = static_cast<{{ sig_var_type }}>(static_cast<double>({{ temp_sig_var }}) * {{ sig_var_scale }} + {{ sig_var_offset }});
+
 
         {% endfor %}
     }
