@@ -1,6 +1,8 @@
 /// @author Samuel Parent
 /// @date 2024-05-01
 
+#include "sil_client.h"
+
 #include <google/protobuf/stubs/port.h>
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/support/time.h>
@@ -11,7 +13,6 @@
 
 #include "signals.grpc.pb.h"
 #include "signals.pb.h"
-#include "sil_client.h"
 
 namespace val::sil {
 
