@@ -3,9 +3,9 @@
 
 #pragma once
 
+#include <format>
 #include <iostream>
 #include <string>
-#include <format>
 
 #include "shared/periph/pwm.hpp"
 #include "shared/util/mappers/clamper.hpp"
@@ -28,10 +28,13 @@ public:
         duty_cycle_ =
             shared::util::Clamper<float>::Evaluate(duty_cycle, 0, 100);
 
-        std::cout << std::format("Setting PWM {} to {}%", name_, duty_cycle_) << std::endl; 
+        std::cout << std::format("Setting PWM {} to {}%", name_, duty_cycle_)
+                  << std::endl;
     }
     float GetDutyCycle() override {
-        std::cout << std::format("PWM {} has duty cycle {}%", name_, duty_cycle_) << std::endl; 
+        std::cout << std::format("PWM {} has duty cycle {}%", name_,
+                                 duty_cycle_)
+                  << std::endl;
         return duty_cycle_;
     }
 

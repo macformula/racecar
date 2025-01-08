@@ -5,9 +5,9 @@
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/support/time.h>
 
+#include <format>
 #include <iostream>
 #include <string>
-#include <format>
 
 #include "signals.grpc.pb.h"
 #include "signals.pb.h"
@@ -38,10 +38,14 @@ void SilClient::RegisterDigitalInput(std::string ecu_name,
     status =
         stub_->RegisterSignal(&context, register_request, &register_response);
     if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(), status.error_message()) << std::endl;
+        std::cout << std::format("{}: {}", status.error_code(),
+                                 status.error_message())
+                  << std::endl;
     }
     if (!register_response.status()) {
-        std::cout << std::format("register signal error: {}", register_response.error()) <<std::endl; 
+        std::cout << std::format("register signal error: {}",
+                                 register_response.error())
+                  << std::endl;
     }
 }
 
@@ -61,11 +65,15 @@ void SilClient::RegisterDigitalOutput(std::string ecu_name,
     status =
         stub_->RegisterSignal(&context, register_request, &register_response);
     if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(), status.error_message()) << std::endl; 
+        std::cout << std::format("{}: {}", status.error_code(),
+                                 status.error_message())
+                  << std::endl;
     }
 
     if (!register_response.status()) {
-        std::cout << std::format("register signal error: {}", register_response.error()) <<std::endl;
+        std::cout << std::format("register signal error: {}",
+                                 register_response.error())
+                  << std::endl;
     }
 }
 
@@ -85,11 +93,15 @@ void SilClient::RegisterAnalogInput(std::string ecu_name,
     status =
         stub_->RegisterSignal(&context, register_request, &register_response);
     if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(), status.error_message()) << std::endl; 
+        std::cout << std::format("{}: {}", status.error_code(),
+                                 status.error_message())
+                  << std::endl;
     }
 
     if (!register_response.status()) {
-        std::cout << std::format("register signal error: {}", register_response.error()) <<std::endl; 
+        std::cout << std::format("register signal error: {}",
+                                 register_response.error())
+                  << std::endl;
     }
 }
 
@@ -106,12 +118,16 @@ void SilClient::SetDigitalLevel(std::string ecu_name, std::string sig_name,
 
     status = stub_->WriteSignal(&context, write_request, &write_response);
     if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(), status.error_message())<< std::endl; 
+        std::cout << std::format("{}: {}", status.error_code(),
+                                 status.error_message())
+                  << std::endl;
         return;
     }
 
     if (!write_response.status()) {
-        std::cout << std::format("write response error: {}", write_response.error()) <<std::endl; 
+        std::cout << std::format("write response error: {}",
+                                 write_response.error())
+                  << std::endl;
         return;
     }
 }
@@ -130,12 +146,16 @@ bool SilClient::ReadDigitalLevel(std::string ecu_name, std::string sig_name) {
 
     status = stub_->ReadSignal(&context, read_request, &read_response);
     if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(), status.error_message()) << std::endl; 
+        std::cout << std::format("{}: {}", status.error_code(),
+                                 status.error_message())
+                  << std::endl;
         return false;
     }
 
     if (!read_response.status()) {
-        std::cout << std::format("write reponse error: {}", read_response.error()) << std::endl; 
+        std::cout << std::format("write reponse error: {}",
+                                 read_response.error())
+                  << std::endl;
         return false;
     }
 
@@ -156,20 +176,26 @@ double SilClient::ReadAdcVoltage(std::string ecu_name, std::string sig_name) {
 
     status = stub_->ReadSignal(&context, read_request, &read_response);
     if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(), status.error_message()) << std::endl; 
+        std::cout << std::format("{}: {}", status.error_code(),
+                                 status.error_message())
+                  << std::endl;
         return 0.0;
     }
 
     if (!read_response.status()) {
-        std::cout << std::format("write response error: {}", read_response.error()) << std::endl; 
+        std::cout << std::format("write response error: {}",
+                                 read_response.error())
+                  << std::endl;
         return 0.0;
     }
 
     if (!read_response.has_value_analog()) {
-        std::cout << std::format("expected adc value got: {}", read_response.value_case()) << std::endl;
+        std::cout << std::format("expected adc value got: {}",
+                                 read_response.value_case())
+                  << std::endl;
     }
 
     return read_response.value_analog().voltage();
 }
 
-}  // namespace mcal::raspi::sil
+}  // namespace val::sil

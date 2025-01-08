@@ -9,9 +9,9 @@
 #include <unistd.h>
 
 #include <cstring>
+#include <format>
 #include <iomanip>
 #include <iostream>
-#include <format>
 
 #include "shared/comms/can/raw_can_msg.hpp"
 #include "shared/periph/can.hpp"
@@ -27,12 +27,13 @@ public:
     }
 
     void Send(const shared::can::RawCanMsg& can_tx_msg) {
-        std::cout << std::format("{} [{:02X}] ", iface_, can_tx_msg.header.id) << std::endl;
+        std::cout << std::format("{} [{:02X}] ", iface_, can_tx_msg.header.id)
+                  << std::endl;
 
         // Loop through each data byte and print it in uppercase hex with
         // leading zeros
         for (int i = 0; i < sizeof(can_tx_msg.data); ++i) {
-            std::cout << std::format("{:02X} ", can_tx_msg.data[i]); 
+            std::cout << std::format("{:02X} ", can_tx_msg.data[i]);
         }
         std::cout << std::endl;
     }
