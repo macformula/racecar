@@ -11,7 +11,7 @@
 #include "app.hpp"
 #include "shared/comms/can/can_bus.hpp"
 #include "shared/comms/can/can_msg.hpp"
-#include "shared/periph/adc.hpp"
+#include "shared/periph/analog_input.hpp"
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/util/mappers/linear_map.hpp"
@@ -23,12 +23,14 @@ class AnalogInput {
     static constexpr size_t kMovingAverageLength = 20;
 
 public:
-    AnalogInput(shared::periph::ADCInput& adc,
-                shared::util::Mapper<double, uint16_t>* adc_to_position)
-        : adc_(adc), adc_to_position_(adc_to_position) {}
+    AnalogInput(
+        shared::periph::AnalogInput& analog_input,
+        shared::util::Mapper<double, uint16_t>* analog_input_to_position)
+        : analog_input_(analog_input),
+          analog_input_to_position_(analog_input_to_position) {}
 
     double Update() {
-        uint32_t position = adc_.Read();
+        float position = analog_input_.Read();
         moving_average_.LoadValue(uint16_t(position));
         return GetPosition();
     }
@@ -37,13 +39,13 @@ public:
      * @brief Get the position from the last `Update()` call.
      */
     inline double GetPosition() {
-        return adc_to_position_->Evaluate(moving_average_.GetValue());
+        return analog_input_to_position_->Evaluate(moving_average_.GetValue());
     }
 
 private:
-    shared::periph::ADCInput& adc_;
+    shared::periph::AnalogInput& analog_input_;
     shared::util::MovingAverage<uint16_t, kMovingAverageLength> moving_average_;
-    const shared::util::Mapper<double, uint16_t>* adc_to_position_;
+    const shared::util::Mapper<double, uint16_t>* analog_input_to_position_;
 };
 
 class Speaker {

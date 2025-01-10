@@ -1,12 +1,13 @@
+#include "../../bindings.hpp"
+
 #include <iostream>
 
-#include "../../bindings.hpp"
-#include "mcal/cli/periph/analog_input.hpp"
+#include "mcal/linux/periph/analog_input.hpp"
 #include "shared/periph/analog_input.hpp"
 
 namespace mcal {
 
-cli::periph::AnalogInput analog_input{"analog input"};
+lnx::periph::AnalogInput analog_input{"analog input"};
 
 }  // namespace mcal
 

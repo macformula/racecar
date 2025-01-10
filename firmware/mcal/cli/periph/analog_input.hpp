@@ -4,7 +4,7 @@
 #pragma once
 
 #include <iostream>
-#include "shared/periph/analog_input.h"
+#include "shared/periph/analog_input.hpp"
 #include <format>
 
 namespace mcal::cli::periph{

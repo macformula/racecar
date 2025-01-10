@@ -1,6 +1,7 @@
 target_sources(mcal-linux
     PRIVATE
     adc.cc
+    analog_input.cc
     can.cc
     digital_input.cc
     digital_output.cc

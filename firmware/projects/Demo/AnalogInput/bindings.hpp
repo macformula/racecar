@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shared/periph/analog_input.h"
+#include "shared/periph/analog_input.hpp"
 
 namespace bindings {
 

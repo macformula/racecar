@@ -6,14 +6,14 @@
 #include "can.h"
 #include "gpio.h"
 #include "main.h"
-#include "shared/periph/adc.hpp"
+#include "shared/periph/analog_input.hpp"
 #include "shared/periph/can.hpp"
 #include "stm32f7xx_hal_adc.h"
 #include "tim.h"
 
 // fw imports
 #include "../../bindings.hpp"
-#include "mcal/stm32f767/periph/adc.hpp"
+#include "mcal/stm32f767/periph/analog_input.hpp"
 #include "mcal/stm32f767/periph/can.hpp"
 #include "mcal/stm32f767/periph/gpio.hpp"
 
@@ -28,11 +28,11 @@ void SystemClock_Config();
 namespace mcal {
 using namespace stm32f767::periph;
 
-ADCInput brake_pedal_front{
+AnalogInput brake_pedal_front{
     &hadc1,
     ADC_CHANNEL_2,  // TODO is front BPPS1 = chn 2?
 };
-ADCInput brake_pedal_rear{
+AnalogInput brake_pedal_rear{
     &hadc1,
     ADC_CHANNEL_1,  // TODO is rear BPPS2 = chn 1?
 };
@@ -40,7 +40,7 @@ DigitalOutput debug_led{
     DEBUG_LED_GPIO_Port,
     DEBUG_LED_Pin,
 };
-ADCInput hvil_feedback{
+AnalogInput hvil_feedback{
     &hadc1,
     ADC_CHANNEL_5,
 };
@@ -68,39 +68,39 @@ DigitalOutput status_light{
     STATUS_LED_EN_GPIO_Port,
     STATUS_LED_EN_Pin,
 };
-ADCInput wheel_speed_right_b{
+AnalogInput wheel_speed_right_b{
     &hadc1,
     ADC_CHANNEL_10,
 };
-ADCInput wheel_speed_right_a{
+AnalogInput wheel_speed_right_a{
     &hadc1,
     ADC_CHANNEL_11,
 };
-ADCInput accel_pedal_1{
+AnalogInput accel_pedal_1{
     &hadc1,
     ADC_CHANNEL_12,
 };
-ADCInput accel_pedal_2{
+AnalogInput accel_pedal_2{
     &hadc1,
     ADC_CHANNEL_13,
 };
-ADCInput wheel_speed_left_b{
+AnalogInput wheel_speed_left_b{
     &hadc1,
     ADC_CHANNEL_14,
 };
-ADCInput wheel_speed_left_a{
+AnalogInput wheel_speed_left_a{
     &hadc1,
     ADC_CHANNEL_15,
 };
-ADCInput steering_wheel{
+AnalogInput steering_wheel{
     &hadc1,
     ADC_CHANNEL_4,
 };
-ADCInput suspension_sensor_1{
+AnalogInput suspension_sensor_1{
     &hadc1,
     ADC_CHANNEL_8,
 };
-ADCInput suspension_sensor_2{
+AnalogInput suspension_sensor_2{
     &hadc1,
     ADC_CHANNEL_9,
 };
@@ -113,10 +113,10 @@ namespace bindings {
 
 // peripherals are ordered as in Pin Mapping spreadsheet
 
-shared::periph::ADCInput& brake_pedal_front = mcal::brake_pedal_front;
-shared::periph::ADCInput& brake_pedal_rear = mcal::brake_pedal_rear;
+shared::periph::AnalogInput& brake_pedal_front = mcal::brake_pedal_front;
+shared::periph::AnalogInput& brake_pedal_rear = mcal::brake_pedal_rear;
 shared::periph::DigitalOutput& debug_led = mcal::debug_led;
-shared::periph::ADCInput& hvil_feedback = mcal::hvil_feedback;
+shared::periph::AnalogInput& hvil_feedback = mcal::hvil_feedback;
 shared::periph::DigitalOutput& dashboard_hsd = mcal::dashboard_hsd;
 shared::periph::DigitalOutput& hvil_led = mcal::hvil_led;
 
@@ -129,15 +129,15 @@ shared::periph::DigitalOutput& driver_speaker = mcal::driver_speaker;
 shared::periph::DigitalInput& start_button = mcal::start_button;
 shared::periph::DigitalOutput& brake_light = mcal::brake_light;
 shared::periph::DigitalOutput& status_light = mcal::status_light;
-shared::periph::ADCInput& wheel_speed_right_b = mcal::wheel_speed_right_b;
-shared::periph::ADCInput& wheel_speed_right_a = mcal::wheel_speed_right_a;
-shared::periph::ADCInput& accel_pedal_1 = mcal::accel_pedal_1;
-shared::periph::ADCInput& accel_pedal_2 = mcal::accel_pedal_2;
-shared::periph::ADCInput& wheel_speed_left_b = mcal::wheel_speed_left_b;
-shared::periph::ADCInput& wheel_speed_left_a = mcal::wheel_speed_left_a;
-shared::periph::ADCInput& steering_wheel = mcal::steering_wheel;
-shared::periph::ADCInput& suspension_sensor_1 = mcal::suspension_sensor_1;
-shared::periph::ADCInput& suspension_sensor_2 = mcal::suspension_sensor_2;
+shared::periph::AnalogInput& wheel_speed_right_b = mcal::wheel_speed_right_b;
+shared::periph::AnalogInput& wheel_speed_right_a = mcal::wheel_speed_right_a;
+shared::periph::AnalogInput& accel_pedal_1 = mcal::accel_pedal_1;
+shared::periph::AnalogInput& accel_pedal_2 = mcal::accel_pedal_2;
+shared::periph::AnalogInput& wheel_speed_left_b = mcal::wheel_speed_left_b;
+shared::periph::AnalogInput& wheel_speed_left_a = mcal::wheel_speed_left_a;
+shared::periph::AnalogInput& steering_wheel = mcal::steering_wheel;
+shared::periph::AnalogInput& suspension_sensor_1 = mcal::suspension_sensor_1;
+shared::periph::AnalogInput& suspension_sensor_2 = mcal::suspension_sensor_2;
 
 void Initialize() {
     SystemClock_Config();

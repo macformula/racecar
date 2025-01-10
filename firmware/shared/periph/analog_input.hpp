@@ -1,16 +1,15 @@
-/// @author Samuel Shi 
+/// @author Samuel Shi
 /// @date 2024-11-17
-/// Modified from adc.h 
+/// Modified from adc.h
 
 #pragma once
 
-#include "shared/util/peripheral.h"
+#include "shared/util/peripheral.hpp"
 
 namespace shared::periph {
 
 class AnalogInput : public util::Peripheral {
 public:
-
     /// @brief Turn on the peripheral
     virtual void Start() = 0;
 

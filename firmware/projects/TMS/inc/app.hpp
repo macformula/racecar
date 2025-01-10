@@ -10,7 +10,7 @@
 
 #include "../generated/can/veh_can_messages.hpp"
 #include "shared/comms/can/can_bus.hpp"
-#include "shared/periph/adc.hpp"
+#include "shared/periph/analog_input.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
 #include "shared/util/mappers/clamper.hpp"
@@ -24,12 +24,14 @@
 
 class TempSensor {
 public:
-    TempSensor(shared::periph::ADCInput& adc,
+    TempSensor(shared::periph::AnalogInput& analog_input,
                const shared::util::Mapper<float>& volt_to_temp)
-        : adc_(adc), volt_to_temp_(volt_to_temp), rolling_temperature_() {}
+        : analog_input_(analog_input),
+          volt_to_temp_(volt_to_temp),
+          rolling_temperature_() {}
 
 private:
-    shared::periph::ADCInput& adc_;
+    shared::periph::AnalogInput& analog_input_;
 
     /// @brief Mapping from raw ADC value to temperature [degC]
     const shared::util::Mapper<float>& volt_to_temp_;
@@ -39,8 +41,7 @@ private:
         rolling_temperature_;
 
     float Read() {
-        uint32_t adc_value = adc_.Read();
-        float volt = static_cast<float>(adc_value) * 3.3f / 4095.0f;
+        float volt = analog_input_.Read();
         float temperature = volt_to_temp_.Evaluate(volt);
         return temperature;
     }

@@ -10,7 +10,7 @@
 #include "inc/simulink.hpp"
 #include "shared/comms/can/can_bus.hpp"
 #include "shared/os/os.hpp"
-#include "shared/periph/adc.hpp"
+#include "shared/periph/analog_input.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/util/mappers/linear_map.hpp"
 #include "shared/util/mappers/mapper.hpp"

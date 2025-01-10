@@ -16,10 +16,10 @@
 
 // fw imports
 #include "../../bindings.hpp"
-#include "mcal/stm32f767/periph/adc.hpp"
+#include "mcal/stm32f767/periph/analog_input.hpp"
 #include "mcal/stm32f767/periph/gpio.hpp"
 #include "mcal/stm32f767/periph/pwm.hpp"
-#include "shared/periph/adc.hpp"
+#include "shared/periph/analog_input.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
 
@@ -34,12 +34,12 @@ void SystemClock_Config();
 namespace mcal {
 using namespace stm32f767::periph;
 
-ADCInput temp_sensor_adc_1{&hadc1, SENS_1_UC_IN_CHANNEL};
-ADCInput temp_sensor_adc_2{&hadc1, SENS_2_UC_IN_CHANNEL};
-ADCInput temp_sensor_adc_3{&hadc1, SENS_3_UC_IN_CHANNEL};
-ADCInput temp_sensor_adc_4{&hadc1, SENS_4_UC_IN_CHANNEL};
-ADCInput temp_sensor_adc_5{&hadc1, SENS_5_UC_IN_CHANNEL};
-ADCInput temp_sensor_adc_6{&hadc1, SENS_6_UC_IN_CHANNEL};
+AnalogInput temp_sensor_adc_1{&hadc1, SENS_1_UC_IN_CHANNEL};
+AnalogInput temp_sensor_adc_2{&hadc1, SENS_2_UC_IN_CHANNEL};
+AnalogInput temp_sensor_adc_3{&hadc1, SENS_3_UC_IN_CHANNEL};
+AnalogInput temp_sensor_adc_4{&hadc1, SENS_4_UC_IN_CHANNEL};
+AnalogInput temp_sensor_adc_5{&hadc1, SENS_5_UC_IN_CHANNEL};
+AnalogInput temp_sensor_adc_6{&hadc1, SENS_6_UC_IN_CHANNEL};
 
 PWMOutput fan_controller_pwm{&htim4, TIM_CHANNEL_1};
 DigitalOutput debug_led_green{DEBUG_LED1_GPIO_Port, DEBUG_LED1_Pin};
@@ -51,12 +51,12 @@ CanBase veh_can_base{&hcan2};
 }  // namespace mcal
 
 namespace bindings {
-shared::periph::ADCInput& temp_sensor_adc_1 = mcal::temp_sensor_adc_1;
-shared::periph::ADCInput& temp_sensor_adc_2 = mcal::temp_sensor_adc_2;
-shared::periph::ADCInput& temp_sensor_adc_3 = mcal::temp_sensor_adc_3;
-shared::periph::ADCInput& temp_sensor_adc_4 = mcal::temp_sensor_adc_4;
-shared::periph::ADCInput& temp_sensor_adc_5 = mcal::temp_sensor_adc_5;
-shared::periph::ADCInput& temp_sensor_adc_6 = mcal::temp_sensor_adc_6;
+shared::periph::AnalogInput& temp_sensor_adc_1 = mcal::temp_sensor_adc_1;
+shared::periph::AnalogInput& temp_sensor_adc_2 = mcal::temp_sensor_adc_2;
+shared::periph::AnalogInput& temp_sensor_adc_3 = mcal::temp_sensor_adc_3;
+shared::periph::AnalogInput& temp_sensor_adc_4 = mcal::temp_sensor_adc_4;
+shared::periph::AnalogInput& temp_sensor_adc_5 = mcal::temp_sensor_adc_5;
+shared::periph::AnalogInput& temp_sensor_adc_6 = mcal::temp_sensor_adc_6;
 
 shared::periph::PWMOutput& fan_controller_pwm = mcal::fan_controller_pwm;
 shared::periph::DigitalOutput& debug_led_green = mcal::debug_led_green;
