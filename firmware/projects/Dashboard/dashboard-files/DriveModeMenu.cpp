@@ -154,7 +154,7 @@ void DriveModeMenu::create_menu() {
     lv_obj_align(btnm1, LV_ALIGN_RIGHT_MID, -40, 0);
 
 
-
+    lv_obj_clean(lv_scr_act());
     lv_scr_load(drive_screen);
 
     // Timer to update speed every 50 milliseconds

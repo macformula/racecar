@@ -167,7 +167,7 @@ void DebugMenu::create_menu() {
     lv_scale_set_line_needle_value(scale_voltage, needle_voltage, 10, 12);  // Example fixed value (12V)
 
 
-
+    lv_obj_clean(lv_scr_act());
     lv_scr_load(debug_screen);
 
 }

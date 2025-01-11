@@ -47,6 +47,8 @@ void DashboardMenu::create_menu() {
     lv_obj_align(title_label, LV_ALIGN_TOP_LEFT, 20, 20);
     lv_obj_add_style(title_label, &style, 0);
 
+    //NOTE: need to run clean for focus to work!
+    lv_obj_clean(lv_scr_act());
     lv_scr_load(dashboard_screen);
 
 }
