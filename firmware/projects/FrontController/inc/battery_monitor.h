@@ -1,3 +1,5 @@
+// battery_monitor.h
+
 #pragma once
 
 // Add enum values if I missed any
@@ -26,14 +28,18 @@ struct BmInput {
     float pack_soc;
 };
 
-struct BmOutput {
-    BmStatus status;
+struct ContactorCMD {
     bool precharge_contactor_cmd;
     bool hv_pos_contactor_cmd;
     bool hv_neg_contactor_cmd;
 };
 
-// Only DECLARE the class methods an variables here. Write the method
+struct BmOutput {
+    BmStatus status;
+    ContactorCMD contactor;
+};
+
+// Only DECLARE the class methods and variables here. Write the method
 // definitions in the .cc file.
 class BatteryMonitor {
 public:
@@ -43,4 +49,8 @@ public:
 
 private:
     // add private methods / variables as necessary.
+    ContactorCMD bmControlUpdate(BmStatus status, int time_ms);
+
+    // State machine variables (BmUpdate)
+    BmStatus current_status;
 };
