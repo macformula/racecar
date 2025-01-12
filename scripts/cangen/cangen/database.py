@@ -1,42 +1,25 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Dict, List, Set, Optional, Type, Union
-
-class SignalType(Enum):
-    INTEGRAL = auto()
-    FLOATING = auto()
+from typing import Dict, List, Set, Optional, Type
 
 class Endian(Enum):
     BIG = auto()
     LITTLE = auto()
 
-@dataclass
-class Signal:
-    name: str # 1-32 chars, only [A-z], digits, and underscores
-    start_bit: int # bit 0-63
-    length: int # 1-64 bits
-    endianness: Endian
-    is_signed: bool
-    minimum: Union[int, float]
-    maximum: Union[int, float]
-    unit: Optional[str] = None
-    signal_type: SignalType
-    receivers: Set[Node]
-    description: Optional[str] = None
-
-    # Not needed for INTEGRAL signals
-    scale: Optional[float] = None
-    offset: Optional[float] = None
+class IntegralType(Enum):
+    BOOLEAN = auto()
+    INTEGER = auto()
+    UNSIGNED_INTEGER = auto()
+    ENUM = auto()
 
 @dataclass
-class Message:
-    name: str # 1-32 chars, only [A-z], digits, and underscores
-    id: int # 0-2047 (11-bits) or 0-536870911 (29-bits for extended IDs)
-    length: int # 0-8 bytes
-    sender: Node
-    signals: List[Signal]
-    frequency: int
+class Bus:
+    name: str
+    baud_rate: float
+    nodes: Set[Node]
+    messages: List[Message]
+    enum_types: Dict[str, Type[Enum]] = field(default_factory=dict) 
     description: Optional[str] = None
 
 @dataclass
@@ -45,15 +28,35 @@ class Node:
     description: Optional[str] = None
 
 @dataclass
-class Bus:
-    name: str
-    baud_rate: int
-    nodes: Set[Node]
-    messages: List[Message]
+class Message:
+    name: str # 1-32 chars, only [A-z], digits, and underscores
+    id: int # 0-2047 (11-bits) or 0-536870911 (29-bits for extended IDs)
+    is_extended_id: bool
+    length: int # 0-8 bytes
+    sender: Node
+    signals: List[Signal]
+    receivers: Set[Node]
+    frequency: float
     description: Optional[str] = None
 
 @dataclass
-class Database:
-    busses: Set[Bus]
-    enum_types: Dict[str, Type[Enum]] = field(default_factory=dict) 
+class Signal:
+    name: str # 1-32 chars, only [A-z], digits, and underscores
+    start_bit: int # bit 0-63
+    length: int # 1-64 bits
+    endianness: Endian
+    additional_receivers: Optional[Set[Node]] = None # Currently all signals in a message are sent to the same receivers, but additional receivers can be specified for each signal if needed
     description: Optional[str] = None
+
+@dataclass
+class IntegralSignal(Signal):
+    integral_type: IntegralType
+    value_range: tuple[int, int]
+
+@dataclass
+class FloatingSignal(Signal):
+    is_signed: bool
+    value_range: tuple[float, float]
+    scale: float
+    offset: float
+    unit: str
