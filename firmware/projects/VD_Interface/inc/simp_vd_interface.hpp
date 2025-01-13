@@ -9,6 +9,7 @@
 #include "shared/controls/tc_scale_factor.h"
 #include "shared/controls/tvFactor.h"
 #include "shared/util/mappers/lookup_table.hpp"
+#include "shared/util/mappers/mapper.hpp"
 
 struct VdInput {
     float driver_torque_request;
@@ -33,9 +34,11 @@ struct VdOutput {
 class SimpVdInterface {
 public:
     SimpVdInterface(
+        const shared::util::Mapper<float>& pedal_to_torque,
         float target_slip = 0.2f);  // default target slip is float 0.2
     VdOutput update(const VdInput& input, int time_ms);
 
 private:
+    const shared::util::Mapper<float>& pedal_to_torque;
     float target_slip;
 };

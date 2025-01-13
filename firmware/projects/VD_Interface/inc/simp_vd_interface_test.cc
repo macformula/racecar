@@ -7,8 +7,8 @@
 #include <cassert>
 #include <iostream>
 
-void test_1() {
-    SimpVdInterface simp_vd_int{};
+void test_1(const shared::util::Mapper<float>& pedal_to_torque) {
+    SimpVdInterface simp_vd_int{pedal_to_torque};
     int time_ms = 0;
 
     VdOutput output_1 = simp_vd_int.update(
@@ -41,8 +41,8 @@ void test_1() {
     ASSERT_CLOSE(output_1.lm_torque_limit_positive, output_1_expected.lm_torque_limit_positive);
 }
 
-void test_2() {
-    SimpVdInterface simp_vd_int{};
+void test_2(const shared::util::Mapper<float>& pedal_to_torque) {
+    SimpVdInterface simp_vd_int{pedal_to_torque};
     int time_ms = 0;
 
     VdOutput output_2 = simp_vd_int.update(
@@ -75,8 +75,8 @@ void test_2() {
     ASSERT_CLOSE(output_2.lm_torque_limit_positive, output_2_expected.lm_torque_limit_positive);
 }
 
-void test_3() {
-    SimpVdInterface simp_vd_int{};
+void test_3(const shared::util::Mapper<float>& pedal_to_torque) {
+    SimpVdInterface simp_vd_int{pedal_to_torque};
     int time_ms = 0;
 
     VdOutput output_3 = simp_vd_int.update(
@@ -109,8 +109,8 @@ void test_3() {
     ASSERT_CLOSE(output_3.lm_torque_limit_positive, output_3_expected.lm_torque_limit_positive);
 }
 
-void test_4() {
-    SimpVdInterface simp_vd_int{};
+void test_4(const shared::util::Mapper<float>& pedal_to_torque) {
+    SimpVdInterface simp_vd_int{pedal_to_torque};
     int time_ms = 0;
 
     VdOutput output_4 = simp_vd_int.update(
@@ -143,8 +143,8 @@ void test_4() {
     ASSERT_CLOSE(output_4.rm_torque_limit_positive, output_4_expected.rm_torque_limit_positive);
 }
 
-void test_5() {
-    SimpVdInterface simp_vd_int{};
+void test_5(const shared::util::Mapper<float>& pedal_to_torque) {
+    SimpVdInterface simp_vd_int{pedal_to_torque};
     int time_ms = 50;
 
     VdOutput output_5 = simp_vd_int.update(
@@ -178,11 +178,18 @@ void test_5() {
 }
 
 int start_tests() {
-    test_1();
-    test_2();
-    test_3();
-    test_4();
-    test_5();
+    const float pedal_torque_lut_data[][2] = {
+        {0.0f, 0.0f}, 
+        {100.0f, 100.0f}
+    };
+    constexpr int pedal_torque_lut_length = (sizeof(pedal_torque_lut_data)) / (sizeof(pedal_torque_lut_data[0]));
+    const shared::util::LookupTable<pedal_torque_lut_length> pedal_to_torque{pedal_torque_lut_data};
+
+    test_1(pedal_to_torque);
+    test_2(pedal_to_torque);
+    test_3(pedal_to_torque);
+    test_4(pedal_to_torque);
+    test_5(pedal_to_torque);
 
     std::cout << "Testing done!" << std::endl;
 

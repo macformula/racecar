@@ -5,8 +5,9 @@
 
 using namespace ctrl;
 
-SimpVdInterface::SimpVdInterface(float target_slip)
-    : target_slip(target_slip) {}
+SimpVdInterface::SimpVdInterface(
+    const shared::util::Mapper<float>& pedal_to_torque, float target_slip)
+    : pedal_to_torque(pedal_to_torque), target_slip(target_slip) {}
 
 VdOutput SimpVdInterface::update(const VdInput& input, int time_ms) {
     VdOutput output{
@@ -16,11 +17,6 @@ VdOutput SimpVdInterface::update(const VdInput& input, int time_ms) {
         .rm_torque_limit_negative = 0.0f, // 0 in simulink model
         .left_motor_speed_request = 1000,
         .right_motor_speed_request = 1000,
-    };
-
-    const float pedal_torque_lut_data[][2] = {
-        {0.0f, 0.0f}, 
-        {100.0f, 100.0f}
     };
 
     float actual_slip =
@@ -34,9 +30,6 @@ VdOutput SimpVdInterface::update(const VdInput& input, int time_ms) {
     float steering_angle = input.tv_enable ? input.steering_angle : 0.0f;
     std::tie(tv_factor_left, tv_factor_right) = AdjustTorqueVectoring(
         steering_angle, CreateTorqueVectoringFactor(steering_angle));
-
-    constexpr int pedal_torque_lut_length = (sizeof(pedal_torque_lut_data)) / (sizeof(pedal_torque_lut_data[0]));
-    const shared::util::LookupTable<pedal_torque_lut_length> pedal_to_torque{pedal_torque_lut_data};
 
     float motor_torque_request = ComputeTorqueRequest(input.driver_torque_request,
                                                 input.brake_pedal_postion);
