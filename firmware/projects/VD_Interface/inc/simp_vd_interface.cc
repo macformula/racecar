@@ -2,7 +2,6 @@
 /// @date 2024-11-23
 
 #include "simp_vd_interface.hpp"
-#include "shared/controls/motor_torque.h"
 
 using namespace ctrl;
 

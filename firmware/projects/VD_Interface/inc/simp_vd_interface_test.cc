@@ -8,6 +8,8 @@
 #include <iostream>
 
 void test_1(const shared::util::Mapper<float>& pedal_to_torque) {
+    std::cout << "Test 1 loading" << std::endl;
+
     SimpVdInterface simp_vd_int{pedal_to_torque};
     int time_ms = 0;
 
@@ -42,6 +44,8 @@ void test_1(const shared::util::Mapper<float>& pedal_to_torque) {
 }
 
 void test_2(const shared::util::Mapper<float>& pedal_to_torque) {
+    std::cout << "Test 2 loading" << std::endl;
+
     SimpVdInterface simp_vd_int{pedal_to_torque};
     int time_ms = 0;
 
@@ -59,15 +63,17 @@ void test_2(const shared::util::Mapper<float>& pedal_to_torque) {
         time_ms);
 
     VdOutput output_2_expected{
-        .lm_torque_limit_positive = 100.0f,
-        .rm_torque_limit_positive = 100.0f,
+        // Expected to calculate torque limit of 100.0f for both motors given test 2 input
+        // Expected output of 50.0f after accounting for running avg of motor torque and test 1
+        .lm_torque_limit_positive = 50.0f,
+        .rm_torque_limit_positive = 50.0f,
         .lm_torque_limit_negative = 0.0f,
         .rm_torque_limit_negative = 0.0f,
         .left_motor_speed_request = 1000,
         .right_motor_speed_request = 1000
     };
 
-    std::cout << "Output 1: (negative torque limits and speed requests are always constant)" << std::endl;
+    std::cout << "Output 2: (negative torque limits and speed requests are always constant)" << std::endl;
     std::cout << "lm_torque_limit_positive: " << output_2.lm_torque_limit_positive << std::endl;
     std::cout << "rm_torque_limit_positive: " << output_2.rm_torque_limit_positive << std::endl;
 
@@ -76,6 +82,8 @@ void test_2(const shared::util::Mapper<float>& pedal_to_torque) {
 }
 
 void test_3(const shared::util::Mapper<float>& pedal_to_torque) {
+    std::cout << "Test 3 loading" << std::endl;
+
     SimpVdInterface simp_vd_int{pedal_to_torque};
     int time_ms = 0;
 
@@ -93,15 +101,17 @@ void test_3(const shared::util::Mapper<float>& pedal_to_torque) {
         time_ms);
 
     VdOutput output_3_expected{
-        .lm_torque_limit_positive = 100.0f,
-        .rm_torque_limit_positive = 68.3f,
+        // Expected to calculate lm=100.0f, rm=68.3f torque limits given test 3 input
+        // Expected output of lm=66.7, rm=66.7*.683=45.5f after accounting for running avg of motor torque and prev tests
+        .lm_torque_limit_positive = 66.66667f,
+        .rm_torque_limit_positive = 45.53336f, // 5 decimal places due to tolerance
         .lm_torque_limit_negative = 0.0f,
         .rm_torque_limit_negative = 0.0f,
         .left_motor_speed_request = 1000,
         .right_motor_speed_request = 1000
     };
 
-    std::cout << "Output 1: (negative torque limits and speed requests are always constant)" << std::endl;
+    std::cout << "Output 3: (negative torque limits and speed requests are always constant)" << std::endl;
     std::cout << "lm_torque_limit_positive: " << output_3.lm_torque_limit_positive << std::endl;
     std::cout << "rm_torque_limit_positive: " << output_3.rm_torque_limit_positive << std::endl;
 
@@ -110,6 +120,8 @@ void test_3(const shared::util::Mapper<float>& pedal_to_torque) {
 }
 
 void test_4(const shared::util::Mapper<float>& pedal_to_torque) {
+    std::cout << "Test 4 loading" << std::endl;
+
     SimpVdInterface simp_vd_int{pedal_to_torque};
     int time_ms = 0;
 
@@ -118,24 +130,26 @@ void test_4(const shared::util::Mapper<float>& pedal_to_torque) {
             .driver_torque_request = 50.0f,
             .brake_pedal_postion = 0.0f,
             .steering_angle = 0.0f,
-            .wheel_speed_lr = 10.0f, // actual slip 0.5
-            .wheel_speed_rr = 10.0f,
-            .wheel_speed_lf = 15.0f,
-            .wheel_speed_rf = 15.0f,
+            .wheel_speed_lr = 15.0f, // actual slip 0.5
+            .wheel_speed_rr = 15.0f,
+            .wheel_speed_lf = 10.0f,
+            .wheel_speed_rf = 10.0f,
             .tv_enable = true
         },
         time_ms);
 
     VdOutput output_4_expected{
-        .lm_torque_limit_positive = 50.0f,
-        .rm_torque_limit_positive = 50.0f,
+        // Expected to calculate lm=rm=50.0f torque limit given test 4 input
+        // Moving avg: (prev torque limits) / count = (0 + 100 + 100 + 50) / 4 = 62.5f
+        .lm_torque_limit_positive = 62.5f,
+        .rm_torque_limit_positive = 62.5f, // tc scale factor = 1, slipping for < 50ms
         .lm_torque_limit_negative = 0.0f,
         .rm_torque_limit_negative = 0.0f,
         .left_motor_speed_request = 1000,
         .right_motor_speed_request = 1000
     };
 
-    std::cout << "Output TC: (negative torque limits and speed requests are always constant)" << std::endl;
+    std::cout << "Output 4: (negative torque limits and speed requests are always constant)" << std::endl;
     std::cout << "lm_torque_limit_positive: " << output_4.lm_torque_limit_positive << std::endl;
     std::cout << "rm_torque_limit_positive: " << output_4.rm_torque_limit_positive << std::endl;
 
@@ -144,32 +158,36 @@ void test_4(const shared::util::Mapper<float>& pedal_to_torque) {
 }
 
 void test_5(const shared::util::Mapper<float>& pedal_to_torque) {
+    std::cout << "Test 5 loading" << std::endl;
+
     SimpVdInterface simp_vd_int{pedal_to_torque};
-    int time_ms = 50;
+    int time_ms = 55;
 
     VdOutput output_5 = simp_vd_int.update(
         VdInput{
             .driver_torque_request = 50.0f,
             .brake_pedal_postion = 0.0f,
             .steering_angle = 0.0f,
-            .wheel_speed_lr = 10.0f, // actual slip 0.5
-            .wheel_speed_rr = 10.0f,
-            .wheel_speed_lf = 15.0f,
-            .wheel_speed_rf = 15.0f,
+            .wheel_speed_lr = 15.0f, // actual slip 0.5
+            .wheel_speed_rr = 15.0f,
+            .wheel_speed_lf = 10.0f,
+            .wheel_speed_rf = 10.0f,
             .tv_enable = true
         },
         time_ms);
 
     VdOutput output_5_expected{
-        .lm_torque_limit_positive = 0.0f, // tc scale factor is 0
-        .rm_torque_limit_positive = 0.0f,
+        // Expected to calculate lm=rm=0.0f torque limit given test 5 input
+        // Moving avg: (prev torque limits) / count = (0 + 100 + 100 + 50 + 0) / 5 = 50.0f
+        .lm_torque_limit_positive = 50.0f,
+        .rm_torque_limit_positive = 50.0f, // tc scale factor = 0, slipping for > 50ms
         .lm_torque_limit_negative = 0.0f,
         .rm_torque_limit_negative = 0.0f,
         .left_motor_speed_request = 1000,
         .right_motor_speed_request = 1000
     };
 
-    std::cout << "Output TC: (negative torque limits and speed requests are always constant)" << std::endl;
+    std::cout << "Output 5: (negative torque limits and speed requests are always constant)" << std::endl;
     std::cout << "lm_torque_limit_positive: " << output_5.lm_torque_limit_positive << std::endl;
     std::cout << "rm_torque_limit_positive: " << output_5.rm_torque_limit_positive << std::endl;
 
