@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from typing import Dict, List, Set, Optional, Type
+from abc import ABC
 
 class Endian(Enum):
     BIG = auto()
@@ -40,7 +41,7 @@ class Message:
     description: Optional[str] = None
 
 @dataclass
-class Signal:
+class Signal(ABC):
     name: str # 1-32 chars, only [A-z], digits, and underscores
     start_bit: int # bit 0-63
     length: int # 1-64 bits
