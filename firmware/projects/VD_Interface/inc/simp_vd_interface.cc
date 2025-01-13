@@ -12,8 +12,8 @@ VdOutput SimpVdInterface::update(const VdInput& input, int time_ms) {
     VdOutput output{
         .lm_torque_limit_positive = 0.0f,
         .rm_torque_limit_positive = 0.0f,
-        .lm_torque_limit_negative = 0.0f,
-        .rm_torque_limit_negative = 0.0f,
+        .lm_torque_limit_negative = 0.0f, // negative limit fields set to
+        .rm_torque_limit_negative = 0.0f, // 0 in simulink model
         .left_motor_speed_request = 1000,
         .right_motor_speed_request = 1000,
     };
@@ -23,8 +23,6 @@ VdOutput SimpVdInterface::update(const VdInput& input, int time_ms) {
         {100.0f, 100.0f}
     };
 
-    float motor_torque_request = ComputeTorqueRequest(input.driver_torque_request,
-                                                input.brake_pedal_postion);
     float actual_slip =
         CalculateActualSlip(input.wheel_speed_lr, input.wheel_speed_rr,
                             input.wheel_speed_lf, input.wheel_speed_rf);
@@ -39,6 +37,9 @@ VdOutput SimpVdInterface::update(const VdInput& input, int time_ms) {
 
     constexpr int pedal_torque_lut_length = (sizeof(pedal_torque_lut_data)) / (sizeof(pedal_torque_lut_data[0]));
     const shared::util::LookupTable<pedal_torque_lut_length> pedal_to_torque{pedal_torque_lut_data};
+
+    float motor_torque_request = ComputeTorqueRequest(input.driver_torque_request,
+                                                input.brake_pedal_postion);
 
     // Running avg calculation done within CalculateMotorTorque
     std::tie(output.lm_torque_limit_positive, output.rm_torque_limit_positive) =
