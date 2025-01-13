@@ -2,6 +2,7 @@
 /// @date 2024-11-23
 
 #include "simp_vd_interface.hpp"
+#include "shared/controls/motor_torque.h"
 
 using namespace ctrl;
 
@@ -28,16 +29,18 @@ VdOutput SimpVdInterface::update(const VdInput& input, int time_ms) {
     float tv_factor_right;
 
     float steering_angle = input.tv_enable ? input.steering_angle : 0.0f;
-    std::tie(tv_factor_left, tv_factor_right) = AdjustTorqueVectoring(
-        steering_angle, CreateTorqueVectoringFactor(steering_angle));
+    TorqueVector<float> torque_vector = AdjustTorqueVectoring(steering_angle);
 
     float motor_torque_request = ComputeTorqueRequest(input.driver_torque_request,
                                                 input.brake_pedal_postion);
 
     // Running avg calculation done within CalculateMotorTorque
-    std::tie(output.lm_torque_limit_positive, output.rm_torque_limit_positive) =
-        CalculateMotorTorque(pedal_to_torque.Evaluate(motor_torque_request * tc_scale_factor),
-                             tv_factor_right, tv_factor_left);
+    MotorTorque<float> motor_torque = CalculateMotorTorque(
+        pedal_to_torque.Evaluate(motor_torque_request * tc_scale_factor),
+        torque_vector);
+
+    output.lm_torque_limit_positive = motor_torque.left_motor_torque_limit;
+    output.rm_torque_limit_positive = motor_torque.right_motor_torque_limit;
 
     return output;
 }

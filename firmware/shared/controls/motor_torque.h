@@ -2,6 +2,7 @@
 #include <tuple>
 
 #include "shared/util/moving_average.hpp"
+#include "shared/controls/tvFactor.h"
 
 // Peter Jabra and Aleeza Ali Zar
 namespace ctrl {
@@ -12,8 +13,15 @@ enum class State {
 };
 
 template <typename T>
-std::tuple<T, T> CalculateMotorTorque(T new_torque_value, T right_factor,
-                                      T left_factor, bool reset = false) {
+struct MotorTorque {
+    T left_motor_torque_limit;
+    T right_motor_torque_limit;
+};
+
+template <typename T>
+MotorTorque<T> CalculateMotorTorque(T new_torque_value, TorqueVector<T> torque_vector, bool reset = false) {
+    MotorTorque<T> motor_torque;
+
     static shared::util::MovingAverage<T, 10> running_average;
 
     if (reset) {
@@ -24,10 +32,10 @@ std::tuple<T, T> CalculateMotorTorque(T new_torque_value, T right_factor,
 
     T running_average_value = running_average.GetValue();
 
-    T right_motor_torque_limit = running_average_value * right_factor;
-    T left_motor_torque_limit = running_average_value * left_factor;
+    motor_torque.right_motor_torque_limit = running_average_value * torque_vector.right_torque_vector;
+    motor_torque.left_motor_torque_limit = running_average_value * torque_vector.left_torque_vector;
 
-    return std::tuple(right_motor_torque_limit, left_motor_torque_limit);
+    return motor_torque;
 }
 
 template <typename T>

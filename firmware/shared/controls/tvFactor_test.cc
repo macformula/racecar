@@ -14,21 +14,21 @@ int main() {
     ASSERT_CLOSE(CreateTorqueVectoringFactor(27.3), 0.683);
 
     {
-        auto [left_factor, right_factor] = AdjustTorqueVectoring(15.2, 3.6);
-        ASSERT_CLOSE(left_factor, 1.0);
-        ASSERT_CLOSE(right_factor, 3.6);
+        TorqueVector<double> tv = AdjustTorqueVectoring(15.2);
+        ASSERT_CLOSE(tv.left_torque_vector, 1.0);
+        ASSERT_CLOSE(tv.right_torque_vector, 3.6);
     }
 
     {
-        auto [left_factor, right_factor] = AdjustTorqueVectoring(-13.6, 2.2);
-        ASSERT_CLOSE(left_factor, 2.2);
-        ASSERT_CLOSE(right_factor, 1);
+        TorqueVector<double> tv = AdjustTorqueVectoring(-13.6);
+        ASSERT_CLOSE(tv.left_torque_vector, 2.2);
+        ASSERT_CLOSE(tv.right_torque_vector, 1);
     }
 
     {
-        auto [left_factor, right_factor] = AdjustTorqueVectoring(0.0, 6.0);
-        ASSERT_CLOSE(left_factor, 1);
-        ASSERT_CLOSE(right_factor, 1);
+        TorqueVector<double> tv = AdjustTorqueVectoring(0.0);
+        ASSERT_CLOSE(tv.left_torque_vector, 1);
+        ASSERT_CLOSE(tv.right_torque_vector, 1);
     }
 
     std::cout << "All tests passed" << std::endl;
