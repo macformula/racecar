@@ -2,6 +2,7 @@
 /// @date 2024-11-23
 
 #include "simp_vd_interface.hpp"
+#include "shared/controls/testing.h"
 
 #include <cassert>
 #include <iostream>
@@ -36,8 +37,8 @@ void test_1() {
     std::cout << "lm_torque_limit_positive: " << output_1.lm_torque_limit_positive << std::endl;
     std::cout << "rm_torque_limit_positive: " << output_1.rm_torque_limit_positive << std::endl;
 
-    assert(output_1.lm_torque_limit_positive == output_1_expected.lm_torque_limit_positive);
-    assert(output_1.lm_torque_limit_positive == output_1_expected.lm_torque_limit_positive);
+    ASSERT_CLOSE(output_1.lm_torque_limit_positive, output_1_expected.lm_torque_limit_positive);
+    ASSERT_CLOSE(output_1.lm_torque_limit_positive, output_1_expected.lm_torque_limit_positive);
 }
 
 void test_2() {
@@ -70,8 +71,8 @@ void test_2() {
     std::cout << "lm_torque_limit_positive: " << output_2.lm_torque_limit_positive << std::endl;
     std::cout << "rm_torque_limit_positive: " << output_2.rm_torque_limit_positive << std::endl;
 
-    assert(output_2.lm_torque_limit_positive == output_2_expected.lm_torque_limit_positive);
-    assert(output_2.lm_torque_limit_positive == output_2_expected.lm_torque_limit_positive);
+    ASSERT_CLOSE(output_2.lm_torque_limit_positive, output_2_expected.lm_torque_limit_positive);
+    ASSERT_CLOSE(output_2.lm_torque_limit_positive, output_2_expected.lm_torque_limit_positive);
 }
 
 void test_3() {
@@ -104,8 +105,8 @@ void test_3() {
     std::cout << "lm_torque_limit_positive: " << output_3.lm_torque_limit_positive << std::endl;
     std::cout << "rm_torque_limit_positive: " << output_3.rm_torque_limit_positive << std::endl;
 
-    assert(output_3.lm_torque_limit_positive == output_3_expected.lm_torque_limit_positive);
-    assert(output_3.lm_torque_limit_positive == output_3_expected.lm_torque_limit_positive);
+    ASSERT_CLOSE(output_3.lm_torque_limit_positive, output_3_expected.lm_torque_limit_positive);
+    ASSERT_CLOSE(output_3.lm_torque_limit_positive, output_3_expected.lm_torque_limit_positive);
 }
 
 void test_4() {
@@ -138,8 +139,8 @@ void test_4() {
     std::cout << "lm_torque_limit_positive: " << output_4.lm_torque_limit_positive << std::endl;
     std::cout << "rm_torque_limit_positive: " << output_4.rm_torque_limit_positive << std::endl;
 
-    assert(output_4.lm_torque_limit_positive == output_4_expected.lm_torque_limit_positive);
-    assert(output_4.rm_torque_limit_positive == output_4_expected.rm_torque_limit_positive);
+    ASSERT_CLOSE(output_4.lm_torque_limit_positive, output_4_expected.lm_torque_limit_positive);
+    ASSERT_CLOSE(output_4.rm_torque_limit_positive, output_4_expected.rm_torque_limit_positive);
 }
 
 void test_5() {
@@ -172,8 +173,8 @@ void test_5() {
     std::cout << "lm_torque_limit_positive: " << output_5.lm_torque_limit_positive << std::endl;
     std::cout << "rm_torque_limit_positive: " << output_5.rm_torque_limit_positive << std::endl;
 
-    assert(output_5.lm_torque_limit_positive == output_5_expected.lm_torque_limit_positive);
-    assert(output_5.rm_torque_limit_positive == output_5_expected.rm_torque_limit_positive);
+    ASSERT_CLOSE(output_5.lm_torque_limit_positive, output_5_expected.lm_torque_limit_positive);
+    ASSERT_CLOSE(output_5.rm_torque_limit_positive, output_5_expected.rm_torque_limit_positive);
 }
 
 int start_tests() {
