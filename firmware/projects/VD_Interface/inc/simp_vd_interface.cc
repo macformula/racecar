@@ -25,11 +25,13 @@ VdOutput SimpVdInterface::update(const VdInput& input, int time_ms) {
                             input.wheel_speed_lf, input.wheel_speed_rf);
     float tc_scale_factor = CalculateTCScaleFactor(actual_slip, target_slip, time_ms);
 
-    float tv_factor_left;
-    float tv_factor_right;
-
-    float steering_angle = input.tv_enable ? input.steering_angle : 0.0f;
-    TorqueVector<float> torque_vector = AdjustTorqueVectoring(steering_angle);
+    TorqueVector<float> torque_vector;
+    if (input.tv_enable) {
+        torque_vector = AdjustTorqueVectoring(input.steering_angle);
+    } else {
+        torque_vector.left_torque_vector = 1.0f;
+        torque_vector.right_torque_vector = 1.0f;
+    }
 
     float motor_torque_request = ComputeTorqueRequest(input.driver_torque_request,
                                                 input.brake_pedal_postion);
