@@ -8,7 +8,6 @@
 
 #include "shared/controls/testing.h"
 
-
 void test_1(const shared::util::Mapper<float>& pedal_to_torque,
             SimpVdInterface* simp_vd_int) {
     std::cout << "Test 1 loading" << std::endl;
@@ -155,8 +154,10 @@ void test_4(const shared::util::Mapper<float>& pedal_to_torque,
         .lm_torque_limit_positive = 62.5f,
         .rm_torque_limit_positive = 62.5f,  // tc scale factor = 1, slipping for
                                             // < 50ms
-        .lm_torque_limit_negative = 0.0f,  .rm_torque_limit_negative = 0.0f,
-        .left_motor_speed_request = 1000,  .right_motor_speed_request = 1000};
+        .lm_torque_limit_negative = 0.0f,
+        .rm_torque_limit_negative = 0.0f,
+        .left_motor_speed_request = 1000,
+        .right_motor_speed_request = 1000};
 
     std::cout << "Output 4: (negative torque limits and speed requests are "
                  "always constant)"
@@ -196,8 +197,10 @@ void test_5(const shared::util::Mapper<float>& pedal_to_torque,
         .lm_torque_limit_positive = 50.0f,
         .rm_torque_limit_positive = 50.0f,  // tc scale factor = 0, slipping for
                                             // > 50ms
-        .lm_torque_limit_negative = 0.0f,  .rm_torque_limit_negative = 0.0f,
-        .left_motor_speed_request = 1000,  .right_motor_speed_request = 1000};
+        .lm_torque_limit_negative = 0.0f,
+        .rm_torque_limit_negative = 0.0f,
+        .left_motor_speed_request = 1000,
+        .right_motor_speed_request = 1000};
 
     std::cout << "Output 5: (negative torque limits and speed requests are "
                  "always constant)"

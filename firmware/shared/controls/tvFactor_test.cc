@@ -4,7 +4,6 @@
 
 #include "testing.h"
 
-
 int main() {
     using namespace ctrl;
 

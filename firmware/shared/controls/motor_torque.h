@@ -4,7 +4,6 @@
 #include "shared/controls/tvFactor.h"
 #include "shared/util/moving_average.hpp"
 
-
 // Peter Jabra and Aleeza Ali Zar
 namespace ctrl {
 

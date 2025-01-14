@@ -10,6 +10,5 @@
 namespace bindings {
 void Initialize() {
     std::cout << "Initializing CLI..." << std::endl;
-
 }
 }  // namespace bindings

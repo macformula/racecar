@@ -60,8 +60,8 @@ template <typename T>
 T CalculateTCScaleFactor(T actual_slip, T target_slip, int time_ms) {
     const static T kRampTimeMs = 100.;
 
-    // reset_time initialized to (time_ms - kRampTimeMs) to ensure that the first
-    // call to this function will return full torque (scale_factor = 1)
+    // reset_time initialized to (time_ms - kRampTimeMs) to ensure that the
+    // first call to this function will return full torque (scale_factor = 1)
     static int reset_time = time_ms - static_cast<int>(kRampTimeMs);
 
     static HoldCondition is_slipping(time_ms);

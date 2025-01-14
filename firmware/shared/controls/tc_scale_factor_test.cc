@@ -1,6 +1,7 @@
+#include "tc_scale_factor.h"  // include the header with your function implementation
+
 #include <iostream>
 
-#include "tc_scale_factor.h"  // include the header with your function implementation
 #include "testing.h"
 
 void TestMultistageTC() {

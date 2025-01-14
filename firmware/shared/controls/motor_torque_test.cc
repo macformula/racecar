@@ -5,7 +5,6 @@
 #include "testing.h"
 #include "tvFactor.h"
 
-
 int main() {
     using namespace ctrl;
 
