@@ -1,5 +1,4 @@
 #include "../../bindings.hpp"
-
 #include "adc.h"
 #include "main.h"
 #include "mcal/stm32f767/periph/analog_input.hpp"

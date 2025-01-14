@@ -41,7 +41,7 @@ private:
         rolling_temperature_;
 
     float Read() {
-        float volt = analog_input_.Read();
+        float volt = analog_input_.ReadVoltage();
         float temperature = volt_to_temp_.Evaluate(volt);
         return temperature;
     }

@@ -1,11 +1,10 @@
 #include "bindings.hpp"
 
-
-int main(){
+int main() {
     bindings::Init();
 
     while (true) {
-        bindings::analog_input.Read();
+        bindings::analog_input.ReadVoltage();
     }
     return 0;
 }

@@ -13,8 +13,7 @@ class AnalogInput : public shared::periph::AnalogInput {
 public:
     AnalogInput(std::string name);
 
-    void Start() override;
-    float Read() override;
+    float ReadVoltage() override;
 
 private:
     std::string name_;

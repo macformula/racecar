@@ -1,8 +1,9 @@
-#include "adc.h"
-
 #include <cstdint>
 #include <format>
 #include <iostream>
+
+#include "adc.hpp"
+
 
 namespace mcal::lnx::periph {
 

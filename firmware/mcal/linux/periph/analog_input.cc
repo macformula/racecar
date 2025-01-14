@@ -1,23 +1,20 @@
 /// @author Samuel Shi
 /// @date 2025-1-10
 
-#include "analog_input.hpp"
-
 #include <format>
 #include <iostream>
+
+#include "analog_input.hpp"
+
 
 namespace mcal::lnx::periph {
 
 AnalogInput::AnalogInput(std::string name) : name_(name) {}
 
-void AnalogInput::Start() {
+float AnalogInput::ReadVoltage() {
     std::cout << std::format("Reading ADC {} ...", name_) << std::endl;
-}
-
-float AnalogInput::Read() {
-    Start();
-    float voltage;
     std::cout << " | Enter a voltage level: ";
+    float voltage;
     std::cin >> voltage;
     std::cout << std::format(" | Obtained value {:.3f} V", voltage)
               << std::endl;

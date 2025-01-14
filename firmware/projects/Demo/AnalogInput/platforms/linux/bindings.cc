@@ -1,7 +1,6 @@
-#include "../../bindings.hpp"
-
 #include <iostream>
 
+#include "../../bindings.hpp"
 #include "mcal/linux/periph/analog_input.hpp"
 #include "shared/periph/analog_input.hpp"
 

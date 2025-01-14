@@ -14,14 +14,10 @@ class AnalogInput : public shared::periph::AnalogInput {
 public:
     AnalogInput(std::string name) : name_(name) {}
 
-    void Start() override {
+    float ReadVoltage() override {
         std::cout << std::format("Reading ADC {} ...", name_) << std::endl;
-    }
-
-    float Read() override {
-        Start();
-        float voltage;
         std::cout << " | Enter a voltage level: ";
+        float voltage;
         std::cin >> voltage;
         std::cout << std::format(" | Obtained value {:.3f} V", voltage)
                   << std::endl;

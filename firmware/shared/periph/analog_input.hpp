@@ -10,11 +10,7 @@ namespace shared::periph {
 
 class AnalogInput : public util::Peripheral {
 public:
-    /// @brief Turn on the peripheral
-    virtual void Start() = 0;
-
-    /// @brief Read the voltage
-    virtual float Read() = 0;
+    virtual float ReadVoltage() = 0;
 };
 
 }  // namespace shared::periph
