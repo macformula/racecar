@@ -44,26 +44,26 @@ StatusLight status_light{bindings::status_light};
 // See fc_docs/pedal_function and
 // vehicle_control_system/firmware_io/simulink_input.csv
 auto accel_pedal_1_map = shared::util::LinearMap<double, uint16_t>{
-    730.125,
-    -0.29412,
-};  // Asumming 3.3V = 4096
+    0.5,
+    -0.25,
+};
 AnalogInput accel_pedal_1{
     bindings::accel_pedal_1,
     &accel_pedal_1_map,
 };
 
 auto accel_pedal_2_map = shared::util::LinearMap<double, uint16_t>{
-    730.125,
-    -0.4706,
-};  // Asumming 3.3V = 4096
+    0.5,
+    -0.25,
+};
 AnalogInput accel_pedal_2{
     bindings::accel_pedal_2,
     &accel_pedal_2_map,
 };
 
 auto brake_pedal_front_map = shared::util::LinearMap<double, uint16_t>{
-    730.125,
-    -0.29412,
+    0.5,
+    -0.25,
 };  // TODO: Check this, no function is given, copied from accel_pedal_1
 AnalogInput brake_pedal_front{
     bindings::brake_pedal_front,
@@ -71,8 +71,8 @@ AnalogInput brake_pedal_front{
 };
 
 auto brake_pedal_rear_map = shared::util::LinearMap<double, uint16_t>{
-    730.125,
-    -0.29412,
+    0.5,
+    -0.25,
 };  // TODO: Check this, no function is given, copied from accel_pedal_1
 AnalogInput brake_pedal_rear{
     bindings::brake_pedal_rear,
@@ -80,9 +80,9 @@ AnalogInput brake_pedal_rear{
 };
 
 auto steering_wheel_map = shared::util::LinearMap<double, uint16_t>{
-    1.0 / 4096.0,
-    0,
-};  // Assuming 3.3V = 4096
+    0.606061,
+    -1,
+};  // Assuming 0 Volts is full left, 3.3 is full right
 AnalogInput steering_wheel{
     bindings::steering_wheel,
     &steering_wheel_map,
