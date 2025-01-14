@@ -40,5 +40,6 @@ public:
 
 private:
     const shared::util::Mapper<float>& pedal_to_torque;
+    shared::util::MovingAverage<float, 10> running_average;
     float target_slip;
 };

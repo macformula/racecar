@@ -13,32 +13,6 @@ enum class State {
 };
 
 template <typename T>
-struct MotorTorque {
-    T left_limit;
-    T right_limit;
-};
-
-template <typename T>
-MotorTorque<T> CalculateMotorTorque(T new_torque_value, TorqueVector<T> torque_vector, bool reset = false) {
-    MotorTorque<T> torque;
-
-    static shared::util::MovingAverage<T, 10> running_average;
-
-    if (reset) {
-        running_average = shared::util::MovingAverage<T, 10>();
-    }
-
-    running_average.LoadValue(new_torque_value);
-
-    T running_average_value = running_average.GetValue();
-
-    torque.right_limit = running_average_value * torque_vector.right;
-    torque.left_limit = running_average_value * torque_vector.left;
-
-    return torque;
-}
-
-template <typename T>
 T ComputeTorqueRequest(T driver_torque_request, T brake_pedal_position) {
     static State current_state = State::Stop;
     bool brake_on = brake_pedal_position > static_cast<T>(10);
