@@ -28,8 +28,8 @@ VdOutput SimpVdInterface::update(const VdInput& input, int time_ms) {
     if (input.tv_enable) {
         torque_vector = AdjustTorqueVectoring(input.steering_angle);
     } else {
-        torque_vector.left_torque_vector = 1.0f;
-        torque_vector.right_torque_vector = 1.0f;
+        torque_vector.left = 1.0f;
+        torque_vector.right = 1.0f;
     }
 
     float motor_torque_request = ComputeTorqueRequest(input.driver_torque_request,
@@ -40,8 +40,8 @@ VdOutput SimpVdInterface::update(const VdInput& input, int time_ms) {
         pedal_to_torque.Evaluate(motor_torque_request * tc_scale_factor),
         torque_vector);
 
-    output.lm_torque_limit_positive = motor_torque.left_motor_torque_limit;
-    output.rm_torque_limit_positive = motor_torque.right_motor_torque_limit;
+    output.lm_torque_limit_positive = motor_torque.left_limit;
+    output.rm_torque_limit_positive = motor_torque.right_limit;
 
     return output;
 }

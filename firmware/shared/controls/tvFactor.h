@@ -25,8 +25,8 @@ T CreateTorqueVectoringFactor(T steering_angle) {
 
 template <typename T>
 struct TorqueVector {
-    T left_torque_vector;
-    T right_torque_vector;
+    T left;
+    T right;
 };
 
 template <typename T>
@@ -36,14 +36,14 @@ TorqueVector<T> AdjustTorqueVectoring(T steering_angle) {
     T torque_vectoring_factor = CreateTorqueVectoringFactor(steering_angle);
 
     if (steering_angle > 0) {
-        torque_vector.left_torque_vector = static_cast<T>(1);
-        torque_vector.right_torque_vector = torque_vectoring_factor;
+        torque_vector.left = static_cast<T>(1);
+        torque_vector.right = torque_vectoring_factor;
     } else if (steering_angle < 0) {
-        torque_vector.right_torque_vector = static_cast<T>(1);
-        torque_vector.left_torque_vector = torque_vectoring_factor;
+        torque_vector.right = static_cast<T>(1);
+        torque_vector.left = torque_vectoring_factor;
     } else {
-        torque_vector.left_torque_vector = static_cast<T>(1);
-        torque_vector.right_torque_vector = static_cast<T>(1);
+        torque_vector.left = static_cast<T>(1);
+        torque_vector.right = static_cast<T>(1);
     }
 
     return torque_vector;

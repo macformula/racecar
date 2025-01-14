@@ -14,13 +14,13 @@ enum class State {
 
 template <typename T>
 struct MotorTorque {
-    T left_motor_torque_limit;
-    T right_motor_torque_limit;
+    T left_limit;
+    T right_limit;
 };
 
 template <typename T>
 MotorTorque<T> CalculateMotorTorque(T new_torque_value, TorqueVector<T> torque_vector, bool reset = false) {
-    MotorTorque<T> motor_torque;
+    MotorTorque<T> torque;
 
     static shared::util::MovingAverage<T, 10> running_average;
 
@@ -32,10 +32,10 @@ MotorTorque<T> CalculateMotorTorque(T new_torque_value, TorqueVector<T> torque_v
 
     T running_average_value = running_average.GetValue();
 
-    motor_torque.right_motor_torque_limit = running_average_value * torque_vector.right_torque_vector;
-    motor_torque.left_motor_torque_limit = running_average_value * torque_vector.left_torque_vector;
+    torque.right_limit = running_average_value * torque_vector.right;
+    torque.left_limit = running_average_value * torque_vector.left;
 
-    return motor_torque;
+    return torque;
 }
 
 template <typename T>

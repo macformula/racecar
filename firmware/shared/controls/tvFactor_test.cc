@@ -15,20 +15,20 @@ int main() {
 
     {
         TorqueVector<double> tv = AdjustTorqueVectoring(15.2);
-        ASSERT_CLOSE(tv.left_torque_vector, 1.0);
-        ASSERT_CLOSE(tv.right_torque_vector, 3.6);
+        ASSERT_CLOSE(tv.left, 1.0);
+        ASSERT_CLOSE(tv.right, 3.6);
     }
 
     {
         TorqueVector<double> tv = AdjustTorqueVectoring(-13.6);
-        ASSERT_CLOSE(tv.left_torque_vector, 2.2);
-        ASSERT_CLOSE(tv.right_torque_vector, 1);
+        ASSERT_CLOSE(tv.left, 2.2);
+        ASSERT_CLOSE(tv.right, 1);
     }
 
     {
         TorqueVector<double> tv = AdjustTorqueVectoring(0.0);
-        ASSERT_CLOSE(tv.left_torque_vector, 1);
-        ASSERT_CLOSE(tv.right_torque_vector, 1);
+        ASSERT_CLOSE(tv.left, 1);
+        ASSERT_CLOSE(tv.right, 1);
     }
 
     std::cout << "All tests passed" << std::endl;

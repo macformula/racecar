@@ -12,8 +12,8 @@ int main() {
     // Test Case 1: Smaller Sample Sizes
     {
         TorqueVector<double> tv = {
-            .left_torque_vector = 1.5,
-            .right_torque_vector = 1.2
+            .left = 1.5,
+            .right = 1.2
         };
 
         double new_torque_values[] = {5.0, 10.0, 15.0};
@@ -22,14 +22,14 @@ int main() {
         }
         MotorTorque<double> motor_torque =
             CalculateMotorTorque(20.0, tv);
-        ASSERT_CLOSE(motor_torque.right_motor_torque_limit, 18.75);
-        ASSERT_CLOSE(motor_torque.left_motor_torque_limit, 15.00);
+        ASSERT_CLOSE(motor_torque.right_limit, 18.75);
+        ASSERT_CLOSE(motor_torque.left_limit, 15.00);
     }
 
     {
         TorqueVector<double> tv = {
-            .left_torque_vector = 1.1,
-            .right_torque_vector = 1.3
+            .left = 1.1,
+            .right = 1.3
         };
 
         double new_torque_values[] = {2.0, 4.0};
@@ -38,15 +38,15 @@ int main() {
         }
         MotorTorque<double> motor_torque =
             CalculateMotorTorque(6.0, tv);
-        ASSERT_CLOSE(motor_torque.right_motor_torque_limit, 4.40);
-        ASSERT_CLOSE(motor_torque.left_motor_torque_limit, 5.20);
+        ASSERT_CLOSE(motor_torque.right_limit, 4.40);
+        ASSERT_CLOSE(motor_torque.left_limit, 5.20);
     }
 
     // Test Case 2: Larger Sample Sizes
     {
         TorqueVector<double> tv = {
-            .left_torque_vector = 1.5,
-            .right_torque_vector = 1.2
+            .left = 1.5,
+            .right = 1.2
         };
 
         for (double i = 1; i <= 9; i++) {
@@ -54,15 +54,15 @@ int main() {
         }
         MotorTorque<double> motor_torque =
             CalculateMotorTorque(10.0, tv);
-        ASSERT_CLOSE(motor_torque.right_motor_torque_limit, 8.25);
-        ASSERT_CLOSE(motor_torque.left_motor_torque_limit, 6.60);
+        ASSERT_CLOSE(motor_torque.right_limit, 8.25);
+        ASSERT_CLOSE(motor_torque.left_limit, 6.60);
     }
 
     // Test Case 3: Sample Size over 10 Entities
     {
         TorqueVector<double> tv = {
-            .left_torque_vector = 1.1,
-            .right_torque_vector = 1.3
+            .left = 1.1,
+            .right = 1.3
         };
 
         double new_torque_values[] = {80, 21, 34, 43, 27, 47, 46,
@@ -72,15 +72,15 @@ int main() {
         }
         MotorTorque<double> motor_torque =
             CalculateMotorTorque(12.0, tv);
-        ASSERT_CLOSE(motor_torque.right_motor_torque_limit, 27.4 * 1.1);
-        ASSERT_CLOSE(motor_torque.left_motor_torque_limit, 27.4 * 1.2);
+        ASSERT_CLOSE(motor_torque.right_limit, 27.4 * 1.1);
+        ASSERT_CLOSE(motor_torque.left_limit, 27.4 * 1.2);
     }
 
     // Test Case 4: Zero values in raw_torque_values
     {
         TorqueVector<double> tv = {
-            .left_torque_vector = 1.1,
-            .right_torque_vector = 1.2
+            .left = 1.1,
+            .right = 1.2
         };
 
         double new_torque_values[] = {0.0, 0.0, 0.0};
@@ -89,22 +89,22 @@ int main() {
         }
         MotorTorque<double> motor_torque = 
             CalculateMotorTorque(0.0, tv);
-        ASSERT_CLOSE(motor_torque.right_motor_torque_limit, 0.0);
-        ASSERT_CLOSE(motor_torque.left_motor_torque_limit, 0.0);
+        ASSERT_CLOSE(motor_torque.right_limit, 0.0);
+        ASSERT_CLOSE(motor_torque.left_limit, 0.0);
     }
 
     // Test Case 5: Single element in raw_torque_values
     {
         TorqueVector<double> tv = {
-            .left_torque_vector = 1.5,
-            .right_torque_vector = 1.2
+            .left = 1.5,
+            .right = 1.2
         };
 
         double new_torque_value = 10.0;
         MotorTorque<double> motor_torque =
             CalculateMotorTorque(new_torque_value, tv, true);
-        ASSERT_CLOSE(motor_torque.right_motor_torque_limit, 15.00);
-        ASSERT_CLOSE(motor_torque.left_motor_torque_limit, 12.00);
+        ASSERT_CLOSE(motor_torque.right_limit, 15.00);
+        ASSERT_CLOSE(motor_torque.left_limit, 12.00);
     }
 
     // Test cases for ComputeTorqueRequest
