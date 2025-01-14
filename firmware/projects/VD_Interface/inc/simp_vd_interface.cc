@@ -13,7 +13,7 @@ VdOutput SimpVdInterface::update(const VdInput& input, int time_ms) {
     VdOutput output{
         .lm_torque_limit_positive = 0.0f,
         .rm_torque_limit_positive = 0.0f,
-        .lm_torque_limit_negative = 0.0f, // negative limit fields set to
+        .lm_torque_limit_negative = 0.0f, // negative limit fields fixed at
         .rm_torque_limit_negative = 0.0f, // 0 in simulink model
         .left_motor_speed_request = 1000,
         .right_motor_speed_request = 1000,
