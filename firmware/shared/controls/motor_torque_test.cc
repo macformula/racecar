@@ -1,9 +1,10 @@
 #include "motor_torque.h"
-#include "tvFactor.h"
 
 #include <iostream>
 
 #include "testing.h"
+#include "tvFactor.h"
+
 
 int main() {
     using namespace ctrl;

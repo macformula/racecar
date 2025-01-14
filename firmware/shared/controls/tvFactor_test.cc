@@ -1,8 +1,9 @@
-#include <iostream> 
-
 #include "tvFactor.h"
 
+#include <iostream>
+
 #include "testing.h"
+
 
 int main() {
     using namespace ctrl;
@@ -44,6 +45,6 @@ int main() {
     }
 
     std::cout << "All tests passed" << std::endl;
-    
+
     return 0;
 }

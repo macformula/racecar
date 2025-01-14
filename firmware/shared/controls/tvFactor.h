@@ -10,10 +10,9 @@ template <typename T>
 T CreateTorqueVectoringFactor(T steering_angle) {
     T absolute_steering_angle = std::abs(steering_angle);
 
-    static const float table_data[][2] = {
-        {0.0, 1.0f},    {5.0, 0.934f},  {10.0, 0.87f},
-        {15.0, 0.808f}, {20.0, 0.747f}, {25.0, 0.683f}
-    };
+    static const float table_data[][2] = {{0.0, 1.0f},    {5.0, 0.934f},
+                                          {10.0, 0.87f},  {15.0, 0.808f},
+                                          {20.0, 0.747f}, {25.0, 0.683f}};
 
     static constexpr int table_length =
         (sizeof(table_data)) / (sizeof(table_data[0]));
