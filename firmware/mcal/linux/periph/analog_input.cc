@@ -11,7 +11,7 @@ namespace mcal::lnx::periph {
 AnalogInput::AnalogInput(std::string name) : name_(name) {}
 
 void AnalogInput::Start() {
-    std::cout << "Reading ADC " << name_ << "..." << std::endl;
+    std::cout << std::format("Reading ADC {} ...", name_) << std::endl;
 }
 
 float AnalogInput::Read() {
@@ -19,7 +19,8 @@ float AnalogInput::Read() {
     float voltage;
     std::cout << " | Enter a voltage level: ";
     std::cin >> voltage;
-    std::cout << std::format(" | Obtained value {:.3f}", voltage) << std::endl;
+    std::cout << std::format(" | Obtained value {:.3f} V", voltage)
+              << std::endl;
     return voltage;
 }
 
