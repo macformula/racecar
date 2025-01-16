@@ -62,8 +62,8 @@ AnalogInput accel_pedal_2{
 };
 
 auto brake_pedal_front_map = shared::util::LinearMap<double, uint16_t>{
-    0.5,
-    -0.25,
+    0.378788,
+    -0.125,
 };  // TODO: Check this, no function is given, copied from accel_pedal_1
 AnalogInput brake_pedal_front{
     bindings::brake_pedal_front,
@@ -71,8 +71,8 @@ AnalogInput brake_pedal_front{
 };
 
 auto brake_pedal_rear_map = shared::util::LinearMap<double, uint16_t>{
-    0.5,
-    -0.25,
+    0.378788,
+    -0.125,
 };  // TODO: Check this, no function is given, copied from accel_pedal_1
 AnalogInput brake_pedal_rear{
     bindings::brake_pedal_rear,

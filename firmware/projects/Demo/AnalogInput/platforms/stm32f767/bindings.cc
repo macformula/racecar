@@ -1,13 +1,19 @@
 #include "../../bindings.hpp"
 #include "adc.h"
+#include "gpio.h"
 #include "main.h"
 #include "mcal/stm32f767/periph/analog_input.hpp"
+#include "mcal/stm32f767/periph/gpio.hpp"
 #include "shared/periph/analog_input.hpp"
+#include "shared/periph/gpio.hpp"
 #include "stm32f7xx_hal.h"
 
 namespace mcal {
 
-stm32f767::periph::AnalogInput analog_input{&hadc1, ADC_CHANNEL_11};
+stm32f767::periph::AnalogInput analog_input{&hadc1, ADC_CHANNEL_10};
+stm32f767::periph::DigitalOutput green_led{green_led_GPIO_Port, green_led_Pin};
+stm32f767::periph::DigitalOutput red_led{red_led_GPIO_Port, red_led_Pin};
+stm32f767::periph::DigitalOutput blue_led{blue_led_GPIO_Port, blue_led_Pin};
 
 }  // namespace mcal
 
@@ -22,11 +28,15 @@ void SystemClock_Config();
 namespace bindings {
 
 shared::periph::AnalogInput& analog_input = mcal::analog_input;
+shared::periph::DigitalOutput& red_Led = mcal::red_led;
+shared::periph::DigitalOutput& blue_Led = mcal::blue_led;
+shared::periph::DigitalOutput& green_Led = mcal::green_led;
 
 void Init() {
     SystemClock_Config();
     HAL_Init();
     MX_ADC1_Init();
+    MX_GPIO_Init();
 }
 
 }  // namespace bindings
