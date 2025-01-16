@@ -3,7 +3,7 @@
 #include "../generated/can/pt_can_messages.hpp"
 #include <concepts>
 
-// MiStatus class used in AmkInput
+// MiStatus enum class used in AmkInput
 enum class MiStatus {
     UNKNOWN,
     INIT,
@@ -15,7 +15,7 @@ enum class MiStatus {
     OFF
 };
 
-// MiCmd class used in AmkInput
+// MiCmd enum class used in AmkInput
 enum class MiCmd {
     INIT,
     IDLE,
@@ -95,11 +95,21 @@ struct UpdateMotorOutput {
     bool inverter;
 };
 
-// Make enum of all possible states in the simulink FSM and then add cases logic and transitions
+// AmkStates enum class which defines all states in the amk state machine
+enum class AmkStates {
+    MOTOR_OFF_WAITING_FOR_GOV,
+    STARTUP,
+    READY,
+    RUNNING,
+    ERROR_DETECTED,
+    ERROR_RESET,
+    SHUTDOWN
+};
 
 class AmkBlock {
 public:
-    AmkBlock();
+    AmkBlock(AmkStates initial_state) : amk_state(initial_state) {}
+
     AmkOutput update(const AmkInput& input, int time_ms) {
         UpdateMotorOutput<generated::can::AMK0_SetPoints1> left_update_motor_output = UpdateMotor<generated::can::AMK0_ActualValues1, generated::can::AMK0_ActualValues2, generated::can::AMK0_SetPoints1>(input.amk_actual_values_1_left, input.amk_actual_values_2_left, input.left_motor_input, input.cmd);
         UpdateMotorOutput<generated::can::AMK1_SetPoints1> right_update_motor_output = UpdateMotor<generated::can::AMK1_ActualValues1, generated::can::AMK1_ActualValues2, generated::can::AMK1_SetPoints1>(input.amk_actual_values_1_right, input.amk_actual_values_2_right, input.right_motor_input, input.cmd);
@@ -115,11 +125,42 @@ public:
     }
 
 private:
+    AmkStates amk_state;
     MiStatus previous_state_status = MiStatus::OFF;
 
     template<AmkActualValues1 V1, AmkActualValues2 V2, SetPoint SP>
     UpdateMotorOutput<SP> UpdateMotor(const V1 val1, const V2 val2, const MotorInput motor_input, const MiCmd cmd) {
         UpdateMotorOutput<SP> update_motor_output;
+
+        switch (amk_state) {
+            case AmkStates::MOTOR_OFF_WAITING_FOR_GOV:
+
+                break;
+
+            case AmkStates::STARTUP:
+
+                break;
+
+            case AmkStates::READY:
+
+                break;
+
+            case AmkStates::RUNNING:
+
+                break;
+
+            case AmkStates::ERROR_DETECTED:
+
+                break;
+
+            case AmkStates::ERROR_RESET:
+
+                break;
+
+            case AmkStates::SHUTDOWN:
+
+                break;
+        }
 
         return update_motor_output;
     }

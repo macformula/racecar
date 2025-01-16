@@ -10,7 +10,7 @@
 void test_sequence1() {
     // the tests should show that your code matches the simulink model's
     // expected behavior
-    AmkBlock amk{};
+    AmkBlock amk(AmkStates::MOTOR_OFF_WAITING_FOR_GOV);
     int time_ms = 0;
 
     AmkOutput output1 = amk.update(
