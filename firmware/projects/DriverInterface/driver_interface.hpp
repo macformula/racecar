@@ -1,11 +1,11 @@
 #pragma once
 
 enum class DiCmd {
-    // fill this in (see src/enums)
+    GOV_E_DICMD = 8
 };
 
 enum class DiSts {
-    // fill in
+    GOV_E_DISTS = 7
 };
 
 // The simulink block has multiple inputs and outputs. We use `struct` to bind
@@ -14,13 +14,27 @@ enum class DiSts {
 struct DiInput {
     DiCmd di_cmd;
     float brake_pedal_position;
-    // fill out the rest
+    bool driver_button;
+    float steering_angle;
+    float accel_pedal_pos1;
+    float accel_pedal_pos2;
 };
 
 struct DiOutput {
-    bool brake_light_enable;
+    float driver_torque_req;
+    float steering_angle;
+    float brake_pedal_position;
+    bool driver_speaker;
+    bool brake_light_en;
     // fill this out
 };
+
+struct DriverInterfaceOutput {
+    bool ready_to_drive;
+    bool driver_speaker;
+    float brake_pedal_position =
+        std::max(input.front_brake_pressure, input.rear_brake_pressure);
+}
 
 class DriverInterface {
 public:
