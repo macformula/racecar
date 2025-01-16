@@ -61,18 +61,22 @@ AnalogInput accel_pedal_2{
     &accel_pedal_2_map,
 };
 
+const float kPressureRange = 2000;
+
+// See datasheets/race_grade/RG_SPEC-0030_M_APT_G2_DTM.pdf
 auto brake_pedal_front_map = shared::util::LinearMap<double, uint16_t>{
-    0.378788,
-    -0.125,
-};  // TODO: Check this, no function is given, copied from accel_pedal_1
+    0.378788 * kPressureRange,
+    -0.125 * kPressureRange,
+}; 
 AnalogInput brake_pedal_front{
     bindings::brake_pedal_front,
     &brake_pedal_front_map,
 };
 
+// See datasheets/race_grade/RG_SPEC-0030_M_APT_G2_DTM.pdf
 auto brake_pedal_rear_map = shared::util::LinearMap<double, uint16_t>{
-    0.378788,
-    -0.125,
+    0.378788 * kPressureRange,
+    -0.125 * kPressureRange,
 };  // TODO: Check this, no function is given, copied from accel_pedal_1
 AnalogInput brake_pedal_rear{
     bindings::brake_pedal_rear,
