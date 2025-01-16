@@ -104,16 +104,39 @@ public:
         UpdateMotorOutput<generated::can::AMK0_SetPoints1> left_update_motor_output = UpdateMotor<generated::can::AMK0_ActualValues1, generated::can::AMK0_ActualValues2, generated::can::AMK0_SetPoints1>(input.amk_actual_values_1_left, input.amk_actual_values_2_left, input.left_motor_input, input.cmd);
         UpdateMotorOutput<generated::can::AMK1_SetPoints1> right_update_motor_output = UpdateMotor<generated::can::AMK1_ActualValues1, generated::can::AMK1_ActualValues2, generated::can::AMK1_SetPoints1>(input.amk_actual_values_1_right, input.amk_actual_values_2_right, input.right_motor_input, input.cmd);
 
-        AmkOutput output;
+        AmkOutput output {
+            .status = process_output_status(left_update_motor_output.status, right_update_motor_output.status),
+            .amk_setpoints_1_left = left_update_motor_output.set_point,
+            .amk_setpoints_1_right = right_update_motor_output.set_point,
+            .inverter = left_update_motor_output.inverter && right_update_motor_output.inverter
+        };
 
         return output;
     }
 
 private:
+    MiStatus previous_state_status = MiStatus::OFF;
+
     template<AmkActualValues1 V1, AmkActualValues2 V2, SetPoint SP>
     UpdateMotorOutput<SP> UpdateMotor(const V1 val1, const V2 val2, const MotorInput motor_input, const MiCmd cmd) {
         UpdateMotorOutput<SP> update_motor_output;
 
         return update_motor_output;
+    }
+
+    MiStatus process_output_status(MiStatus left_motor_status, MiStatus right_motor_status) {
+        MiStatus output_status;
+        if (left_motor_status == MiStatus::ERROR || right_motor_status == MiStatus::ERROR) {
+            output_status = MiStatus::ERROR;
+        }
+        else if (left_motor_status == right_motor_status) {
+            output_status = left_motor_status;
+        }
+        else {
+            output_status = previous_state_status;
+        }
+
+        previous_state_status = output_status;
+        return output_status;
     }
 };
