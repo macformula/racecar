@@ -3,10 +3,9 @@
 int main() {
     bindings::Init();
 
-    bool red = false, green = false, blue = false;
-
     while (true) {
         float volts = bindings::analog_input.ReadVoltage();
+        bool red = false, green = false, blue = false;
 
         if (volts <= 1) {
             red = true;
