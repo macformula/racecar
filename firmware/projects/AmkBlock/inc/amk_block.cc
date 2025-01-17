@@ -9,11 +9,11 @@ AmkOutput AmkBlock::update(const AmkInput& input, const int time_ms) {
     auto left =
         UpdateMotor<AMK0_ActualValues1, AMK0_ActualValues2, AMK0_SetPoints1>(
             input.left_actual1, input.left_actual2, input.left_motor_input,
-            input.cmd);
+            input.cmd, time_ms);
     auto right =
         UpdateMotor<AMK1_ActualValues1, AMK1_ActualValues2, AMK1_SetPoints1>(
             input.right_actual1, input.right_actual2, input.right_motor_input,
-            input.cmd);
+            input.cmd, time_ms);
 
     AmkOutput output{
         .status = ProcessOutputStatus(left.status, right.status),

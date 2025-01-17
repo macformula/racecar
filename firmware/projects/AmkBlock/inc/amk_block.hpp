@@ -132,20 +132,21 @@ private:
     template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoint SP>
     UpdateMotorOutput<SP> UpdateMotor(const V1 val1, const V2 val2,
                                       const MotorInput motor_input,
-                                      const MiCmd cmd);
+                                      const MiCmd cmd, int time_ms);
     template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoint SP>
     AmkStates Transition(const V1 val1, const V2 val2,
-                         const MotorInput motor_input, const MiCmd cmd);
+                         const MotorInput motor_input, const MiCmd cmd,
+                         int time_ms);
     MiStatus ProcessOutputStatus(MiStatus left_status, MiStatus right_status);
 };
 
 template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoint SP>
 UpdateMotorOutput<SP> AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
                                             const MotorInput motor_input,
-                                            const MiCmd cmd) {
+                                            const MiCmd cmd, int time_ms) {
     UpdateMotorOutput<SP> update_motor_output;
     SP setpoint;
-    amk_state_ = Transition<V1, V2, SP>(val1, val2, motor_input, cmd);
+    amk_state_ = Transition<V1, V2, SP>(val1, val2, motor_input, cmd, time_ms);
 
     switch (amk_state_) {
         case AmkStates::MOTOR_OFF_WAITING_FOR_GOV:
@@ -209,111 +210,122 @@ UpdateMotorOutput<SP> AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
 
 template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoint SP>
 AmkStates AmkBlock::Transition(const V1 val1, const V2 val2,
-                               const MotorInput motor_input, const MiCmd cmd) {
+                               const MotorInput motor_input, const MiCmd cmd,
+                               int time_ms) {
     // Add group condition for common if conditions
+
+    AmkStates new_state = amk_state_;
+    int elapsed_time = time_ms - amk_state_start_time_;
 
     switch (amk_state_) {
         case AmkStates::MOTOR_OFF_WAITING_FOR_GOV:
             if (cmd == MiCmd::STARTUP) {
-                return AmkStates::STARTUP_SYS_READY;
+                new_state = AmkStates::STARTUP_SYS_READY;
             }
 
             break;
 
         case AmkStates::STARTUP_SYS_READY:
             if (val1.amk_b_error) {
-                return AmkStates::ERROR_DETECTED;
+                new_state = AmkStates::ERROR_DETECTED;
             } else if (val1.amk_b_system_ready) {
-                return AmkStates::STARTUP_TOGGLE_D_CON;
+                new_state = AmkStates::STARTUP_TOGGLE_D_CON;
             }
 
             break;
 
         case AmkStates::STARTUP_TOGGLE_D_CON:
             if (val1.amk_b_error) {
-                return AmkStates::ERROR_DETECTED;
+                new_state = AmkStates::ERROR_DETECTED;
             } else if (val1.amk_b_dc_on && val1.amk_b_quit_dc_on) {
-                return AmkStates::STARTUP_ENFORCE_SETPOINTS_ZERO;
+                new_state = AmkStates::STARTUP_ENFORCE_SETPOINTS_ZERO;
             }
 
             break;
 
         case AmkStates::STARTUP_ENFORCE_SETPOINTS_ZERO:
             if (val1.amk_b_error) {
-                return AmkStates::ERROR_DETECTED;
-            } else if (true) {  // add after(100, msec)
-                return AmkStates::STARTUP_COMMAND_ON;
+                new_state = AmkStates::ERROR_DETECTED;
+            } else if (elapsed_time >= 100) {
+                new_state = AmkStates::STARTUP_COMMAND_ON;
             }
 
             break;
 
         case AmkStates::STARTUP_COMMAND_ON:
             if (val1.amk_b_error) {
-                return AmkStates::ERROR_DETECTED;
+                new_state = AmkStates::ERROR_DETECTED;
             } else if (val1.amk_b_inverter_on) {
-                return AmkStates::READY;
+                new_state = AmkStates::READY;
             }
 
             break;
 
         case AmkStates::READY:
             if (val1.amk_b_error) {
-                return AmkStates::ERROR_DETECTED;
+                new_state = AmkStates::ERROR_DETECTED;
             } else if (val1.amk_b_quit_inverter_on) {
-                return AmkStates::RUNNING;
+                new_state = AmkStates::RUNNING;
             }
 
             break;
 
         case AmkStates::RUNNING:
             if (val1.amk_b_error) {
-                return AmkStates::ERROR_DETECTED;
+                new_state = AmkStates::ERROR_DETECTED;
             } else if (cmd == MiCmd::SHUTDOWN) {
-                return AmkStates::SHUTDOWN;
+                new_state = AmkStates::SHUTDOWN;
             }
 
             break;
 
         case AmkStates::SHUTDOWN:
-            // Add after(500, msec) logic
+            if (elapsed_time >= 500) {
+                new_state = AmkStates::MOTOR_OFF_WAITING_FOR_GOV;
+            }
 
             break;
 
         case AmkStates::ERROR_DETECTED:
             if (cmd == MiCmd::ERR_RESET) {
-                return AmkStates::ERROR_RESET_ENFORCE_SETPOINTS_ZERO;
+                new_state = AmkStates::ERROR_RESET_ENFORCE_SETPOINTS_ZERO;
             }
 
             break;
 
         case AmkStates::ERROR_RESET_ENFORCE_SETPOINTS_ZERO:
             if (val1.amk_b_inverter_on) {
-                return AmkStates::ERROR_RESET_TOGGLE_ENABLE;
+                new_state = AmkStates::ERROR_RESET_TOGGLE_ENABLE;
             }
 
             break;
 
         case AmkStates::ERROR_RESET_TOGGLE_ENABLE:
-            if (true) {  // Add after(500, msec) logic
-                return AmkStates::ERROR_RESET_SEND_RESET;
+            if (elapsed_time >= 500) {
+                new_state = AmkStates::ERROR_RESET_SEND_RESET;
             }
 
             break;
 
         case AmkStates::ERROR_RESET_SEND_RESET:
-            if (true) {  // Add after(500, msec) logic
-                return AmkStates::ERROR_RESET_TOGGLE_RESET;
+            if (elapsed_time >= 500) {
+                new_state = AmkStates::ERROR_RESET_TOGGLE_RESET;
             }
 
             break;
 
         case AmkStates::ERROR_RESET_TOGGLE_RESET:
             if (val1.amk_b_system_ready) {
-                return AmkStates::MOTOR_OFF_WAITING_FOR_GOV;
+                new_state = AmkStates::MOTOR_OFF_WAITING_FOR_GOV;
             }
 
             break;
     }
 
-    return amk_state_;  // No transition to perform
+    // If a new state has been entered, set the start time of the current state
+    if (new_state != amk_state_) {
+        amk_state_start_time_ = time_ms;
+    }
+
+    return new_state;
 }
