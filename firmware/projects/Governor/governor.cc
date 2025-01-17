@@ -56,11 +56,11 @@ Governor::State Governor::Update(const Governor::Input input,
             state_.di_cmd = DiCmd::SHUTDOWN;
             break;
 
-        case ERR_STARTUP_RESET:
+        case ERR_STARTUP_MOTOR_RESET:
             state_.mi_cmd = MiCmd::ERR_RESET;
             break;
 
-        case ERR_STARTUP_MOTOR:
+        case ERR_STARTUP_MOTOR_FAULT:
             state_.mi_cmd = MiCmd::SHUTDOWN;
             break;
 
@@ -94,9 +94,9 @@ std::optional<GovSts> Governor::Transition(const Governor::Input input,
 
         if (input.mi_sts == MiSts::ERR) {
             if (motor_start_count_ < kMaxMotorStartAttempts) {
-                return ERR_STARTUP_RESET;
+                return ERR_STARTUP_MOTOR_RESET;
             } else {
-                return ERR_STARTUP_MOTOR;  // don't keep trying
+                return ERR_STARTUP_MOTOR_FAULT;  // don't keep trying
             }
         }
 
@@ -165,14 +165,14 @@ std::optional<GovSts> Governor::Transition(const Governor::Input input,
             }
             break;
 
-        case ERR_STARTUP_RESET:
+        case ERR_STARTUP_MOTOR_RESET:
             if (input.mi_sts == MiSts::OFF) {
                 return STARTUP_HV;
             }
             break;
 
         // The vehicle cannot escape these error states without rebooting.
-        case ERR_STARTUP_MOTOR:
+        case ERR_STARTUP_MOTOR_FAULT:
             break;
         case ERR_STARTUP_DI:
             break;
