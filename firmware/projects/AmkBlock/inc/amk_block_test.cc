@@ -16,10 +16,10 @@ void test_sequence1() {
     AmkOutput output1 = amk.update(
         AmkInput{
             .cmd = MiCmd::STARTUP,
-            .amk_actual_values_1_left = generated::can::AMK0_ActualValues1{},
-            .amk_actual_values_2_left = generated::can::AMK0_ActualValues2{},
-            .amk_actual_values_1_right = generated::can::AMK1_ActualValues1{},
-            .amk_actual_values_2_right = generated::can::AMK1_ActualValues2{},
+            .left_actual1 = generated::can::AMK0_ActualValues1{},
+            .left_actual2 = generated::can::AMK0_ActualValues2{},
+            .right_actual1 = generated::can::AMK1_ActualValues1{},
+            .right_actual2 = generated::can::AMK1_ActualValues2{},
             .left_motor_input = MotorInput{},
             .right_motor_input = MotorInput{}},
         time_ms);
@@ -33,10 +33,10 @@ void test_sequence1() {
         // StartupState1 in Simulink
         AmkInput{
             .cmd = MiCmd::STARTUP,
-            .amk_actual_values_1_left = generated::can::AMK0_ActualValues1{},
-            .amk_actual_values_2_left = generated::can::AMK0_ActualValues2{},
-            .amk_actual_values_1_right = generated::can::AMK1_ActualValues1{},
-            .amk_actual_values_2_right = generated::can::AMK1_ActualValues2{},
+            .left_actual1 = generated::can::AMK0_ActualValues1{},
+            .left_actual2 = generated::can::AMK0_ActualValues2{},
+            .right_actual1 = generated::can::AMK1_ActualValues1{},
+            .right_actual2 = generated::can::AMK1_ActualValues2{},
             .left_motor_input = MotorInput{},
             .right_motor_input = MotorInput{}},
         time_ms);

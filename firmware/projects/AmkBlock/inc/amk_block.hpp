@@ -35,10 +35,10 @@ struct MotorInput {
 // AmkInput struct, the input that is fed into the state machine
 struct AmkInput {
     MiCmd cmd;
-    generated::can::AMK0_ActualValues1 amk_actual_values_1_left;
-    generated::can::AMK0_ActualValues2 amk_actual_values_2_left;
-    generated::can::AMK1_ActualValues1 amk_actual_values_1_right;
-    generated::can::AMK1_ActualValues2 amk_actual_values_2_right;
+    generated::can::AMK0_ActualValues1 left_actual1;
+    generated::can::AMK0_ActualValues2 left_actual2;
+    generated::can::AMK1_ActualValues1 right_actual1;
+    generated::can::AMK1_ActualValues2 right_actual2;
     MotorInput left_motor_input;
     MotorInput right_motor_input;
 };
@@ -46,9 +46,9 @@ struct AmkInput {
 // AmkOutput struct, the output that is produced from the state machine
 struct AmkOutput {
     MiStatus status;
-    generated::can::AMK0_SetPoints1 amk_setpoints_1_left;
-    generated::can::AMK1_SetPoints1 amk_setpoints_1_right;
-    bool inverter;
+    generated::can::AMK0_SetPoints1 left_setpoints;
+    generated::can::AMK1_SetPoints1 right_setpoints;
+    bool inverter_enable;
 };
 
 // AmkActualValues1 concept, combines AMK0_ActualValues1 and AMK1_ActualValues1
@@ -92,12 +92,12 @@ concept SetPoint = requires(MsgType msg) {
 };
 
 // UpdateMotorOutput struct, used to create a return type for UpdateMotor such
-// that it does not matter if set_point is for left or right
+// that it does not matter if setpoint is for left or right
 template <SetPoint SP>
 struct UpdateMotorOutput {
-    SP set_point;
+    SP setpoint;
     MiStatus status;
-    bool inverter;
+    bool inverter_enable;
 };
 
 // AmkStates enum class which defines all states in the amk state machine
@@ -124,23 +124,23 @@ public:
     AmkBlock(AmkStates initial_amk_state = AmkStates::MOTOR_OFF_WAITING_FOR_GOV)
         : amk_state(initial_amk_state) {}
 
-    AmkOutput update(const AmkInput& input, int time_ms) {
+    AmkOutput update(const AmkInput& input, const int time_ms) {
         using namespace generated::can;
 
-        auto left = UpdateMotor<AMK0_ActualValues1, AMK0_ActualValues2,
-                                AMK0_SetPoints1>(
-            input.amk_actual_values_1_left, input.amk_actual_values_2_left,
-            input.left_motor_input, input.cmd);
+        auto left =
+            UpdateMotor<AMK0_ActualValues1, AMK0_ActualValues2,
+                        AMK0_SetPoints1>(input.left_actual1, input.left_actual2,
+                                         input.left_motor_input, input.cmd);
         auto right = UpdateMotor<AMK1_ActualValues1, AMK1_ActualValues2,
                                  AMK1_SetPoints1>(
-            input.amk_actual_values_1_right, input.amk_actual_values_2_right,
-            input.right_motor_input, input.cmd);
+            input.right_actual1, input.right_actual2, input.right_motor_input,
+            input.cmd);
 
         AmkOutput output{
             .status = ProcessOutputStatus(left.status, right.status),
-            .amk_setpoints_1_left = left.set_point,
-            .amk_setpoints_1_right = right.set_point,
-            .inverter = left.inverter && right.inverter};
+            .left_setpoints = left.setpoint,
+            .right_setpoints = right.setpoint,
+            .inverter_enable = left.inverter_enable && right.inverter_enable};
 
         return output;
     }
@@ -154,20 +154,20 @@ private:
                                       const MotorInput motor_input,
                                       const MiCmd cmd) {
         UpdateMotorOutput<SP> update_motor_output;
-        SP set_point;
+        SP setpoint;
 
         switch (amk_state) {
             case AmkStates::MOTOR_OFF_WAITING_FOR_GOV:
                 update_motor_output.status = MiStatus::OFF;
-                update_motor_output.inverter = 0;
+                update_motor_output.inverter_enable = 0;
 
-                set_point.amk_b_inverter_on = 0;
-                set_point.amk_b_dc_on = 0;
-                set_point.amk_b_enable = 0;
-                set_point.amk_b_error_reset = 0;
-                set_point.amk__target_velocity = 0;
-                set_point.amk__torque_limit_positiv = 0;
-                set_point.amk__torque_limit_negativ = 0;
+                setpoint.amk_b_inverter_on = 0;
+                setpoint.amk_b_dc_on = 0;
+                setpoint.amk_b_enable = 0;
+                setpoint.amk_b_error_reset = 0;
+                setpoint.amk__target_velocity = 0;
+                setpoint.amk__torque_limit_positiv = 0;
+                setpoint.amk__torque_limit_negativ = 0;
 
                 if (cmd == MiCmd::STARTUP) {
                     amk_state = AmkStates::STARTUP;
@@ -177,9 +177,9 @@ private:
 
             case AmkStates::STARTUP:
 
-                if (val1.amk_b_error == 1) {
+                if (val1.amk_b_error) {
                     amk_state = AmkStates::ERROR_DETECTED;
-                } else if (val1.amk_b_inverter_on == 1) {
+                } else if (val1.amk_b_inverter_on) {
                     amk_state = AmkStates::READY;
                 }
 
@@ -187,11 +187,11 @@ private:
 
             case AmkStates::READY:
                 update_motor_output.status = MiStatus::READY;
-                update_motor_output.inverter = 0;
+                update_motor_output.inverter_enable = 0;
 
-                if (val1.amk_b_error == 1) {
+                if (val1.amk_b_error) {
                     amk_state = AmkStates::ERROR_DETECTED;
-                } else if (val1.amk_b_quit_inverter_on == 1) {
+                } else if (val1.amk_b_quit_inverter_on) {
                     amk_state = AmkStates::RUNNING;
                 }
 
@@ -200,26 +200,26 @@ private:
             case AmkStates::RUNNING:
                 update_motor_output.status = MiStatus::RUNNING;
 
-                set_point.amk__target_velocity = motor_input.speed_request;
-                set_point.amk__torque_limit_positiv =
+                setpoint.amk__target_velocity = motor_input.speed_request;
+                setpoint.amk__torque_limit_positiv =
                     motor_input.torque_limit_positive;
-                set_point.amk__torque_limit_negativ =
+                setpoint.amk__torque_limit_negativ =
                     motor_input.torque_limit_negative;
 
-                if (val1.amk_b_error == 1) {
+                if (val1.amk_b_error) {
                     amk_state = AmkStates::ERROR_DETECTED;
                 } else if (cmd == MiCmd::SHUTDOWN) {
-                    amk_state == AmkStates::SHUTDOWN;
+                    amk_state = AmkStates::SHUTDOWN;
                 }
 
                 break;
 
             case AmkStates::SHUTDOWN:
-                update_motor_output.inverter = 0;
+                update_motor_output.inverter_enable = 0;
 
-                set_point.amk__target_velocity = 0;
-                set_point.amk__torque_limit_positiv = 0;
-                set_point.amk__torque_limit_negativ = 0;
+                setpoint.amk__target_velocity = 0;
+                setpoint.amk__torque_limit_positiv = 0;
+                setpoint.amk__torque_limit_negativ = 0;
 
                 break;
 
@@ -234,7 +234,7 @@ private:
 
             case AmkStates::ERROR_RESET:
 
-                if (val1.amk_b_system_ready == 1) {
+                if (val1.amk_b_system_ready) {
                     amk_state = AmkStates::MOTOR_OFF_WAITING_FOR_GOV;
                 }
 
