@@ -7,7 +7,6 @@
 
 #include "amk_block.hpp"
 
-
 void test_sequence1() {
     // the tests should show that your code matches the simulink model's
     // expected behavior

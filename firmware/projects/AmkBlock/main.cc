@@ -5,7 +5,6 @@
 #include "inc/amk_block.hpp"
 #include "inc/amk_block_test.cc"
 
-
 int main(void) {
     run_tests();
     return 0;
