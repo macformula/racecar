@@ -2,10 +2,11 @@
 // make
 // this will compile it to bm_test.exe. run the test by running ./bm_test.exe
 
-#include "amk_block.hpp"
-
 #include <cassert>
 #include <iostream>
+
+#include "amk_block.hpp"
+
 
 void test_sequence1() {
     // the tests should show that your code matches the simulink model's
@@ -21,8 +22,7 @@ void test_sequence1() {
             .amk_actual_values_1_right = generated::can::AMK1_ActualValues1{},
             .amk_actual_values_2_right = generated::can::AMK1_ActualValues2{},
             .left_motor_input = MotorInput{},
-            .right_motor_input = MotorInput{}
-        },
+            .right_motor_input = MotorInput{}},
         time_ms);
 
     assert(output1.status == MiStatus::OFF);
@@ -39,8 +39,7 @@ void test_sequence1() {
             .amk_actual_values_1_right = generated::can::AMK1_ActualValues1{},
             .amk_actual_values_2_right = generated::can::AMK1_ActualValues2{},
             .left_motor_input = MotorInput{},
-            .right_motor_input = MotorInput{}
-        },
+            .right_motor_input = MotorInput{}},
         time_ms);
 
     assert(output2.status == MiStatus::STARTUP);
