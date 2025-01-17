@@ -103,7 +103,6 @@ struct UpdateMotorOutput {
 // AmkStates enum class which defines all states in the amk state machine
 enum class AmkStates {
     MOTOR_OFF_WAITING_FOR_GOV,
-    STARTUP,
     STARTUP_SYS_READY,
     STARTUP_TOGGLE_D_CON,
     STARTUP_ENFORCE_SETPOINTS_ZERO,
@@ -112,7 +111,6 @@ enum class AmkStates {
     RUNNING,
     SHUTDOWN,
     ERROR_DETECTED,
-    ERROR_RESET,
     ERROR_RESET_ENFORCE_SETPOINTS_ZERO,
     ERROR_RESET_TOGGLE_ENABLE,
     ERROR_RESET_SEND_RESET,
@@ -134,6 +132,139 @@ private:
     UpdateMotorOutput<SP> UpdateMotor(const V1 val1, const V2 val2,
                                       const MotorInput motor_input,
                                       const MiCmd cmd);
-
+    template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoint SP>
+    AmkStates Transition(const V1 val1, const V2 val2,
+                         const MotorInput motor_input, const MiCmd cmd);
     MiStatus ProcessOutputStatus(MiStatus left_status, MiStatus right_status);
 };
+
+template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoint SP>
+UpdateMotorOutput<SP> AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
+                                            const MotorInput motor_input,
+                                            const MiCmd cmd) {
+    UpdateMotorOutput<SP> update_motor_output;
+    SP setpoint;
+    amk_state = Transition<V1, V2, SP>(val1, val2, motor_input, cmd);
+
+    switch (amk_state) {
+        case AmkStates::MOTOR_OFF_WAITING_FOR_GOV:
+            update_motor_output.status = MiStatus::OFF;
+            update_motor_output.inverter_enable = 0;
+
+            setpoint.amk_b_inverter_on = 0;
+            setpoint.amk_b_dc_on = 0;
+            setpoint.amk_b_enable = 0;
+            setpoint.amk_b_error_reset = 0;
+            setpoint.amk__target_velocity = 0;
+            setpoint.amk__torque_limit_positiv = 0;
+            setpoint.amk__torque_limit_negativ = 0;
+
+            break;
+
+        case AmkStates::STARTUP_SYS_READY:
+            // Add flattened logic and other startup cases below this case
+
+            break;
+
+        case AmkStates::READY:
+            update_motor_output.status = MiStatus::READY;
+            update_motor_output.inverter_enable = 0;
+
+            break;
+
+        case AmkStates::RUNNING:
+            update_motor_output.status = MiStatus::RUNNING;
+
+            setpoint.amk__target_velocity = motor_input.speed_request;
+            setpoint.amk__torque_limit_positiv =
+                motor_input.torque_limit_positive;
+            setpoint.amk__torque_limit_negativ =
+                motor_input.torque_limit_negative;
+
+            break;
+
+        case AmkStates::SHUTDOWN:
+            update_motor_output.inverter_enable = 0;
+
+            setpoint.amk__target_velocity = 0;
+            setpoint.amk__torque_limit_positiv = 0;
+            setpoint.amk__torque_limit_negativ = 0;
+
+            break;
+
+        case AmkStates::ERROR_DETECTED:
+            update_motor_output.status = MiStatus::ERROR;
+
+            break;
+
+        case AmkStates::ERROR_RESET_ENFORCE_SETPOINTS_ZERO:
+            // Add flattened logic and other error reset cases below this case
+
+            break;
+    }
+
+    return update_motor_output;
+}
+
+template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoint SP>
+AmkStates AmkBlock::Transition(const V1 val1, const V2 val2,
+                               const MotorInput motor_input, const MiCmd cmd) {
+    // Add all other cases and group condition for common if conditions
+
+    switch (amk_state) {
+        case AmkStates::MOTOR_OFF_WAITING_FOR_GOV:
+            if (cmd == MiCmd::STARTUP) {
+                return AmkStates::STARTUP_SYS_READY;
+            }
+
+            break;
+
+        case AmkStates::STARTUP_SYS_READY:
+            if (val1.amk_b_error) {
+                return AmkStates::ERROR_DETECTED;
+            } else if (val1.amk_b_inverter_on) {
+                return AmkStates::READY;
+            }
+
+            break;
+
+        case AmkStates::READY:
+            if (val1.amk_b_error) {
+                return AmkStates::ERROR_DETECTED;
+            } else if (val1.amk_b_quit_inverter_on) {
+                return AmkStates::RUNNING;
+            }
+
+            break;
+
+        case AmkStates::RUNNING:
+            if (val1.amk_b_error) {
+                return AmkStates::ERROR_DETECTED;
+            } else if (cmd == MiCmd::SHUTDOWN) {
+                return AmkStates::SHUTDOWN;
+            }
+
+            break;
+
+        case AmkStates::SHUTDOWN:
+            // Add after(500, msec) logic
+
+            break;
+
+        case AmkStates::ERROR_DETECTED:
+            if (cmd == MiCmd::ERR_RESET) {
+                return AmkStates::ERROR_RESET_ENFORCE_SETPOINTS_ZERO;
+            }
+
+            break;
+
+        case AmkStates::ERROR_RESET_ENFORCE_SETPOINTS_ZERO:
+            if (val1.amk_b_system_ready) {
+                return AmkStates::MOTOR_OFF_WAITING_FOR_GOV;
+            }
+
+            break;
+    }
+
+    return amk_state;  // No transition to perform
+}
