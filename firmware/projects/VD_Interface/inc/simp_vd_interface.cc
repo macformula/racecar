@@ -29,8 +29,7 @@ VdOutput SimpVdInterface::update(const VdInput& input, int time_ms) {
     if (input.tv_enable) {
         torque_vector = AdjustTorqueVectoring(input.steering_angle);
     } else {
-        torque_vector.left = 1.0f;
-        torque_vector.right = 1.0f;
+        torque_vector = {.left = 1.0f, .right = 1.0f};
     }
 
     float motor_torque_request = ComputeTorqueRequest(
