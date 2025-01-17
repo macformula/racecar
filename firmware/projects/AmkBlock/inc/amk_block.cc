@@ -1,7 +1,7 @@
 #include "amk_block.hpp"
 
 AmkBlock::AmkBlock(AmkStates initial_amk_state)
-    : amk_state(initial_amk_state) {}
+    : amk_state_(initial_amk_state) {}
 
 AmkOutput AmkBlock::update(const AmkInput& input, const int time_ms) {
     using namespace generated::can;
@@ -32,9 +32,9 @@ MiStatus AmkBlock::ProcessOutputStatus(MiStatus left_status,
     } else if (left_status == right_status) {
         output_status = left_status;
     } else {
-        output_status = previous_state_status;
+        output_status = previous_state_status_;
     }
 
-    previous_state_status = output_status;
+    previous_state_status_ = output_status;
     return output_status;
 }
