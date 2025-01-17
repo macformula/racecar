@@ -38,12 +38,12 @@ VdOutput SimpVdInterface::update(const VdInput& input, int time_ms) {
 
     motor_torque_req_running_avg.LoadValue(
         pedal_to_torque.Evaluate(motor_torque_request * tc_scale_factor));
-    float running_average_value = motor_torque_req_running_avg.GetValue();
+    float smoothed_torque_request = motor_torque_req_running_avg.GetValue();
 
     output.lm_torque_limit_positive =
-        running_average_value * torque_vector.left;
+        smoothed_torque_request * torque_vector.left;
     output.rm_torque_limit_positive =
-        running_average_value * torque_vector.right;
+        smoothed_torque_request * torque_vector.right;
 
     return output;
 }
