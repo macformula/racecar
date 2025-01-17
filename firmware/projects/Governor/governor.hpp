@@ -11,7 +11,7 @@ public:
         MiSts mi_sts;
         DiSts di_sts;
     };
-    struct State {
+    struct Output {
         BmCmd bm_cmd;
         MiCmd mi_cmd;
         DiCmd di_cmd;
@@ -19,10 +19,10 @@ public:
     };
 
     Governor();
-    State Update(const Input input, const int time_ms);
+    Output Update(const Input input, const int time_ms);
 
 private:
-    State state_;
+    Output state_;
     int state_entered_time_;
     bool is_first_update_;
 

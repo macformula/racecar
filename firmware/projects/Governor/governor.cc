@@ -6,8 +6,8 @@ Governor::Governor() : is_first_update_(true) {
     state_.gov_sts = GovSts::INIT;
 }
 
-Governor::State Governor::Update(const Governor::Input input,
-                                 const int time_ms) {
+Governor::Output Governor::Update(const Governor::Input input,
+                                  const int time_ms) {
     using enum GovSts;
 
     auto new_state = Transition(input, time_ms);
