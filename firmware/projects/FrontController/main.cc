@@ -67,7 +67,7 @@ const float kPressureRange = 2000;
 auto brake_pedal_front_map = shared::util::LinearMap<double, uint16_t>{
     0.378788 * kPressureRange,
     -0.125 * kPressureRange,
-}; 
+};
 AnalogInput brake_pedal_front{
     bindings::brake_pedal_front,
     &brake_pedal_front_map,
@@ -77,7 +77,7 @@ AnalogInput brake_pedal_front{
 auto brake_pedal_rear_map = shared::util::LinearMap<double, uint16_t>{
     0.378788 * kPressureRange,
     -0.125 * kPressureRange,
-};  // TODO: Check this, no function is given, copied from accel_pedal_1
+};
 AnalogInput brake_pedal_rear{
     bindings::brake_pedal_rear,
     &brake_pedal_rear_map,
