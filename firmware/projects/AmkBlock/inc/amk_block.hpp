@@ -164,7 +164,25 @@ UpdateMotorOutput<SP> AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
             break;
 
         case AmkStates::STARTUP_SYS_READY:
-            // Add flattened logic and other startup cases below this case
+            update_motor_output.status = MiStatus::STARTUP;
+
+            break;
+
+        case AmkStates::STARTUP_TOGGLE_D_CON:
+            setpoint.amk_b_dc_on = 1;
+
+            break;
+
+        case AmkStates::STARTUP_ENFORCE_SETPOINTS_ZERO:
+            setpoint.amk__target_velocity = 0;
+            setpoint.amk__torque_limit_positiv = 0;
+            setpoint.amk__torque_limit_negativ = 0;
+
+            break;
+
+        case AmkStates::STARTUP_COMMAND_ON:
+            setpoint.amk_b_enable = 1;
+            setpoint.amk_b_inverter_on = 1;
 
             break;
 
@@ -200,7 +218,25 @@ UpdateMotorOutput<SP> AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
             break;
 
         case AmkStates::ERROR_RESET_ENFORCE_SETPOINTS_ZERO:
-            // Add flattened logic and other error reset cases below this case
+            setpoint.amk__target_velocity = 0;
+            setpoint.amk__torque_limit_positiv = 0;
+            setpoint.amk__torque_limit_negativ = 0;
+            setpoint.amk_b_inverter_on = 0;
+
+            break;
+
+        case AmkStates::ERROR_RESET_TOGGLE_ENABLE:
+            setpoint.amk_b_enable = 0;
+
+            break;
+
+        case AmkStates::ERROR_RESET_SEND_RESET:
+            setpoint.amk_b_error_reset = 1;
+
+            break;
+
+        case AmkStates::ERROR_RESET_TOGGLE_RESET:
+            setpoint.amk_b_error_reset = 0;
 
             break;
     }
