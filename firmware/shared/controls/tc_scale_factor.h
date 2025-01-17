@@ -11,11 +11,7 @@ T CalculateActualSlip(T left_rear_wheel_speed, T right_rear_wheel_speed,
     T idle_wheel_spd = (left_front_wheel_speed + right_front_wheel_speed) / 2.0;
     T actual_slip;
 
-    if (left_rear_wheel_speed > right_rear_wheel_speed) {
-        actual_slip = (left_rear_wheel_speed / idle_wheel_spd) - 1;
-    } else {
-        actual_slip = (right_rear_wheel_speed / idle_wheel_spd) - 1;
-    }
+    max(left_rear_wheel_speed, right_rear_wheel_speed) / idle_wheel_spd - 1;
 
     if (actual_slip < 0) {
         actual_slip = 0;
