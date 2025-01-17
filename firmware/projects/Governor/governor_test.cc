@@ -5,7 +5,23 @@
 
 #include "governor.hpp"
 
+/// Helper function to prepare a Governor in a specific state for testing.
 Governor CycleToState(GovSts desired_state_) {
+    using enum GovSts;
+
+    // Only the standard operation path states are supported
+    auto possible_states = {STARTUP_HV,    STARTUP_READY_TO_DRIVE,
+                            STARTUP_MOTOR, STARTUP_SEND_READY_TO_DRIVE,
+                            RUNNING,       SHUTDOWN};
+    bool desired_state_is_supported = false;
+    for (auto state : possible_states) {
+        if (desired_state_ == state) {
+            desired_state_is_supported = true;
+            break;
+        }
+    }
+    assert(desired_state_is_supported);
+
     Governor g;
     Governor::Input in{
         .bm_sts = BmSts::INIT,
@@ -19,30 +35,31 @@ Governor CycleToState(GovSts desired_state_) {
     time += 2000;
 
     in.di_sts = DiSts::HV_START_REQ;
-    assert(g.Update(in, ++time).gov_sts == GovSts::STARTUP_HV);
-    if (desired_state_ == GovSts::STARTUP_HV) return g;
+    assert(g.Update(in, ++time).gov_sts == STARTUP_HV);
+    if (desired_state_ == STARTUP_HV) return g;
 
     in.bm_sts = BmSts::RUNNING;
-    assert(g.Update(in, ++time).gov_sts == GovSts::STARTUP_READY_TO_DRIVE);
-    if (desired_state_ == GovSts::STARTUP_READY_TO_DRIVE) return g;
+    assert(g.Update(in, ++time).gov_sts == STARTUP_READY_TO_DRIVE);
+    if (desired_state_ == STARTUP_READY_TO_DRIVE) return g;
 
     in.di_sts = DiSts::READY_TO_DRIVE_REQ;
-    assert(g.Update(in, ++time).gov_sts == GovSts::STARTUP_MOTOR);
-    if (desired_state_ == GovSts::STARTUP_MOTOR) return g;
+    assert(g.Update(in, ++time).gov_sts == STARTUP_MOTOR);
+    if (desired_state_ == STARTUP_MOTOR) return g;
 
     in.mi_sts = MiSts::RUNNING;
-    assert(g.Update(in, ++time).gov_sts == GovSts::STARTUP_SEND_READY_TO_DRIVE);
-    if (desired_state_ == GovSts::STARTUP_SEND_READY_TO_DRIVE) return g;
+    assert(g.Update(in, ++time).gov_sts == STARTUP_SEND_READY_TO_DRIVE);
+    if (desired_state_ == STARTUP_SEND_READY_TO_DRIVE) return g;
 
     in.di_sts = DiSts::RUNNING;
-    assert(g.Update(in, ++time).gov_sts == GovSts::RUNNING);
-    if (desired_state_ == GovSts::RUNNING) return g;
+    assert(g.Update(in, ++time).gov_sts == RUNNING);
+    if (desired_state_ == RUNNING) return g;
 
     in.bm_sts = BmSts::HVIL_INTERRUPT;
-    assert(g.Update(in, ++time).gov_sts == GovSts::SHUTDOWN);
-    if (desired_state_ == GovSts::SHUTDOWN) return g;
+    assert(g.Update(in, ++time).gov_sts == SHUTDOWN);
+    if (desired_state_ == SHUTDOWN) return g;
 
-    return g;
+    // We shouldn't get this far if desired_state is possible
+    assert(false);
 }
 
 void test_normal_sequence() {
@@ -305,19 +322,29 @@ void test_startup_motor_error() {
     // fail the motors 6 times. should go through reset until the last time
     // this tests both the ERR_STARTUP_MOTOR_FAULT and ERR_STARTUP_MOTOR_RESET
     // states
+    using enum GovSts;
 
     const int kExpectedMotorAttempts = 5;  // should match Governor constant
 
+    // Create a state-string tuple to print during test
     std::vector<std::tuple<GovSts, std::string>> start_states = {
-        {GovSts::STARTUP_HV, "STARTUP_HV"},
-        {GovSts::STARTUP_READY_TO_DRIVE, "STARTUP_READY_TO_DRIVE"},
-        {GovSts::STARTUP_MOTOR, "STARTUP_MOTOR"},
-        {GovSts::STARTUP_SEND_READY_TO_DRIVE, "STARTUP_SEND_READY_TO_DRIVE"},
+        {STARTUP_HV, "STARTUP_HV"},
+        {STARTUP_READY_TO_DRIVE, "STARTUP_READY_TO_DRIVE"},
+        {STARTUP_MOTOR, "STARTUP_MOTOR"},
+        {STARTUP_SEND_READY_TO_DRIVE, "STARTUP_SEND_READY_TO_DRIVE"},
     };
 
     for (auto [start_state, str] : start_states) {
         std::cout << "  startup_motor_error from " << str << "... ";
         Governor g = CycleToState(start_state);
+
+        // Must reduce the number of attempts if CycleToState already
+        // incremented motor_start_count_
+        int cycled_motor_starts = 0;
+        if (start_state == STARTUP_MOTOR ||
+            start_state == STARTUP_SEND_READY_TO_DRIVE) {
+            cycled_motor_starts = 1;
+        }
 
         Governor::Input in{
             .bm_sts = BmSts::INIT,
@@ -328,45 +355,39 @@ void test_startup_motor_error() {
 
         assert(g.Update(in, time).gov_sts == start_state);
 
-        int cycled_motor_starts =
-            (start_state == GovSts::STARTUP_MOTOR ||
-             start_state == GovSts::STARTUP_SEND_READY_TO_DRIVE)
-                ? 1
-                : 0;
-
+        // repeatedly fail the motor and go through the ERR_RESET state
         for (int attempts = 0;
              attempts < kExpectedMotorAttempts - cycled_motor_starts;
              attempts++) {
             in.mi_sts = MiSts::ERR;
 
             auto out = g.Update(in, ++time);
-            assert(out.gov_sts == GovSts::ERR_STARTUP_MOTOR_RESET);
+            assert(out.gov_sts == ERR_STARTUP_MOTOR_RESET);
             assert(out.mi_cmd == MiCmd::ERR_RESET);
 
             // Return to Startup only once MI turns off
-            assert(g.Update(in, ++time).gov_sts ==
-                   GovSts::ERR_STARTUP_MOTOR_RESET);
+            assert(g.Update(in, ++time).gov_sts == ERR_STARTUP_MOTOR_RESET);
 
             in.mi_sts = MiSts::OFF;
             out = g.Update(in, ++time);
-            assert(out.gov_sts == GovSts::STARTUP_HV);
+            assert(out.gov_sts == STARTUP_HV);
 
             // Go back to MOTOR_STARTUP state to increment counter
             in.bm_sts = BmSts::RUNNING;
             g.Update(in, ++time);
             in.di_sts = DiSts::READY_TO_DRIVE_REQ;
-            assert(g.Update(in, ++time).gov_sts == GovSts::STARTUP_MOTOR);
+            assert(g.Update(in, ++time).gov_sts == STARTUP_MOTOR);
         }
 
         // the next ERR should go to MOTOR_FAULT
         in.mi_sts = MiSts::ERR;
         auto out = g.Update(in, ++time);
-        assert(out.gov_sts == GovSts::ERR_STARTUP_MOTOR_FAULT);
+        assert(out.gov_sts == ERR_STARTUP_MOTOR_FAULT);
         assert(out.mi_cmd == MiCmd::SHUTDOWN);
 
         // We should NOT be able to exit this state
         in.mi_sts = MiSts::OFF;
-        assert(g.Update(in, ++time).gov_sts == GovSts::ERR_STARTUP_MOTOR_FAULT);
+        assert(g.Update(in, ++time).gov_sts == ERR_STARTUP_MOTOR_FAULT);
 
         std::cout << "passed" << std::endl;
     }
