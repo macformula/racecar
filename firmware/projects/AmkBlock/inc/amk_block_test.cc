@@ -2,10 +2,10 @@
 // make
 // this will compile it to bm_test.exe. run the test by running ./bm_test.exe
 
+#include "amk_block.hpp"
+
 #include <cassert>
 #include <iostream>
-
-#include "amk_block.hpp"
 
 void test_sequence1() {
     // the tests should show that your code matches the simulink model's
