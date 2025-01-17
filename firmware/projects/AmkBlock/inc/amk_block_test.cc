@@ -14,14 +14,13 @@ void test_sequence1() {
     int time_ms = 0;
 
     AmkOutput output1 = amk.update(
-        AmkInput{
-            .cmd = MiCmd::STARTUP,
-            .left_actual1 = generated::can::AMK0_ActualValues1{},
-            .left_actual2 = generated::can::AMK0_ActualValues2{},
-            .right_actual1 = generated::can::AMK1_ActualValues1{},
-            .right_actual2 = generated::can::AMK1_ActualValues2{},
-            .left_motor_input = MotorInput{},
-            .right_motor_input = MotorInput{}},
+        AmkInput{.cmd = MiCmd::STARTUP,
+                 .left_actual1 = generated::can::AMK0_ActualValues1{},
+                 .left_actual2 = generated::can::AMK0_ActualValues2{},
+                 .right_actual1 = generated::can::AMK1_ActualValues1{},
+                 .right_actual2 = generated::can::AMK1_ActualValues2{},
+                 .left_motor_input = MotorInput{},
+                 .right_motor_input = MotorInput{}},
         time_ms);
 
     assert(output1.status == MiStatus::OFF);
@@ -31,14 +30,13 @@ void test_sequence1() {
     AmkOutput output2 = amk.update(
         // this input matches the condition to move from InitialState to
         // StartupState1 in Simulink
-        AmkInput{
-            .cmd = MiCmd::STARTUP,
-            .left_actual1 = generated::can::AMK0_ActualValues1{},
-            .left_actual2 = generated::can::AMK0_ActualValues2{},
-            .right_actual1 = generated::can::AMK1_ActualValues1{},
-            .right_actual2 = generated::can::AMK1_ActualValues2{},
-            .left_motor_input = MotorInput{},
-            .right_motor_input = MotorInput{}},
+        AmkInput{.cmd = MiCmd::STARTUP,
+                 .left_actual1 = generated::can::AMK0_ActualValues1{},
+                 .left_actual2 = generated::can::AMK0_ActualValues2{},
+                 .right_actual1 = generated::can::AMK1_ActualValues1{},
+                 .right_actual2 = generated::can::AMK1_ActualValues2{},
+                 .left_motor_input = MotorInput{},
+                 .right_motor_input = MotorInput{}},
         time_ms);
 
     assert(output2.status == MiStatus::STARTUP);
