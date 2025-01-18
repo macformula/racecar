@@ -78,10 +78,10 @@ concept AmkActualValues2 = requires(MsgType msg) {
     { msg.amk__temp_igbt } -> std::convertible_to<float>;
 };
 
-// SetPoint concept, combines AMK0_SetPoints1 and AMK1_SetPoints1 into one
+// SetPoints concept, combines AMK0_SetPoints1 and AMK1_SetPoints1 into one
 // common type for easier use
 template <typename MsgType>
-concept SetPoint = requires(MsgType msg) {
+concept SetPoints = requires(MsgType msg) {
     { msg.amk_b_inverter_on } -> std::convertible_to<bool>;
     { msg.amk_b_dc_on } -> std::convertible_to<bool>;
     { msg.amk_b_enable } -> std::convertible_to<bool>;
@@ -92,10 +92,10 @@ concept SetPoint = requires(MsgType msg) {
 };
 
 // UpdateMotorOutput struct, used to create a return type for UpdateMotor such
-// that it does not matter if setpoint is for left or right
-template <SetPoint SP>
+// that it does not matter if setpoints is for left or right
+template <SetPoints SP>
 struct UpdateMotorOutput {
-    SP setpoint;
+    SP setpoints;
     MiStatus status;
     bool inverter_enable;
 };
@@ -127,28 +127,37 @@ public:
 private:
     AmkStates amk_state_;
     int amk_state_start_time_ = 0;
-    MiStatus previous_state_status_ = MiStatus::OFF;
+    AmkOutput previous_state_output_{
+        .status = MiStatus::OFF,
+        .left_setpoints = generated::can::AMK0_SetPoints1{},
+        .right_setpoints = generated::can::AMK1_SetPoints1{},
+        .inverter_enable = 0};
 
-    template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoint SP>
+    template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoints SP>
     UpdateMotorOutput<SP> UpdateMotor(const V1 val1, const V2 val2,
                                       const MotorInput motor_input,
-                                      const MiCmd cmd, int time_ms);
-    template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoint SP>
+                                      const MiCmd cmd, int time_ms,
+                                      const SP previous_setpoints);
+    template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoints SP>
     AmkStates Transition(const V1 val1, const V2 val2,
                          const MotorInput motor_input, const MiCmd cmd,
                          const int time_ms);
     MiStatus ProcessOutputStatus(MiStatus left_status, MiStatus right_status);
 };
 
-template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoint SP>
+template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoints SP>
 UpdateMotorOutput<SP> AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
                                             const MotorInput motor_input,
-                                            const MiCmd cmd,
-                                            const int time_ms) {
+                                            const MiCmd cmd, const int time_ms,
+                                            const SP previous_setpoints) {
     using enum AmkStates;
 
-    UpdateMotorOutput<SP> update_motor_output;
-    SP setpoint;
+    // Preserve previous output to avoid resetting unchanged fields to zero.
+    UpdateMotorOutput<SP> update_motor_output{
+        .setpoints = previous_setpoints,
+        .status = previous_state_output_.status,
+        .inverter_enable = previous_state_output_.inverter_enable};
+
     amk_state_ = Transition<V1, V2, SP>(val1, val2, motor_input, cmd, time_ms);
 
     switch (amk_state_) {
@@ -156,13 +165,13 @@ UpdateMotorOutput<SP> AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
             update_motor_output.status = MiStatus::OFF;
             update_motor_output.inverter_enable = 0;
 
-            setpoint.amk_b_inverter_on = 0;
-            setpoint.amk_b_dc_on = 0;
-            setpoint.amk_b_enable = 0;
-            setpoint.amk_b_error_reset = 0;
-            setpoint.amk__target_velocity = 0;
-            setpoint.amk__torque_limit_positiv = 0;
-            setpoint.amk__torque_limit_negativ = 0;
+            update_motor_output.setpoints.amk_b_inverter_on = 0;
+            update_motor_output.setpoints.amk_b_dc_on = 0;
+            update_motor_output.setpoints.amk_b_enable = 0;
+            update_motor_output.setpoints.amk_b_error_reset = 0;
+            update_motor_output.setpoints.amk__target_velocity = 0;
+            update_motor_output.setpoints.amk__torque_limit_positiv = 0;
+            update_motor_output.setpoints.amk__torque_limit_negativ = 0;
 
             break;
 
@@ -172,20 +181,20 @@ UpdateMotorOutput<SP> AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
             break;
 
         case STARTUP_TOGGLE_D_CON:
-            setpoint.amk_b_dc_on = 1;
+            update_motor_output.setpoints.amk_b_dc_on = 1;
 
             break;
 
         case STARTUP_ENFORCE_SETPOINTS_ZERO:
-            setpoint.amk__target_velocity = 0;
-            setpoint.amk__torque_limit_positiv = 0;
-            setpoint.amk__torque_limit_negativ = 0;
+            update_motor_output.setpoints.amk__target_velocity = 0;
+            update_motor_output.setpoints.amk__torque_limit_positiv = 0;
+            update_motor_output.setpoints.amk__torque_limit_negativ = 0;
 
             break;
 
         case STARTUP_COMMAND_ON:
-            setpoint.amk_b_enable = 1;
-            setpoint.amk_b_inverter_on = 1;
+            update_motor_output.setpoints.amk_b_enable = 1;
+            update_motor_output.setpoints.amk_b_inverter_on = 1;
 
             break;
 
@@ -198,10 +207,11 @@ UpdateMotorOutput<SP> AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
         case RUNNING:
             update_motor_output.status = MiStatus::RUNNING;
 
-            setpoint.amk__target_velocity = motor_input.speed_request;
-            setpoint.amk__torque_limit_positiv =
+            update_motor_output.setpoints.amk__target_velocity =
+                motor_input.speed_request;
+            update_motor_output.setpoints.amk__torque_limit_positiv =
                 motor_input.torque_limit_positive;
-            setpoint.amk__torque_limit_negativ =
+            update_motor_output.setpoints.amk__torque_limit_negativ =
                 motor_input.torque_limit_negative;
 
             break;
@@ -209,9 +219,9 @@ UpdateMotorOutput<SP> AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
         case SHUTDOWN:
             update_motor_output.inverter_enable = 0;
 
-            setpoint.amk__target_velocity = 0;
-            setpoint.amk__torque_limit_positiv = 0;
-            setpoint.amk__torque_limit_negativ = 0;
+            update_motor_output.setpoints.amk__target_velocity = 0;
+            update_motor_output.setpoints.amk__torque_limit_positiv = 0;
+            update_motor_output.setpoints.amk__torque_limit_negativ = 0;
 
             break;
 
@@ -221,25 +231,25 @@ UpdateMotorOutput<SP> AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
             break;
 
         case ERROR_RESET_ENFORCE_SETPOINTS_ZERO:
-            setpoint.amk__target_velocity = 0;
-            setpoint.amk__torque_limit_positiv = 0;
-            setpoint.amk__torque_limit_negativ = 0;
-            setpoint.amk_b_inverter_on = 0;
+            update_motor_output.setpoints.amk__target_velocity = 0;
+            update_motor_output.setpoints.amk__torque_limit_positiv = 0;
+            update_motor_output.setpoints.amk__torque_limit_negativ = 0;
+            update_motor_output.setpoints.amk_b_inverter_on = 0;
 
             break;
 
         case ERROR_RESET_TOGGLE_ENABLE:
-            setpoint.amk_b_enable = 0;
+            update_motor_output.setpoints.amk_b_enable = 0;
 
             break;
 
         case ERROR_RESET_SEND_RESET:
-            setpoint.amk_b_error_reset = 1;
+            update_motor_output.setpoints.amk_b_error_reset = 1;
 
             break;
 
         case ERROR_RESET_TOGGLE_RESET:
-            setpoint.amk_b_error_reset = 0;
+            update_motor_output.setpoints.amk_b_error_reset = 0;
 
             break;
     }
@@ -247,7 +257,7 @@ UpdateMotorOutput<SP> AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
     return update_motor_output;
 }
 
-template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoint SP>
+template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoints SP>
 AmkStates AmkBlock::Transition(const V1 val1, const V2 val2,
                                const MotorInput motor_input, const MiCmd cmd,
                                int time_ms) {

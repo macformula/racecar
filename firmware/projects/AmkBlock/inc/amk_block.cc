@@ -9,19 +9,19 @@ AmkOutput AmkBlock::update(const AmkInput& input, const int time_ms) {
     auto left =
         UpdateMotor<AMK0_ActualValues1, AMK0_ActualValues2, AMK0_SetPoints1>(
             input.left_actual1, input.left_actual2, input.left_motor_input,
-            input.cmd, time_ms);
+            input.cmd, time_ms, previous_state_output_.left_setpoints);
     auto right =
         UpdateMotor<AMK1_ActualValues1, AMK1_ActualValues2, AMK1_SetPoints1>(
             input.right_actual1, input.right_actual2, input.right_motor_input,
-            input.cmd, time_ms);
+            input.cmd, time_ms, previous_state_output_.right_setpoints);
 
-    AmkOutput output{
+    previous_state_output_ = {
         .status = ProcessOutputStatus(left.status, right.status),
-        .left_setpoints = left.setpoint,
-        .right_setpoints = right.setpoint,
+        .left_setpoints = left.setpoints,
+        .right_setpoints = right.setpoints,
         .inverter_enable = left.inverter_enable && right.inverter_enable};
 
-    return output;
+    return previous_state_output_;
 }
 
 MiStatus AmkBlock::ProcessOutputStatus(MiStatus left_status,
@@ -32,9 +32,8 @@ MiStatus AmkBlock::ProcessOutputStatus(MiStatus left_status,
     } else if (left_status == right_status) {
         output_status = left_status;
     } else {
-        output_status = previous_state_status_;
+        output_status = previous_state_output_.status;
     }
 
-    previous_state_status_ = output_status;
     return output_status;
 }
