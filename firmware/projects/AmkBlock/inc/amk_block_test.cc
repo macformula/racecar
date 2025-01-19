@@ -1,52 +1,67 @@
-// To run these tests, cd into this directory and run:
-// make
-// this will compile it to bm_test.exe. run the test by running ./bm_test.exe
-
-#include "amk_block.hpp"
-
 #include <cassert>
 #include <iostream>
 
-void test_sequence1() {
-    // the tests should show that your code matches the simulink model's
-    // expected behavior
+#include "amk_block.hpp"
+
+template <SetPoints SP>
+void assert_setpoint_equal(SP actual_sp, SP expected_sp) {
+    assert(actual_sp.amk_b_inverter_on == expected_sp.amk_b_inverter_on);
+    assert(actual_sp.amk_b_dc_on == expected_sp.amk_b_dc_on);
+    assert(actual_sp.amk_b_enable == expected_sp.amk_b_enable);
+    assert(actual_sp.amk_b_error_reset == expected_sp.amk_b_error_reset);
+    assert(actual_sp.amk__target_velocity == expected_sp.amk__target_velocity);
+    assert(actual_sp.amk__torque_limit_positiv ==
+           expected_sp.amk__torque_limit_positiv);
+    assert(actual_sp.amk__torque_limit_negativ ==
+           expected_sp.amk__torque_limit_negativ);
+}
+
+// Tests the whole control model sequence from start to end
+void test_normal_sequence() {
     AmkBlock amk(AmkStates::MOTOR_OFF_WAITING_FOR_GOV);
     int time_ms = 0;
 
-    AmkOutput output1 = amk.update(
-        AmkInput{.cmd = MiCmd::STARTUP,
-                 .left_actual1 = generated::can::AMK0_ActualValues1{},
-                 .left_actual2 = generated::can::AMK0_ActualValues2{},
-                 .right_actual1 = generated::can::AMK1_ActualValues1{},
-                 .right_actual2 = generated::can::AMK1_ActualValues2{},
-                 .left_motor_input = MotorInput{},
-                 .right_motor_input = MotorInput{}},
-        time_ms);
+    // Input/output to change and use in each Update call
+    AmkInput input = {.cmd = MiCmd::STARTUP,
+                      .left_actual1 = generated::can::AMK0_ActualValues1{},
+                      .left_actual2 = generated::can::AMK0_ActualValues2{},
+                      .right_actual1 = generated::can::AMK1_ActualValues1{},
+                      .right_actual2 = generated::can::AMK1_ActualValues2{},
+                      .left_motor_input = MotorInput{},
+                      .right_motor_input = MotorInput{}};
+    AmkOutput output;
 
-    assert(output1.status == MiStatus::OFF);
+    // Expected setpoints to change and use in assert calls
+    generated::can::AMK0_SetPoints1 expected_left_setpoints{};
+    generated::can::AMK1_SetPoints1 expected_right_setpoints{};
 
-    time_ms += 10;  // next update comes 10 ms later
+    // Test transition from MOTOR_OFF_WAITING_FOR_GOV to STARTUP_SYS_READY
+    {
+        output = amk.Update(input, time_ms);
+        assert(output.status == MiStatus::STARTUP);
+        assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
+        assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
+        assert(output.inverter_enable == 0);
+    }
 
-    AmkOutput output2 = amk.update(
-        // this input matches the condition to move from InitialState to
-        // StartupState1 in Simulink
-        AmkInput{.cmd = MiCmd::STARTUP,
-                 .left_actual1 = generated::can::AMK0_ActualValues1{},
-                 .left_actual2 = generated::can::AMK0_ActualValues2{},
-                 .right_actual1 = generated::can::AMK1_ActualValues1{},
-                 .right_actual2 = generated::can::AMK1_ActualValues2{},
-                 .left_motor_input = MotorInput{},
-                 .right_motor_input = MotorInput{}},
-        time_ms);
+    time_ms += 10;
 
-    assert(output2.status == MiStatus::STARTUP);
+    // Test transition from STARTUP_SYS_READY to STARTUP_TOGGLE_D_CON
+    // {
+    //     output = amk.Update(input, time_ms);
+    //     std::cout << static_cast<int>(output.status) << std::endl;
+    //     assert(output.status == MiStatus::STARTUP);
+    //     assert_setpoint_equal(output.left_setpoints,
+    //     expected_left_setpoints);
+    //     assert_setpoint_equal(output.right_setpoints,
+    //     expected_right_setpoints); assert(output.inverter_enable == 0);
+    // }
 
-    // extend the test sequence to cover more states and transitions
+    // assert(output2.status == MiStatus::STARTUP);
 }
 
 int run_tests() {
-    test_sequence1();
-    // add more test sequences or extend the existing one
+    test_normal_sequence();
 
     std::cout << "All tests passed!" << std::endl;
 

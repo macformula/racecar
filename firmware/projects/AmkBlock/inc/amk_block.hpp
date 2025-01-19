@@ -25,6 +25,23 @@ enum class MiCmd {
     ERR_RESET
 };
 
+// AmkStates enum class which defines all states in the amk state machine
+enum class AmkStates {
+    MOTOR_OFF_WAITING_FOR_GOV,
+    STARTUP_SYS_READY,
+    STARTUP_TOGGLE_D_CON,
+    STARTUP_ENFORCE_SETPOINTS_ZERO,
+    STARTUP_COMMAND_ON,
+    READY,
+    RUNNING,
+    SHUTDOWN,
+    ERROR_DETECTED,
+    ERROR_RESET_ENFORCE_SETPOINTS_ZERO,
+    ERROR_RESET_TOGGLE_ENABLE,
+    ERROR_RESET_SEND_RESET,
+    ERROR_RESET_TOGGLE_RESET
+};
+
 // MotorInput struct used in AmkInput to group identical left/right values
 struct MotorInput {
     double speed_request;
@@ -98,35 +115,23 @@ struct UpdateMotorOutput {
     SP setpoints;
     MiStatus status;
     bool inverter_enable;
+    AmkStates amk_state;
+    int amk_state_start_time;
 };
 
-// AmkStates enum class which defines all states in the amk state machine
-enum class AmkStates {
-    MOTOR_OFF_WAITING_FOR_GOV,
-    STARTUP_SYS_READY,
-    STARTUP_TOGGLE_D_CON,
-    STARTUP_ENFORCE_SETPOINTS_ZERO,
-    STARTUP_COMMAND_ON,
-    READY,
-    RUNNING,
-    SHUTDOWN,
-    ERROR_DETECTED,
-    ERROR_RESET_ENFORCE_SETPOINTS_ZERO,
-    ERROR_RESET_TOGGLE_ENABLE,
-    ERROR_RESET_SEND_RESET,
-    ERROR_RESET_TOGGLE_RESET
-};
-
+// AmkBlock that represents the control model of the Amk Motor
 class AmkBlock {
 public:
     AmkBlock(
         AmkStates initial_amk_state = AmkStates::MOTOR_OFF_WAITING_FOR_GOV);
 
-    AmkOutput update(const AmkInput& input, const int time_ms);
+    AmkOutput Update(const AmkInput& input, const int time_ms);
 
 private:
-    AmkStates amk_state_;
-    int amk_state_start_time_ = 0;
+    AmkStates left_amk_state_;
+    AmkStates right_amk_state_;
+    int left_amk_state_start_time_ = 0;
+    int right_amk_state_start_time_ = 0;
     AmkOutput previous_state_output_{
         .status = MiStatus::OFF,
         .left_setpoints = generated::can::AMK0_SetPoints1{},
@@ -134,33 +139,28 @@ private:
         .inverter_enable = 0};
 
     template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoints SP>
-    UpdateMotorOutput<SP> UpdateMotor(const V1 val1, const V2 val2,
-                                      const MotorInput motor_input,
-                                      const MiCmd cmd, int time_ms,
-                                      const SP previous_setpoints);
+    void UpdateMotor(const V1 val1, const V2 val2, const MotorInput motor_input,
+                     const MiCmd cmd, int time_ms,
+                     UpdateMotorOutput<SP>& update_motor_output);
     template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoints SP>
-    AmkStates Transition(const V1 val1, const V2 val2,
-                         const MotorInput motor_input, const MiCmd cmd,
-                         const int time_ms);
+    void Transition(const V1 val1, const V2 val2, const MotorInput motor_input,
+                    const MiCmd cmd, const int time_ms,
+                    UpdateMotorOutput<SP>& update_motor_output);
     MiStatus ProcessOutputStatus(MiStatus left_status, MiStatus right_status);
 };
 
+// Computes main logic for updating the motor output given motor inputs
 template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoints SP>
-UpdateMotorOutput<SP> AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
-                                            const MotorInput motor_input,
-                                            const MiCmd cmd, const int time_ms,
-                                            const SP previous_setpoints) {
+void AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
+                           const MotorInput motor_input, const MiCmd cmd,
+                           const int time_ms,
+                           UpdateMotorOutput<SP>& update_motor_output) {
     using enum AmkStates;
 
-    // Preserve previous output to avoid resetting unchanged fields to zero.
-    UpdateMotorOutput<SP> update_motor_output{
-        .setpoints = previous_setpoints,
-        .status = previous_state_output_.status,
-        .inverter_enable = previous_state_output_.inverter_enable};
+    Transition<V1, V2, SP>(val1, val2, motor_input, cmd, time_ms,
+                           update_motor_output);
 
-    amk_state_ = Transition<V1, V2, SP>(val1, val2, motor_input, cmd, time_ms);
-
-    switch (amk_state_) {
+    switch (update_motor_output.amk_state) {
         case MOTOR_OFF_WAITING_FOR_GOV:
             update_motor_output.status = MiStatus::OFF;
             update_motor_output.inverter_enable = 0;
@@ -253,29 +253,32 @@ UpdateMotorOutput<SP> AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
 
             break;
     }
-
-    return update_motor_output;
 }
 
+// Computes the state to transition to in an update
 template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoints SP>
-AmkStates AmkBlock::Transition(const V1 val1, const V2 val2,
-                               const MotorInput motor_input, const MiCmd cmd,
-                               int time_ms) {
+void AmkBlock::Transition(const V1 val1, const V2 val2,
+                          const MotorInput motor_input, const MiCmd cmd,
+                          const int time_ms,
+                          UpdateMotorOutput<SP>& update_motor_output) {
     using enum AmkStates;
+    AmkStates amk_state = update_motor_output.amk_state;
+    int amk_state_start_time = update_motor_output.amk_state_start_time;
 
     // If any of these states have amk_b_error set, move to ERROR_DETECTED state
-    if (amk_state_ == STARTUP_SYS_READY || amk_state_ == STARTUP_TOGGLE_D_CON ||
-        amk_state_ == STARTUP_ENFORCE_SETPOINTS_ZERO ||
-        amk_state_ == STARTUP_COMMAND_ON || amk_state_ == READY ||
-        amk_state_ == RUNNING && val1.amk_b_error) {
-        amk_state_start_time_ = time_ms;
-        return ERROR_DETECTED;
+    if (amk_state == STARTUP_SYS_READY || amk_state == STARTUP_TOGGLE_D_CON ||
+        amk_state == STARTUP_ENFORCE_SETPOINTS_ZERO ||
+        amk_state == STARTUP_COMMAND_ON || amk_state == READY ||
+        amk_state == RUNNING && val1.amk_b_error) {
+        update_motor_output.amk_state = ERROR_DETECTED;
+        update_motor_output.amk_state_start_time = time_ms;
+        return;
     }
 
-    AmkStates new_state = amk_state_;
-    int elapsed_time = time_ms - amk_state_start_time_;
+    AmkStates new_state = amk_state;
+    int elapsed_time = time_ms - amk_state_start_time;
 
-    switch (amk_state_) {
+    switch (amk_state) {
         case MOTOR_OFF_WAITING_FOR_GOV:
             if (cmd == MiCmd::STARTUP) {
                 new_state = STARTUP_SYS_READY;
@@ -369,9 +372,9 @@ AmkStates AmkBlock::Transition(const V1 val1, const V2 val2,
     }
 
     // If a new state has been entered, set the start time of the current state
-    if (new_state != amk_state_) {
-        amk_state_start_time_ = time_ms;
+    if (new_state != amk_state) {
+        update_motor_output.amk_state_start_time = time_ms;
     }
 
-    return new_state;
+    update_motor_output.amk_state = new_state;
 }
