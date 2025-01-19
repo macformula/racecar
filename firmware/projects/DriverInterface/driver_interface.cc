@@ -1,118 +1,97 @@
-#include <chrono>
-#include <thread>
-
 #include "driver_interface.hpp"
+#include "shared/controls/driver_interface_error_handling.h"
 #include "shared/controls/driver_interface_fsm.hpp"
-#include "shared/controls/steering_angle.hpp"
-#include "shared/error_handling/driver_interface_error_handling.hpp"
+#include "shared/controls/steering_angle.h"
+
 // include "shared/controls/..." header files here
 
+DriverInterface::DriverInterface() {}
+
+// implement the block in here to compute all of the `output` fields
 DiOutput DriverInterface::Update(DiInput input, int time_ms) {
-    DiOutput output;
+    // Compute all potentiometer blocks here and define all outputs from it
+    float accel_pedal_1_pos;
+    bool accel_pedal_1_error;
+    float accel_pedal_2_pos;
+    bool accel_pedal_2_error;
+    float front_brake_pedal_pres;
+    bool front_brake_pedal_error;
+    float rear_brake_pedal_pos;
+    bool rear_brake_pedal_error;
+    float steering_angle;
+    bool steering_error;
 
-    // implement the block in here to compute all of the `output` fields
-    output.brake_pedal_position =
-        std::max(input.front_brake_pressure, input.rear_brake_pressure);
-    // initialization state
+    // Compute accelerator plausability check block
+    bool accel_pedal_implausible;
 
-    DiInput::Input in {
-        ready_to_drive = false;
-        driver_speaker = false;
-        GOV_E_DISTS = DI_STATUSES.DI_STS_INIT;
-    }
-    bool driverInterfaceError = b_DriverInterfaceError(
-        input.accel_pedal_pos1, input.accel_pedal_pos2,
-        input.front_brake_pressure, input.rear_brake_pressure,
-        input.raw_steering_angle);
+    // Compute driver interface error block
+    // QUESTION: Should there be an extra parameter in this function definition
+    // to take the implausible input?
+    bool di_error =
+        ctrl::b_DriverInterfaceError(accel_pedal_1_error, accel_pedal_2_error,
+                                     front_brake_pedal_error,
+                                     rear_brake_pedal_error, steering_error) ||
+        accel_pedal_implausible;
 
-    while (driverInterfaceError == 0) {
-        driverInterfaceError = b_DriverInterfaceError(
-            input.accel_pedal_pos1, input.accel_pedal_pos2,
-            input.front_brake_pressure, input.rear_brake_pressure,
-            input.raw_steering_angle);  // determines if components are in
-                                        // range, returns error if so
-        switch (GOV_E_DICMD) {
-            case DI_CMD_INIT:
-                GOV_E_DISTS = DI.STATUSES.WAITING_FOR_DRVR;
-                if (DI_b_DriverButton == 1) {
-                    GOV_E_DISTS = DI.STATUSES.HV_START_REQ;
-                }
-                break;
+    // Compute max computation to pass into other blocks
+    float brake_pedal_pos =
+        std::max(front_brake_pedal_pres, rear_brake_pedal_pos);
 
-            case (DI_CMD.HV_ON):
-                if (DI_b_DriverButton == 1) {
-                    GOV_E_DISTS = DI.STATUSES.READY_TO_DRIVE;
-                }
-                break;
-            case (DI_CMD.READY_TO_DRIVE):
-                if (input.brake_pedal_position > 0.1) {
-                    ready_to_drive = true;
-                    GOV_E_DISTS = DI_STATUSES.RUNNING;
-                    driver_speaker = true;
-                    std::this_thread::sleep_for(
-                        std::chrono::seconds(2));  // wait two seconds
-                    driver_speaker = false;
-                }
-                break;
-            case (DI.CMD.RUN_ERROR):
-                ready_to_drive = false;
-                GOV_E_DISTS = DI_STATUSES.DI_IDLE;
-                break;
+    // Compute FSM block
+    DiFsm::Input di_fsm_input{.command = input.di_cmd,
+                              .driver_button = input.driver_button,
+                              .brake_pedal_pos = brake_pedal_pos,
+                              .di_error = di_error};
+    DiFsm::Output di_fsm_output = di_fsm.Update(di_fsm_input, time_ms);
 
-            case (DI_STATUSES.SHUTDOWN):
-                GOV_E_DISTS = DI.STATUSES.DI_STS_INIT;
-                ready_to_drive = false;
-                driver_speaker = false;
-                break;
-
-            default:
-                GOV_E_DISTS = DI.STATUSES.UNKNOWN;
-                break;
-        }
-        if (!driverInterfaceError) break;
-    }
-
-    if (driverInterfaceError) {
-        GOV_E_DISTS = DI_STATUSES.di_error;
-    }
-
-    const double lut_data[][2] = {
-        {0., 0.}, {100., 100.}};  // LUT table that maps from 0 to 100
-
-    constexpr int lut_length = sizeof(lut_data) / sizeof(lut_data[0]);
-
-    shared::util::LookupTable<lut_length, double> pedal_map{lut_data};
-
-    if (ready_to_drive == 1 || driverInterfaceError == 1) {
-        if (u1 == 1) {
-            output.driver_torque_req = 0;
-        } else {
-            output.driver_torque_req =
-                pedal_map.Evaluate(input.accel_pedal_pos1)
-        }
-    }
-    bool brakeError = !isInRange(input.front_brake_pressure) ||
-                      !isInRange(input.rear_brake_pressure);
+    // Compute brake pedal pos and brake light en
+    bool brake_light_en;
+    bool brakeError = !ctrl::isInRange(front_brake_pedal_pres) ||
+                      !ctrl::isInRange(rear_brake_pedal_pos);
 
     if (brakeError) {
-        output.brake_pedal_position = 0;
-    } else {
-        output.brake_pedal_position =
-            std::max(input.front_brake_pressure, input.rear_brake_pressure);
-
-        output.driver_brake_pedal_position =
-            pedal_map.Evaluate(input.brake_pedal_position);
-
-        output.brake_light_en = (output.driver_brake_pedal_position > 0);
+        brake_pedal_pos = 0;
     }
-    bool steering_angle_error = !isInRange(input.steering_angle);
+
+    //     driver_brake_pedal_position =
+    //         pedal_map.Evaluate(input.brake_pedal_position);
+
+    //     brake_light_en = (output.driver_brake_pedal_position > 0);
+    // }
+
+    // Compute steering angle
+    bool steering_angle_error = !ctrl::isInRange(input.steering_angle);
 
     if (steering_angle_error) {
-        output.steering_angle = 0.5;
+        steering_angle = 0.5;
     } else {
-        output.steering_angle = input.steering_angle;
+        steering_angle = steering_angle;
     }
 
-    output.driver_speaker = driver_speaker;
-    return output;
+    // compute driver torque request
+    float driver_torque_request;
+    //  if (ready_to_drive == 1 || driver_interface_error == 1) {
+    //     if (u1 == 1) {
+    //         output.driver_torque_req = 0;
+    //     } else {
+    //         output.driver_torque_req =
+    //             pedal_map.Evaluate(input.accel_pedal_pos1)
+    //     }
+    // }
+
+    // const double lut_data[][2] = {
+    //     {0., 0.}, {100., 100.}};  // LUT table that maps from 0 to 100
+
+    // constexpr int lut_length = sizeof(lut_data) / sizeof(lut_data[0]);
+
+    // shared::util::LookupTable<lut_length, double> pedal_map{lut_data};
+
+    return DiOutput{
+        .di_sts = di_fsm_output.status,
+        .driver_torque_req = driver_torque_request,
+        .steering_angle = steering_angle,
+        .brake_pedal_position = brake_pedal_pos,
+        .driver_speaker = di_fsm_output.speaker_enable,
+        .brake_light_en = brake_light_en,
+    };
 }

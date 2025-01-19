@@ -21,13 +21,6 @@ struct DiOutput {
     bool brake_light_en;
 };
 
-// Todo: check if this is needed or not
-struct DriverInterfaceOutput {
-    bool ready_to_drive;
-    bool driver_speaker;
-    float brake_pedal_position;
-};
-
 class DriverInterface {
 public:
     DriverInterface();
@@ -35,4 +28,5 @@ public:
 
 private:
     // Add private variables if necessary. Prefer local variable in `Update()`
+    DiFsm di_fsm;
 };
