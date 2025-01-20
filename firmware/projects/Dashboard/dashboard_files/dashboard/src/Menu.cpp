@@ -1,10 +1,10 @@
-﻿#include "Menu.h"
+﻿#include "../include/Menu.hpp"
 
 Menu::Menu() {}
 
 Menu::~Menu() {}
 
-int Menu::menuIndex = 0;
+dashboardStates Menu::dashboard_state = STATE_DASHBOARD;
 
 void Menu::init_menu(lv_obj_t* frame) {
     // Create a background for the menu

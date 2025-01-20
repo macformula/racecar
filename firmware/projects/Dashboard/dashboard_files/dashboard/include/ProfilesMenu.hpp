@@ -1,4 +1,8 @@
-﻿#include "Menu.h"
+#include "Menu.hpp"
+#include "lvgl.h"
+#include "DashboardFSM.hpp"
+
+
 
 class ProfilesMenu : public Menu {
 public:

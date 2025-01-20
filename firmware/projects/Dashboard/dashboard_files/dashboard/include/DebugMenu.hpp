@@ -1,4 +1,7 @@
-﻿#include "Menu.h"
+#include "Menu.hpp"
+#include "lvgl.h"
+#include "DashboardFSM.hpp"
+
 
 class DebugMenu : public Menu {
 public:
@@ -8,4 +11,3 @@ public:
 private:
     static void back_btn_event_handler(lv_event_t* e);
 };
-

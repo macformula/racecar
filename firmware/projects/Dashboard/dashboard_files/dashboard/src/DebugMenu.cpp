@@ -1,4 +1,4 @@
-﻿#include "DebugMenu.h"
+#include "../include/DebugMenu.hpp"
 
 DebugMenu::DebugMenu() {}
 
@@ -23,10 +23,6 @@ void DebugMenu::create_menu() {
     lv_label_set_text(back_label, "Back");
     lv_obj_center(back_label);
     lv_obj_add_event_cb(back_btn, back_btn_event_handler, LV_EVENT_CLICKED, NULL);
-
-
-
-
 
     // Engine Temperature Bar (Simulated)
     lv_obj_t* temp_bar = lv_bar_create(debug_screen);
@@ -114,59 +110,6 @@ void DebugMenu::create_menu() {
         lv_chart_set_next_value(battery_chart, battery_series, lv_rand(10, 14));  // Fake battery voltage data
     }
 
-    // Create Engine Temperature scale (top)
-    lv_obj_t* scale_temp = lv_scale_create(debug_screen);
-    lv_obj_set_size(scale_temp, 150, 150);
-    lv_scale_set_mode(scale_temp, LV_SCALE_MODE_ROUND_INNER);
-    lv_obj_set_style_bg_opa(scale_temp, LV_OPA_COVER, 0);
-    lv_obj_set_style_bg_color(scale_temp, lv_palette_lighten(LV_PALETTE_RED, 5), 0);
-    lv_obj_set_style_radius(scale_temp, LV_RADIUS_CIRCLE, 0);
-    lv_obj_set_style_clip_corner(scale_temp, true, 0);
-    lv_obj_align(scale_temp, LV_ALIGN_TOP_RIGHT, -20, 95);
-
-    lv_scale_set_label_show(scale_temp, true);
-    lv_scale_set_total_tick_count(scale_temp, 31);
-    lv_scale_set_major_tick_every(scale_temp, 5);
-    lv_obj_set_style_length(scale_temp, 5, LV_PART_ITEMS);
-    lv_obj_set_style_length(scale_temp, 10, LV_PART_INDICATOR);
-    lv_scale_set_range(scale_temp, 0, 100);  // 0-100 for temperature
-
-    lv_scale_set_angle_range(scale_temp, 270);
-    lv_scale_set_rotation(scale_temp, 135);
-
-    // Set the needle for Engine Temperature (e.g., 70°C)
-    lv_obj_t* needle_temp = lv_line_create(scale_temp);
-    lv_obj_set_style_line_width(needle_temp, 6, LV_PART_MAIN);
-    lv_obj_set_style_line_rounded(needle_temp, true, LV_PART_MAIN);
-    lv_scale_set_line_needle_value(scale_temp, needle_temp, 60, 70);  // Example fixed value (70°C)
-
-    // Create Battery Voltage scale (bottom)
-    lv_obj_t* scale_voltage = lv_scale_create(debug_screen);
-    lv_obj_set_size(scale_voltage, 150, 150);
-    lv_scale_set_mode(scale_voltage, LV_SCALE_MODE_ROUND_INNER);
-    lv_obj_set_style_bg_opa(scale_voltage, LV_OPA_COVER, 0);
-    lv_obj_set_style_bg_color(scale_voltage, lv_palette_lighten(LV_PALETTE_GREEN, 5), 0);
-    lv_obj_set_style_radius(scale_voltage, LV_RADIUS_CIRCLE, 0);
-    lv_obj_set_style_clip_corner(scale_voltage, true, 0);
-    lv_obj_align(scale_voltage, LV_ALIGN_BOTTOM_RIGHT, -20, -70); // Adjusted offset
-
-    lv_scale_set_label_show(scale_voltage, true);
-    lv_scale_set_total_tick_count(scale_voltage, 31);
-    lv_scale_set_major_tick_every(scale_voltage, 5);
-    lv_obj_set_style_length(scale_voltage, 5, LV_PART_ITEMS);
-    lv_obj_set_style_length(scale_voltage, 10, LV_PART_INDICATOR);
-    lv_scale_set_range(scale_voltage, 10, 16);  // Voltage range (e.g., 10-16V for a car battery)
-
-    lv_scale_set_angle_range(scale_voltage, 270);
-    lv_scale_set_rotation(scale_voltage, 135);
-
-    // Set the needle for Battery Voltage (e.g., 12V)
-    lv_obj_t* needle_voltage = lv_line_create(scale_voltage);
-    lv_obj_set_style_line_width(needle_voltage, 6, LV_PART_MAIN);
-    lv_obj_set_style_line_rounded(needle_voltage, true, LV_PART_MAIN);
-    lv_scale_set_line_needle_value(scale_voltage, needle_voltage, 10, 12);  // Example fixed value (12V)
-
-
     lv_obj_clean(lv_scr_act());
     lv_scr_load(debug_screen);
 
@@ -176,8 +119,7 @@ void DebugMenu::back_btn_event_handler(lv_event_t* e) {
     lv_event_code_t code = lv_event_get_code(e);
 
     if (code == LV_EVENT_CLICKED) {
-        Menu::menuIndex = -1;
+        Menu::dashboard_state = STATE_DASHBOARD;
     }
 
 }
-

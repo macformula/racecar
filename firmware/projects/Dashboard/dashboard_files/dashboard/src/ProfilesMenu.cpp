@@ -1,4 +1,4 @@
-﻿#include "ProfilesMenu.h"
+#include "../include/ProfilesMenu.hpp"
 
 ProfilesMenu::ProfilesMenu() {}
 
@@ -48,6 +48,6 @@ void ProfilesMenu::back_btn_event_handler(lv_event_t* e) {
     lv_event_code_t code = lv_event_get_code(e);
 
     if (code == LV_EVENT_CLICKED) {
-        Menu::menuIndex = -1;
+        Menu::dashboard_state = STATE_DASHBOARD;
     }
 }

@@ -1,4 +1,4 @@
-﻿#include "DriveModeMenu.h"
+#include "../include/DriveModeMenu.hpp"
 
 int DriveModeMenu::speed = 0;
 bool DriveModeMenu::increasing = true;
@@ -46,7 +46,6 @@ void DriveModeMenu::create_menu() {
     lv_arc_set_value(speedometer, speed);
     lv_obj_align(speedometer, LV_ALIGN_LEFT_MID, 40, 0);
     lv_obj_remove_style(speedometer, NULL, LV_PART_KNOB);
-    lv_obj_remove_flag(speedometer, LV_OBJ_FLAG_CLICKABLE);
 
     lv_obj_t* speed_label = lv_label_create(drive_screen);
     lv_snprintf(speed_buf, sizeof(speed_buf), "%d km/h", speed);
@@ -141,19 +140,6 @@ void DriveModeMenu::create_menu() {
     lv_label_set_text(selected_mode_label, "Selected Mode: Eco");  // Initial mode
     lv_obj_align(selected_mode_label, LV_ALIGN_BOTTOM_RIGHT, -20, -20);  // Position the label below the roller
 
-    static const char* btnm_map[] = { "1", "2", "3", "4", "5", "\n",
-                                  "6", "7", "8", "9", "0", "\n",
-                                  "Action1", "Action2", ""
-    };
-
-    lv_obj_t* btnm1 = lv_buttonmatrix_create(drive_screen);
-    lv_buttonmatrix_set_map(btnm1, btnm_map);
-    lv_buttonmatrix_set_button_width(btnm1, 10, 2);        /*Make "Action1" twice as wide as "Action2"*/
-    lv_buttonmatrix_set_button_ctrl(btnm1, 10, LV_BUTTONMATRIX_CTRL_CHECKABLE);
-    lv_buttonmatrix_set_button_ctrl(btnm1, 11, LV_BUTTONMATRIX_CTRL_CHECKED);
-    lv_obj_align(btnm1, LV_ALIGN_RIGHT_MID, -40, 0);
-
-
     lv_obj_clean(lv_scr_act());
     lv_scr_load(drive_screen);
 
@@ -163,7 +149,8 @@ void DriveModeMenu::create_menu() {
 }
 
 void DriveModeMenu::speed_update_cb(lv_timer_t* timer) {
-    lv_obj_t** objects = (lv_obj_t**)lv_timer_get_user_data(timer);
+    lv_obj_t ** objects = (lv_obj_t **)timer->user_data;
+
     lv_obj_t* speed_label = objects[0];
     lv_obj_t* speedometer = objects[1];
 
@@ -197,7 +184,7 @@ void DriveModeMenu::back_btn_event_handler(lv_event_t* e) {
     lv_event_code_t code = lv_event_get_code(e);
 
     if (code == LV_EVENT_CLICKED) {
-        Menu::menuIndex = -1;
+        Menu::dashboard_state = STATE_DASHBOARD;
         lv_timer_del(speed_timer);
     }
 

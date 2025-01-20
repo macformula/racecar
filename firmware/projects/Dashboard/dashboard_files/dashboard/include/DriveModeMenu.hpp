@@ -1,5 +1,7 @@
-﻿#include "Menu.h"
+#include "Menu.hpp"
 #include "lvgl.h"
+#include "DashboardFSM.hpp"
+
 
 class DriveModeMenu : public Menu {
 public:

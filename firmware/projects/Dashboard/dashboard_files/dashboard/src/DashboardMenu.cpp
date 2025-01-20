@@ -1,4 +1,4 @@
-﻿#include "DashboardMenu.h"
+﻿#include "../include/DashboardMenu.hpp"
 
 DashboardMenu::DashboardMenu() {}
 
@@ -7,9 +7,7 @@ void DashboardMenu::create_menu() {
     // Call the base class create_menu for common functionality
     Menu::init_menu(dashboard_screen);
 
-    lv_style_t style;
-    lv_style_init(&style);
-    lv_style_set_text_font(&style, &lv_font_montserrat_24);
+
 
     //drive mode button
     lv_obj_t* drive_mode_btn = lv_btn_create(dashboard_screen);
@@ -45,7 +43,7 @@ void DashboardMenu::create_menu() {
     lv_obj_t* title_label = lv_label_create(dashboard_screen);
     lv_label_set_text(title_label, "Formula Electric Dashboard");
     lv_obj_align(title_label, LV_ALIGN_TOP_LEFT, 20, 20);
-    lv_obj_add_style(title_label, &style, 0);
+    lv_obj_set_style_text_font(title_label, &lv_font_montserrat_24, 0);
 
     //NOTE: need to run clean for focus to work!
     lv_obj_clean(lv_scr_act());
@@ -57,7 +55,7 @@ void DashboardMenu::drive_btn_event_handler(lv_event_t* e) {
     lv_event_code_t code = lv_event_get_code(e);
 
     if (code == LV_EVENT_CLICKED) {
-        Menu::menuIndex = 1;
+        Menu::dashboard_state = STATE_DRIVE_MODE;
     }
 
 }
@@ -66,7 +64,7 @@ void DashboardMenu::debug_btn_event_handler(lv_event_t* e) {
     lv_event_code_t code = lv_event_get_code(e);
 
     if (code == LV_EVENT_CLICKED) {
-        Menu::menuIndex = 2;
+        Menu::dashboard_state = STATE_DEBUG;
     }
 
 }
@@ -75,7 +73,7 @@ void DashboardMenu::profiles_btn_event_handler(lv_event_t* e) {
     lv_event_code_t code = lv_event_get_code(e);
 
     if (code == LV_EVENT_CLICKED) {
-        Menu::menuIndex = 3;
+        Menu::dashboard_state = STATE_PROFILES;
     }
 
 }
