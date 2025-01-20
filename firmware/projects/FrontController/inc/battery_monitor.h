@@ -1,5 +1,3 @@
-// battery_monitor.h
-
 #pragma once
 
 // Add enum values if I missed any
@@ -17,6 +15,20 @@ enum class BmStatus {
 enum class BmCmd {
     INIT,
     HV_STARTUP,
+    HV_SHUTDOWN,
+};
+
+enum class BmControlStatus {
+    STARTUP_CMD,
+    CLOSE_HV_NEG,
+    CLOSE_PRECHARGE,
+    CLOSE_HV_POS,
+    OPEN_PRECHARGE,
+};
+
+enum ContactorSates {
+    OPEN = false,
+    CLOSED = true,
 };
 
 struct BmInput {
@@ -49,8 +61,11 @@ public:
 
 private:
     // add private methods / variables as necessary.
+    BmStatus bmStatusUpdate(const BmInput& input, int time_ms);
     ContactorCMD bmControlUpdate(BmStatus status, int time_ms);
 
     // State machine variables (BmUpdate)
     BmStatus current_status;
+    BmControlStatus bm_control_status;
+    int snapshot_time_ms;
 };
