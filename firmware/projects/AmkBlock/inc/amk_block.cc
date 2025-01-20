@@ -7,7 +7,7 @@ AmkBlock::AmkBlock(AmkStates initial_amk_state)
 AmkOutput AmkBlock::Update(const AmkInput& input, const int time_ms) {
     using namespace generated::can;
 
-    UpdateMotorOutput<generated::can::AMK0_SetPoints1> left = {
+    UpdateMotorOutput<AMK0_SetPoints1> left = {
         .setpoints = previous_state_output_.left_setpoints,
         .status = previous_state_output_.status,
         .inverter_enable = previous_state_output_.inverter_enable,
@@ -17,7 +17,7 @@ AmkOutput AmkBlock::Update(const AmkInput& input, const int time_ms) {
         input.left_actual1, input.left_actual2, input.left_motor_input,
         input.cmd, time_ms, left);
 
-    UpdateMotorOutput<generated::can::AMK1_SetPoints1> right = {
+    UpdateMotorOutput<AMK1_SetPoints1> right = {
         .setpoints = previous_state_output_.right_setpoints,
         .status = previous_state_output_.status,
         .inverter_enable = previous_state_output_.inverter_enable,
@@ -43,14 +43,11 @@ AmkOutput AmkBlock::Update(const AmkInput& input, const int time_ms) {
 // Processes the new output status given the left/right statuses
 MiStatus AmkBlock::ProcessOutputStatus(MiStatus left_status,
                                        MiStatus right_status) {
-    MiStatus output_status;
     if (left_status == MiStatus::ERROR || right_status == MiStatus::ERROR) {
-        output_status = MiStatus::ERROR;
+        return MiStatus::ERROR;
     } else if (left_status == right_status) {
-        output_status = left_status;
-    } else {
-        output_status = previous_state_output_.status;
+        return left_status;
     }
 
-    return output_status;
+    return previous_state_output_.status;
 }
