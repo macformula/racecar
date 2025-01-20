@@ -7,25 +7,23 @@ AmkBlock::AmkBlock(AmkStates initial_amk_state)
 AmkOutput AmkBlock::Update(const AmkInput& input, const int time_ms) {
     using namespace generated::can;
 
-    UpdateMotorOutput<AMK0_SetPoints1> left = {
+    UpdateMotorOutput left = {
         .setpoints = previous_state_output_.left_setpoints,
         .status = previous_state_output_.status,
         .inverter_enable = previous_state_output_.inverter_enable,
         .amk_state = left_amk_state_,
         .amk_state_start_time = left_amk_state_start_time_};
-    UpdateMotor<AMK0_ActualValues1, AMK0_ActualValues2, AMK0_SetPoints1>(
-        input.left_actual1, input.left_actual2, input.left_motor_input,
-        input.cmd, time_ms, left);
+    UpdateMotor(input.left_actual1, input.left_actual2, input.left_motor_input,
+                input.cmd, time_ms, left);
 
-    UpdateMotorOutput<AMK1_SetPoints1> right = {
+    UpdateMotorOutput right = {
         .setpoints = previous_state_output_.right_setpoints,
         .status = previous_state_output_.status,
         .inverter_enable = previous_state_output_.inverter_enable,
         .amk_state = right_amk_state_,
         .amk_state_start_time = right_amk_state_start_time_};
-    UpdateMotor<AMK1_ActualValues1, AMK1_ActualValues2, AMK1_SetPoints1>(
-        input.right_actual1, input.right_actual2, input.right_motor_input,
-        input.cmd, time_ms, right);
+    UpdateMotor(input.right_actual1, input.right_actual2,
+                input.right_motor_input, input.cmd, time_ms, right);
 
     left_amk_state_ = left.amk_state;
     left_amk_state_start_time_ = left.amk_state_start_time;

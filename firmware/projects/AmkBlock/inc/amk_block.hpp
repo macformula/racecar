@@ -156,7 +156,7 @@ void AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
                            UpdateMotorOutput<SP>& update_motor_output) {
     using enum AmkStates;
 
-    Transition<V1, SP>(val1, cmd, time_ms, update_motor_output);
+    Transition(val1, cmd, time_ms, update_motor_output);
 
     switch (update_motor_output.amk_state) {
         case MOTOR_OFF_WAITING_FOR_GOV:
@@ -258,7 +258,7 @@ template <AmkActualValues1 V1, SetPoints SP>
 void AmkBlock::Transition(const V1 val1, const MiCmd cmd, const int time_ms,
                           UpdateMotorOutput<SP>& update_motor_output) {
     using enum AmkStates;
-    
+
     AmkStates amk_state = update_motor_output.amk_state;
     int amk_state_start_time = update_motor_output.amk_state_start_time;
 
