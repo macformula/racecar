@@ -18,21 +18,17 @@ void assert_setpoint_equal(SP actual_sp, SP expected_sp) {
 
 // Tests the whole control model sequence from start to end
 void test_normal_sequence() {
+    AmkOutput output;
     AmkBlock amk(AmkStates::MOTOR_OFF_WAITING_FOR_GOV);
     int time_ms = 0;
 
-    // Input/output to change and use in each Update call
+    // Input to change and use in each Update call
     MotorInput motor_input = MotorInput{.speed_request = 1.5,
                                         .torque_limit_positive = 2.5,
                                         .torque_limit_negative = 3.5};
     AmkInput input = {.cmd = MiCmd::STARTUP,
-                      .left_actual1 = generated::can::AMK0_ActualValues1{},
-                      .left_actual2 = generated::can::AMK0_ActualValues2{},
-                      .right_actual1 = generated::can::AMK1_ActualValues1{},
-                      .right_actual2 = generated::can::AMK1_ActualValues2{},
                       .left_motor_input = motor_input,
                       .right_motor_input = motor_input};
-    AmkOutput output;
 
     // Expected setpoints to change and use in assert calls
     generated::can::AMK0_SetPoints1 expected_left_setpoints{};
@@ -73,9 +69,18 @@ void test_normal_sequence() {
         assert(output.inverter_enable == 0);
     }
 
-    time_ms += 100;
+    // Test NO transition in STARTUP_TOGGLE_D_CON with not enough time elapsed
+    time_ms += 50;
+    {
+        output = amk.Update(input, time_ms);
+        assert(output.status == MiStatus::STARTUP);
+        assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
+        assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
+        assert(output.inverter_enable == 0);
+    }
 
     // Test transition STARTUP_ENFORCE_SETPOINTS_ZERO to STARTUP_COMMAND_ON
+    time_ms += 50;
     expected_left_setpoints.amk_b_enable = 1;
     expected_right_setpoints.amk_b_enable = 1;
     expected_left_setpoints.amk_b_inverter_on = 1;
@@ -132,9 +137,18 @@ void test_normal_sequence() {
         assert(output.inverter_enable == 0);
     }
 
-    time_ms += 500;
+    // Test NO transition in SHUTDOWN with not enough time elapsed
+    time_ms += 250;
+    {
+        output = amk.Update(input, time_ms);
+        assert(output.status == MiStatus::RUNNING);
+        assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
+        assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
+        assert(output.inverter_enable == 0);
+    }
 
     // Test transition SHUTDOWN to MOTOR_OFF_WAITING_FOR_GOV
+    time_ms += 250;
     expected_left_setpoints = generated::can::AMK0_SetPoints1{};
     expected_right_setpoints = generated::can::AMK1_SetPoints1{};
     {
@@ -146,8 +160,134 @@ void test_normal_sequence() {
     }
 }
 
+void test_error_detected_state() {
+    AmkInput input;
+    AmkOutput output;
+    int time_ms = 0;
+
+    // Set inputs to cause an error for testing
+    input.left_actual1.amk_b_error = 1;
+    input.right_actual1.amk_b_error = 1;
+
+    // Test transition STARTUP_SYS_READY to ERROR_DETECTED
+    {
+        AmkBlock amk(AmkStates::STARTUP_SYS_READY);
+        output = amk.Update(input, time_ms);
+        assert(output.status == MiStatus::ERROR);
+    }
+
+    // Test transition STARTUP_TOGGLE_D_CON to ERROR_DETECTED
+    {
+        AmkBlock amk(AmkStates::STARTUP_TOGGLE_D_CON);
+        output = amk.Update(input, time_ms);
+        assert(output.status == MiStatus::ERROR);
+    }
+
+    // Test transition STARTUP_ENFORCE_SETPOINTS_ZERO to ERROR_DETECTED
+    {
+        AmkBlock amk(AmkStates::STARTUP_ENFORCE_SETPOINTS_ZERO);
+        output = amk.Update(input, time_ms);
+        assert(output.status == MiStatus::ERROR);
+    }
+
+    // Test transition STARTUP_COMMAND_ON to ERROR_DETECTED
+    {
+        AmkBlock amk(AmkStates::STARTUP_COMMAND_ON);
+        output = amk.Update(input, time_ms);
+        assert(output.status == MiStatus::ERROR);
+    }
+
+    // Test transition READY to ERROR_DETECTED
+    {
+        AmkBlock amk(AmkStates::READY);
+        output = amk.Update(input, time_ms);
+        assert(output.status == MiStatus::ERROR);
+    }
+
+    // Test transition RUNNING to ERROR_DETECTED
+    {
+        AmkBlock amk(AmkStates::RUNNING);
+        output = amk.Update(input, time_ms);
+        assert(output.status == MiStatus::ERROR);
+    }
+}
+
+void test_error_sequence() {
+    AmkOutput output;
+    AmkBlock amk(AmkStates::ERROR_DETECTED);
+    AmkInput input = {.cmd = MiCmd::ERR_RESET};
+    int time_ms = 0;
+
+    // Expected setpoints to change and use in assert calls
+    generated::can::AMK0_SetPoints1 expected_left_setpoints;
+    generated::can::AMK1_SetPoints1 expected_right_setpoints;
+
+    // Test transition ERROR_DETECTED to ERROR_RESET_ENFORCE_SETPOINTS_ZERO
+    {
+        output = amk.Update(input, time_ms);
+        assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
+        assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
+    }
+
+    // Test transition ERROR_RESET_ENFORCE_SETPOINTS_ZERO to
+    // ERROR_RESET_TOGGLE_ENABLE
+    {
+        output = amk.Update(input, time_ms);
+        assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
+        assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
+    }
+
+    // Test NO transition in ERROR_RESET_TOGGLE_ENABLE with not enough time
+    time_ms += 250;
+    {
+        output = amk.Update(input, time_ms);
+        assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
+        assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
+    }
+
+    // Test transition ERROR_RESET_TOGGLE_ENABLE to ERROR_RESET_SEND_RESET
+    time_ms += 250;
+    expected_left_setpoints.amk_b_error_reset = 1;
+    expected_right_setpoints.amk_b_error_reset = 1;
+    {
+        output = amk.Update(input, time_ms);
+        assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
+        assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
+    }
+
+    // Test NO transition in ERROR_RESET_SEND_RESET
+    time_ms += 250;
+    {
+        output = amk.Update(input, time_ms);
+        assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
+        assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
+    }
+
+    // Test transition ERROR_RESET_SEND_RESET to ERROR_RESET_TOGGLE_RESET
+    time_ms += 250;
+    expected_left_setpoints.amk_b_error_reset = 0;
+    expected_right_setpoints.amk_b_error_reset = 0;
+    {
+        output = amk.Update(input, time_ms);
+        assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
+        assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
+    }
+
+    // Test transition ERROR_RESET_TOGGLE_RESET to MOTOR_OFF_WAITING_FOR_GOV
+    input.left_actual1.amk_b_system_ready = 1;
+    input.right_actual1.amk_b_system_ready = 1;
+    {
+        output = amk.Update(input, time_ms);
+        assert(output.status == MiStatus::OFF);
+        assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
+        assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
+    }
+}
+
 int run_tests() {
     test_normal_sequence();
+    test_error_detected_state();
+    test_error_sequence();
 
     std::cout << "All tests passed!" << std::endl;
 

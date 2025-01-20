@@ -344,7 +344,7 @@ void AmkBlock::Transition(const V1 val1, const V2 val2,
             break;
 
         case ERROR_RESET_ENFORCE_SETPOINTS_ZERO:
-            if (val1.amk_b_inverter_on) {
+            if (!val1.amk_b_inverter_on) {
                 new_state = ERROR_RESET_TOGGLE_ENABLE;
             }
 
