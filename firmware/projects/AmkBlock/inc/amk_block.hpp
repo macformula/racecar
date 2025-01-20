@@ -45,8 +45,8 @@ enum class AmkStates {
 // MotorInput struct used in AmkInput to group identical left/right values
 struct MotorInput {
     double speed_request;
-    double torque_limit_negative;
     double torque_limit_positive;
+    double torque_limit_negative;
 };
 
 // AmkInput struct, the input that is fed into the state machine
@@ -200,7 +200,7 @@ void AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
 
         case READY:
             update_motor_output.status = MiStatus::READY;
-            update_motor_output.inverter_enable = 0;
+            update_motor_output.inverter_enable = 1;
 
             break;
 
@@ -266,10 +266,11 @@ void AmkBlock::Transition(const V1 val1, const V2 val2,
     int amk_state_start_time = update_motor_output.amk_state_start_time;
 
     // If any of these states have amk_b_error set, move to ERROR_DETECTED state
-    if (amk_state == STARTUP_SYS_READY || amk_state == STARTUP_TOGGLE_D_CON ||
-        amk_state == STARTUP_ENFORCE_SETPOINTS_ZERO ||
-        amk_state == STARTUP_COMMAND_ON || amk_state == READY ||
-        amk_state == RUNNING && val1.amk_b_error) {
+    if ((amk_state == STARTUP_SYS_READY || amk_state == STARTUP_TOGGLE_D_CON ||
+         amk_state == STARTUP_ENFORCE_SETPOINTS_ZERO ||
+         amk_state == STARTUP_COMMAND_ON || amk_state == READY ||
+         amk_state == RUNNING) &&
+        val1.amk_b_error) {
         update_motor_output.amk_state = ERROR_DETECTED;
         update_motor_output.amk_state_start_time = time_ms;
         return;
@@ -330,7 +331,7 @@ void AmkBlock::Transition(const V1 val1, const V2 val2,
 
         case SHUTDOWN:
             if (elapsed_time >= 500) {
-                MOTOR_OFF_WAITING_FOR_GOV;
+                new_state = MOTOR_OFF_WAITING_FOR_GOV;
             }
 
             break;
