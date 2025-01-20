@@ -19,7 +19,7 @@ void assert_setpoint_equal(SP actual_sp, SP expected_sp) {
 // Tests the whole control model sequence from start to end
 void test_normal_sequence() {
     AmkOutput output;
-    AmkBlock amk(AmkStates::MOTOR_OFF_WAITING_FOR_GOV);
+    MotorInterface motor_interface(AmkStates::MOTOR_OFF_WAITING_FOR_GOV);
     int time_ms = 0;
 
     // Input to change and use in each Update call
@@ -36,7 +36,7 @@ void test_normal_sequence() {
 
     // Test transition MOTOR_OFF_WAITING_FOR_GOV to STARTUP_SYS_READY
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::STARTUP);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
@@ -49,7 +49,7 @@ void test_normal_sequence() {
     expected_left_setpoints.amk_b_dc_on = 1;
     expected_right_setpoints.amk_b_dc_on = 1;
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::STARTUP);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
@@ -62,7 +62,7 @@ void test_normal_sequence() {
     input.left_actual1.amk_b_quit_dc_on = 1;
     input.right_actual1.amk_b_quit_dc_on = 1;
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::STARTUP);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
@@ -72,7 +72,7 @@ void test_normal_sequence() {
     // Test NO transition in STARTUP_TOGGLE_D_CON with not enough time elapsed
     time_ms += 50;
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::STARTUP);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
@@ -86,7 +86,7 @@ void test_normal_sequence() {
     expected_left_setpoints.amk_b_inverter_on = 1;
     expected_right_setpoints.amk_b_inverter_on = 1;
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::STARTUP);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
@@ -97,7 +97,7 @@ void test_normal_sequence() {
     input.left_actual1.amk_b_inverter_on = 1;
     input.right_actual1.amk_b_inverter_on = 1;
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::READY);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
@@ -114,7 +114,7 @@ void test_normal_sequence() {
     expected_right_setpoints.amk__torque_limit_positiv = 2.5;
     expected_right_setpoints.amk__torque_limit_negativ = 3.5;
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::RUNNING);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
@@ -130,7 +130,7 @@ void test_normal_sequence() {
     expected_right_setpoints.amk__torque_limit_positiv = 0;
     expected_right_setpoints.amk__torque_limit_negativ = 0;
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::RUNNING);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
@@ -140,7 +140,7 @@ void test_normal_sequence() {
     // Test NO transition in SHUTDOWN with not enough time elapsed
     time_ms += 250;
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::RUNNING);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
@@ -152,7 +152,7 @@ void test_normal_sequence() {
     expected_left_setpoints = generated::can::AMK0_SetPoints1{};
     expected_right_setpoints = generated::can::AMK1_SetPoints1{};
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::OFF);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
@@ -171,50 +171,51 @@ void test_error_detected_state() {
 
     // Test transition STARTUP_SYS_READY to ERROR_DETECTED
     {
-        AmkBlock amk(AmkStates::STARTUP_SYS_READY);
-        output = amk.Update(input, time_ms);
+        MotorInterface motor_interface(AmkStates::STARTUP_SYS_READY);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::ERROR);
     }
 
     // Test transition STARTUP_TOGGLE_D_CON to ERROR_DETECTED
     {
-        AmkBlock amk(AmkStates::STARTUP_TOGGLE_D_CON);
-        output = amk.Update(input, time_ms);
+        MotorInterface motor_interface(AmkStates::STARTUP_TOGGLE_D_CON);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::ERROR);
     }
 
     // Test transition STARTUP_ENFORCE_SETPOINTS_ZERO to ERROR_DETECTED
     {
-        AmkBlock amk(AmkStates::STARTUP_ENFORCE_SETPOINTS_ZERO);
-        output = amk.Update(input, time_ms);
+        MotorInterface motor_interface(
+            AmkStates::STARTUP_ENFORCE_SETPOINTS_ZERO);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::ERROR);
     }
 
     // Test transition STARTUP_COMMAND_ON to ERROR_DETECTED
     {
-        AmkBlock amk(AmkStates::STARTUP_COMMAND_ON);
-        output = amk.Update(input, time_ms);
+        MotorInterface motor_interface(AmkStates::STARTUP_COMMAND_ON);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::ERROR);
     }
 
     // Test transition READY to ERROR_DETECTED
     {
-        AmkBlock amk(AmkStates::READY);
-        output = amk.Update(input, time_ms);
+        MotorInterface motor_interface(AmkStates::READY);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::ERROR);
     }
 
     // Test transition RUNNING to ERROR_DETECTED
     {
-        AmkBlock amk(AmkStates::RUNNING);
-        output = amk.Update(input, time_ms);
+        MotorInterface motor_interface(AmkStates::RUNNING);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::ERROR);
     }
 }
 
 void test_error_sequence() {
     AmkOutput output;
-    AmkBlock amk(AmkStates::ERROR_DETECTED);
+    MotorInterface motor_interface(AmkStates::ERROR_DETECTED);
     AmkInput input = {.cmd = MiCmd::ERR_RESET};
     int time_ms = 0;
 
@@ -224,7 +225,7 @@ void test_error_sequence() {
 
     // Test transition ERROR_DETECTED to ERROR_RESET_ENFORCE_SETPOINTS_ZERO
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
     }
@@ -232,7 +233,7 @@ void test_error_sequence() {
     // Test transition ERROR_RESET_ENFORCE_SETPOINTS_ZERO to
     // ERROR_RESET_TOGGLE_ENABLE
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
     }
@@ -240,7 +241,7 @@ void test_error_sequence() {
     // Test NO transition in ERROR_RESET_TOGGLE_ENABLE with not enough time
     time_ms += 250;
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
     }
@@ -250,7 +251,7 @@ void test_error_sequence() {
     expected_left_setpoints.amk_b_error_reset = 1;
     expected_right_setpoints.amk_b_error_reset = 1;
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
     }
@@ -258,7 +259,7 @@ void test_error_sequence() {
     // Test NO transition in ERROR_RESET_SEND_RESET
     time_ms += 250;
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
     }
@@ -268,7 +269,7 @@ void test_error_sequence() {
     expected_left_setpoints.amk_b_error_reset = 0;
     expected_right_setpoints.amk_b_error_reset = 0;
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);
     }
@@ -277,7 +278,7 @@ void test_error_sequence() {
     input.left_actual1.amk_b_system_ready = 1;
     input.right_actual1.amk_b_system_ready = 1;
     {
-        output = amk.Update(input, time_ms);
+        output = motor_interface.Update(input, time_ms);
         assert(output.status == MiStatus::OFF);
         assert_setpoint_equal(output.left_setpoints, expected_left_setpoints);
         assert_setpoint_equal(output.right_setpoints, expected_right_setpoints);

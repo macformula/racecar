@@ -115,50 +115,48 @@ struct UpdateMotorOutput {
     SP setpoints;
     MiStatus status;
     bool inverter_enable;
-    AmkStates amk_state;
-    int amk_state_start_time;
 };
 
-// AmkBlock that represents the control model of the Amk Motor
-class AmkBlock {
+template <SetPoints SP>
+class AmkManager {
 public:
-    AmkBlock(
+    AmkManager(
         AmkStates initial_amk_state = AmkStates::MOTOR_OFF_WAITING_FOR_GOV);
 
-    AmkOutput Update(const AmkInput& input, const int time_ms);
+    template <AmkActualValues1 V1>
+    UpdateMotorOutput<SP> UpdateMotor(const V1 val1,
+                                      const MotorInput motor_input,
+                                      const MiCmd cmd, int time_ms);
+
+    template <AmkActualValues1 V1>
+    AmkStates Transition(const V1 val1, const MiCmd cmd, const int time_ms);
 
 private:
-    AmkStates left_amk_state_;
-    AmkStates right_amk_state_;
-    int left_amk_state_start_time_ = 0;
-    int right_amk_state_start_time_ = 0;
-    AmkOutput previous_state_output_{
-        .status = MiStatus::OFF,
-        .left_setpoints = generated::can::AMK0_SetPoints1{},
-        .right_setpoints = generated::can::AMK1_SetPoints1{},
-        .inverter_enable = 0};
-
-    template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoints SP>
-    void UpdateMotor(const V1 val1, const V2 val2, const MotorInput motor_input,
-                     const MiCmd cmd, int time_ms,
-                     UpdateMotorOutput<SP>& update_motor_output);
-    template <AmkActualValues1 V1, SetPoints SP>
-    void Transition(const V1 val1, const MiCmd cmd, const int time_ms,
-                    UpdateMotorOutput<SP>& update_motor_output);
-    MiStatus ProcessOutputStatus(MiStatus left_status, MiStatus right_status);
+    AmkStates amk_state_;
+    int amk_state_start_time_ = 0;
+    UpdateMotorOutput<SP> previous_state_output_{.status = MiStatus::OFF,
+                                                 .inverter_enable = 0};
 };
 
+template <SetPoints SP>
+AmkManager<SP>::AmkManager(AmkStates initial_amk_state)
+    : amk_state_(initial_amk_state) {}
+
 // Computes main logic for updating the motor output given motor inputs
-template <AmkActualValues1 V1, AmkActualValues2 V2, SetPoints SP>
-void AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
-                           const MotorInput motor_input, const MiCmd cmd,
-                           const int time_ms,
-                           UpdateMotorOutput<SP>& update_motor_output) {
+template <SetPoints SP>
+template <AmkActualValues1 V1>
+UpdateMotorOutput<SP> AmkManager<SP>::UpdateMotor(const V1 val1,
+                                                  const MotorInput motor_input,
+                                                  const MiCmd cmd,
+                                                  const int time_ms) {
     using enum AmkStates;
 
-    Transition(val1, cmd, time_ms, update_motor_output);
+    // Preserve previous output to avoid resetting unchanged fields to zero.
+    UpdateMotorOutput<SP> update_motor_output = previous_state_output_;
 
-    switch (update_motor_output.amk_state) {
+    amk_state_ = Transition<V1>(val1, cmd, time_ms);
+
+    switch (amk_state_) {
         case MOTOR_OFF_WAITING_FOR_GOV:
             update_motor_output.status = MiStatus::OFF;
             update_motor_output.inverter_enable = 0;
@@ -251,32 +249,33 @@ void AmkBlock::UpdateMotor(const V1 val1, const V2 val2,
 
             break;
     }
+
+    previous_state_output_ = update_motor_output;
+    return update_motor_output;
 }
 
 // Computes the state to transition to in an update
-template <AmkActualValues1 V1, SetPoints SP>
-void AmkBlock::Transition(const V1 val1, const MiCmd cmd, const int time_ms,
-                          UpdateMotorOutput<SP>& update_motor_output) {
+template <SetPoints SP>
+template <AmkActualValues1 V1>
+AmkStates AmkManager<SP>::Transition(const V1 val1, const MiCmd cmd,
+                                     const int time_ms) {
     using enum AmkStates;
 
-    AmkStates amk_state = update_motor_output.amk_state;
-    int amk_state_start_time = update_motor_output.amk_state_start_time;
-
     // If any of these states have amk_b_error set, move to ERROR_DETECTED state
-    if ((amk_state == STARTUP_SYS_READY || amk_state == STARTUP_TOGGLE_D_CON ||
-         amk_state == STARTUP_ENFORCE_SETPOINTS_ZERO ||
-         amk_state == STARTUP_COMMAND_ON || amk_state == READY ||
-         amk_state == RUNNING) &&
+    if ((amk_state_ == STARTUP_SYS_READY ||
+         amk_state_ == STARTUP_TOGGLE_D_CON ||
+         amk_state_ == STARTUP_ENFORCE_SETPOINTS_ZERO ||
+         amk_state_ == STARTUP_COMMAND_ON || amk_state_ == READY ||
+         amk_state_ == RUNNING) &&
         val1.amk_b_error) {
-        update_motor_output.amk_state = ERROR_DETECTED;
-        update_motor_output.amk_state_start_time = time_ms;
-        return;
+        amk_state_start_time_ = time_ms;
+        return ERROR_DETECTED;
     }
 
-    AmkStates new_state = amk_state;
-    int elapsed_time = time_ms - amk_state_start_time;
+    AmkStates new_state = amk_state_;
+    int elapsed_time = time_ms - amk_state_start_time_;
 
-    switch (amk_state) {
+    switch (amk_state_) {
         case MOTOR_OFF_WAITING_FOR_GOV:
             if (cmd == MiCmd::STARTUP) {
                 new_state = STARTUP_SYS_READY;
@@ -370,9 +369,25 @@ void AmkBlock::Transition(const V1 val1, const MiCmd cmd, const int time_ms,
     }
 
     // If a new state has been entered, set the start time of the current state
-    if (new_state != amk_state) {
-        update_motor_output.amk_state_start_time = time_ms;
+    if (new_state != amk_state_) {
+        amk_state_start_time_ = time_ms;
     }
 
-    update_motor_output.amk_state = new_state;
+    return new_state;
 }
+
+// AmkBlock that represents the control model of the Amk Motor
+class MotorInterface {
+public:
+    MotorInterface(
+        AmkStates initial_amk_state = AmkStates::MOTOR_OFF_WAITING_FOR_GOV);
+
+    AmkOutput Update(const AmkInput& input, const int time_ms);
+
+private:
+    AmkManager<generated::can::AMK0_SetPoints1> left_amk_manager;
+    AmkManager<generated::can::AMK1_SetPoints1> right_amk_manager;
+    MiStatus previous_state_status_ = MiStatus::OFF;
+
+    MiStatus ProcessOutputStatus(MiStatus left_status, MiStatus right_status);
+};
