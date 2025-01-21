@@ -53,9 +53,7 @@ struct MotorInput {
 struct AmkInput {
     MiCmd cmd;
     generated::can::AMK0_ActualValues1 left_actual1;
-    generated::can::AMK0_ActualValues2 left_actual2;
     generated::can::AMK1_ActualValues1 right_actual1;
-    generated::can::AMK1_ActualValues2 right_actual2;
     MotorInput left_motor_input;
     MotorInput right_motor_input;
 };
@@ -83,16 +81,6 @@ concept AmkActualValues1 = requires(MsgType msg) {
     { msg.amk__actual_velocity } -> std::convertible_to<int16_t>;
     { msg.amk__torque_current } -> std::convertible_to<int16_t>;
     { msg.amk__magnetizing_current } -> std::convertible_to<int16_t>;
-};
-
-// AmkActualValues2 concept, combines AMK0_ActualValues2 and AMK1_ActualValues2
-// into one common type for easier use
-template <typename MsgType>
-concept AmkActualValues2 = requires(MsgType msg) {
-    { msg.amk__temp_motor } -> std::convertible_to<float>;
-    { msg.amk__temp_inverter } -> std::convertible_to<float>;
-    { msg.amk__error_info } -> std::convertible_to<uint16_t>;
-    { msg.amk__temp_igbt } -> std::convertible_to<float>;
 };
 
 // SetPoints concept, combines AMK0_SetPoints1 and AMK1_SetPoints1 into one
@@ -136,6 +124,23 @@ private:
     int amk_state_start_time_ = 0;
     UpdateMotorOutput<SP> previous_state_output_{.status = MiStatus::OFF,
                                                  .inverter_enable = 0};
+};
+
+// AmkBlock that represents the control model of the Amk Motor
+class MotorInterface {
+public:
+    MotorInterface();
+
+    AmkOutput Update(const AmkInput& input, const int time_ms);
+
+private:
+    AmkManager<generated::can::AMK0_SetPoints1> left_amk_manager{
+        AmkStates::MOTOR_OFF_WAITING_FOR_GOV};
+    AmkManager<generated::can::AMK1_SetPoints1> right_amk_manager{
+        AmkStates::MOTOR_OFF_WAITING_FOR_GOV};
+    MiStatus previous_state_status_ = MiStatus::OFF;
+
+    MiStatus ProcessOutputStatus(MiStatus left_status, MiStatus right_status);
 };
 
 template <SetPoints SP>
@@ -375,19 +380,3 @@ AmkStates AmkManager<SP>::Transition(const V1 val1, const MiCmd cmd,
 
     return new_state;
 }
-
-// AmkBlock that represents the control model of the Amk Motor
-class MotorInterface {
-public:
-    MotorInterface(
-        AmkStates initial_amk_state = AmkStates::MOTOR_OFF_WAITING_FOR_GOV);
-
-    AmkOutput Update(const AmkInput& input, const int time_ms);
-
-private:
-    AmkManager<generated::can::AMK0_SetPoints1> left_amk_manager;
-    AmkManager<generated::can::AMK1_SetPoints1> right_amk_manager;
-    MiStatus previous_state_status_ = MiStatus::OFF;
-
-    MiStatus ProcessOutputStatus(MiStatus left_status, MiStatus right_status);
-};
