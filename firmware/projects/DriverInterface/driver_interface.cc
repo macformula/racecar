@@ -39,6 +39,7 @@ DiOutput DriverInterface::Update(DiInput input, int time_ms) {
         std::max(front_brake_pedal_pres, rear_brake_pedal_pos);
 
     // Compute FSM block
+    bool brake_light_en;
     DiFsm::Input di_fsm_input{.command = input.di_cmd,
                               .driver_button = input.driver_button,
                               .brake_pedal_pos = brake_pedal_pos,
@@ -46,19 +47,13 @@ DiOutput DriverInterface::Update(DiInput input, int time_ms) {
     DiFsm::Output di_fsm_output = di_fsm.Update(di_fsm_input, time_ms);
 
     // Compute brake pedal pos and brake light en
-    bool brake_light_en;
+
     bool brakeError = !ctrl::isInRange(front_brake_pedal_pres) ||
                       !ctrl::isInRange(rear_brake_pedal_pos);
 
     if (brakeError) {
         brake_pedal_pos = 0;
     }
-
-    //     driver_brake_pedal_position =
-    //         pedal_map.Evaluate(input.brake_pedal_position);
-
-    //     brake_light_en = (output.driver_brake_pedal_position > 0);
-    // }
 
     // Compute steering angle
     bool steering_angle_error = !ctrl::isInRange(input.steering_angle);
