@@ -26,7 +26,7 @@ enum class BmControlStatus {
     OPEN_PRECHARGE,
 };
 
-enum ContactorSates {
+enum ContactorSates : bool {
     OPEN = false,
     CLOSED = true,
 };

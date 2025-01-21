@@ -42,7 +42,7 @@ void test_sequence1() {
             .precharge_contactor_states = OPEN,
             .hv_pos_contactor_states = OPEN,
             .hv_neg_contactor_states = OPEN,
-            .hvil_status = true,
+            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -61,7 +61,7 @@ void test_sequence1() {
             .precharge_contactor_states = OPEN,
             .hv_pos_contactor_states = OPEN,
             .hv_neg_contactor_states = CLOSED,  // HV_NEG contactor active
-            .hvil_status = true,
+            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -80,7 +80,7 @@ void test_sequence1() {
             .precharge_contactor_states = CLOSED,  // Precharge active
             .hv_pos_contactor_states = OPEN,
             .hv_neg_contactor_states = CLOSED,
-            .hvil_status = true,
+            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -99,7 +99,7 @@ void test_sequence1() {
             .precharge_contactor_states = CLOSED,
             .hv_pos_contactor_states = CLOSED,  // HV_POS active
             .hv_neg_contactor_states = CLOSED,
-            .hvil_status = true,
+            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -118,7 +118,7 @@ void test_sequence1() {
             .precharge_contactor_states = OPEN,  // Precharge inactive
             .hv_pos_contactor_states = CLOSED,
             .hv_neg_contactor_states = CLOSED,
-            .hvil_status = true,
+            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -137,7 +137,7 @@ void test_sequence1() {
             .precharge_contactor_states = OPEN,
             .hv_pos_contactor_states = CLOSED,
             .hv_neg_contactor_states = CLOSED,
-            .hvil_status = true,
+            .hvil_status = CLOSED,
             .pack_soc = 20.0,  // SOC below LOW_SOC threshold
         },
         time_ms);
@@ -156,7 +156,7 @@ void test_sequence1() {
             .precharge_contactor_states = OPEN,
             .hv_pos_contactor_states = CLOSED,
             .hv_neg_contactor_states = CLOSED,
-            .hvil_status = false,  // HVIL disabled
+            .hvil_status = OPEN,  // HVIL disabled
             .pack_soc = 50.0,
         },
         time_ms);
@@ -175,7 +175,7 @@ void test_sequence1() {
             .precharge_contactor_states = OPEN,
             .hv_pos_contactor_states = OPEN,
             .hv_neg_contactor_states = OPEN,
-            .hvil_status = true,  // HVIL restored
+            .hvil_status = CLOSED,  // HVIL restored
             .pack_soc = 50.0,
         },
         time_ms);

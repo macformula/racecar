@@ -19,17 +19,11 @@ BmOutput BatteryMonitor::update(const BmInput& input, int time_ms) {
     ContactorCMD contactor_cmd = bmControlUpdate(status, time_ms);
 
     // Output
-    output.status = status;
-    output.contactor = contactor_cmd;
-
-    return output;
+    return BmOutput{.status = status, .contactor = contactor_cmd};
 }
 
 // Control update method
 BmStatus BatteryMonitor::bmStatusUpdate(const BmInput& input, int time_ms) {
-    BmOutput output;
-    output.contactor = {false, false, false};
-
     std::cout << "[DEBUG UPDATE] Control state: "
               << static_cast<int>(current_status) << ", Time: " << time_ms
               << " ms\n";
@@ -134,9 +128,6 @@ BmStatus BatteryMonitor::bmStatusUpdate(const BmInput& input, int time_ms) {
 
 ContactorCMD BatteryMonitor::bmControlUpdate(BmStatus status, int time_ms) {
     ContactorCMD contactor_cmd = {OPEN, OPEN, OPEN};
-
-    // std::cout << "[DEBUG] Current state: " <<
-    // static_cast<int>(current_status) << ", Time: " << time_ms << " ms\n";
 
     if (current_status == BmStatus::HVIL_INTERRUPT ||
         current_status == BmStatus::LOW_SOC) {
