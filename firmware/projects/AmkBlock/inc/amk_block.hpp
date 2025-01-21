@@ -156,107 +156,102 @@ UpdateMotorOutput<SP> AmkManager<SP>::UpdateMotor(const V1 val1,
                                                   const int time_ms) {
     using enum AmkStates;
 
-    // Preserve previous output to avoid resetting unchanged fields to zero.
-    UpdateMotorOutput<SP> update_motor_output = previous_state_output_;
-
     amk_state_ = Transition<V1>(val1, cmd, time_ms);
-
     switch (amk_state_) {
         case MOTOR_OFF_WAITING_FOR_GOV:
-            update_motor_output.status = MiStatus::OFF;
-            update_motor_output.inverter_enable = 0;
+            previous_state_output_.status = MiStatus::OFF;
+            previous_state_output_.inverter_enable = 0;
 
-            update_motor_output.setpoints.amk_b_inverter_on = 0;
-            update_motor_output.setpoints.amk_b_dc_on = 0;
-            update_motor_output.setpoints.amk_b_enable = 0;
-            update_motor_output.setpoints.amk_b_error_reset = 0;
-            update_motor_output.setpoints.amk__target_velocity = 0;
-            update_motor_output.setpoints.amk__torque_limit_positiv = 0;
-            update_motor_output.setpoints.amk__torque_limit_negativ = 0;
+            previous_state_output_.setpoints.amk_b_inverter_on = 0;
+            previous_state_output_.setpoints.amk_b_dc_on = 0;
+            previous_state_output_.setpoints.amk_b_enable = 0;
+            previous_state_output_.setpoints.amk_b_error_reset = 0;
+            previous_state_output_.setpoints.amk__target_velocity = 0;
+            previous_state_output_.setpoints.amk__torque_limit_positiv = 0;
+            previous_state_output_.setpoints.amk__torque_limit_negativ = 0;
 
             break;
 
         case STARTUP_SYS_READY:
-            update_motor_output.status = MiStatus::STARTUP;
+            previous_state_output_.status = MiStatus::STARTUP;
 
             break;
 
         case STARTUP_TOGGLE_D_CON:
-            update_motor_output.setpoints.amk_b_dc_on = 1;
+            previous_state_output_.setpoints.amk_b_dc_on = 1;
 
             break;
 
         case STARTUP_ENFORCE_SETPOINTS_ZERO:
-            update_motor_output.setpoints.amk__target_velocity = 0;
-            update_motor_output.setpoints.amk__torque_limit_positiv = 0;
-            update_motor_output.setpoints.amk__torque_limit_negativ = 0;
+            previous_state_output_.setpoints.amk__target_velocity = 0;
+            previous_state_output_.setpoints.amk__torque_limit_positiv = 0;
+            previous_state_output_.setpoints.amk__torque_limit_negativ = 0;
 
             break;
 
         case STARTUP_COMMAND_ON:
-            update_motor_output.setpoints.amk_b_enable = 1;
-            update_motor_output.setpoints.amk_b_inverter_on = 1;
+            previous_state_output_.setpoints.amk_b_enable = 1;
+            previous_state_output_.setpoints.amk_b_inverter_on = 1;
 
             break;
 
         case READY:
-            update_motor_output.status = MiStatus::READY;
-            update_motor_output.inverter_enable = 1;
+            previous_state_output_.status = MiStatus::READY;
+            previous_state_output_.inverter_enable = 1;
 
             break;
 
         case RUNNING:
-            update_motor_output.status = MiStatus::RUNNING;
+            previous_state_output_.status = MiStatus::RUNNING;
 
-            update_motor_output.setpoints.amk__target_velocity =
+            previous_state_output_.setpoints.amk__target_velocity =
                 motor_input.speed_request;
-            update_motor_output.setpoints.amk__torque_limit_positiv =
+            previous_state_output_.setpoints.amk__torque_limit_positiv =
                 motor_input.torque_limit_positive;
-            update_motor_output.setpoints.amk__torque_limit_negativ =
+            previous_state_output_.setpoints.amk__torque_limit_negativ =
                 motor_input.torque_limit_negative;
 
             break;
 
         case SHUTDOWN:
-            update_motor_output.inverter_enable = 0;
+            previous_state_output_.inverter_enable = 0;
 
-            update_motor_output.setpoints.amk__target_velocity = 0;
-            update_motor_output.setpoints.amk__torque_limit_positiv = 0;
-            update_motor_output.setpoints.amk__torque_limit_negativ = 0;
+            previous_state_output_.setpoints.amk__target_velocity = 0;
+            previous_state_output_.setpoints.amk__torque_limit_positiv = 0;
+            previous_state_output_.setpoints.amk__torque_limit_negativ = 0;
 
             break;
 
         case ERROR_DETECTED:
-            update_motor_output.status = MiStatus::ERROR;
+            previous_state_output_.status = MiStatus::ERROR;
 
             break;
 
         case ERROR_RESET_ENFORCE_SETPOINTS_ZERO:
-            update_motor_output.setpoints.amk__target_velocity = 0;
-            update_motor_output.setpoints.amk__torque_limit_positiv = 0;
-            update_motor_output.setpoints.amk__torque_limit_negativ = 0;
-            update_motor_output.setpoints.amk_b_inverter_on = 0;
+            previous_state_output_.setpoints.amk__target_velocity = 0;
+            previous_state_output_.setpoints.amk__torque_limit_positiv = 0;
+            previous_state_output_.setpoints.amk__torque_limit_negativ = 0;
+            previous_state_output_.setpoints.amk_b_inverter_on = 0;
 
             break;
 
         case ERROR_RESET_TOGGLE_ENABLE:
-            update_motor_output.setpoints.amk_b_enable = 0;
+            previous_state_output_.setpoints.amk_b_enable = 0;
 
             break;
 
         case ERROR_RESET_SEND_RESET:
-            update_motor_output.setpoints.amk_b_error_reset = 1;
+            previous_state_output_.setpoints.amk_b_error_reset = 1;
 
             break;
 
         case ERROR_RESET_TOGGLE_RESET:
-            update_motor_output.setpoints.amk_b_error_reset = 0;
+            previous_state_output_.setpoints.amk_b_error_reset = 0;
 
             break;
     }
 
-    previous_state_output_ = update_motor_output;
-    return update_motor_output;
+    return previous_state_output_;
 }
 
 // Computes the state to transition to in an update
