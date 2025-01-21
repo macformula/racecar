@@ -1,7 +1,5 @@
 #include "amk_block.hpp"
 
-MotorInterface::MotorInterface() {}
-
 // Given motor inputs, will produce a motor output returned
 AmkOutput MotorInterface::Update(const AmkInput& input, const int time_ms) {
     auto left = left_amk_manager.UpdateMotor(
@@ -20,10 +18,11 @@ AmkOutput MotorInterface::Update(const AmkInput& input, const int time_ms) {
 MiStatus MotorInterface::ProcessOutputStatus(MiStatus left_status,
                                              MiStatus right_status) {
     if (left_status == MiStatus::ERROR || right_status == MiStatus::ERROR) {
-        previous_state_status_ = MiStatus::ERROR;
+        status_ = MiStatus::ERROR;
     } else if (left_status == right_status) {
-        previous_state_status_ = left_status;
+        status_ = left_status;
     }
 
-    return previous_state_status_;
+    // else return the previous status
+    return status_;
 }

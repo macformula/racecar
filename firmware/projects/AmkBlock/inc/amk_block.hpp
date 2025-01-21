@@ -2,7 +2,7 @@
 
 #include <concepts>
 
-#include "../generated/can/pt_can_messages.hpp"
+#include "generated/can/pt_can_messages.hpp"
 
 // MiStatus enum class used in AmkOutput
 enum class MiStatus {
@@ -123,14 +123,11 @@ private:
     AmkStates amk_state_;
     int amk_state_start_time_ = 0;
     UpdateMotorOutput<SP> previous_state_output_{.status = MiStatus::OFF,
-                                                 .inverter_enable = 0};
+                                                 .inverter_enable = false};
 };
 
-// AmkBlock that represents the control model of the Amk Motor
 class MotorInterface {
 public:
-    MotorInterface();
-
     AmkOutput Update(const AmkInput& input, const int time_ms);
 
 private:
@@ -138,7 +135,7 @@ private:
         AmkStates::MOTOR_OFF_WAITING_FOR_GOV};
     AmkManager<generated::can::AMK1_SetPoints1> right_amk_manager{
         AmkStates::MOTOR_OFF_WAITING_FOR_GOV};
-    MiStatus previous_state_status_ = MiStatus::OFF;
+    MiStatus status_ = MiStatus::OFF;
 
     MiStatus ProcessOutputStatus(MiStatus left_status, MiStatus right_status);
 };
@@ -160,12 +157,12 @@ UpdateMotorOutput<SP> AmkManager<SP>::UpdateMotor(const V1 val1,
     switch (amk_state_) {
         case MOTOR_OFF_WAITING_FOR_GOV:
             previous_state_output_.status = MiStatus::OFF;
-            previous_state_output_.inverter_enable = 0;
+            previous_state_output_.inverter_enable = false;
 
-            previous_state_output_.setpoints.amk_b_inverter_on = 0;
-            previous_state_output_.setpoints.amk_b_dc_on = 0;
-            previous_state_output_.setpoints.amk_b_enable = 0;
-            previous_state_output_.setpoints.amk_b_error_reset = 0;
+            previous_state_output_.setpoints.amk_b_inverter_on = false;
+            previous_state_output_.setpoints.amk_b_dc_on = false;
+            previous_state_output_.setpoints.amk_b_enable = false;
+            previous_state_output_.setpoints.amk_b_error_reset = false;
             previous_state_output_.setpoints.amk__target_velocity = 0;
             previous_state_output_.setpoints.amk__torque_limit_positiv = 0;
             previous_state_output_.setpoints.amk__torque_limit_negativ = 0;
@@ -178,7 +175,7 @@ UpdateMotorOutput<SP> AmkManager<SP>::UpdateMotor(const V1 val1,
             break;
 
         case STARTUP_TOGGLE_D_CON:
-            previous_state_output_.setpoints.amk_b_dc_on = 1;
+            previous_state_output_.setpoints.amk_b_dc_on = true;
 
             break;
 
@@ -190,14 +187,14 @@ UpdateMotorOutput<SP> AmkManager<SP>::UpdateMotor(const V1 val1,
             break;
 
         case STARTUP_COMMAND_ON:
-            previous_state_output_.setpoints.amk_b_enable = 1;
-            previous_state_output_.setpoints.amk_b_inverter_on = 1;
+            previous_state_output_.setpoints.amk_b_enable = true;
+            previous_state_output_.setpoints.amk_b_inverter_on = true;
 
             break;
 
         case READY:
             previous_state_output_.status = MiStatus::READY;
-            previous_state_output_.inverter_enable = 1;
+            previous_state_output_.inverter_enable = true;
 
             break;
 
@@ -214,7 +211,7 @@ UpdateMotorOutput<SP> AmkManager<SP>::UpdateMotor(const V1 val1,
             break;
 
         case SHUTDOWN:
-            previous_state_output_.inverter_enable = 0;
+            previous_state_output_.inverter_enable = false;
 
             previous_state_output_.setpoints.amk__target_velocity = 0;
             previous_state_output_.setpoints.amk__torque_limit_positiv = 0;
@@ -231,22 +228,22 @@ UpdateMotorOutput<SP> AmkManager<SP>::UpdateMotor(const V1 val1,
             previous_state_output_.setpoints.amk__target_velocity = 0;
             previous_state_output_.setpoints.amk__torque_limit_positiv = 0;
             previous_state_output_.setpoints.amk__torque_limit_negativ = 0;
-            previous_state_output_.setpoints.amk_b_inverter_on = 0;
+            previous_state_output_.setpoints.amk_b_inverter_on = false;
 
             break;
 
         case ERROR_RESET_TOGGLE_ENABLE:
-            previous_state_output_.setpoints.amk_b_enable = 0;
+            previous_state_output_.setpoints.amk_b_enable = false;
 
             break;
 
         case ERROR_RESET_SEND_RESET:
-            previous_state_output_.setpoints.amk_b_error_reset = 1;
+            previous_state_output_.setpoints.amk_b_error_reset = true;
 
             break;
 
         case ERROR_RESET_TOGGLE_RESET:
-            previous_state_output_.setpoints.amk_b_error_reset = 0;
+            previous_state_output_.setpoints.amk_b_error_reset = false;
 
             break;
     }

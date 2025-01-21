@@ -39,29 +39,29 @@ void test_normal_sequence() {
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
         assert(output.status == MiStatus::STARTUP);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
-        assert(output.inverter_enable == 0);
+        assert(output.inverter_enable == false);
     }
 
     // Test transition STARTUP_SYS_READY to STARTUP_TOGGLE_D_CON
-    actual_values.amk_b_system_ready = 1;
-    expected_setpoints.amk_b_dc_on = 1;
+    actual_values.amk_b_system_ready = true;
+    expected_setpoints.amk_b_dc_on = true;
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
         assert(output.status == MiStatus::STARTUP);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
-        assert(output.inverter_enable == 0);
+        assert(output.inverter_enable == false);
     }
 
     // Test transition STARTUP_TOGGLE_D_CON to STARTUP_ENFORCE_SETPOINTS_ZERO
-    actual_values.amk_b_dc_on = 1;
-    actual_values.amk_b_quit_dc_on = 1;
+    actual_values.amk_b_dc_on = true;
+    actual_values.amk_b_quit_dc_on = true;
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
         assert(output.status == MiStatus::STARTUP);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
-        assert(output.inverter_enable == 0);
+        assert(output.inverter_enable == false);
     }
 
     // Test NO transition in STARTUP_TOGGLE_D_CON with not enough time elapsed
@@ -71,33 +71,33 @@ void test_normal_sequence() {
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
         assert(output.status == MiStatus::STARTUP);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
-        assert(output.inverter_enable == 0);
+        assert(output.inverter_enable == false);
     }
 
     // Test transition STARTUP_ENFORCE_SETPOINTS_ZERO to STARTUP_COMMAND_ON
     time_ms += 50;
-    expected_setpoints.amk_b_enable = 1;
-    expected_setpoints.amk_b_inverter_on = 1;
+    expected_setpoints.amk_b_enable = true;
+    expected_setpoints.amk_b_inverter_on = true;
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
         assert(output.status == MiStatus::STARTUP);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
-        assert(output.inverter_enable == 0);
+        assert(output.inverter_enable == false);
     }
 
     // Test transition STARTUP_COMMAND_ON to READY
-    actual_values.amk_b_inverter_on = 1;
+    actual_values.amk_b_inverter_on = true;
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
         assert(output.status == MiStatus::READY);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
-        assert(output.inverter_enable == 1);
+        assert(output.inverter_enable == true);
     }
 
     // Test transition READY to RUNNING
-    actual_values.amk_b_quit_inverter_on = 1;
+    actual_values.amk_b_quit_inverter_on = true;
     expected_setpoints.amk__target_velocity = 1.5;
     expected_setpoints.amk__torque_limit_positiv = 2.5;
     expected_setpoints.amk__torque_limit_negativ = 3.5;
@@ -106,7 +106,7 @@ void test_normal_sequence() {
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
         assert(output.status == MiStatus::RUNNING);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
-        assert(output.inverter_enable == 1);
+        assert(output.inverter_enable == true);
     }
 
     // Test transition RUNNING to SHUTDOWN
@@ -119,7 +119,7 @@ void test_normal_sequence() {
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
         assert(output.status == MiStatus::RUNNING);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
-        assert(output.inverter_enable == 0);
+        assert(output.inverter_enable == false);
     }
 
     // Test NO transition in SHUTDOWN with not enough time elapsed
@@ -129,7 +129,7 @@ void test_normal_sequence() {
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
         assert(output.status == MiStatus::RUNNING);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
-        assert(output.inverter_enable == 0);
+        assert(output.inverter_enable == false);
     }
 
     // Test transition SHUTDOWN to MOTOR_OFF_WAITING_FOR_GOV
@@ -140,7 +140,7 @@ void test_normal_sequence() {
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
         assert(output.status == MiStatus::OFF);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
-        assert(output.inverter_enable == 0);
+        assert(output.inverter_enable == false);
     }
 }
 
@@ -153,7 +153,7 @@ void test_error_detected_state() {
     int time_ms = 0;
 
     // Set inputs to cause an error for testing
-    actual_values.amk_b_error = 1;
+    actual_values.amk_b_error = true;
 
     // Test transition STARTUP_SYS_READY to ERROR_DETECTED
     {
@@ -249,7 +249,7 @@ void test_error_sequence() {
 
     // Test transition ERROR_RESET_TOGGLE_ENABLE to ERROR_RESET_SEND_RESET
     time_ms += 250;
-    expected_setpoints.amk_b_error_reset = 1;
+    expected_setpoints.amk_b_error_reset = true;
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
@@ -266,7 +266,7 @@ void test_error_sequence() {
 
     // Test transition ERROR_RESET_SEND_RESET to ERROR_RESET_TOGGLE_RESET
     time_ms += 250;
-    expected_setpoints.amk_b_error_reset = 0;
+    expected_setpoints.amk_b_error_reset = false;
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
@@ -274,7 +274,7 @@ void test_error_sequence() {
     }
 
     // Test transition ERROR_RESET_TOGGLE_RESET to MOTOR_OFF_WAITING_FOR_GOV
-    actual_values.amk_b_system_ready = 1;
+    actual_values.amk_b_system_ready = true;
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
