@@ -2,6 +2,7 @@
 #include "shared/controls/driver_interface_error_handling.h"
 #include "shared/controls/driver_interface_fsm.hpp"
 #include "shared/controls/steering_angle.h"
+#include "shared/util/mappers/lookup_table.hpp"
 
 // include "shared/controls/..." header files here
 
@@ -68,23 +69,20 @@ DiOutput DriverInterface::Update(DiInput input, int time_ms) {
         steering_angle = steering_angle;
     }
 
+    const double lut_data[][2] = {
+        {0., 0.}, {100., 100.}};  // LUT table that maps from 0 to 100
+
+    constexpr int lut_length = sizeof(lut_data) / sizeof(lut_data[0]);
+
+    shared::util::LookupTable<lut_length, double> pedal_map{lut_data};
+
     // compute driver torque request
     float driver_torque_request;
-    //  if (ready_to_drive == 1 || driver_interface_error == 1) {
-    //     if (u1 == 1) {
-    //         output.driver_torque_req = 0;
-    //     } else {
-    //         output.driver_torque_req =
-    //             pedal_map.Evaluate(input.accel_pedal_pos1)
-    //     }
-    // }
-
-    // const double lut_data[][2] = {
-    //     {0., 0.}, {100., 100.}};  // LUT table that maps from 0 to 100
-
-    // constexpr int lut_length = sizeof(lut_data) / sizeof(lut_data[0]);
-
-    // shared::util::LookupTable<lut_length, double> pedal_map{lut_data};
+    if (!di_fsm_output.ready_to_drive || di_error) {
+        driver_torque_request = 0;
+    } else {
+        driver_torque_request = pedal_map.Evaluate(accel_pedal_1_pos);
+    }
 
     return DiOutput{
         .di_sts = di_fsm_output.status,

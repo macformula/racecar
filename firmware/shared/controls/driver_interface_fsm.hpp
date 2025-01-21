@@ -34,11 +34,11 @@ public:
         bool di_error;
     };
 
-    DiFsm(DiSts initial_state = DiSts::INIT);
-    Output Update(const Input input, const int time_ms);
+    inline DiFsm(DiSts initial_state = DiSts::INIT);
+    inline Output Update(const Input input, const int time_ms);
 
 private:
-    DiSts Transition(const Input input, const int time_ms);
+    inline DiSts Transition(const Input input, const int time_ms);
 
     DiSts status_;
     int speaker_start_time_;
