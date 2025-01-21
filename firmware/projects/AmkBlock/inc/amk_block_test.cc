@@ -3,6 +3,8 @@
 #include <cassert>
 #include <iostream>
 
+using namespace generated::can;
+
 template <SetPoints SP>
 void assert_setpoint_equal(SP actual_sp, SP expected_sp) {
     assert(actual_sp.amk_b_inverter_on == expected_sp.amk_b_inverter_on);
@@ -18,12 +20,12 @@ void assert_setpoint_equal(SP actual_sp, SP expected_sp) {
 
 // Tests the whole control model sequence from start to end
 void test_normal_sequence() {
-    UpdateMotorOutput<generated::can::AMK0_SetPoints1> output;
-    AmkManager<generated::can::AMK0_SetPoints1> amk_manager(
+    UpdateMotorOutput<AMK0_SetPoints1> output;
+    AmkManager<AMK0_ActualValues1, AMK0_SetPoints1> amk_manager(
         AmkStates::MOTOR_OFF_WAITING_FOR_GOV);
 
     // Inputs to change and use in each Update call
-    generated::can::AMK0_ActualValues1 actual_values;
+    AMK0_ActualValues1 actual_values;
     MotorInput motor_input = MotorInput{.speed_request = 1.5,
                                         .torque_limit_positive = 2.5,
                                         .torque_limit_negative = 3.5};
@@ -31,7 +33,7 @@ void test_normal_sequence() {
     int time_ms = 0;
 
     // Expected setpoints to change and use in assert calls
-    generated::can::AMK0_SetPoints1 expected_setpoints;
+    AMK0_SetPoints1 expected_setpoints;
 
     // Test transition MOTOR_OFF_WAITING_FOR_GOV to STARTUP_SYS_READY
     {
@@ -134,7 +136,7 @@ void test_normal_sequence() {
 
     // Test transition SHUTDOWN to MOTOR_OFF_WAITING_FOR_GOV
     time_ms += 250;
-    expected_setpoints = generated::can::AMK0_SetPoints1{};
+    expected_setpoints = AMK0_SetPoints1{};
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
@@ -146,8 +148,8 @@ void test_normal_sequence() {
 
 void test_error_detected_state() {
     // Define inputs/output
-    UpdateMotorOutput<generated::can::AMK0_SetPoints1> output;
-    generated::can::AMK0_ActualValues1 actual_values;
+    UpdateMotorOutput<AMK0_SetPoints1> output;
+    AMK0_ActualValues1 actual_values;
     MotorInput motor_input = MotorInput{};
     MiCmd cmd = MiCmd::STARTUP;
     int time_ms = 0;
@@ -157,7 +159,7 @@ void test_error_detected_state() {
 
     // Test transition STARTUP_SYS_READY to ERROR_DETECTED
     {
-        AmkManager<generated::can::AMK0_SetPoints1> amk_manager(
+        AmkManager<AMK0_ActualValues1, AMK0_SetPoints1> amk_manager(
             AmkStates::STARTUP_SYS_READY);
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
@@ -166,7 +168,7 @@ void test_error_detected_state() {
 
     // Test transition STARTUP_TOGGLE_D_CON to ERROR_DETECTED
     {
-        AmkManager<generated::can::AMK0_SetPoints1> amk_manager(
+        AmkManager<AMK0_ActualValues1, AMK0_SetPoints1> amk_manager(
             AmkStates::STARTUP_TOGGLE_D_CON);
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
@@ -175,7 +177,7 @@ void test_error_detected_state() {
 
     // Test transition STARTUP_ENFORCE_SETPOINTS_ZERO to ERROR_DETECTED
     {
-        AmkManager<generated::can::AMK0_SetPoints1> amk_manager(
+        AmkManager<AMK0_ActualValues1, AMK0_SetPoints1> amk_manager(
             AmkStates::STARTUP_ENFORCE_SETPOINTS_ZERO);
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
@@ -184,7 +186,7 @@ void test_error_detected_state() {
 
     // Test transition STARTUP_COMMAND_ON to ERROR_DETECTED
     {
-        AmkManager<generated::can::AMK0_SetPoints1> amk_manager(
+        AmkManager<AMK0_ActualValues1, AMK0_SetPoints1> amk_manager(
             AmkStates::STARTUP_COMMAND_ON);
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
@@ -193,7 +195,7 @@ void test_error_detected_state() {
 
     // Test transition READY to ERROR_DETECTED
     {
-        AmkManager<generated::can::AMK0_SetPoints1> amk_manager(
+        AmkManager<AMK0_ActualValues1, AMK0_SetPoints1> amk_manager(
             AmkStates::READY);
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
@@ -202,7 +204,7 @@ void test_error_detected_state() {
 
     // Test transition RUNNING to ERROR_DETECTED
     {
-        AmkManager<generated::can::AMK0_SetPoints1> amk_manager(
+        AmkManager<AMK0_ActualValues1, AMK0_SetPoints1> amk_manager(
             AmkStates::RUNNING);
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
@@ -211,18 +213,18 @@ void test_error_detected_state() {
 }
 
 void test_error_sequence() {
-    UpdateMotorOutput<generated::can::AMK0_SetPoints1> output;
-    AmkManager<generated::can::AMK0_SetPoints1> amk_manager(
+    UpdateMotorOutput<AMK0_SetPoints1> output;
+    AmkManager<AMK0_ActualValues1, AMK0_SetPoints1> amk_manager(
         AmkStates::ERROR_DETECTED);
 
     // Inputs
-    generated::can::AMK0_ActualValues1 actual_values;
+    AMK0_ActualValues1 actual_values;
     MotorInput motor_input = MotorInput{};
     MiCmd cmd = MiCmd::ERR_RESET;
     int time_ms = 0;
 
     // Expected setpoints to change and use in assert calls
-    generated::can::AMK0_SetPoints1 expected_setpoints;
+    AMK0_SetPoints1 expected_setpoints;
 
     // Test transition ERROR_DETECTED to ERROR_RESET_ENFORCE_SETPOINTS_ZERO
     {

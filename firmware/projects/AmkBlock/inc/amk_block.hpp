@@ -105,25 +105,23 @@ struct UpdateMotorOutput {
     bool inverter_enable;
 };
 
-template <SetPoints SP>
+template <AmkActualValues1 V1, SetPoints SP>
 class AmkManager {
 public:
     AmkManager(
         AmkStates initial_amk_state = AmkStates::MOTOR_OFF_WAITING_FOR_GOV);
 
-    template <AmkActualValues1 V1>
     UpdateMotorOutput<SP> UpdateMotor(const V1 val1,
                                       const MotorInput motor_input,
                                       const MiCmd cmd, int time_ms);
 
-    template <AmkActualValues1 V1>
     AmkStates Transition(const V1 val1, const MiCmd cmd, const int time_ms);
 
 private:
     AmkStates amk_state_;
     int amk_state_start_time_ = 0;
-    UpdateMotorOutput<SP> previous_state_output_{.status = MiStatus::OFF,
-                                                 .inverter_enable = false};
+    UpdateMotorOutput<SP> output_{.status = MiStatus::OFF,
+                                  .inverter_enable = false};
 };
 
 class MotorInterface {
@@ -131,131 +129,128 @@ public:
     AmkOutput Update(const AmkInput& input, const int time_ms);
 
 private:
-    AmkManager<generated::can::AMK0_SetPoints1> left_amk_manager{
-        AmkStates::MOTOR_OFF_WAITING_FOR_GOV};
-    AmkManager<generated::can::AMK1_SetPoints1> right_amk_manager{
-        AmkStates::MOTOR_OFF_WAITING_FOR_GOV};
+    AmkManager<generated::can::AMK0_ActualValues1,
+               generated::can::AMK0_SetPoints1>
+        left_amk_manager{AmkStates::MOTOR_OFF_WAITING_FOR_GOV};
+    AmkManager<generated::can::AMK1_ActualValues1,
+               generated::can::AMK1_SetPoints1>
+        right_amk_manager{AmkStates::MOTOR_OFF_WAITING_FOR_GOV};
     MiStatus status_ = MiStatus::OFF;
 
     MiStatus ProcessOutputStatus(MiStatus left_status, MiStatus right_status);
 };
 
-template <SetPoints SP>
-AmkManager<SP>::AmkManager(AmkStates initial_amk_state)
+template <AmkActualValues1 V1, SetPoints SP>
+AmkManager<V1, SP>::AmkManager(AmkStates initial_amk_state)
     : amk_state_(initial_amk_state) {}
 
-// Computes main logic for updating the motor output given motor inputs
-template <SetPoints SP>
-template <AmkActualValues1 V1>
-UpdateMotorOutput<SP> AmkManager<SP>::UpdateMotor(const V1 val1,
-                                                  const MotorInput motor_input,
-                                                  const MiCmd cmd,
-                                                  const int time_ms) {
+template <AmkActualValues1 V1, SetPoints SP>
+UpdateMotorOutput<SP> AmkManager<V1, SP>::UpdateMotor(
+    const V1 val1, const MotorInput motor_input, const MiCmd cmd,
+    const int time_ms) {
     using enum AmkStates;
 
-    amk_state_ = Transition<V1>(val1, cmd, time_ms);
+    amk_state_ = Transition(val1, cmd, time_ms);
     switch (amk_state_) {
         case MOTOR_OFF_WAITING_FOR_GOV:
-            previous_state_output_.status = MiStatus::OFF;
-            previous_state_output_.inverter_enable = false;
+            output_.status = MiStatus::OFF;
+            output_.inverter_enable = false;
 
-            previous_state_output_.setpoints.amk_b_inverter_on = false;
-            previous_state_output_.setpoints.amk_b_dc_on = false;
-            previous_state_output_.setpoints.amk_b_enable = false;
-            previous_state_output_.setpoints.amk_b_error_reset = false;
-            previous_state_output_.setpoints.amk__target_velocity = 0;
-            previous_state_output_.setpoints.amk__torque_limit_positiv = 0;
-            previous_state_output_.setpoints.amk__torque_limit_negativ = 0;
+            output_.setpoints.amk_b_inverter_on = false;
+            output_.setpoints.amk_b_dc_on = false;
+            output_.setpoints.amk_b_enable = false;
+            output_.setpoints.amk_b_error_reset = false;
+            output_.setpoints.amk__target_velocity = 0;
+            output_.setpoints.amk__torque_limit_positiv = 0;
+            output_.setpoints.amk__torque_limit_negativ = 0;
 
             break;
 
         case STARTUP_SYS_READY:
-            previous_state_output_.status = MiStatus::STARTUP;
+            output_.status = MiStatus::STARTUP;
 
             break;
 
         case STARTUP_TOGGLE_D_CON:
-            previous_state_output_.setpoints.amk_b_dc_on = true;
+            output_.setpoints.amk_b_dc_on = true;
 
             break;
 
         case STARTUP_ENFORCE_SETPOINTS_ZERO:
-            previous_state_output_.setpoints.amk__target_velocity = 0;
-            previous_state_output_.setpoints.amk__torque_limit_positiv = 0;
-            previous_state_output_.setpoints.amk__torque_limit_negativ = 0;
+            output_.setpoints.amk__target_velocity = 0;
+            output_.setpoints.amk__torque_limit_positiv = 0;
+            output_.setpoints.amk__torque_limit_negativ = 0;
 
             break;
 
         case STARTUP_COMMAND_ON:
-            previous_state_output_.setpoints.amk_b_enable = true;
-            previous_state_output_.setpoints.amk_b_inverter_on = true;
+            output_.setpoints.amk_b_enable = true;
+            output_.setpoints.amk_b_inverter_on = true;
 
             break;
 
         case READY:
-            previous_state_output_.status = MiStatus::READY;
-            previous_state_output_.inverter_enable = true;
+            output_.status = MiStatus::READY;
+            output_.inverter_enable = true;
 
             break;
 
         case RUNNING:
-            previous_state_output_.status = MiStatus::RUNNING;
+            output_.status = MiStatus::RUNNING;
 
-            previous_state_output_.setpoints.amk__target_velocity =
-                motor_input.speed_request;
-            previous_state_output_.setpoints.amk__torque_limit_positiv =
+            output_.setpoints.amk__target_velocity = motor_input.speed_request;
+            output_.setpoints.amk__torque_limit_positiv =
                 motor_input.torque_limit_positive;
-            previous_state_output_.setpoints.amk__torque_limit_negativ =
+            output_.setpoints.amk__torque_limit_negativ =
                 motor_input.torque_limit_negative;
 
             break;
 
         case SHUTDOWN:
-            previous_state_output_.inverter_enable = false;
+            output_.inverter_enable = false;
 
-            previous_state_output_.setpoints.amk__target_velocity = 0;
-            previous_state_output_.setpoints.amk__torque_limit_positiv = 0;
-            previous_state_output_.setpoints.amk__torque_limit_negativ = 0;
+            output_.setpoints.amk__target_velocity = 0;
+            output_.setpoints.amk__torque_limit_positiv = 0;
+            output_.setpoints.amk__torque_limit_negativ = 0;
 
             break;
 
         case ERROR_DETECTED:
-            previous_state_output_.status = MiStatus::ERROR;
+            output_.status = MiStatus::ERROR;
 
             break;
 
         case ERROR_RESET_ENFORCE_SETPOINTS_ZERO:
-            previous_state_output_.setpoints.amk__target_velocity = 0;
-            previous_state_output_.setpoints.amk__torque_limit_positiv = 0;
-            previous_state_output_.setpoints.amk__torque_limit_negativ = 0;
-            previous_state_output_.setpoints.amk_b_inverter_on = false;
+            output_.setpoints.amk__target_velocity = 0;
+            output_.setpoints.amk__torque_limit_positiv = 0;
+            output_.setpoints.amk__torque_limit_negativ = 0;
+            output_.setpoints.amk_b_inverter_on = false;
 
             break;
 
         case ERROR_RESET_TOGGLE_ENABLE:
-            previous_state_output_.setpoints.amk_b_enable = false;
+            output_.setpoints.amk_b_enable = false;
 
             break;
 
         case ERROR_RESET_SEND_RESET:
-            previous_state_output_.setpoints.amk_b_error_reset = true;
+            output_.setpoints.amk_b_error_reset = true;
 
             break;
 
         case ERROR_RESET_TOGGLE_RESET:
-            previous_state_output_.setpoints.amk_b_error_reset = false;
+            output_.setpoints.amk_b_error_reset = false;
 
             break;
     }
 
-    return previous_state_output_;
+    return output_;
 }
 
 // Computes the state to transition to in an update
-template <SetPoints SP>
-template <AmkActualValues1 V1>
-AmkStates AmkManager<SP>::Transition(const V1 val1, const MiCmd cmd,
-                                     const int time_ms) {
+template <AmkActualValues1 V1, SetPoints SP>
+AmkStates AmkManager<V1, SP>::Transition(const V1 val1, const MiCmd cmd,
+                                         const int time_ms) {
     using enum AmkStates;
 
     // If any of these states have amk_b_error set, move to ERROR_DETECTED state
