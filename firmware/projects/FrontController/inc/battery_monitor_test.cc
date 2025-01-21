@@ -21,7 +21,7 @@ void test_sequence1() {
             .precharge_contactor_states = OPEN,
             .hv_pos_contactor_states = OPEN,
             .hv_neg_contactor_states = OPEN,
-            .hvil_status = true,
+            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);

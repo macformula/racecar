@@ -63,9 +63,10 @@ private:
     // add private methods / variables as necessary.
     BmStatus bmStatusUpdate(const BmInput& input, int time_ms);
     ContactorCMD bmControlUpdate(BmStatus status, int time_ms);
+    void bmControlTransition(ContactorCMD& contactor_cmd);
 
     // State machine variables (BmUpdate)
-    BmStatus current_status;
-    BmControlStatus bm_control_status;
-    int snapshot_time_ms;
+    BmStatus current_status_;
+    BmControlStatus bm_control_status_;
+    int snapshot_time_ms_;
 };

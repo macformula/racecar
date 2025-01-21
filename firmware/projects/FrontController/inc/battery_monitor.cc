@@ -4,9 +4,9 @@
 
 // Constructor
 BatteryMonitor::BatteryMonitor()
-    : current_status(BmStatus::INIT),
-      snapshot_time_ms(0),
-      bm_control_status(BmControlStatus::STARTUP_CMD) {}
+    : current_status_(BmStatus::INIT),
+      snapshot_time_ms_(0),
+      bm_control_status_(BmControlStatus::STARTUP_CMD) {}
 
 // Update method
 BmOutput BatteryMonitor::update(const BmInput& input, int time_ms) {
@@ -25,26 +25,26 @@ BmOutput BatteryMonitor::update(const BmInput& input, int time_ms) {
 // Control update method
 BmStatus BatteryMonitor::bmStatusUpdate(const BmInput& input, int time_ms) {
     std::cout << "[DEBUG UPDATE] Control state: "
-              << static_cast<int>(current_status) << ", Time: " << time_ms
+              << static_cast<int>(current_status_) << ", Time: " << time_ms
               << " ms\n";
 
     if (input.pack_soc < 30) {
-        current_status = BmStatus::LOW_SOC;
+        current_status_ = BmStatus::LOW_SOC;
         std::cout << "[DEBUG UPDATE] Transitioning from IDLE to LOW_SOC\n";
     } else if (input.hvil_status == OPEN) {
-        current_status = BmStatus::HVIL_INTERRUPT;
-        snapshot_time_ms = time_ms;
+        current_status_ = BmStatus::HVIL_INTERRUPT;
+        snapshot_time_ms_ = time_ms;
         std::cout
             << "[DEBUG UPDATE] Transitioning from IDLE to HVIL_INTERRUPT\n";
     }
 
-    switch (current_status) {
+    switch (current_status_) {
         case BmStatus::INIT:
             if (input.cmd == BmCmd::HV_STARTUP &&
                 input.precharge_contactor_states == OPEN &&
                 input.hv_pos_contactor_states == OPEN &&
                 input.hv_neg_contactor_states == OPEN) {
-                current_status = BmStatus::IDLE;
+                current_status_ = BmStatus::IDLE;
                 std::cout << "[DEBUG UPDATE] Transitioning from INIT to IDLE\n";
             }
             break;
@@ -53,10 +53,9 @@ BmStatus BatteryMonitor::bmStatusUpdate(const BmInput& input, int time_ms) {
             if (input.precharge_contactor_states == OPEN &&
                 input.hv_neg_contactor_states == CLOSED &&
                 input.hv_pos_contactor_states == OPEN) {
-                current_status = BmStatus::STARTUP;
+                current_status_ = BmStatus::STARTUP;
                 std::cout
                     << "[DEBUG UPDATE] Transitioning from IDLE to STARTUP\n";
-                break;
             }
             break;
 
@@ -64,10 +63,9 @@ BmStatus BatteryMonitor::bmStatusUpdate(const BmInput& input, int time_ms) {
             if (input.precharge_contactor_states == CLOSED &&
                 input.hv_neg_contactor_states == CLOSED &&
                 input.hv_pos_contactor_states == OPEN) {
-                current_status = BmStatus::INIT_PRECHARGE;
+                current_status_ = BmStatus::INIT_PRECHARGE;
                 std::cout << "[DEBUG UPDATE] Transitioning from STARTUP to "
                              "INIT_PRECHARGE\n";
-                break;
             }
             break;
 
@@ -75,10 +73,9 @@ BmStatus BatteryMonitor::bmStatusUpdate(const BmInput& input, int time_ms) {
             if (input.precharge_contactor_states == CLOSED &&
                 input.hv_neg_contactor_states == CLOSED &&
                 input.hv_pos_contactor_states == CLOSED) {
-                current_status = BmStatus::PRECHARGE;
+                current_status_ = BmStatus::PRECHARGE;
                 std::cout << "[DEBUG UPDATE] Transitioning from INIT_PRECHARGE "
                              "to PRECHARGE\n";
-                break;
             }
 
             break;
@@ -87,10 +84,9 @@ BmStatus BatteryMonitor::bmStatusUpdate(const BmInput& input, int time_ms) {
             if (input.precharge_contactor_states == OPEN &&
                 input.hv_neg_contactor_states == CLOSED &&
                 input.hv_pos_contactor_states == CLOSED) {
-                current_status = BmStatus::RUNNING;
+                current_status_ = BmStatus::RUNNING;
                 std::cout << "[DEBUG UPDATE] Transitioning from PRECHARGE to "
                              "RUNNING\n";
-                break;
             }
 
             break;
@@ -100,21 +96,18 @@ BmStatus BatteryMonitor::bmStatusUpdate(const BmInput& input, int time_ms) {
                 input.hv_neg_contactor_states == OPEN ||
                 input.hv_pos_contactor_states == OPEN) {
                 // std::cout << "Invalid\n";
-                current_status = BmStatus::INIT;
-
-                break;
+                current_status_ = BmStatus::INIT;
             }
             break;
 
         case BmStatus::HVIL_INTERRUPT:
-            if (time_ms - snapshot_time_ms >= 5000) {
+            if (time_ms - snapshot_time_ms_ >= 5000 &&
+                input.hvil_status == CLOSED) {
                 // TODO: do we need to check every 5 seconds
-                if (input.hvil_status) {
-                    std::cout
-                        << "[DEBUG UPDATE] HVIL restored after interruption\n";
-                    current_status = BmStatus::INIT;
-                    break;
-                }
+
+                std::cout
+                    << "[DEBUG UPDATE] HVIL restored after interruption\n";
+                current_status_ = BmStatus::INIT;
             }
             break;
 
@@ -123,64 +116,55 @@ BmStatus BatteryMonitor::bmStatusUpdate(const BmInput& input, int time_ms) {
             break;
     }
 
-    return current_status;
+    return current_status_;
 }
 
 ContactorCMD BatteryMonitor::bmControlUpdate(BmStatus status, int time_ms) {
     ContactorCMD contactor_cmd = {OPEN, OPEN, OPEN};
 
-    if (current_status == BmStatus::HVIL_INTERRUPT ||
-        current_status == BmStatus::LOW_SOC) {
-        bm_control_status = BmControlStatus::STARTUP_CMD;
+    if (current_status_ == BmStatus::HVIL_INTERRUPT ||
+        current_status_ == BmStatus::LOW_SOC) {
+        bm_control_status_ = BmControlStatus::STARTUP_CMD;
         std::cout << "[DEBUG BM CONTROL UPDATE] Transitioning from "
                      "CLOSE_HV_NEG to STARTUP_CMD\n";
     }
 
-    switch (bm_control_status) {
+    BmControlStatus new_state = bm_control_status_;
+
+    switch (bm_control_status_) {
         case BmControlStatus::STARTUP_CMD:
-            if (current_status == BmStatus::IDLE) {
-                bm_control_status = BmControlStatus::CLOSE_HV_NEG;
-                snapshot_time_ms = time_ms;
+            if (current_status_ == BmStatus::IDLE) {
+                new_state = BmControlStatus::CLOSE_HV_NEG;
                 std::cout << "[DEBUG BM CONTROL UPDATE] Transitioning from "
                              "STARTUP_CMD to CLOSE_HV_NEG\n";
-                break;
             }
             break;
 
         case BmControlStatus::CLOSE_HV_NEG:
 
-            if (time_ms - snapshot_time_ms >= 100) {
-                if (current_status == BmStatus::STARTUP) {
-                    bm_control_status = BmControlStatus::CLOSE_PRECHARGE;
-                    snapshot_time_ms = time_ms;
-                    std::cout << "[DEBUG BM CONTROL UPDATE] Transitioning from "
-                                 "CLOSE_HV_NEG to CLOSE_PRECHARGE\n";
-                    break;
-                }
+            if (time_ms - snapshot_time_ms_ >= 100 &&
+                current_status_ == BmStatus::STARTUP) {
+                new_state = BmControlStatus::CLOSE_PRECHARGE;
+                std::cout << "[DEBUG BM CONTROL UPDATE] Transitioning from "
+                             "CLOSE_HV_NEG to CLOSE_PRECHARGE\n";
             }
             break;
 
         case BmControlStatus::CLOSE_PRECHARGE:
-            if (time_ms - snapshot_time_ms >= 6500) {
-                if (current_status == BmStatus::INIT_PRECHARGE) {
-                    bm_control_status = BmControlStatus::CLOSE_HV_POS;
-                    snapshot_time_ms = time_ms;
-                    std::cout << "[DEBUG BM CONTROL UPDATE] Transitioning from "
-                                 "CLOSE_PRECHARGE to CLOSE_HV_POS\n";
-                    break;
-                }
+            if (time_ms - snapshot_time_ms_ >= 6500 &&
+                current_status_ == BmStatus::INIT_PRECHARGE) {
+                new_state = BmControlStatus::CLOSE_HV_POS;
+                std::cout << "[DEBUG BM CONTROL UPDATE] Transitioning from "
+                             "CLOSE_PRECHARGE to CLOSE_HV_POS\n";
             }
             break;
 
         case BmControlStatus::CLOSE_HV_POS:
-            if (time_ms - snapshot_time_ms >= 100) {
-                if (current_status == BmStatus::PRECHARGE) {
-                    bm_control_status = BmControlStatus::OPEN_PRECHARGE;
-                    snapshot_time_ms = time_ms;
-                    std::cout << "[DEBUG BM CONTROL UPDATE] Transitioning from "
-                                 "CLOSE_HV_POS to OPEN_PRECHARGE\n";
-                    break;
-                }
+            if (time_ms - snapshot_time_ms_ >= 100 &&
+                current_status_ == BmStatus::PRECHARGE) {
+                new_state = BmControlStatus::OPEN_PRECHARGE;
+                std::cout << "[DEBUG BM CONTROL UPDATE] Transitioning from "
+                             "CLOSE_HV_POS to OPEN_PRECHARGE\n";
             }
 
             break;
@@ -189,47 +173,42 @@ ContactorCMD BatteryMonitor::bmControlUpdate(BmStatus status, int time_ms) {
             if (contactor_cmd.precharge_contactor_cmd == CLOSED ||
                 contactor_cmd.hv_neg_contactor_cmd == OPEN ||
                 contactor_cmd.hv_pos_contactor_cmd == OPEN ||
-                current_status != BmStatus::PRECHARGE) {
-                // std::cout << "Invalid\n";
-                current_status = BmStatus::INIT;
-                break;
+                current_status_ != BmStatus::PRECHARGE) {
+                current_status_ = BmStatus::INIT;
             }
-
             break;
     }
 
-    // Entry Actions
-    switch (bm_control_status) {
+    if (new_state != bm_control_status_) {
+        bm_control_status_ = new_state;
+        snapshot_time_ms_ = time_ms;
+    }
+
+    bmControlTransition(contactor_cmd);
+
+    return contactor_cmd;
+}
+
+void BatteryMonitor::bmControlTransition(ContactorCMD& cmd) {
+    switch (bm_control_status_) {
         case BmControlStatus::STARTUP_CMD:
-            contactor_cmd.precharge_contactor_cmd = OPEN;
-            contactor_cmd.hv_neg_contactor_cmd = OPEN;
-            contactor_cmd.hv_pos_contactor_cmd = OPEN;
+            cmd = {OPEN, OPEN, OPEN};
             break;
 
         case BmControlStatus::CLOSE_HV_NEG:
-            contactor_cmd.precharge_contactor_cmd = OPEN;
-            contactor_cmd.hv_neg_contactor_cmd = CLOSED;
-            contactor_cmd.hv_pos_contactor_cmd = OPEN;
+            cmd = {OPEN, OPEN, CLOSED};
             break;
 
         case BmControlStatus::CLOSE_PRECHARGE:
-            contactor_cmd.precharge_contactor_cmd = CLOSED;
-            contactor_cmd.hv_neg_contactor_cmd = CLOSED;
-            contactor_cmd.hv_pos_contactor_cmd = OPEN;
+            cmd = {CLOSED, OPEN, CLOSED};
             break;
 
         case BmControlStatus::CLOSE_HV_POS:
-            contactor_cmd.precharge_contactor_cmd = CLOSED;
-            contactor_cmd.hv_neg_contactor_cmd = CLOSED;
-            contactor_cmd.hv_pos_contactor_cmd = CLOSED;
+            cmd = {CLOSED, CLOSED, CLOSED};
             break;
 
         case BmControlStatus::OPEN_PRECHARGE:
-            contactor_cmd.precharge_contactor_cmd = OPEN;
-            contactor_cmd.hv_neg_contactor_cmd = CLOSED;
-            contactor_cmd.hv_pos_contactor_cmd = CLOSED;
+            cmd = {OPEN, CLOSED, CLOSED};
             break;
     }
-
-    return contactor_cmd;
 }
