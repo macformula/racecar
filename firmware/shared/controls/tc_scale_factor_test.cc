@@ -4,6 +4,32 @@
 
 #include "testing.h"
 
+void TestMultistageTC() {
+    // Ramp up while NOT slipping
+    int time_ms = 0;
+    for (; time_ms <= 100; time_ms += 1) {
+        ASSERT_CLOSE(ctrl::CalculateTCScaleFactor(0.05, 0.1, time_ms),
+                     (double)time_ms / 100.);
+    }
+    // Continue holding at 1
+    for (; time_ms <= 200; time_ms += 1) {
+        ASSERT_CLOSE(ctrl::CalculateTCScaleFactor(0.05, 0.1, time_ms), 1);
+    }
+    // Continue holding at 1 for 49 msec even after we start slipping
+    for (; time_ms <= 250; time_ms += 1) {
+        ASSERT_CLOSE(ctrl::CalculateTCScaleFactor(0.15, 0.1, time_ms), 1);
+    }
+    // Then drop to 0 and stay there while we slip
+    for (; time_ms <= 300; time_ms += 1) {
+        ASSERT_CLOSE(ctrl::CalculateTCScaleFactor(0.15, 0.1, time_ms), 0);
+    }
+    // Stop slipping, start ramping again
+    for (; time_ms <= 400; time_ms += 1) {
+        ASSERT_CLOSE(ctrl::CalculateTCScaleFactor(0.05, 0.1, time_ms),
+                     (double)(time_ms - 300) / 100.);
+    }
+}
+
 int main() {
     // Write your test cases.
 
@@ -25,12 +51,7 @@ int main() {
     ASSERT_CLOSE(ctrl::CalculateActualSlip(156.4, 155.3, 155.2, 157.1),
                  0.001601);
 
-    // (Unbounded) Should return 0 because stateflow functionality is not
-    // introduced yet, so function returns 0.
-    ASSERT_CLOSE(ctrl::CalculateTCScaleFactor(0.0042, 0.2), 0);
-
-    // (Bounded by 0) Same as previous test
-    ASSERT_CLOSE(ctrl::CalculateTCScaleFactor(0.0, 0.2), 0);
+    TestMultistageTC();
 
     // This statement will not be reached if an assert fails.
     std::cout << "All tests passed" << std::endl;
