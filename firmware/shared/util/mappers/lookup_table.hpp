@@ -19,9 +19,18 @@ template <int row_count_, typename T = float>
     requires std::is_floating_point_v<T>
 class LookupTable : public Mapper<T> {
 public:
+    /// @brief Constructs a LookupTable with a 2D array of key-value pairs.    
     /// @warning The table's first columns (keys) must be sorted in increasing
     /// order.
-    LookupTable(T const (*table)[2]) : table_(table) {}
+    LookupTable(T const (*table)[2]) : table_(table) {
+        // Construct the recursive LUT structure from the table.
+        lut_ = construct_lut<row_count_ - 1>(table);
+
+        // Check if the table is sorted at compile time.
+        if (!is_sorted(lut_)) {
+            throw "Lookup table keys must be sorted.";
+        }
+    }
 
     inline T Evaluate(T key) const override {
         int least_greater_idx = 0;
