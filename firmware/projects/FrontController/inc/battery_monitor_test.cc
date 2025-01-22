@@ -8,6 +8,8 @@
 #include <iostream>
 
 void test_sequence1() {
+    using enum ContactorState;
+
     // the tests should show that your code matches the Simulink model's
     // expected behavior
     BatteryMonitor bm{};

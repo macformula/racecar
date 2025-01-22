@@ -26,24 +26,24 @@ enum class BmControlStatus {
     OPEN_PRECHARGE,
 };
 
-enum ContactorSates : bool {
+enum class ContactorState : bool {
     OPEN = false,
     CLOSED = true,
 };
 
 struct BmInput {
     BmCmd cmd;
-    bool precharge_contactor_states;
-    bool hv_pos_contactor_states;
-    bool hv_neg_contactor_states;
-    bool hvil_status;
+    ContactorState precharge_contactor_states;
+    ContactorState hv_pos_contactor_states;
+    ContactorState hv_neg_contactor_states;
+    ContactorState hvil_status;
     float pack_soc;
 };
 
 struct ContactorCMD {
-    bool precharge_contactor_cmd;
-    bool hv_pos_contactor_cmd;
-    bool hv_neg_contactor_cmd;
+    ContactorState precharge_contactor_cmd;
+    ContactorState hv_pos_contactor_cmd;
+    ContactorState hv_neg_contactor_cmd;
 };
 
 struct BmOutput {
@@ -62,8 +62,8 @@ public:
 private:
     // add private methods / variables as necessary.
     BmStatus bmStatusUpdate(const BmInput& input, int time_ms);
-    ContactorCMD bmControlUpdate(BmStatus status, int time_ms);
-    void bmControlTransition(ContactorCMD& contactor_cmd);
+    BmControlStatus bmControlTransition(BmStatus status, int time_ms);
+    ContactorCMD setContactorCMD(BmControlStatus bm_control_status_);
 
     // State machine variables (BmUpdate)
     BmStatus current_status_;
