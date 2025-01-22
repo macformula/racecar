@@ -8,8 +8,7 @@
 
 #include "shared/controls/testing.h"
 
-void test_1(const shared::util::Mapper<float>& pedal_to_torque,
-            SimpVdInterface* simp_vd_int) {
+void test_1(SimpVdInterface* simp_vd_int) {
     std::cout << "Test 1 loading" << std::endl;
 
     int time_ms = 0;
@@ -46,8 +45,7 @@ void test_1(const shared::util::Mapper<float>& pedal_to_torque,
                  output_1_expected.lm_torque_limit_positive);
 }
 
-void test_2(const shared::util::Mapper<float>& pedal_to_torque,
-            SimpVdInterface* simp_vd_int) {
+void test_2(SimpVdInterface* simp_vd_int) {
     std::cout << "Test 2 loading" << std::endl;
 
     int time_ms = 0;
@@ -86,8 +84,7 @@ void test_2(const shared::util::Mapper<float>& pedal_to_torque,
                  output_2_expected.lm_torque_limit_positive);
 }
 
-void test_3(const shared::util::Mapper<float>& pedal_to_torque,
-            SimpVdInterface* simp_vd_int) {
+void test_3(SimpVdInterface* simp_vd_int) {
     std::cout << "Test 3 loading" << std::endl;
 
     int time_ms = 0;
@@ -130,8 +127,7 @@ void test_3(const shared::util::Mapper<float>& pedal_to_torque,
                  output_3_expected.lm_torque_limit_positive);
 }
 
-void test_4(const shared::util::Mapper<float>& pedal_to_torque,
-            SimpVdInterface* simp_vd_int) {
+void test_4(SimpVdInterface* simp_vd_int) {
     std::cout << "Test 4 loading" << std::endl;
 
     int time_ms = 0;
@@ -173,8 +169,7 @@ void test_4(const shared::util::Mapper<float>& pedal_to_torque,
                  output_4_expected.rm_torque_limit_positive);
 }
 
-void test_5(const shared::util::Mapper<float>& pedal_to_torque,
-            SimpVdInterface* simp_vd_int) {
+void test_5(SimpVdInterface* simp_vd_int) {
     std::cout << "Test 5 loading" << std::endl;
 
     int time_ms = 55;
@@ -216,8 +211,7 @@ void test_5(const shared::util::Mapper<float>& pedal_to_torque,
                  output_5_expected.rm_torque_limit_positive);
 }
 
-void test_6(const shared::util::Mapper<float>& pedal_to_torque,
-            SimpVdInterface* simp_vd_int) {
+void test_6(SimpVdInterface* simp_vd_int) {
     std::cout << "Test 6 loading" << std::endl;
 
     int time_ms = 0;
@@ -254,8 +248,7 @@ void test_6(const shared::util::Mapper<float>& pedal_to_torque,
                  output_6_expected.lm_torque_limit_positive);
 }
 
-void test_7(const shared::util::Mapper<float>& pedal_to_torque,
-            SimpVdInterface* simp_vd_int) {
+void test_7(SimpVdInterface* simp_vd_int) {
     std::cout << "Test 7 loading" << std::endl;
 
     // Ensure traction control resets
@@ -304,16 +297,16 @@ int start_tests() {
 
     SimpVdInterface simp_vd_int{pedal_to_torque};
     // Below tests all use the same SimpVdInterface object with running avg
-    test_1(pedal_to_torque, &simp_vd_int);
-    test_2(pedal_to_torque, &simp_vd_int);
-    test_3(pedal_to_torque, &simp_vd_int);
-    test_4(pedal_to_torque, &simp_vd_int);
-    test_5(pedal_to_torque, &simp_vd_int);
+    test_1(&simp_vd_int);
+    test_2(&simp_vd_int);
+    test_3(&simp_vd_int);
+    test_4(&simp_vd_int);
+    test_5(&simp_vd_int);
 
     SimpVdInterface simp_vd_int_2{pedal_to_torque};
     // New object with reset running avg
-    test_6(pedal_to_torque, &simp_vd_int_2);
-    test_7(pedal_to_torque, &simp_vd_int_2);
+    test_6(&simp_vd_int_2);
+    test_7(&simp_vd_int_2);
 
     std::cout << "Testing done!" << std::endl;
 
