@@ -2,92 +2,98 @@
 
 #include "governor.hpp"
 
-Governor::Governor() : is_first_update_(true) {
-    state_.gov_sts = GovSts::INIT;
-}
+Governor::Governor() : fsm_state_(std::nullopt) {}
 
 Governor::Output Governor::Update(const Governor::Input input,
                                   const int time_ms) {
     using enum GovSts;
 
-    auto new_state = Transition(input, time_ms);
+    auto transition = Transition(input, time_ms);
 
-    if (!new_state.has_value()) {
-        // no transition -> nothing to update
-        return state_;
+    if (!transition.has_value()) {
+        return output_;  // no transition -> nothing to update
     }
 
-    state_.gov_sts = new_state.value();
+    fsm_state_ = transition.value();
     state_entered_time_ = time_ms;
 
-    switch (state_.gov_sts) {
+    switch (*fsm_state_) {
         case INIT:
-            state_.bm_cmd = BmCmd::INIT;
-            state_.di_cmd = DiCmd::INIT;
+            output_ = {
+                .bm_cmd = BmCmd::INIT,
+                .mi_cmd = MiCmd::INIT,
+                .di_cmd = DiCmd::INIT,
+            };
             motor_start_count_ = 0;
             break;
 
         case STARTUP_HV:
-            state_.bm_cmd = BmCmd::HV_STARTUP;
+            output_.bm_cmd = BmCmd::HV_STARTUP;
             break;
 
         case STARTUP_READY_TO_DRIVE:
-            state_.di_cmd = DiCmd::HV_ON;
+            output_.di_cmd = DiCmd::HV_ON;
             break;
 
         case STARTUP_MOTOR:
-            state_.mi_cmd = MiCmd::STARTUP;
+            output_.mi_cmd = MiCmd::STARTUP;
             motor_start_count_++;
             break;
 
         case STARTUP_SEND_READY_TO_DRIVE:
-            state_.di_cmd = DiCmd::READY_TO_DRIVE;
+            output_.di_cmd = DiCmd::READY_TO_DRIVE;
             break;
 
         case RUNNING:
             break;
 
         case SHUTDOWN:
-            state_.mi_cmd = MiCmd::SHUTDOWN;
-            state_.di_cmd = DiCmd::SHUTDOWN;
+            output_.mi_cmd = MiCmd::SHUTDOWN;
+            output_.di_cmd = DiCmd::SHUTDOWN;
             break;
 
         case ERR_STARTUP_HV:
-            state_.di_cmd = DiCmd::SHUTDOWN;
+            output_.di_cmd = DiCmd::SHUTDOWN;
             break;
 
         case ERR_STARTUP_MOTOR_RESET:
-            state_.mi_cmd = MiCmd::ERR_RESET;
+            output_.mi_cmd = MiCmd::ERR_RESET;
             break;
 
         case ERR_STARTUP_MOTOR_FAULT:
-            state_.mi_cmd = MiCmd::SHUTDOWN;
+            output_.mi_cmd = MiCmd::SHUTDOWN;
             break;
 
         case ERR_STARTUP_DI:
             break;
 
         case ERR_RUNNING_HV:
-            state_.di_cmd = DiCmd::ERR_RUN;
+            output_.di_cmd = DiCmd::ERR_RUN;
             break;
 
         case ERR_RUNNING_MOTOR:
-            state_.di_cmd = DiCmd::ERR_RUN;
+            output_.di_cmd = DiCmd::ERR_RUN;
             break;
     }
 
-    return state_;
+    output_.gov_sts = *fsm_state_;
+
+    return output_;
 }
 
 std::optional<GovSts> Governor::Transition(const Governor::Input input,
                                            const int time_ms) {
     using enum GovSts;
 
+    if (!fsm_state_.has_value()) {
+        // this will happen only the first cycle.
+        return INIT;
+    }
+
     // Handle the startup superstate errors
-    if (state_.gov_sts == STARTUP_HV ||
-        state_.gov_sts == STARTUP_READY_TO_DRIVE ||
-        state_.gov_sts == STARTUP_MOTOR ||
-        state_.gov_sts == STARTUP_SEND_READY_TO_DRIVE) {
+    if (*fsm_state_ == STARTUP_HV || *fsm_state_ == STARTUP_READY_TO_DRIVE ||
+        *fsm_state_ == STARTUP_MOTOR ||
+        *fsm_state_ == STARTUP_SEND_READY_TO_DRIVE) {
         if (input.bm_sts == BmSts::HVIL_INTERRUPT) {
             return ERR_STARTUP_HV;
         }
@@ -105,7 +111,7 @@ std::optional<GovSts> Governor::Transition(const Governor::Input input,
         }
     }
 
-    switch (state_.gov_sts) {
+    switch (*fsm_state_) {
         case INIT:
             if (time_ms - state_entered_time_ >= 2000 &&
                 input.di_sts == DiSts::HV_START_REQ) {
@@ -180,11 +186,6 @@ std::optional<GovSts> Governor::Transition(const Governor::Input input,
             break;
         case ERR_RUNNING_MOTOR:
             break;
-    }
-
-    if (is_first_update_) {
-        is_first_update_ = false;
-        return INIT;
     }
 
     return std::nullopt;

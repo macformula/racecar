@@ -22,9 +22,10 @@ public:
     Output Update(const Input input, const int time_ms);
 
 private:
-    Output state_;
+    std::optional<GovSts> fsm_state_;  // nullopt = unitialized
     int state_entered_time_;
-    bool is_first_update_;
+
+    Output output_;
 
     const int kMaxMotorStartAttempts = 5;
     int motor_start_count_;
