@@ -1,6 +1,6 @@
-#include <iostream> 
-
 #include "tvFactor.h"
+
+#include <iostream>
 
 #include "testing.h"
 
@@ -14,24 +14,36 @@ int main() {
     ASSERT_CLOSE(CreateTorqueVectoringFactor(27.3), 0.683);
 
     {
-        auto [left_factor, right_factor] = AdjustTorqueVectoring(15.2, 3.6);
-        ASSERT_CLOSE(left_factor, 1.0);
-        ASSERT_CLOSE(right_factor, 3.6);
+        TorqueVector<double> tv = AdjustTorqueVectoring(15.0);
+        ASSERT_CLOSE(tv.left, 1.0);
+        ASSERT_CLOSE(tv.right, 0.808);
     }
 
     {
-        auto [left_factor, right_factor] = AdjustTorqueVectoring(-13.6, 2.2);
-        ASSERT_CLOSE(left_factor, 2.2);
-        ASSERT_CLOSE(right_factor, 1);
+        TorqueVector<double> tv = AdjustTorqueVectoring(-10.0);
+        ASSERT_CLOSE(tv.left, 0.87);
+        ASSERT_CLOSE(tv.right, 1);
     }
 
     {
-        auto [left_factor, right_factor] = AdjustTorqueVectoring(0.0, 6.0);
-        ASSERT_CLOSE(left_factor, 1);
-        ASSERT_CLOSE(right_factor, 1);
+        TorqueVector<double> tv = AdjustTorqueVectoring(0.0);
+        ASSERT_CLOSE(tv.left, 1);
+        ASSERT_CLOSE(tv.right, 1);
+    }
+
+    {
+        TorqueVector<double> tv = AdjustTorqueVectoring(13.8);
+        ASSERT_CLOSE(tv.left, 1);
+        ASSERT_CLOSE(tv.right, 0.82288);
+    }
+
+    {
+        TorqueVector<double> tv = AdjustTorqueVectoring(-6.7);
+        ASSERT_CLOSE(tv.left, 0.91224);
+        ASSERT_CLOSE(tv.right, 1);
     }
 
     std::cout << "All tests passed" << std::endl;
-    
+
     return 0;
 }

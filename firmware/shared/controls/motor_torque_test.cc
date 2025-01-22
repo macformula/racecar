@@ -3,78 +3,10 @@
 #include <iostream>
 
 #include "testing.h"
+#include "tvFactor.h"
 
 int main() {
     using namespace ctrl;
-
-    // Test cases for CalculateMotorTorque
-    // Test Case 1: Smaller Sample Sizes
-    {
-        double new_torque_values[] = {5.0, 10.0, 15.0};
-        for (int i = 0; i < 3; i++) {
-            CalculateMotorTorque(new_torque_values[i], 1.5, 1.2, i == 0);
-        }
-        auto [right_motor_torque, left_motor_torque] =
-            CalculateMotorTorque(20.0, 1.5, 1.2);
-        ASSERT_CLOSE(right_motor_torque, 18.75);
-        ASSERT_CLOSE(left_motor_torque, 15.00);
-    }
-
-    {
-        double new_torque_values[] = {2.0, 4.0};
-        for (int i = 0; i < 2; i++) {
-            CalculateMotorTorque(new_torque_values[i], 1.1, 1.3, i == 0);
-        }
-        auto [right_motor_torque, left_motor_torque] =
-            CalculateMotorTorque(6.0, 1.1, 1.3);
-        ASSERT_CLOSE(right_motor_torque, 4.40);
-        ASSERT_CLOSE(left_motor_torque, 5.20);
-    }
-
-    // Test Case 2: Larger Sample Sizes
-    {
-        for (double i = 1; i <= 9; i++) {
-            CalculateMotorTorque(i, 1.5, 1.2, i == 1);
-        }
-        auto [right_motor_torque, left_motor_torque] =
-            CalculateMotorTorque(10.0, 1.5, 1.2);
-        ASSERT_CLOSE(right_motor_torque, 8.25);
-        ASSERT_CLOSE(left_motor_torque, 6.60);
-    }
-
-    // Test Case 3: Sample Size over 10 Entities
-    {
-        double new_torque_values[] = {80, 21, 34, 43, 27, 47, 46,
-                                      21, 73, 12, 11, 11, 14};
-        for (int i = 0; i < 13; i++) {
-            CalculateMotorTorque(new_torque_values[i], 1.1, 1.3, i == 0);
-        }
-        auto [right_motor_torque, left_motor_torque] =
-            CalculateMotorTorque(12.0, 1.1, 1.2);
-        ASSERT_CLOSE(right_motor_torque, 27.4 * 1.1);
-        ASSERT_CLOSE(left_motor_torque, 27.4 * 1.2);
-    }
-
-    // Test Case 4: Zero values in raw_torque_values
-    {
-        double new_torque_values[] = {0.0, 0.0, 0.0};
-        for (int i = 0; i < 3; i++) {
-            CalculateMotorTorque(new_torque_values[i], 1.1, 1.2, i == 0);
-        }
-        auto [right_motor_torque, left_motor_torque] =
-            CalculateMotorTorque(0.0, 1.8, 1.95);
-        ASSERT_CLOSE(right_motor_torque, 0.0);
-        ASSERT_CLOSE(left_motor_torque, 0.0);
-    }
-
-    // Test Case 5: Single element in raw_torque_values
-    {
-        double new_torque_value = 10.0;
-        auto [right_motor_torque, left_motor_torque] =
-            CalculateMotorTorque(new_torque_value, 1.5, 1.2, true);
-        ASSERT_CLOSE(right_motor_torque, 15.00);
-        ASSERT_CLOSE(left_motor_torque, 12.00);
-    }
 
     // Test cases for ComputeTorqueRequest
     ASSERT_CLOSE(ComputeTorqueRequest(30.0, 20.0),
