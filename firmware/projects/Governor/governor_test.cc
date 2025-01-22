@@ -78,6 +78,7 @@ void test_normal_sequence() {
         assert(out.gov_sts == GovSts::INIT);
         assert(out.di_cmd == DiCmd::INIT);
         assert(out.bm_cmd == BmCmd::INIT);
+        assert(out.mi_cmd == MiCmd::INIT);
     }
 
     in.di_sts = DiSts::HV_START_REQ;
