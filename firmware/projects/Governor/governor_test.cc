@@ -1,9 +1,9 @@
+#include "governor.hpp"
+
 #include <cassert>
 #include <iostream>
 #include <tuple>
 #include <vector>
-
-#include "governor.hpp"
 
 /// Helper function to prepare a Governor in a specific state for testing.
 Governor CycleToState(GovSts desired_state_) {

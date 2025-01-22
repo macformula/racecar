@@ -1,6 +1,6 @@
-#include <optional>
-
 #include "governor.hpp"
+
+#include <optional>
 
 Governor::Governor() : fsm_state_(std::nullopt) {}
 
