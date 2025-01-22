@@ -137,7 +137,7 @@ private:
         right_amk_manager{AmkStates::MOTOR_OFF_WAITING_FOR_GOV};
     MiStatus status_ = MiStatus::OFF;
 
-    MiStatus ProcessOutputStatus(MiStatus left_status, MiStatus right_status);
+    void UpdateOutputStatus(MiStatus left_status, MiStatus right_status);
 };
 
 template <AmkActualValues1 V1, SetPoints SP>

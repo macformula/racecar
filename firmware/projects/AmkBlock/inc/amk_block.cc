@@ -7,22 +7,21 @@ AmkOutput MotorInterface::Update(const AmkInput& input, const int time_ms) {
     auto right = right_amk_manager.UpdateMotor(
         input.right_actual1, input.right_motor_input, input.cmd, time_ms);
 
+    UpdateOutputStatus(left.status, right.status);
+
     return AmkOutput{
-        .status = ProcessOutputStatus(left.status, right.status),
+        .status = status_,
         .left_setpoints = left.setpoints,
         .right_setpoints = right.setpoints,
         .inverter_enable = left.inverter_enable && right.inverter_enable};
 }
 
 // Processes the new output status given the left/right statuses
-MiStatus MotorInterface::ProcessOutputStatus(MiStatus left_status,
-                                             MiStatus right_status) {
+void MotorInterface::UpdateOutputStatus(MiStatus left_status,
+                                        MiStatus right_status) {
     if (left_status == MiStatus::ERROR || right_status == MiStatus::ERROR) {
         status_ = MiStatus::ERROR;
     } else if (left_status == right_status) {
         status_ = left_status;
     }
-
-    // else return the previous status
-    return status_;
 }
