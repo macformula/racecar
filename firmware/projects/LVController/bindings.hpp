@@ -35,8 +35,6 @@ extern void Initialize();
 
 extern void DelayMS(uint32_t ms);
 
-extern void Log(std::string log_msg);
-
 extern uint32_t GetTick();
 
 }  // namespace bindings
