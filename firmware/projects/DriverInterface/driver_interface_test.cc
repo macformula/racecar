@@ -3,7 +3,8 @@
 #include <cassert>
 #include <iostream>
 
-#include "shared/controls/driver_interface_fsm.hpp"
+#include "driver_interface_fsm.hpp"
+#include "driver_interface_fsm_test.hpp"
 #include "shared/controls/testing.h"
 
 DriverInterface CycleToRunning() {
@@ -135,6 +136,8 @@ void test_steering_angle() {
 }
 
 int main() {
+    TestFsm();
+
     test_brake_light();
     test_steering_angle();
     test_driver_torque_req();

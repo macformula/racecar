@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "testing.h"
+#include "shared/controls/testing.h"
 
 void test_sequence() {
     DiFsm fsm{};
@@ -203,7 +203,7 @@ void test_shutdown() {
     std::cout << "Passed test_shutdown" << std::endl;
 }
 
-int main() {
+void TestFsm() {
     test_sequence();
     test_start_running();
     test_running_error();

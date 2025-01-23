@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shared/controls/driver_interface_fsm.hpp"
+#include "driver_interface_fsm.hpp"
 
 class DriverInterface {
 public:

@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "shared/controls/driver_interface_fsm.hpp"
+#include "driver_interface_fsm.hpp"
 #include "shared/util/mappers/lookup_table.hpp"
 
 template <typename T>
