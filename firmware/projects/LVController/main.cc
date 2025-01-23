@@ -113,7 +113,7 @@ void DoPowertrainEnableSequence() {
     bindings::DelayMS(50);
 
     powertrain_pump.Enable();
-    BroadcastState(LvControllerState::DcdcLedEnabled);
+    BroadcastState(LvControllerState::PowertrainPumpEnabled);
 
     bindings::DelayMS(100);
 
