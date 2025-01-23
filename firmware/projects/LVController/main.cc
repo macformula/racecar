@@ -3,10 +3,12 @@
 
 #include <cstdint>
 
+#include "app/dcdc.hpp"
+#include "app/fan.hpp"
+#include "app/subsystem.hpp"
 #include "bindings.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
-#include "inc/app.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/util/mappers/identity.hpp"
 
