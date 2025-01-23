@@ -155,7 +155,7 @@ bool IsContactorsClosed() {
 void DoInverterSwitchCheck() {
     auto inverter_command = veh_can.GetRxInverterCommand();
 
-    if (inverter_command && inverter_command->EnableInverter()) {
+    if (inverter_command.has_value() && inverter_command->EnableInverter()) {
         inverter.Enable();
     } else {
         inverter.Disable();
