@@ -1,4 +1,7 @@
+#include <iostream>
+
 #include "driver_interface.hpp"
+#include "shared/controls/brake_pedal_lights.h"
 #include "shared/controls/driver_interface_error_handling.h"
 #include "shared/controls/driver_interface_fsm.hpp"
 #include "shared/controls/steering_angle.h"
@@ -10,24 +13,57 @@ DriverInterface::DriverInterface() {}
 
 // implement the block in here to compute all of the `output` fields
 DiOutput DriverInterface::Update(DiInput input, int time_ms) {
-    // Compute all potentiometer blocks here and define all outputs from it
-    float accel_pedal_1_pos;
+    float accel_pedal_1_pos = input.accel_pedal_pos1;
     bool accel_pedal_1_error;
-    float accel_pedal_2_pos;
+    float accel_pedal_2_pos = input.accel_pedal_pos2;
     bool accel_pedal_2_error;
-    float front_brake_pedal_pres;
+    float front_brake_pedal_pres = input.front_brake_pedal_position;
     bool front_brake_pedal_error;
-    float rear_brake_pedal_pos;
+    float rear_brake_pedal_pos = input.rear_brake_pedal_position;
     bool rear_brake_pedal_error;
-    float steering_angle;
+    float steering_angle = input.steering_angle;
     bool steering_error;
+
+    // Compute all potentiometer blocks here and define all outputs from it
+
+    if (accel_pedal_1_pos >= 0 && accel_pedal_1_pos <= 1.00) {
+        accel_pedal_1_error = false;
+
+    } else {
+        accel_pedal_1_error = true;
+    }
+
+    if (accel_pedal_2_pos >= 0 && accel_pedal_2_pos <= 1.00) {
+        accel_pedal_1_error = false;
+    } else {
+        accel_pedal_2_error = true;
+    }
+
+    if (front_brake_pedal_pres >= 0 && front_brake_pedal_pres <= 1.00) {
+        front_brake_pedal_error = false;
+    } else {
+        front_brake_pedal_error = true;
+    }
+
+    if (rear_brake_pedal_pos >= 0 && rear_brake_pedal_pos <= 1.00) {
+        rear_brake_pedal_error = false;
+    } else {
+        rear_brake_pedal_error = true;
+    }
+
+    bool steering_angle_error = !ctrl::isInRange(steering_angle);
 
     // Compute accelerator plausability check block
     bool accel_pedal_implausible;
 
-    // Compute driver interface error block
-    // QUESTION: Should there be an extra parameter in this function definition
-    // to take the implausible input?
+    double diff = std::abs(accel_pedal_1_pos - accel_pedal_2_pos);
+
+    if (diff > 0.1 * accel_pedal_1_pos) {
+        accel_pedal_implausible = true;
+    } else {
+        accel_pedal_implausible = false;
+    }
+
     bool di_error =
         ctrl::b_DriverInterfaceError(accel_pedal_1_error, accel_pedal_2_error,
                                      front_brake_pedal_error,
@@ -52,11 +88,12 @@ DiOutput DriverInterface::Update(DiInput input, int time_ms) {
                       !ctrl::isInRange(rear_brake_pedal_pos);
 
     if (brakeError) {
+        brake_light_en = ctrl::DetectBrakeLight(brake_pedal_pos);
         brake_pedal_pos = 0;
     }
 
     // Compute steering angle
-    bool steering_angle_error = !ctrl::isInRange(input.steering_angle);
+    steering_angle_error = !ctrl::isInRange(steering_angle);
 
     if (steering_angle_error) {
         steering_angle = 0.5;
