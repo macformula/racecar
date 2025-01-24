@@ -1,13 +1,14 @@
 /// @author Blake Freer
 /// @date 2023-12-25
 
+#include "../../bindings.hpp"
+
 #include <chrono>
 #include <cstdint>
 #include <iostream>
 #include <string>
 #include <thread>
 
-#include "../../bindings.hpp"
 #include "mcal/cli/periph/can.hpp"
 #include "mcal/cli/periph/gpio.hpp"
 #include "mcal/cli/periph/pwm.hpp"
@@ -27,11 +28,10 @@ DigitalOutput motor_ctrl_precharge_en = DigitalOutput{"MOTOR CTRL LV PRECHARGE E
 DigitalOutput motor_ctrl_en = DigitalOutput{"MOTOR CTRL LV Enable"};
 DigitalOutput imu_gps_en = DigitalOutput{"IMU GPS Enable"};
 DigitalOutput shutdown_circuit_en = DigitalOutput{"SHUTDOWN CIRCUIT Enable"};
-DigitalOutput inverter_switch_en = DigitalOutput{"INVERTER SWITCH Enable"};
+DigitalOutput motor_ctrl_switch_en = DigitalOutput{"MOTOR CONTROL SWITCH Enable"};
 
 DigitalOutput dcdc_en = DigitalOutput{"DCDC Enable"};
 DigitalInput dcdc_valid = DigitalInput{"DCDC Valid"};
-DigitalOutput dcdc_led_en = DigitalOutput{"DCDC LED Enable"};
 DigitalOutput powertrain_fan_en = DigitalOutput{"POWERTRAIN FAN Enable"};
 DigitalOutput powertrain_pump_en = DigitalOutput{"POWERTRAIN PUMP Enable"};
 PWMOutput powertrain_fan_pwm = PWMOutput{"POWERTRAIN FAN PWM"};
@@ -50,11 +50,10 @@ shared::periph::DigitalOutput& motor_ctrl_precharge_en = mcal::motor_ctrl_precha
 shared::periph::DigitalOutput& motor_ctrl_en = mcal::motor_ctrl_en;
 shared::periph::DigitalOutput& imu_gps_en = mcal::imu_gps_en;
 shared::periph::DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
-shared::periph::DigitalOutput& inverter_switch_en = mcal::inverter_switch_en;
+shared::periph::DigitalOutput& motor_ctrl_switch_en = mcal::motor_ctrl_switch_en;
 
 shared::periph::DigitalOutput& dcdc_en = mcal::dcdc_en;
 shared::periph::DigitalInput& dcdc_valid = mcal::dcdc_valid;
-shared::periph::DigitalOutput& dcdc_led_en = mcal::dcdc_led_en;
 shared::periph::DigitalOutput& powertrain_fan_en = mcal::powertrain_fan_en;
 shared::periph::DigitalOutput& powertrain_pump_en = mcal::powertrain_pump_en;
 shared::periph::PWMOutput& powertrain_fan_pwm = mcal::powertrain_fan_pwm;

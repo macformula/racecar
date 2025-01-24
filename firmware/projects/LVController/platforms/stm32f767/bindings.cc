@@ -74,9 +74,9 @@ DigitalOutput shutdown_circuit_en{
     SHUTDOWN_CIRCUIT_EN_GPIO_Port,
     SHUTDOWN_CIRCUIT_EN_Pin,
 };
-DigitalOutput inverter_switch_en{
-    INVERTER_EN_GPIO_Port,
-    INVERTER_EN_Pin,
+DigitalOutput motor_ctrl_switch_en{
+    MOTOR_CONTROLLER_SWITCH_EN_GPIO_Port,
+    MOTOR_CONTROLLER_SWITCH_EN_Pin,
 };
 DigitalOutput dcdc_en{
     DCDC_EN_GPIO_Port,
@@ -85,10 +85,6 @@ DigitalOutput dcdc_en{
 DigitalInput dcdc_valid{
     MUX_DCDC_VALID_GPIO_Port,
     MUX_DCDC_VALID_Pin,
-};
-DigitalOutput dcdc_led_en{
-    DCDC_ON_LED_EN_GPIO_Port,
-    DCDC_ON_LED_EN_Pin,
 };
 DigitalOutput powertrain_fan_en{
     POWERTRAIN_FAN_EN_GPIO_Port,
@@ -118,10 +114,10 @@ shared::periph::DigitalOutput& motor_ctrl_precharge_en =
 shared::periph::DigitalOutput& motor_ctrl_en = mcal::motor_ctrl_en;
 shared::periph::DigitalOutput& imu_gps_en = mcal::imu_gps_en;
 shared::periph::DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
-shared::periph::DigitalOutput& inverter_switch_en = mcal::inverter_switch_en;
+shared::periph::DigitalOutput& motor_ctrl_switch_en =
+    mcal::motor_ctrl_switch_en;
 shared::periph::DigitalOutput& dcdc_en = mcal::dcdc_en;
 shared::periph::DigitalInput& dcdc_valid = mcal::dcdc_valid;
-shared::periph::DigitalOutput& dcdc_led_en = mcal::dcdc_led_en;
 shared::periph::DigitalOutput& powertrain_fan_en = mcal::powertrain_fan_en;
 shared::periph::DigitalOutput& powertrain_pump_en = mcal::powertrain_pump_en;
 shared::periph::PWMOutput& powertrain_fan_pwm = mcal::powertrain_fan_pwm;

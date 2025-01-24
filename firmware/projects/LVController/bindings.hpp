@@ -20,11 +20,10 @@ extern shared::periph::DigitalOutput& motor_ctrl_precharge_en;
 extern shared::periph::DigitalOutput& motor_ctrl_en;
 extern shared::periph::DigitalOutput& imu_gps_en;
 extern shared::periph::DigitalOutput& shutdown_circuit_en;
-extern shared::periph::DigitalOutput& inverter_switch_en;
+extern shared::periph::DigitalOutput& motor_ctrl_switch_en;
 
 extern shared::periph::DigitalOutput& dcdc_en;
 extern shared::periph::DigitalInput& dcdc_valid;
-extern shared::periph::DigitalOutput& dcdc_led_en;
 extern shared::periph::DigitalOutput& powertrain_pump_en;
 extern shared::periph::DigitalOutput& powertrain_fan_en;
 extern shared::periph::PWMOutput& powertrain_fan_pwm;

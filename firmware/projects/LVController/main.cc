@@ -25,12 +25,12 @@ Subsystem motor_ctrl_precharge{bindings::motor_ctrl_precharge_en};
 Subsystem motor_ctrl{bindings::motor_ctrl_en};
 Subsystem imu_gps{bindings::imu_gps_en};
 Subsystem shutdown_circuit{bindings::shutdown_circuit_en};
-Subsystem inverter{bindings::inverter_switch_en};
+Subsystem motor_ctrl_switch{bindings::motor_ctrl_switch_en};
 Subsystem powertrain_pump{bindings::powertrain_pump_en};
 
 shared::periph::InvertedDigitalOutput dcdc_en_inverted(bindings::dcdc_en);
 
-DCDC dcdc{dcdc_en_inverted, bindings::dcdc_valid, bindings::dcdc_led_en};
+DCDC dcdc{dcdc_en_inverted, bindings::dcdc_valid};
 
 auto powertrain_fan_power_to_duty = shared::util::IdentityMap<float>();
 Fan powertrain_fan{
@@ -66,6 +66,11 @@ void DoPowerupSequence() {
 
     speedgoat.Enable();
     BroadcastState(LvControllerState::SpeedgoatEnabled);
+
+    bindings::DelayMS(50);
+
+    accumulator.Enable();
+    BroadcastState(LvControllerState::AccumulatorEnabled);
 
     bindings::DelayMS(100);
 
@@ -109,8 +114,10 @@ void DoPowertrainEnableSequence() {
     dcdc.Enable();
     BroadcastState(LvControllerState::DcdcEnabled);
 
-    BroadcastState(LvControllerState::WaitingForDcdcValid);
-    while (!dcdc.CheckValid()) bindings::DelayMS(50);
+    while (!dcdc.CheckValid()) {
+        BroadcastState(LvControllerState::WaitingForDcdcValid);
+        bindings::DelayMS(50);
+    }
 
     bindings::DelayMS(50);
 
@@ -156,9 +163,9 @@ void DoInverterSwitchCheck() {
     auto inverter_command = veh_can.GetRxInverterCommand();
 
     if (inverter_command.has_value() && inverter_command->EnableInverter()) {
-        inverter.Enable();
+        motor_ctrl_switch.Enable();
     } else {
-        inverter.Disable();
+        motor_ctrl_switch.Disable();
     }
 }
 
@@ -174,18 +181,21 @@ int main(void) {
 
     DoPowerupSequence();
 
-    BroadcastState(LvControllerState::WaitingForOpenContactors);
+    shutdown_circuit.Enable();
+    BroadcastState(LvControllerState::ShutdownCircuitEnabled);
+
+    // wait for contactors to open
     while (!IsContactorsOpen()) {
+        BroadcastState(LvControllerState::WaitingForOpenContactors);
         bindings::DelayMS(50);
     }
-
     shutdown_circuit.Enable();
 
     BroadcastState(LvControllerState::ShutdownCircuitEnabled);
 
     while (true) {
-        BroadcastState(LvControllerState::WaitingForClosedContactors);
         while (!IsContactorsClosed()) {
+            BroadcastState(LvControllerState::WaitingForClosedContactors);
             bindings::DelayMS(50);
         }
 
@@ -199,7 +209,7 @@ int main(void) {
 
         BroadcastState(LvControllerState::LostDcdcValid);
 
-        inverter.Disable();
+        motor_ctrl_switch.Disable();
         powertrain_pump.Disable();
         powertrain_fan.Disable();
     }
