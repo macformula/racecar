@@ -5,6 +5,7 @@
 
 #include <type_traits>
 
+#include "lut_checker.hpp"
 #include "mapper.hpp"
 
 namespace shared::util {
@@ -19,22 +20,11 @@ template <int row_count_, typename T = float>
     requires std::is_floating_point_v<T>
 class LookupTable : public Mapper<T> {
 public:
-    /// @brief Constructs a LookupTable with a 2D array of key-value pairs.    
     /// @warning The table's first columns (keys) must be sorted in increasing
     /// order.
-    constexpr LookupTable(T const (*table)[2]) : table_(table) {
-        // Construct the recursive LUT structure from the table.
-        lut_ = construct_lut<row_count_ - 1>(table);
-
-        // Check if the table is sorted at compile time.
-        if (!is_sorted(lut_)) {
-            throw "Lookup table keys must be sorted.";
-        }
-        
-        // Convert the LUT structure back into an array.
-        float array_[row_count_ - 1][2];
-        lut_to_array(lut_, array_);
-
+    constexpr LookupTable(T const (*table)[2])
+        : table_(table), lut_(construct_lut<row_count_ - 1>(table)) {
+        static_assert(is_sorted(lut_), "Lookup table keys must be sorted.");
     }
 
     inline T Evaluate(T key) const override {
@@ -64,6 +54,7 @@ public:
 
 private:
     const T (*table_)[2];
+    LUT_Entry<row_count_ - 1> lut_;
 };
 
 }  // namespace shared::util
