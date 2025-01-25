@@ -46,4 +46,16 @@ constexpr LUT_Entry<Depth> construct_lut(const float (&table)[Depth + 1][2]) {
     }
 }
 
+/// @brief Function to construct a 2D array from a recursive LUT structure.
+template <size_t Depth>
+constexpr void structure_to_array(const LUT_Entry<Depth>& structure, float (&table)[Depth + 1][2], size_t index = 0) {
+
+    table[index][0] = structure.key; 
+    table[index][1] = structure.value;
+
+    if constexpr (Depth > 0) {
+        lut_to_array(structure.next, table, index + 1);
+    }
+}
+
 }  // namespace shared::util
