@@ -12,6 +12,14 @@ enum class BmStatus {
     LOW_SOC,
 };
 
+enum class ControlStatus {
+    STARTUP_CMD,
+    CLOSE_HV_NEG,
+    CLOSE_PRECHARGE,
+    CLOSE_HV_POS,
+    OPEN_PRECHARGE,
+};
+
 enum class BmCmd {
     INIT,
     HV_STARTUP,
@@ -41,6 +49,7 @@ public:
     };
     struct Output {
         BmStatus status;
+        ControlStatus control_status;
         ContactorCMD contactor;
     };
 
@@ -48,13 +57,6 @@ public:
     Output Update(const Input& input, int time_ms);
 
 private:
-    enum class ControlStatus {
-        STARTUP_CMD,
-        CLOSE_HV_NEG,
-        CLOSE_PRECHARGE,
-        CLOSE_HV_POS,
-        OPEN_PRECHARGE,
-    };
     std::optional<BmStatus> TransitionStatus(const Input& input, int time_ms);
     std::optional<ControlStatus> TransitionControl(BmStatus status,
                                                    int time_ms);

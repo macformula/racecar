@@ -24,6 +24,7 @@ BatteryMonitor::Output BatteryMonitor::Update(const Input& input, int time_ms) {
     ContactorCMD contactor_cmd = SelectContactorCmd(bm_control_status_.value());
 
     return Output{.status = current_status_.value(),
+                  .control_status = bm_control_status_.value(),
                   .contactor = contactor_cmd};
 }
 
@@ -107,8 +108,8 @@ std::optional<BmStatus> BatteryMonitor::TransitionStatus(const Input& input,
     return std::nullopt;
 }
 
-std::optional<BatteryMonitor::ControlStatus> BatteryMonitor::TransitionControl(
-    BmStatus status, int time_ms) {
+std::optional<ControlStatus> BatteryMonitor::TransitionControl(BmStatus status,
+                                                               int time_ms) {
     using enum ContactorState;
     using enum BmStatus;
 
