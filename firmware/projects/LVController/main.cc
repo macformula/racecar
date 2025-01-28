@@ -17,7 +17,7 @@ using namespace generated::can;
 
 VehBus veh_can{bindings::veh_can_base};
 
-Subsystem tsal{bindings::tsal_en};
+Subsystem tssi{bindings::tssi_en};
 Subsystem raspberry_pi{bindings::raspberry_pi_en};
 Subsystem front_controller{bindings::front_controller_en};
 Subsystem speedgoat{bindings::speedgoat_en};
@@ -41,7 +41,7 @@ Fan powertrain_fan{
 };
 
 Subsystem all_subsystems[] = {
-    tsal,        raspberry_pi,         front_controller, speedgoat,
+    tssi,        raspberry_pi,         front_controller, speedgoat,
     accumulator, motor_ctrl_precharge, motor_ctrl,       imu_gps,
     dcdc,        powertrain_pump,      powertrain_fan,   shutdown_circuit};
 
@@ -84,11 +84,11 @@ public:
 
         switch (state_) {
             case PWRUP_START:
-                if (elapsed > 50) transition = PWRUP_TSAL_ON;
+                if (elapsed > 50) transition = PWRUP_TSSI_ON;
                 break;
 
-            case PWRUP_TSAL_ON:
-                if (on_enter_) tsal.Enable();
+            case PWRUP_TSSI_ON:
+                if (on_enter_) tssi.Enable();
 
                 if (elapsed > 50) transition = PWRUP_RASPI_ON;
                 break;
@@ -236,7 +236,7 @@ private:
     // State enum should be generated from CANGEN
     enum class State {
         PWRUP_START,
-        PWRUP_TSAL_ON,
+        PWRUP_TSSI_ON,
         PWRUP_RASPI_ON,
         PWRUP_FRONT_CONTROLLER_ON,
         PWRUP_SPEEDGOAT_ON,

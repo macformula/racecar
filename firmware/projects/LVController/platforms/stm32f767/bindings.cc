@@ -38,9 +38,9 @@ CanBase veh_can_base{&hcan3};
 
 namespace mcal {
 using namespace stm32f767::periph;
-DigitalOutput tsal_en{
-    TSAL_EN_GPIO_Port,
-    TSAL_EN_Pin,
+DigitalOutput tssi_en{
+    TSSI_EN_GPIO_Port,
+    TSSI_EN_Pin,
 };
 DigitalOutput raspberry_pi_en{
     RASPI_EN_GPIO_Port,
@@ -104,7 +104,7 @@ namespace bindings {
 
 shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
 
-shared::periph::DigitalOutput& tsal_en = mcal::tsal_en;
+shared::periph::DigitalOutput& tssi_en = mcal::tssi_en;
 shared::periph::DigitalOutput& raspberry_pi_en = mcal::raspberry_pi_en;
 shared::periph::DigitalOutput& front_controller_en = mcal::front_controller_en;
 shared::periph::DigitalOutput& speedgoat_en = mcal::speedgoat_en;
@@ -136,6 +136,10 @@ void Initialize() {
 
 void DelayMS(uint32_t milliseconds) {
     HAL_Delay(milliseconds);
+}
+
+int GetTick() {
+    return HAL_GetTick();
 }
 
 }  // namespace bindings
