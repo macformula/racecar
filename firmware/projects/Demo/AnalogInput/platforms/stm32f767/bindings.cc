@@ -28,9 +28,9 @@ void SystemClock_Config();
 namespace bindings {
 
 shared::periph::AnalogInput& analog_input = mcal::analog_input;
-shared::periph::DigitalOutput& red_Led = mcal::red_led;
-shared::periph::DigitalOutput& blue_Led = mcal::blue_led;
-shared::periph::DigitalOutput& green_Led = mcal::green_led;
+shared::periph::DigitalOutput& red_led = mcal::red_led;
+shared::periph::DigitalOutput& blue_led = mcal::blue_led;
+shared::periph::DigitalOutput& green_led = mcal::green_led;
 
 void Init() {
     SystemClock_Config();
