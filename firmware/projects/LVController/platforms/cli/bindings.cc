@@ -66,9 +66,18 @@ void Initialize() {
     mcal::veh_can_base.Setup();
 }
 
+long long GetEpochTime() {
+    using namespace std::chrono;
+    auto t = duration_cast<milliseconds>(system_clock::now().time_since_epoch())
+                 .count();
+    return t;
+}
+int GetTick() {
+    static long long start_time = GetEpochTime();
+    return static_cast<int>(GetEpochTime() - start_time);
+}
+
 void DelayMS(uint32_t milliseconds) {
-    std::cout << "[Delaying for " << milliseconds << " milliseconds]"
-              << std::endl;
     std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 }  // namespace bindings

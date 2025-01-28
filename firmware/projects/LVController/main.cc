@@ -2,6 +2,7 @@
 /// @date 2023-12-25
 
 #include <cstdint>
+#include <optional>
 
 #include "app/dcdc.hpp"
 #include "app/fan.hpp"
@@ -44,174 +45,255 @@ Subsystem all_subsystems[] = {
     accumulator, motor_ctrl_precharge, motor_ctrl,       imu_gps,
     dcdc,        powertrain_pump,      powertrain_fan,   shutdown_circuit};
 
-void BroadcastState(LvControllerState state) {
-    veh_can.Send(TxLvControllerStatus{static_cast<uint8_t>(state)});
-}
-
-void DoPowerupSequence() {
-    tsal.Enable();
-    BroadcastState(LvControllerState::TsalEnabled);
-
-    bindings::DelayMS(50);
-
-    raspberry_pi.Enable();
-    BroadcastState(LvControllerState::RaspiEnabled);
-
-    bindings::DelayMS(50);
-
-    front_controller.Enable();
-    BroadcastState(LvControllerState::FrontControllerEnabled);
-
-    bindings::DelayMS(100);
-
-    speedgoat.Enable();
-    BroadcastState(LvControllerState::SpeedgoatEnabled);
-
-    bindings::DelayMS(50);
-
-    accumulator.Enable();
-    BroadcastState(LvControllerState::AccumulatorEnabled);
-
-    bindings::DelayMS(100);
-
-    motor_ctrl_precharge.Enable();
-    BroadcastState(LvControllerState::MotorControllerPrechargeEnabled);
-
-    bindings::DelayMS(2000);
-
-    motor_ctrl.Enable();
-    BroadcastState(LvControllerState::MotorControllerEnabled);
-
-    bindings::DelayMS(50);
-
-    motor_ctrl_precharge.Disable();
-    BroadcastState(LvControllerState::MotorControllerPrechargeDisabled);
-
-    bindings::DelayMS(50);
-
-    imu_gps.Enable();
-    BroadcastState(LvControllerState::ImuGpsEnabled);
-}
-
-void SweepFanBlocking() {
-    constexpr float kDutyInitial = 30.0f;
-    constexpr float kDutyFinal = 100.0f;
-    constexpr float kSweepPeriodSec = 3.0f;
-    constexpr float kMaxDutyRate =
-        (kDutyFinal - kDutyInitial) / kSweepPeriodSec;
-    constexpr uint32_t kUpdatePeriodMS = 10;
-
-    powertrain_fan.Dangerous_SetPowerNow(kDutyInitial);
-    powertrain_fan.SetTargetPower(kDutyFinal, kMaxDutyRate);
-
-    while (!powertrain_fan.IsAtTarget()) {
-        bindings::DelayMS(kUpdatePeriodMS);
-        powertrain_fan.Update(kUpdatePeriodMS / 1000.0f);
-    }
-}
-
-void DoPowertrainEnableSequence() {
-    dcdc.Enable();
-    BroadcastState(LvControllerState::DcdcEnabled);
-
-    while (!dcdc.CheckValid()) {
-        BroadcastState(LvControllerState::WaitingForDcdcValid);
-        bindings::DelayMS(50);
+class StateMachine {
+public:
+    void Initialize(int time_ms) {
+        state_enter_time_ = time_ms;
     }
 
-    bindings::DelayMS(50);
+    void Update(int time_ms) {
+        using enum State;
 
-    powertrain_pump.Enable();
-    BroadcastState(LvControllerState::PowertrainPumpEnabled);
+        auto transition = Transition(time_ms - state_enter_time_);
+        bool on_enter = transition.has_value();
 
-    bindings::DelayMS(100);
+        if (on_enter) {
+            state_ = transition.value();
+            state_enter_time_ = time_ms;
+            // fix this line - need to update DBC enum
+            veh_can.Send(TxLvControllerStatus{static_cast<uint8_t>(state_)});
+        }
 
-    powertrain_fan.Enable();
-    BroadcastState(LvControllerState::PowertrainFanEnabled);
+        switch (state_) {
+            case PWRUP_START:
+                break;
 
-    bindings::DelayMS(50);
+            case PWRUP_TSAL_ON:
+                if (on_enter) tsal.Enable();
+                break;
 
-    BroadcastState(LvControllerState::PowertrainFanSweeping);
-    SweepFanBlocking();  // is it possible that this never returns?
-}
+            case PWRUP_RASPI_ON:
+                if (on_enter) raspberry_pi.Enable();
+                break;
 
-bool IsContactorsOpen() {
-    auto contactor_states = veh_can.GetRxContactorStates();
+            case PWRUP_FRONT_CONTROLLER_ON:
+                if (on_enter) front_controller.Enable();
+                break;
 
-    if (contactor_states.has_value()) {
-        return (contactor_states->PackPositive() == 0 &&
-                contactor_states->PackNegative() == 0 &&
-                contactor_states->PackPrecharge() == 0);
-    } else {
-        return false;
+            case PWRUP_SPEEDGOAT_ON:
+                if (on_enter) speedgoat.Enable();
+                break;
+
+            case PWRUP_ACCUMULATOR_ON:
+                if (on_enter) accumulator.Enable();
+                break;
+
+            case PWRUP_MOTOR_PRECHARGE_ON:
+                if (on_enter) motor_ctrl_precharge.Enable();
+                break;
+
+            case PWRUP_MOTOR_LV:
+                if (on_enter) motor_ctrl.Enable();
+                break;
+
+            case PWRUP_MOTOR_PRECHARGE_OFF:
+                if (on_enter) motor_ctrl_precharge.Disable();
+                break;
+
+            case PWRUP_IMU_GPS_ON:
+                if (on_enter) imu_gps.Enable();
+                break;
+
+            case PWRUP_SHUTDOWN_ON:
+                if (on_enter) shutdown_circuit.Enable();
+                break;
+
+            case WAITING_FOR_DCDC:
+                if (on_enter) dcdc.Enable();
+                break;
+
+            case POWERTRAIN_PUMP_ON:
+                if (on_enter) powertrain_pump.Enable();
+                break;
+
+            case POWERTRAIN_FAN_SWEEP: {
+                constexpr float kPowerInitial = 30.0f;
+                constexpr float kPowerFinal = 100.0f;
+                constexpr float kSweepPeriodMs = 3000.0f;
+
+                if (on_enter) {
+                    powertrain_fan.StartSweep({
+                        static_cast<float>(time_ms),
+                        kSweepPeriodMs,
+                        kPowerInitial,
+                        kPowerFinal,
+                    });
+                } else {
+                    powertrain_fan.UpdateSweep(time_ms);
+                }
+
+            } break;
+
+            case RUNNING:
+                break;
+
+            case SHUTDOWN_PUMP_OFF:
+                if (on_enter) powertrain_pump.Disable();
+                break;
+
+            case SHUTDOWN_FAN_OFF:
+                if (on_enter) powertrain_fan.Disable();
+                break;
+        }
     }
-}
 
-bool IsContactorsClosed() {
-    auto contactor_states = veh_can.GetRxContactorStates();
+private:
+    enum class State {
+        PWRUP_START,
+        PWRUP_TSAL_ON,
+        PWRUP_RASPI_ON,
+        PWRUP_FRONT_CONTROLLER_ON,
+        PWRUP_SPEEDGOAT_ON,
+        PWRUP_ACCUMULATOR_ON,
+        PWRUP_MOTOR_PRECHARGE_ON,
+        PWRUP_MOTOR_LV,
+        PWRUP_MOTOR_PRECHARGE_OFF,
+        PWRUP_IMU_GPS_ON,
+        PWRUP_SHUTDOWN_ON,
+        WAITING_FOR_DCDC,
+        POWERTRAIN_PUMP_ON,
+        POWERTRAIN_FAN_SWEEP,
+        RUNNING,
+        SHUTDOWN_PUMP_OFF,
+        SHUTDOWN_FAN_OFF,
+    };
 
-    if (contactor_states.has_value()) {
-        return (contactor_states->PackPositive() == 1 &&
-                contactor_states->PackNegative() == 1 &&
-                contactor_states->PackPrecharge() == 0);
-    } else {
-        return false;
+    std::optional<State> Transition(int elapsed) {
+        using enum State;
+
+        if (state_ == WAITING_FOR_DCDC || state_ == POWERTRAIN_PUMP_ON ||
+            state_ == POWERTRAIN_FAN_SWEEP || state_ == RUNNING) {
+            if (!dcdc.CheckValid()) return SHUTDOWN_PUMP_OFF;
+        }
+
+        switch (state_) {
+            case PWRUP_START:
+                if (elapsed > 50) return PWRUP_TSAL_ON;
+                break;
+
+            case PWRUP_TSAL_ON:
+                if (elapsed > 50) return PWRUP_RASPI_ON;
+                break;
+
+            case PWRUP_RASPI_ON:
+                if (elapsed > 50) return PWRUP_FRONT_CONTROLLER_ON;
+                break;
+
+            case PWRUP_FRONT_CONTROLLER_ON:
+                if (elapsed > 100) return PWRUP_SPEEDGOAT_ON;
+                break;
+
+            case PWRUP_SPEEDGOAT_ON:
+                if (elapsed > 200) return PWRUP_ACCUMULATOR_ON;
+                break;
+
+            case PWRUP_ACCUMULATOR_ON:
+                if (elapsed > 100) return PWRUP_MOTOR_PRECHARGE_ON;
+                break;
+
+            case PWRUP_MOTOR_PRECHARGE_ON:
+                if (elapsed > 2000) return PWRUP_MOTOR_LV;
+                break;
+
+            case PWRUP_MOTOR_LV:
+                if (elapsed > 50) return PWRUP_MOTOR_PRECHARGE_OFF;
+                break;
+
+            case PWRUP_MOTOR_PRECHARGE_OFF:
+                if (elapsed > 50) return PWRUP_IMU_GPS_ON;
+                break;
+
+            case PWRUP_IMU_GPS_ON: {
+                auto contactors = veh_can.GetRxContactorStates();
+                if (contactors.has_value()) {
+                    if (contactors->PackPositive() == false &&
+                        contactors->PackNegative() == false &&
+                        contactors->PackPrecharge() == false) {
+                        return PWRUP_SHUTDOWN_ON;
+                    }
+                }
+            } break;
+
+            case PWRUP_SHUTDOWN_ON: {
+                auto contactors = veh_can.GetRxContactorStates();
+                if (contactors.has_value()) {
+                    if (contactors->PackPositive() == true &&
+                        contactors->PackNegative() == true &&
+                        contactors->PackPrecharge() == false) {
+                        return WAITING_FOR_DCDC;
+                    }
+                }
+            } break;
+
+            case WAITING_FOR_DCDC:
+                if (dcdc.CheckValid() && elapsed > 50) {
+                    return POWERTRAIN_PUMP_ON;
+                }
+                break;
+
+            case POWERTRAIN_PUMP_ON:
+                if (elapsed > 100) return POWERTRAIN_FAN_SWEEP;
+                break;
+
+            case POWERTRAIN_FAN_SWEEP:
+                if (elapsed > 10000 || powertrain_fan.IsSweepComplete()) {
+                    return RUNNING;
+                }
+                break;
+
+            case RUNNING:
+                // DCDC invalid transition is handled before the switch-case
+                break;
+
+            case SHUTDOWN_PUMP_OFF:
+                if (elapsed > 50) return SHUTDOWN_FAN_OFF;
+                break;
+
+            case SHUTDOWN_FAN_OFF:
+                if (elapsed > 50) return PWRUP_SHUTDOWN_ON;
+                break;
+        }
+        return std::nullopt;  // no transition -> stay in current state
     }
-}
 
-void DoInverterSwitchCheck() {
-    auto inverter_command = veh_can.GetRxInverterCommand();
-
-    if (inverter_command.has_value() && inverter_command->EnableInverter()) {
-        motor_ctrl_switch.Enable();
-    } else {
-        motor_ctrl_switch.Disable();
-    }
-}
+    State state_;
+    int state_enter_time_;
+};
 
 int main(void) {
     bindings::Initialize();
-
-    BroadcastState(LvControllerState::Startup);
 
     // Ensure all subsystems are disabled to start.
     for (auto& sys : all_subsystems) {
         sys.Disable();
     }
 
-    DoPowerupSequence();
+    StateMachine fsm;
+    fsm.Initialize(bindings::GetTick());
 
-    shutdown_circuit.Enable();
-    BroadcastState(LvControllerState::ShutdownCircuitEnabled);
-
-    // wait for contactors to open
-    while (!IsContactorsOpen()) {
-        BroadcastState(LvControllerState::WaitingForOpenContactors);
-        bindings::DelayMS(50);
-    }
-    shutdown_circuit.Enable();
-
-    BroadcastState(LvControllerState::ShutdownCircuitEnabled);
-
+    const int kUpdatePeriodMs = 100;
     while (true) {
-        while (!IsContactorsClosed()) {
-            BroadcastState(LvControllerState::WaitingForClosedContactors);
-            bindings::DelayMS(50);
+        fsm.Update(bindings::GetTick());
+
+        auto inverter_command = veh_can.GetRxInverterCommand();
+        if (inverter_command.has_value() &&
+            inverter_command->EnableInverter()) {
+            motor_ctrl_switch.Enable();
+        } else {
+            motor_ctrl_switch.Disable();
         }
 
-        DoPowertrainEnableSequence();
-        BroadcastState(LvControllerState::SequenceComplete);
-
-        while (dcdc.CheckValid()) {
-            DoInverterSwitchCheck();
-            bindings::DelayMS(50);
-        }
-
-        BroadcastState(LvControllerState::LostDcdcValid);
-
-        motor_ctrl_switch.Disable();
-        powertrain_pump.Disable();
-        powertrain_fan.Disable();
+        bindings::DelayMS(kUpdatePeriodMs);
     }
 
     return 0;

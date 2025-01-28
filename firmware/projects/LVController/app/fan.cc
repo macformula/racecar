@@ -21,29 +21,35 @@ void Fan::Disable() {
     Subsystem::Disable();
 }
 
-void Fan::SetTargetPower(float power, float max_duty_per_second) {
-    target_duty_ = power_to_duty_.Evaluate(power);
-    duty_per_second_ = max_duty_per_second;
-}
-
-bool Fan::IsAtTarget() {
-    constexpr float kDutyEqualTolerance = 0.1f;
-    float error = std::abs(pwm_output_.GetDutyCycle() - target_duty_);
-    return error < kDutyEqualTolerance;
+void Fan::SetPower(float power) {
+    pwm_output_.SetDutyCycle(power_to_duty_.Evaluate(power));
 }
 
 void Fan::Dangerous_SetPowerNow(float power) {
     SetPower(power);
 }
 
-void Fan::Update(float interval_sec) {
-    // max_duty_step must be greater than any platform's PWM duty cycle
-    // resolution
-    float max_duty_step = duty_per_second_ * interval_sec;
+float Fan::Sweep::Interpolate(float time_ms) {
+    float lerp_fraction = shared::util::Clamper<float>::Evaluate(
+        (time_ms - start_time_ms) / duration_ms, 0.f, 1.f);
+    return start_power + lerp_fraction * (end_power - start_power);
+}
 
-    float current_duty = pwm_output_.GetDutyCycle();
-    float duty_step = shared::util::Clamper<float>::Evaluate(
-        target_duty_ - current_duty, -max_duty_step, +max_duty_step);
+void Fan::StartSweep(Sweep sweep_config) {
+    sweep_ = sweep_config;
+    sweep_complete_ = false;
+    Dangerous_SetPowerNow(sweep_.start_power);
+}
 
-    pwm_output_.SetDutyCycle(current_duty + duty_step);
+void Fan::UpdateSweep(float time_ms) {
+    float new_power = sweep_.Interpolate(time_ms);
+    if (new_power >= sweep_.end_power) {
+        sweep_complete_ = true;
+    } else {
+        SetPower(new_power);
+    }
+}
+
+bool Fan::IsSweepComplete() {
+    return sweep_complete_;
 }

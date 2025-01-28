@@ -34,6 +34,6 @@ extern void Initialize();
 
 extern void DelayMS(uint32_t ms);
 
-extern uint32_t GetTick();
+extern int GetTick();
 
 }  // namespace bindings
