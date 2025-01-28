@@ -9,9 +9,11 @@
 #include <string>
 #include <thread>
 
+#include "mcal/cli/periph/adc.hpp"
 #include "mcal/cli/periph/can.hpp"
 #include "mcal/cli/periph/gpio.hpp"
 #include "mcal/cli/periph/pwm.hpp"
+#include "shared/periph/adc.hpp"
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/util/mappers/identity.hpp"
@@ -36,6 +38,11 @@ DigitalOutput powertrain_fan_en = DigitalOutput{"POWERTRAIN FAN Enable"};
 DigitalOutput powertrain_pump_en = DigitalOutput{"POWERTRAIN PUMP Enable"};
 PWMOutput powertrain_fan_pwm = PWMOutput{"POWERTRAIN FAN PWM"};
 
+ADCInput suspension_travel1{"Suspension Travel 1"};
+ADCInput suspension_travel2{"Suspension Travel 2"};
+ADCInput suspension_travel3{"Suspension Travel 3"};
+ADCInput suspension_travel4{"Suspension Travel 4"};
+
 CanBase veh_can_base = CanBase{"can0"};
 }  // namespace mcal
 
@@ -57,6 +64,11 @@ shared::periph::DigitalInput& dcdc_valid = mcal::dcdc_valid;
 shared::periph::DigitalOutput& powertrain_fan_en = mcal::powertrain_fan_en;
 shared::periph::DigitalOutput& powertrain_pump_en = mcal::powertrain_pump_en;
 shared::periph::PWMOutput& powertrain_fan_pwm = mcal::powertrain_fan_pwm;
+
+shared::periph::ADCInput& suspension_travel1 = mcal::suspension_travel1;
+shared::periph::ADCInput& suspension_travel2 = mcal::suspension_travel2;
+shared::periph::ADCInput& suspension_travel3 = mcal::suspension_travel3;
+shared::periph::ADCInput& suspension_travel4 = mcal::suspension_travel4;
 
 shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
 // clang-format on

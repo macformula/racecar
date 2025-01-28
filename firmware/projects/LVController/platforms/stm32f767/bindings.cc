@@ -9,6 +9,7 @@
 #include "can.h"
 #include "gpio.h"
 #include "main.h"
+#include "mcal/stm32f767/periph/adc.hpp"
 #include "mcal/stm32f767/periph/can.hpp"
 #include "shared/periph/can.hpp"
 #include "stm32f7xx_hal.h"
@@ -98,6 +99,12 @@ PWMOutput powertrain_fan_pwm{
     &htim2,
     HAL_TIM_ACTIVE_CHANNEL_1,
 };
+
+ADCInput suspension_travel1{&hadc1, ADC_CHANNEL_8};
+ADCInput suspension_travel2{&hadc1, ADC_CHANNEL_9};
+ADCInput suspension_travel3{&hadc1, ADC_CHANNEL_15};
+ADCInput suspension_travel4{&hadc1, ADC_CHANNEL_14};
+
 }  // namespace mcal
 
 namespace bindings {
@@ -121,6 +128,11 @@ shared::periph::DigitalInput& dcdc_valid = mcal::dcdc_valid;
 shared::periph::DigitalOutput& powertrain_fan_en = mcal::powertrain_fan_en;
 shared::periph::DigitalOutput& powertrain_pump_en = mcal::powertrain_pump_en;
 shared::periph::PWMOutput& powertrain_fan_pwm = mcal::powertrain_fan_pwm;
+
+shared::periph::ADCInput& suspension_travel1 = mcal::suspension_travel1;
+shared::periph::ADCInput& suspension_travel2 = mcal::suspension_travel2;
+shared::periph::ADCInput& suspension_travel3 = mcal::suspension_travel3;
+shared::periph::ADCInput& suspension_travel4 = mcal::suspension_travel4;
 
 void Initialize() {
     SystemClock_Config();

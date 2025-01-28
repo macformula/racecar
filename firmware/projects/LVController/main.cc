@@ -259,6 +259,8 @@ private:
     bool on_enter_;
 };
 
+TxSuspensionTravel MeasureSuspension() {}
+
 int main(void) {
     bindings::Initialize();
 
@@ -280,6 +282,15 @@ int main(void) {
         } else {
             motor_ctrl_switch.Disable();
         }
+
+        TxSuspensionTravel suspension_msg{
+            // todo: update the mapping
+            .stp1 = static_cast<uint8_t>(bindings::suspension_travel1.Read()),
+            .stp2 = static_cast<uint8_t>(bindings::suspension_travel2.Read()),
+            .stp3 = static_cast<uint8_t>(bindings::suspension_travel3.Read()),
+            .stp4 = static_cast<uint8_t>(bindings::suspension_travel4.Read()),
+        };
+        veh_can.Send(suspension_msg);
 
         bindings::DelayMS(kUpdatePeriodMs);
     }

@@ -5,6 +5,7 @@
 
 #include <cstdint>
 
+#include "shared/periph/adc.hpp"
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
@@ -27,6 +28,11 @@ extern shared::periph::DigitalInput& dcdc_valid;
 extern shared::periph::DigitalOutput& powertrain_pump_en;
 extern shared::periph::DigitalOutput& powertrain_fan_en;
 extern shared::periph::PWMOutput& powertrain_fan_pwm;
+
+extern shared::periph::ADCInput& suspension_travel1;
+extern shared::periph::ADCInput& suspension_travel2;
+extern shared::periph::ADCInput& suspension_travel3;
+extern shared::periph::ADCInput& suspension_travel4;
 
 extern shared::periph::CanBase& veh_can_base;
 

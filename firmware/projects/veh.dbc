@@ -43,6 +43,12 @@ BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
 BO_ 111 LvControllerStatus: 1 LVC
  SG_ LvControllerState : 0|8@1+ (1,0) [0|1] ""  RPI
 
+BO_ 112 SuspensionTravel: 4 LVC
+ SG_ STP1 : 0|8@1+ (1,0) [0|255] "" FC,RPI
+ SG_ STP2 : 8|8@1+ (1,0) [0|255] "" FC,RPI
+ SG_ STP3 : 16|8@1+ (1,0) [0|255] "" FC,RPI
+ SG_ STP4 : 24|8@1+ (1,0) [0|255] "" FC,RPI
+
 BO_ 255 VC_Status: 4 PC_SG
  SG_ VC_bmStatus : 24|4@1+ (1,0) [0|15] ""  FC
  SG_ VC_diStatus : 8|4@1+ (1,0) [0|15] ""  FC
