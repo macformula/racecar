@@ -1,11 +1,10 @@
 /// @author Samuel Shi
 /// @date 2025-1-10
 
-#include <format>
-#include <iostream>
-
 #include "analog_input.hpp"
 
+#include <format>
+#include <iostream>
 
 namespace mcal::lnx::periph {
 
