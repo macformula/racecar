@@ -10,7 +10,7 @@
 #include "inc/app.hpp"
 #include "shared/comms/can/can_bus.hpp"
 #include "shared/os/tick.hpp"
-#include "shared/periph/adc.hpp"
+#include "shared/periph/analog_input.hpp"
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"

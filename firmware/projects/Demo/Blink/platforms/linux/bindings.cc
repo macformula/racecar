@@ -1,6 +1,7 @@
+#include "../../bindings.hpp"
+
 #include <unistd.h>
 
-#include "../../bindings.hpp"
 #include "mcal/linux/periph/digital_output.hpp"
 #include "shared/periph/gpio.hpp"
 

@@ -12,7 +12,7 @@
 #include "app.hpp"
 #include "shared/comms/can/can_bus.hpp"
 #include "shared/comms/can/can_msg.hpp"
-#include "shared/periph/adc.hpp"
+#include "shared/periph/analog_input.hpp"
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/util/mappers/linear_map.hpp"
@@ -23,7 +23,7 @@ class AnalogInput {
     static constexpr size_t kMovingAverageLength = 20;
 
 public:
-    AnalogInput(shared::periph::ADCInput& adc,
+    AnalogInput(shared::periph::AnalogInput& adc,
                 shared::util::Mapper<double, uint16_t>* adc_to_position)
         : adc_(adc), adc_to_position_(adc_to_position) {}
 
@@ -41,7 +41,7 @@ public:
     }
 
 private:
-    shared::periph::ADCInput& adc_;
+    shared::periph::AnalogInput& adc_;
     shared::util::MovingAverage<uint16_t, kMovingAverageLength> moving_average_;
     const shared::util::Mapper<double, uint16_t>* adc_to_position_;
 };
