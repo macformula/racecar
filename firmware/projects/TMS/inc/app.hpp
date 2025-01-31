@@ -4,12 +4,7 @@
 
 #pragma once
 
-#include <cstdint>
-
-#include "../generated/can/veh_can_messages.hpp"
-#include "shared/comms/can/can_bus.hpp"
 #include "shared/periph/analog_input.hpp"
-#include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
 #include "shared/util/mappers/clamper.hpp"
 #include "shared/util/mappers/linear_map.hpp"

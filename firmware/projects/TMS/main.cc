@@ -8,12 +8,8 @@
 #include "generated/can/veh_messages.hpp"
 #include "inc/app.hpp"
 #include "inc/tempsensor.hpp"
-#include "shared/comms/can/can_bus.hpp"
 #include "shared/os/tick.hpp"
-#include "shared/periph/analog_input.hpp"
-#include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
-#include "shared/periph/pwm.hpp"
 #include "shared/util/arrays.hpp"
 #include "shared/util/mappers/lookup_table.hpp"
 

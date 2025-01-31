@@ -4,7 +4,6 @@
 #include "shared/util/mappers/lookup_table.hpp"
 #include "shared/util/mappers/mapper.hpp"
 
-
 namespace tempsensor {
 
 /// This table is directly copied from Table 4 of the temperature sensor
@@ -62,8 +61,8 @@ const shared::util::LinearMap<float> volt_stm_to_volt_ts{
 /// Compose the two maps to get the final map from the STM voltage to the
 /// temperature in degrees C.
 const shared::util::CompositeMap<float> volt_stm_to_degC{
-    volt_ts_to_degC,      // outer (second) function
     volt_stm_to_volt_ts,  // inner (first) function
+    volt_ts_to_degC,      // outer (second) function
 };
 
 }  // namespace tempsensor

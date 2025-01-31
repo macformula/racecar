@@ -6,12 +6,12 @@
 #include "can.h"
 #include "gpio.h"
 #include "main.h"
-#include "mcal/stm32f767/periph/can.hpp"
 #include "tim.h"
 
 // fw imports
 #include "../../bindings.hpp"
 #include "mcal/stm32f767/periph/analog_input.hpp"
+#include "mcal/stm32f767/periph/can.hpp"
 #include "mcal/stm32f767/periph/gpio.hpp"
 #include "mcal/stm32f767/periph/pwm.hpp"
 #include "shared/periph/analog_input.hpp"
