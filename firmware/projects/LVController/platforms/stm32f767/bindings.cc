@@ -27,7 +27,9 @@ class DummyDigitalOut : public shared::periph::DigitalOutput {
 public:
     void SetHigh() override {}
     void SetLow() override {}
-    void Set(bool value) override {}
+    void Set(bool value) override {
+        (void)value;
+    }
 };
 
 class DummyDigitalIn : public shared::periph::DigitalInput {
@@ -81,7 +83,7 @@ DigitalOutput raspberry_pi_en{RASPI_EN_GPIO_Port, RASPI_EN_Pin};
 DigitalOutput shutdown_circuit_en{SHUTDOWN_CIRCUIT_EN_GPIO_Port,
                                   SHUTDOWN_CIRCUIT_EN_Pin};
 
-// DCDC System  Measurement
+// DCDC System Measurement
 DigitalOutput dcdc_en{DCDC_EN_GPIO_Port, DCDC_EN_Pin};
 DummyDigitalOut dcdc_sense_select;
 ADCInput dcdc_sense{&hadc1, ADC_CHANNEL_10};
@@ -91,6 +93,21 @@ DigitalOutput brake_light_en{BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin};
 ADCInput suspension_travel3{&hadc1, ADC_CHANNEL_15};
 ADCInput suspension_travel4{&hadc1, ADC_CHANNEL_14};
 CanBase veh_can_base{&hcan3};
+
+namespace unused {
+// These IO are unused by the EV6 firmware.
+DigitalInput lv_battery_fault_diag{LV_BATTERY_FAULT_DIAG_GPIO_Port,
+                                   LV_BATTERY_FAULT_DIAG_Pin};
+DigitalInput dcdc_fault_diag{DCDC_FAULT_DIAG_GPIO_Port, DCDC_FAULT_DIAG_Pin};
+ADCInput lv_battery_voltage{&hadc1, ADC_CHANNEL_10};
+ADCInput lv_battery_current{&hadc1, ADC_CHANNEL_11};
+ADCInput dcdc_voltage{&hadc1, ADC_CHANNEL_12};
+ADCInput dcdc_current{&hadc1, ADC_CHANNEL_13};
+DigitalInput mux_lvbatt_valid{MUX_LVBATT_VALID_GPIO_Port, MUX_LVBATT_VALID_Pin};
+DigitalInput mux_dcdc_valid{MUX_DCDC_VALID_GPIO_Port, MUX_DCDC_VALID_Pin};
+DigitalOutput speedgoat_en{SPEEDGOAT_EN_GPIO_Port, SPEEDGOAT_EN_Pin};
+DigitalOutput dcdc_led_en{DCDC_ON_LED_EN_GPIO_Port, DCDC_ON_LED_EN_Pin};
+}  // namespace unused
 
 }  // namespace mcal
 
