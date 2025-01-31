@@ -1,7 +1,8 @@
 #pragma once
 #include <tuple>
 
-#include "shared/util/moving_average.h"
+#include "shared/controls/tvFactor.h"
+#include "shared/util/moving_average.hpp"
 
 // Peter Jabra and Aleeza Ali Zar
 namespace ctrl {
@@ -10,25 +11,6 @@ enum class State {
     Run,
     Stop,
 };
-
-template <typename T>
-std::tuple<T, T> CalculateMotorTorque(T new_torque_value, T right_factor,
-                                      T left_factor, bool reset = false) {
-    static shared::util::MovingAverage<T, 10> running_average;
-
-    if (reset) {
-        running_average = shared::util::MovingAverage<T, 10>();
-    }
-
-    running_average.LoadValue(new_torque_value);
-
-    T running_average_value = running_average.GetValue();
-
-    T right_motor_torque_limit = running_average_value * right_factor;
-    T left_motor_torque_limit = running_average_value * left_factor;
-
-    return std::tuple(right_motor_torque_limit, left_motor_torque_limit);
-}
 
 template <typename T>
 T ComputeTorqueRequest(T driver_torque_request, T brake_pedal_position) {
