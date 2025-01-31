@@ -1,1 +1,0 @@
-target_sources(main PRIVATE governor.cc governor_test.cc)
