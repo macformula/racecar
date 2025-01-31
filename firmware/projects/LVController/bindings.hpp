@@ -5,38 +5,54 @@
 
 #include <cstdint>
 
+#include "shared/periph/adc.hpp"
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
 
 namespace bindings {
 
-extern shared::periph::DigitalOutput& tsal_en;
-extern shared::periph::DigitalOutput& raspberry_pi_en;
-extern shared::periph::DigitalOutput& front_controller_en;
-extern shared::periph::DigitalOutput& speedgoat_en;
-extern shared::periph::DigitalOutput& accumulator_en;
+// Tractive System Status Indicator (2025 Rule EV.5.11.5)
+extern shared::periph::DigitalOutput& tssi_en;
+extern shared::periph::DigitalOutput& tssi_red_signal;
+extern shared::periph::DigitalOutput& tssi_green_signal;
+extern shared::periph::DigitalInput& imd_fault;
+extern shared::periph::DigitalInput& bms_fault;
+
+// Powertrain Cooling
+extern shared::periph::DigitalOutput& powertrain_pump1_en;
+extern shared::periph::DigitalOutput& powertrain_pump2_en;
+extern shared::periph::DigitalOutput& powertrain_fan1_en;
+extern shared::periph::DigitalOutput& powertrain_fan2_en;
+extern shared::periph::PWMOutput& powertrain_fan_pwm;  // shared by both fans
+
+// Motor Controller (i.e. Inverters)
+extern shared::periph::DigitalOutput& motor_controller_en;
 extern shared::periph::DigitalOutput& motor_ctrl_precharge_en;
-extern shared::periph::DigitalOutput& motor_ctrl_en;
+extern shared::periph::DigitalOutput& motor_ctrl_switch_en;
+
+// Subsystems
+extern shared::periph::DigitalOutput& accumulator_en;
+extern shared::periph::DigitalOutput& front_controller_en;
 extern shared::periph::DigitalOutput& imu_gps_en;
+extern shared::periph::DigitalOutput& raspberry_pi_en;
 extern shared::periph::DigitalOutput& shutdown_circuit_en;
-extern shared::periph::DigitalOutput& inverter_switch_en;
 
+// DCDC System & Measurement
 extern shared::periph::DigitalOutput& dcdc_en;
-extern shared::periph::DigitalInput& dcdc_valid;
-extern shared::periph::DigitalOutput& dcdc_led_en;
-extern shared::periph::DigitalOutput& powertrain_pump_en;
-extern shared::periph::DigitalOutput& powertrain_fan_en;
-extern shared::periph::PWMOutput& powertrain_fan_pwm;
+extern shared::periph::DigitalOutput& dcdc_sense_select;
+extern shared::periph::ADCInput& dcdc_sense;
 
+// Other IO
+extern shared::periph::DigitalOutput& brake_light_en;
+extern shared::periph::ADCInput& suspension_travel3;
+extern shared::periph::ADCInput& suspension_travel4;
 extern shared::periph::CanBase& veh_can_base;
 
 extern void Initialize();
 
 extern void DelayMS(uint32_t ms);
 
-extern void Log(std::string log_msg);
-
-extern uint32_t GetTick();
+extern int GetTick();
 
 }  // namespace bindings
