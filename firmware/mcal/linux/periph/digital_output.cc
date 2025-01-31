@@ -1,8 +1,8 @@
+#include "digital_output.hpp"
+
 #include <format>
 #include <iostream>
 #include <string>
-
-#include "digital_output.hpp"
 
 namespace mcal::lnx::periph {
 

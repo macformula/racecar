@@ -1,5 +1,5 @@
-/// @author Samuel Parent
-/// @date 2024-01-06
+/// @author Blake Freer
+/// @date 2024-11
 
 #pragma once
 

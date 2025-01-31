@@ -1,3 +1,5 @@
+#include "can.hpp"
+
 #include <linux/can.h>
 
 #include <chrono>
@@ -6,14 +8,12 @@
 #include <iostream>
 #include <thread>
 
-#include "can.hpp"
 #include "shared/comms/can/msg.hpp"
 #include "vcan/vcan.hpp"
 
 static can_frame to_can_frame(const shared::can::RawMessage& msg) {
-    struct can_frame frame{
-        .can_id = msg.id,
-        .can_dlc = msg.data_length,
+    struct can_frame frame {
+        .can_id = msg.id, .can_dlc = msg.data_length,
     };
     std::memcpy(&frame.data, msg.data, msg.data_length);
     return frame;
