@@ -19,6 +19,6 @@ private:
     shared::periph::DigitalOutput& green_;
     shared::periph::DigitalOutput& red_;
 
-    bool flash_toggle_ = true;
+    bool flash_toggle_ = false;
     int state_entered_time_ = 0;
 };

@@ -20,13 +20,14 @@ void TSSI::Update(bool bms_fault, bool imd_fault, int time_ms) {
 
     bool fault = bms_fault || imd_fault;
 
+    // Both red and green are inverted logic
     if (!fault) {
-        red_.SetLow();
-        green_.SetHigh();
-        state_entered_time_ = time_ms;
-        flash_toggle_ = true;
-    } else {
+        red_.SetHigh();
         green_.SetLow();
+        state_entered_time_ = time_ms;
+        flash_toggle_ = false;
+    } else {
+        green_.SetHigh();
         red_.Set(flash_toggle_);
         if (time_ms - state_entered_time_ > kTogglePeriodMs) {
             state_entered_time_ = time_ms;
