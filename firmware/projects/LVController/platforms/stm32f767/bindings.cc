@@ -9,7 +9,7 @@
 #include "can.h"
 #include "gpio.h"
 #include "main.h"
-#include "mcal/stm32f767/periph/adc.hpp"
+#include "mcal/stm32f767/periph/analog_input.hpp"
 #include "mcal/stm32f767/periph/can.hpp"
 #include "shared/periph/can.hpp"
 #include "stm32f7xx_hal.h"
@@ -86,12 +86,12 @@ DigitalOutput shutdown_circuit_en{SHUTDOWN_CIRCUIT_EN_GPIO_Port,
 // DCDC System Measurement
 DigitalOutput dcdc_en{DCDC_EN_GPIO_Port, DCDC_EN_Pin};
 DummyDigitalOut dcdc_sense_select;
-ADCInput dcdc_sense{&hadc1, ADC_CHANNEL_10};
+AnalogInput dcdc_sense{&hadc1, ADC_CHANNEL_10};
 
 // Other IO
 DigitalOutput brake_light_en{BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin};
-ADCInput suspension_travel3{&hadc1, ADC_CHANNEL_15};
-ADCInput suspension_travel4{&hadc1, ADC_CHANNEL_14};
+AnalogInput suspension_travel3{&hadc1, ADC_CHANNEL_15};
+AnalogInput suspension_travel4{&hadc1, ADC_CHANNEL_14};
 CanBase veh_can_base{&hcan3};
 
 namespace unused {
@@ -99,10 +99,10 @@ namespace unused {
 DigitalInput lv_battery_fault_diag{LV_BATTERY_FAULT_DIAG_GPIO_Port,
                                    LV_BATTERY_FAULT_DIAG_Pin};
 DigitalInput dcdc_fault_diag{DCDC_FAULT_DIAG_GPIO_Port, DCDC_FAULT_DIAG_Pin};
-ADCInput lv_battery_voltage{&hadc1, ADC_CHANNEL_10};
-ADCInput lv_battery_current{&hadc1, ADC_CHANNEL_11};
-ADCInput dcdc_voltage{&hadc1, ADC_CHANNEL_12};
-ADCInput dcdc_current{&hadc1, ADC_CHANNEL_13};
+AnalogInput lv_battery_voltage{&hadc1, ADC_CHANNEL_10};
+AnalogInput lv_battery_current{&hadc1, ADC_CHANNEL_11};
+AnalogInput dcdc_voltage{&hadc1, ADC_CHANNEL_12};
+AnalogInput dcdc_current{&hadc1, ADC_CHANNEL_13};
 DigitalInput mux_lvbatt_valid{MUX_LVBATT_VALID_GPIO_Port, MUX_LVBATT_VALID_Pin};
 DigitalInput mux_dcdc_valid{MUX_DCDC_VALID_GPIO_Port, MUX_DCDC_VALID_Pin};
 DigitalOutput speedgoat_en{SPEEDGOAT_EN_GPIO_Port, SPEEDGOAT_EN_Pin};
@@ -143,12 +143,12 @@ DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 // DCDC System & Measurement = mcal::Measurement
 DigitalOutput& dcdc_en = mcal::dcdc_en;
 DigitalOutput& dcdc_sense_select = mcal::dcdc_sense_select;
-ADCInput& dcdc_sense = mcal::dcdc_sense;
+AnalogInput& dcdc_sense = mcal::dcdc_sense;
 
 // Other IO
 DigitalOutput& brake_light_en = mcal::brake_light_en;
-ADCInput& suspension_travel3 = mcal::suspension_travel3;
-ADCInput& suspension_travel4 = mcal::suspension_travel4;
+AnalogInput& suspension_travel3 = mcal::suspension_travel3;
+AnalogInput& suspension_travel4 = mcal::suspension_travel4;
 CanBase& veh_can_base = mcal::veh_can_base;
 
 void Initialize() {

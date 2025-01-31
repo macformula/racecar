@@ -1,13 +1,13 @@
 #pragma once
 
-#include "shared/periph/adc.hpp"
+#include "shared/periph/analog_input.hpp"
 #include "shared/periph/gpio.hpp"
 
 class DCDC {
 public:
     DCDC(shared::periph::DigitalOutput& enable_output_inverted,
          shared::periph::DigitalOutput& select_sense,
-         shared::periph::ADCInput& sense);
+         shared::periph::AnalogInput& sense);
 
     void Enable();
     void Disable();
@@ -18,5 +18,5 @@ public:
 private:
     shared::periph::DigitalOutput& enable_output_inverted_;
     shared::periph::DigitalOutput& select_sense_;
-    shared::periph::ADCInput& sense_;
+    shared::periph::AnalogInput& sense_;
 };

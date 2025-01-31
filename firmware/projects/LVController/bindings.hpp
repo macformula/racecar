@@ -5,7 +5,7 @@
 
 #include <cstdint>
 
-#include "shared/periph/adc.hpp"
+#include "shared/periph/analog_input.hpp"
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
@@ -41,12 +41,12 @@ extern shared::periph::DigitalOutput& shutdown_circuit_en;
 // DCDC System & Measurement
 extern shared::periph::DigitalOutput& dcdc_en;
 extern shared::periph::DigitalOutput& dcdc_sense_select;
-extern shared::periph::ADCInput& dcdc_sense;
+extern shared::periph::AnalogInput& dcdc_sense;
 
 // Other IO
 extern shared::periph::DigitalOutput& brake_light_en;
-extern shared::periph::ADCInput& suspension_travel3;
-extern shared::periph::ADCInput& suspension_travel4;
+extern shared::periph::AnalogInput& suspension_travel3;
+extern shared::periph::AnalogInput& suspension_travel4;
 extern shared::periph::CanBase& veh_can_base;
 
 extern void Initialize();

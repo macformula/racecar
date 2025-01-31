@@ -315,8 +315,10 @@ int main(void) {
 
         TxSuspensionTravel34 suspension_msg{
             // todo: update the mapping
-            .stp3 = static_cast<uint8_t>(bindings::suspension_travel3.Read()),
-            .stp4 = static_cast<uint8_t>(bindings::suspension_travel4.Read()),
+            .stp3 = static_cast<uint8_t>(
+                bindings::suspension_travel3.ReadVoltage()),
+            .stp4 = static_cast<uint8_t>(
+                bindings::suspension_travel4.ReadVoltage()),
         };
         veh_can.Send(suspension_msg);
 
