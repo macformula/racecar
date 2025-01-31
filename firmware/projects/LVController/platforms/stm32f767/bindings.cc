@@ -23,6 +23,20 @@
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
 
+class DummyDigitalOut : public shared::periph::DigitalOutput {
+public:
+    void SetHigh() override {}
+    void SetLow() override {}
+    void Set(bool value) override {}
+};
+
+class DummyDigitalIn : public shared::periph::DigitalInput {
+public:
+    bool Read() override {
+        return false;
+    }
+};
+
 extern "C" {
 /**
  * This requires extern since it is not declared in a header, only defined
@@ -35,21 +49,19 @@ namespace mcal {
 using namespace mcal::stm32f767::periph;
 
 // Tractive System Status Indicator
-DigitalOutput tssi_en{TSSI_EN_GPIO_Port, TSSI_EN_Pin};
-DigitalOutput tssi_red_signal{TSSI_RED_SIG_GPIO_Port, TSSI_RED_SIG_Pin};
-DigitalOutput tssi_green_signal{TSSI_GN_SIG_GPIO_Port, TSSI_GN_SIG_Pin};
-DigitalInput imd_fault{IMD_FAULT_STATUS_GPIO_Port, IMD_FAULT_STATUS_Pin};
-DigitalInput bms_fault{BMS_FAULT_STATUS_GPIO_Port, BMS_FAULT_STATUS_Pin};
+DigitalOutput tssi_en{TSAL_EN_GPIO_Port, TSAL_EN_Pin};
+DummyDigitalOut tssi_red_signal;
+DummyDigitalOut tssi_green_signal;
+DummyDigitalIn imd_fault;
+DummyDigitalIn bms_fault;
 
 // Powertrain Cooling
-DigitalOutput powertrain_pump1_en{POWERTRAIN_PUMP1_EN_GPIO_Port,
-                                  POWERTRAIN_PUMP1_EN_Pin};
-DigitalOutput powertrain_pump2_en{POWERTRAIN_PUMP2_EN_GPIO_Port,
-                                  POWERTRAIN_PUMP2_EN_Pin};
-DigitalOutput powertrain_fan1_en{POWERTRAIN_FAN1_EN_GPIO_Port,
-                                 POWERTRAIN_FAN1_EN_Pin};
-DigitalOutput powertrain_fan2_en{POWERTRAIN_FAN2_EN_GPIO_Port,
-                                 POWERTRAIN_FAN2_EN_Pin};
+DigitalOutput powertrain_pump1_en{POWERTRAIN_PUMP_EN_GPIO_Port,
+                                  POWERTRAIN_PUMP_EN_Pin};
+DummyDigitalOut powertrain_pump2_en;
+DigitalOutput powertrain_fan1_en{POWERTRAIN_FAN_EN_GPIO_Port,
+                                 POWERTRAIN_PUMP_EN_Pin};
+DummyDigitalOut powertrain_fan2_en;
 PWMOutput powertrain_fan_pwm{&htim2, HAL_TIM_ACTIVE_CHANNEL_1};
 
 // Motor Controller (i.e. Inverters)
@@ -71,14 +83,14 @@ DigitalOutput shutdown_circuit_en{SHUTDOWN_CIRCUIT_EN_GPIO_Port,
 
 // DCDC System  Measurement
 DigitalOutput dcdc_en{DCDC_EN_GPIO_Port, DCDC_EN_Pin};
-DigitalOutput dcdc_sense_select{DCDC_SNS_SEL_GPIO_Port, DCDC_SNS_SEL_Pin};
+DummyDigitalOut dcdc_sense_select;
 ADCInput dcdc_sense{&hadc1, ADC_CHANNEL_10};
 
 // Other IO
 DigitalOutput brake_light_en{BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin};
 ADCInput suspension_travel3{&hadc1, ADC_CHANNEL_15};
 ADCInput suspension_travel4{&hadc1, ADC_CHANNEL_14};
-CanBase veh_can_base{&hcan2};
+CanBase veh_can_base{&hcan3};
 
 }  // namespace mcal
 
@@ -127,7 +139,7 @@ void Initialize() {
     HAL_Init();
     MX_GPIO_Init();
     MX_ADC1_Init();
-    MX_CAN2_Init();
+    MX_CAN3_Init();
     MX_TIM2_Init();
 
     mcal::veh_can_base.Setup();
