@@ -16,7 +16,7 @@ void TSSI::Disable() {
 void TSSI::Update(bool bms_fault, bool imd_fault, int time_ms) {
     const float kFlashFrequencyHz = 4.0f;  // must be between 2Hz - 5 Hz
     // /2 since one period is two toggles
-    const int kTogglePeriodMs = 1000. / kFlashFrequencyHz / 2.f;
+    const int kTogglePeriodMs = 1000.f / kFlashFrequencyHz / 2.f;
 
     bool fault = bms_fault || imd_fault;
 
