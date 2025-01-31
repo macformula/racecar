@@ -21,57 +21,85 @@
 // clang-format off
 namespace mcal {
 using namespace mcal::cli::periph;
-DigitalOutput tsal_en = DigitalOutput{"TSAL Enable"};
-DigitalOutput raspberry_pi_en = DigitalOutput{"RASPI Enable"};
-DigitalOutput front_controller_en = DigitalOutput{"FRONT CONTROLLER Enable"};
-DigitalOutput speedgoat_en = DigitalOutput{"SPEEDGOAT Enable"};
-DigitalOutput accumulator_en = DigitalOutput{"ACCUMULATOR Enable"};
-DigitalOutput motor_ctrl_precharge_en = DigitalOutput{"MOTOR CTRL LV PRECHARGE Enable"};
-DigitalOutput motor_ctrl_en = DigitalOutput{"MOTOR CTRL LV Enable"};
-DigitalOutput imu_gps_en = DigitalOutput{"IMU GPS Enable"};
-DigitalOutput shutdown_circuit_en = DigitalOutput{"SHUTDOWN CIRCUIT Enable"};
-DigitalOutput motor_ctrl_switch_en = DigitalOutput{"MOTOR CONTROL SWITCH Enable"};
 
-DigitalOutput dcdc_en = DigitalOutput{"DCDC Enable"};
-DigitalInput dcdc_valid = DigitalInput{"DCDC Valid"};
-DigitalOutput powertrain_fan_en = DigitalOutput{"POWERTRAIN FAN Enable"};
-DigitalOutput powertrain_pump_en = DigitalOutput{"POWERTRAIN PUMP Enable"};
-PWMOutput powertrain_fan_pwm = PWMOutput{"POWERTRAIN FAN PWM"};
+// Tractive System Status Indicator
+DigitalOutput tssi_en{"TSSI_EN"} ;
+DigitalOutput tssi_red_signal{"TSSI_RED_SIGNAL"};
+DigitalOutput tssi_green_signal{"TSSI_GREEN_SIGNAL"};
+DigitalInput imd_fault{"IMD_FAULT"};
+DigitalInput bms_fault{"BMS_FAULT"};
 
-ADCInput suspension_travel1{"Suspension Travel 1"};
-ADCInput suspension_travel2{"Suspension Travel 2"};
-ADCInput suspension_travel3{"Suspension Travel 3"};
-ADCInput suspension_travel4{"Suspension Travel 4"};
+// Powertrain Cooling
+DigitalOutput powertrain_pump1_en{"POWERTRAIN_PUMP1_EN"};
+DigitalOutput powertrain_pump2_en{"POWERTRAIN_PUMP2_EN"};
+DigitalOutput powertrain_fan1_en{"POWERTRAIN_FAN1_EN"};
+DigitalOutput powertrain_fan2_en{"POWERTRAIN_FAN2_EN"};
+PWMOutput powertrain_fan_pwm{"POWERTRAIN_FAN_PWM"};
 
-CanBase veh_can_base = CanBase{"can0"};
+// Motor Controller (i.e. Inverters)
+DigitalOutput motor_controller_en{"MOTOR_CONTROLLER_EN"};
+DigitalOutput motor_ctrl_precharge_en{"MOTOR_CTRL_PRECHARGE_EN"};
+DigitalOutput motor_ctrl_switch_en{"MOTOR_CTRL_SWITCH_EN"};
+
+// Subsystems
+DigitalOutput accumulator_en{"ACCUMULATOR_EN"};
+DigitalOutput front_controller_en{"FRONT_CONTROLLER_EN"};
+DigitalOutput imu_gps_en{"IMU_GPS_EN"};
+DigitalOutput raspberry_pi_en{"RASPBERRY_PI_EN"};
+DigitalOutput shutdown_circuit_en{"SHUTDOWN_CIRCUIT_EN"};
+
+// DCDC System  Measurement;
+DigitalOutput dcdc_en{"DCDC_EN"};
+DigitalOutput dcdc_sense_select{"DCDC_SENSE_SELECT"};
+ADCInput dcdc_sense{"DCDC_SENSE"};
+
+// Other IO
+DigitalOutput brake_light_en{"BRAKE_LIGHT_EN"};
+ADCInput suspension_travel3{"SUSPENSION_TRAVEL3"};
+ADCInput suspension_travel4{"SUSPENSION_TRAVEL4"};
+CanBase veh_can_base{"VEH_CAN_BASE"};
 }  // namespace mcal
 
 
 namespace bindings {
-shared::periph::DigitalOutput& tsal_en = mcal::tsal_en;
-shared::periph::DigitalOutput& raspberry_pi_en = mcal::raspberry_pi_en;
-shared::periph::DigitalOutput& front_controller_en = mcal::front_controller_en;
-shared::periph::DigitalOutput& speedgoat_en = mcal::speedgoat_en;
-shared::periph::DigitalOutput& accumulator_en = mcal::accumulator_en;
-shared::periph::DigitalOutput& motor_ctrl_precharge_en = mcal::motor_ctrl_precharge_en;
-shared::periph::DigitalOutput& motor_ctrl_en = mcal::motor_ctrl_en;
-shared::periph::DigitalOutput& imu_gps_en = mcal::imu_gps_en;
-shared::periph::DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
-shared::periph::DigitalOutput& motor_ctrl_switch_en = mcal::motor_ctrl_switch_en;
+    using namespace shared::periph;
 
-shared::periph::DigitalOutput& dcdc_en = mcal::dcdc_en;
-shared::periph::DigitalInput& dcdc_valid = mcal::dcdc_valid;
-shared::periph::DigitalOutput& powertrain_fan_en = mcal::powertrain_fan_en;
-shared::periph::DigitalOutput& powertrain_pump_en = mcal::powertrain_pump_en;
-shared::periph::PWMOutput& powertrain_fan_pwm = mcal::powertrain_fan_pwm;
+// Tractive System Status Indicator
+DigitalOutput& tssi_en = mcal::tssi_en;
+DigitalOutput& tssi_red_signal = mcal::tssi_red_signal;
+DigitalOutput& tssi_green_signal = mcal::tssi_green_signal;
+DigitalInput& imd_fault = mcal::imd_fault;
+DigitalInput& bms_fault = mcal::bms_fault;
 
-shared::periph::ADCInput& suspension_travel1 = mcal::suspension_travel1;
-shared::periph::ADCInput& suspension_travel2 = mcal::suspension_travel2;
-shared::periph::ADCInput& suspension_travel3 = mcal::suspension_travel3;
-shared::periph::ADCInput& suspension_travel4 = mcal::suspension_travel4;
+// Powertrain Cooling
+DigitalOutput& powertrain_pump1_en = mcal::powertrain_pump1_en;
+DigitalOutput& powertrain_pump2_en = mcal::powertrain_pump2_en;
+DigitalOutput& powertrain_fan1_en = mcal::powertrain_fan1_en;
+DigitalOutput& powertrain_fan2_en = mcal::powertrain_fan2_en;
+PWMOutput& powertrain_fan_pwm = mcal::powertrain_fan_pwm;
 
-shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
-// clang-format on
+// Motor Controller (i.e. Inverters)
+DigitalOutput& motor_controller_en = mcal::motor_controller_en;
+DigitalOutput& motor_ctrl_precharge_en = mcal::motor_ctrl_precharge_en;
+DigitalOutput& motor_ctrl_switch_en = mcal::motor_ctrl_switch_en;
+
+// Subsystems
+DigitalOutput& accumulator_en = mcal::accumulator_en;
+DigitalOutput& front_controller_en = mcal::front_controller_en;
+DigitalOutput& imu_gps_en = mcal::imu_gps_en;
+DigitalOutput& raspberry_pi_en = mcal::raspberry_pi_en;
+DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
+
+// DCDC System & Measurement = mcal::Measurement
+DigitalOutput& dcdc_en = mcal::dcdc_en;
+DigitalOutput& dcdc_sense_select = mcal::dcdc_sense_select;
+ADCInput& dcdc_sense = mcal::dcdc_sense;
+
+// Other IO
+DigitalOutput& brake_light_en = mcal::brake_light_en;
+ADCInput& suspension_travel3 = mcal::suspension_travel3;
+ADCInput& suspension_travel4 = mcal::suspension_travel4;
+CanBase& veh_can_base = mcal::veh_can_base;  // clang-format on
 
 void Initialize() {
     std::cout << "Initializing CLI..." << std::endl;

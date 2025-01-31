@@ -68,20 +68,21 @@ public:
 
         switch (state_) {
             case PWRUP_START:
-                tssi.Disable();
-                dcdc.Disable();
-                powertrain_fans.Disable();
+                if (on_enter_) {
+                    tssi.Disable();
+                    dcdc.Disable();
+                    powertrain_fans.Disable();
 
-                bindings::raspberry_pi_en.SetLow();
-                bindings::front_controller_en.SetLow();
-                bindings::accumulator_en.SetLow();
-                bindings::motor_ctrl_precharge_en.SetLow();
-                bindings::motor_controller_en.SetLow();
-                bindings::imu_gps_en.SetLow();
-                bindings::powertrain_pump1_en.SetLow();
-                bindings::powertrain_pump2_en.SetLow();
-                bindings::shutdown_circuit_en.SetLow();
-
+                    bindings::raspberry_pi_en.SetLow();
+                    bindings::front_controller_en.SetLow();
+                    bindings::accumulator_en.SetLow();
+                    bindings::motor_ctrl_precharge_en.SetLow();
+                    bindings::motor_controller_en.SetLow();
+                    bindings::imu_gps_en.SetLow();
+                    bindings::powertrain_pump1_en.SetLow();
+                    bindings::powertrain_pump2_en.SetLow();
+                    bindings::shutdown_circuit_en.SetLow();
+                }
                 if (elapsed > 50) transition = PWRUP_TSSI_ON;
                 break;
 
