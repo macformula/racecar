@@ -9,11 +9,11 @@
 #include <string>
 #include <thread>
 
-#include "mcal/cli/periph/adc.hpp"
+#include "mcal/cli/periph/analog_input.hpp"
 #include "mcal/cli/periph/can.hpp"
 #include "mcal/cli/periph/gpio.hpp"
 #include "mcal/cli/periph/pwm.hpp"
-#include "shared/periph/adc.hpp"
+#include "shared/periph/analog_input.hpp"
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/util/mappers/identity.hpp"
@@ -51,12 +51,12 @@ DigitalOutput shutdown_circuit_en{"SHUTDOWN_CIRCUIT_EN"};
 // DCDC System  Measurement;
 DigitalOutput dcdc_en{"DCDC_EN"};
 DigitalOutput dcdc_sense_select{"DCDC_SENSE_SELECT"};
-ADCInput dcdc_sense{"DCDC_SENSE"};
+AnalogInput dcdc_sense{"DCDC_SENSE"};
 
 // Other IO
 DigitalOutput brake_light_en{"BRAKE_LIGHT_EN"};
-ADCInput suspension_travel3{"SUSPENSION_TRAVEL3"};
-ADCInput suspension_travel4{"SUSPENSION_TRAVEL4"};
+AnalogInput suspension_travel3{"SUSPENSION_TRAVEL3"};
+AnalogInput suspension_travel4{"SUSPENSION_TRAVEL4"};
 CanBase veh_can_base{"VEH_CAN_BASE"};
 }  // namespace mcal
 
@@ -93,12 +93,12 @@ DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 // DCDC System & Measurement = mcal::Measurement
 DigitalOutput& dcdc_en = mcal::dcdc_en;
 DigitalOutput& dcdc_sense_select = mcal::dcdc_sense_select;
-ADCInput& dcdc_sense = mcal::dcdc_sense;
+AnalogInput& dcdc_sense = mcal::dcdc_sense;
 
 // Other IO
 DigitalOutput& brake_light_en = mcal::brake_light_en;
-ADCInput& suspension_travel3 = mcal::suspension_travel3;
-ADCInput& suspension_travel4 = mcal::suspension_travel4;
+AnalogInput& suspension_travel3 = mcal::suspension_travel3;
+AnalogInput& suspension_travel4 = mcal::suspension_travel4;
 CanBase& veh_can_base = mcal::veh_can_base;  // clang-format on
 
 void Initialize() {
@@ -108,9 +108,8 @@ void Initialize() {
 
 long long GetEpochTime() {
     using namespace std::chrono;
-    auto t = duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-                 .count();
-    return t;
+    return duration_cast<milliseconds>(system_clock::now().time_since_epoch())
+        .count();
 }
 int GetTick() {
     static long long start_time = GetEpochTime();

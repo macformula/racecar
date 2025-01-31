@@ -1,10 +1,11 @@
 #include "dcdc.hpp"
 
+#include "shared/periph/analog_input.hpp"
 #include "shared/periph/gpio.hpp"
 
 DCDC::DCDC(shared::periph::DigitalOutput& enable_output_inverted,
            shared::periph::DigitalOutput& select_sense,
-           shared::periph::ADCInput& sense)
+           shared::periph::AnalogInput& sense)
     : enable_output_inverted_(enable_output_inverted),
       select_sense_(select_sense),
       sense_(sense) {}
@@ -22,10 +23,10 @@ void DCDC::Disable() {
 // - is any time delay needed between select and read?
 float DCDC::MeasureAmps() {
     select_sense_.SetHigh();
-    return sense_.Read();
+    return sense_.ReadVoltage();
 }
 
 float DCDC::MeasureVoltage() {
     select_sense_.SetLow();
-    return sense_.Read();
+    return sense_.ReadVoltage();
 }
