@@ -10,3 +10,9 @@
 [submodule "firmware/projects/FrontControllerSimple/vehicle_control_system"]
 	path = firmware/projects/debug/FrontControllerSimple/vehicle_control_system
 	url = https://github.com/macformula/vehicle_control_system.git
+[submodule "firmware/projects/Dashboard/third-party/lv_drivers"]
+	path = firmware/projects/Dashboard/third-party/lv_drivers
+	url = https://github.com/lvgl/lv_drivers.git
+[submodule "firmware/projects/Dashboard/third-party/lvgl"]
+	path = firmware/projects/Dashboard/third-party/lvgl
+	url = https://github.com/lvgl/lvgl.git
