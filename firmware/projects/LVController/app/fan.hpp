@@ -1,10 +1,10 @@
 #pragma once
 
+#include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
 #include "shared/util/mappers/mapper.hpp"
-#include "subsystem.hpp"
 
-class Fan : public Subsystem {
+class Fans {
 public:
     struct Sweep {
         float start_time_ms;
@@ -13,21 +13,22 @@ public:
         float end_power;
 
     private:
-        friend class Fan;
+        friend class Fans;
         float Interpolate(float time_ms);
     };
 
-    Fan(shared::periph::DigitalOutput& enable_output,
-        shared::periph::PWMOutput& pwm_output,
-        shared::util::Mapper<float>& power_to_duty);
+    Fans(shared::periph::DigitalOutput& enable_output1,
+         shared::periph::DigitalOutput& enable_output2,
+         shared::periph::PWMOutput& pwm_output,
+         shared::util::Mapper<float>& power_to_duty);
 
-    void Enable() override;
-    void Disable() override;
+    void Enable();
+    void Disable();
     bool IsAtTarget();
 
     /// @brief Set the Power Now.
     /// @warning THIS IS DANGEROUS as large jumps can caused significant current
-    /// rushes. Prefer SetTargetPower() and Update()
+    /// rushes. Prefer StartSweep() and Update()
     void Dangerous_SetPowerNow(float power);
 
     void StartSweep(Sweep sweep_config);
@@ -35,6 +36,8 @@ public:
     bool IsSweepComplete();
 
 private:
+    shared::periph::DigitalOutput& enable_output1_;
+    shared::periph::DigitalOutput& enable_output2_;
     shared::periph::PWMOutput& pwm_output_;
     shared::util::Mapper<float>& power_to_duty_;
 

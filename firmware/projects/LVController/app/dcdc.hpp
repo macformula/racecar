@@ -1,15 +1,22 @@
 #pragma once
 
+#include "shared/periph/adc.hpp"
 #include "shared/periph/gpio.hpp"
-#include "subsystem.hpp"
 
-class DCDC : public Subsystem {
+class DCDC {
 public:
-    DCDC(shared::periph::DigitalOutput& enable_output,
-         shared::periph::DigitalInput& valid_input);
+    DCDC(shared::periph::DigitalOutput& enable_output_inverted,
+         shared::periph::DigitalOutput& select_sense,
+         shared::periph::ADCInput& sense);
 
-    bool CheckValid();
+    void Enable();
+    void Disable();
+
+    float MeasureVoltage();
+    float MeasureAmps();
 
 private:
-    shared::periph::DigitalInput& valid_input_;
+    shared::periph::DigitalOutput& enable_output_inverted_;
+    shared::periph::DigitalOutput& select_sense_;
+    shared::periph::ADCInput& sense_;
 };

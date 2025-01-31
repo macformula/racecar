@@ -6,7 +6,7 @@
 
 #include "app/dcdc.hpp"
 #include "app/fan.hpp"
-#include "app/subsystem.hpp"
+#include "app/tssi.hpp"
 #include "bindings.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
@@ -17,33 +17,18 @@ using namespace generated::can;
 
 VehBus veh_can{bindings::veh_can_base};
 
-Subsystem tssi{bindings::tssi_en};
-Subsystem raspberry_pi{bindings::raspberry_pi_en};
-Subsystem front_controller{bindings::front_controller_en};
-Subsystem speedgoat{bindings::speedgoat_en};
-Subsystem accumulator{bindings::accumulator_en};
-Subsystem motor_ctrl_precharge{bindings::motor_ctrl_precharge_en};
-Subsystem motor_ctrl{bindings::motor_ctrl_en};
-Subsystem imu_gps{bindings::imu_gps_en};
-Subsystem shutdown_circuit{bindings::shutdown_circuit_en};
-Subsystem motor_ctrl_switch{bindings::motor_ctrl_switch_en};
-Subsystem powertrain_pump{bindings::powertrain_pump_en};
+TSSI tssi{bindings::tssi_en, bindings::tssi_green_signal,
+          bindings::tssi_red_signal};
 
-shared::periph::InvertedDigitalOutput dcdc_en_inverted(bindings::dcdc_en);
-
-DCDC dcdc{dcdc_en_inverted, bindings::dcdc_valid};
+DCDC dcdc{bindings::dcdc_en, bindings::dcdc_sense_select, bindings::dcdc_sense};
 
 auto powertrain_fan_power_to_duty = shared::util::IdentityMap<float>();
-Fan powertrain_fan{
-    bindings::powertrain_fan_en,
+Fans powertrain_fans{
+    bindings::powertrain_fan1_en,
+    bindings::powertrain_fan2_en,
     bindings::powertrain_fan_pwm,
     powertrain_fan_power_to_duty,
 };
-
-Subsystem all_subsystems[] = {
-    tssi,        raspberry_pi,         front_controller, speedgoat,
-    accumulator, motor_ctrl_precharge, motor_ctrl,       imu_gps,
-    dcdc,        powertrain_pump,      powertrain_fan,   shutdown_circuit};
 
 class StateMachine {
     // The timing in this state machine is not perfect. Event transitions are
@@ -71,87 +56,91 @@ class StateMachine {
     // shorter and clearer code of the first implementation is justified.
 
 public:
-    StateMachine() : state_(State::PWRUP_START), on_enter_(true) {}
+    StateMachine() : state_(LvState::PWRUP_START), on_enter_(true) {}
 
     void Update(int time_ms) {
-        using enum State;
+        using enum LvState;
 
-        std::optional<State> transition = std::nullopt;
+        std::optional<LvState> transition = std::nullopt;
         int elapsed = time_ms - state_enter_time_;
 
-        // fix this line - need to update DBC enum
         veh_can.Send(TxLvControllerStatus{static_cast<uint8_t>(state_)});
 
         switch (state_) {
             case PWRUP_START:
+                tssi.Disable();
+                dcdc.Disable();
+                powertrain_fans.Disable();
+
+                bindings::raspberry_pi_en.SetLow();
+                bindings::front_controller_en.SetLow();
+                bindings::accumulator_en.SetLow();
+                bindings::motor_ctrl_precharge_en.SetLow();
+                bindings::motor_controller_en.SetLow();
+                bindings::imu_gps_en.SetLow();
+                bindings::powertrain_pump1_en.SetLow();
+                bindings::powertrain_pump2_en.SetLow();
+                bindings::shutdown_circuit_en.SetLow();
+
                 if (elapsed > 50) transition = PWRUP_TSSI_ON;
                 break;
 
             case PWRUP_TSSI_ON:
                 if (on_enter_) tssi.Enable();
 
-                if (elapsed > 50) transition = PWRUP_RASPI_ON;
+                if (elapsed > 50) transition = PWRUP_PERIPHERALS_ON;
                 break;
 
-            case PWRUP_RASPI_ON:
-                if (on_enter_) raspberry_pi.Enable();
+            case PWRUP_PERIPHERALS_ON:
+                if (on_enter_) {
+                    bindings::raspberry_pi_en.SetHigh();
+                    bindings::front_controller_en.SetHigh();
+                    bindings::imu_gps_en.SetHigh();
+                }
 
-                if (elapsed > 50) transition = PWRUP_FRONT_CONTROLLER_ON;
+                if (elapsed > 50) {
+                    auto msg = veh_can.GetRxFcControllerStatus();
+                    if (msg.has_value()) {
+                        // don't actually care about the status, just that FC
+                        // has send a message
+                        transition = PWRUP_ACCUMULATOR_ON;
+                    }
+                }
                 break;
 
-            case PWRUP_FRONT_CONTROLLER_ON:
-                if (on_enter_) front_controller.Enable();
+            case PWRUP_ACCUMULATOR_ON: {
+                if (on_enter_) bindings::accumulator_en.SetHigh();
 
-                if (elapsed > 100) transition = PWRUP_SPEEDGOAT_ON;
-                break;
-
-            case PWRUP_SPEEDGOAT_ON:
-                if (on_enter_) speedgoat.Enable();
-
-                if (elapsed > 200) transition = PWRUP_ACCUMULATOR_ON;
-                break;
-
-            case PWRUP_ACCUMULATOR_ON:
-                if (on_enter_) accumulator.Enable();
-
-                if (elapsed > 100) transition = PWRUP_MOTOR_PRECHARGE_ON;
-                break;
+                auto contactors = veh_can.GetRxContactorStates();
+                if (contactors.has_value()) {
+                    if (contactors->PackPositive() == false &&
+                        contactors->PackNegative() == false &&
+                        contactors->PackPrecharge() == false) {
+                        transition = PWRUP_MOTOR_PRECHARGE_ON;
+                    }
+                }
+            } break;
 
             case PWRUP_MOTOR_PRECHARGE_ON:
-                if (on_enter_) motor_ctrl_precharge.Enable();
+                if (on_enter_) bindings::motor_ctrl_precharge_en.SetHigh();
 
                 if (elapsed > 2000) transition = PWRUP_MOTOR_LV;
                 break;
 
             case PWRUP_MOTOR_LV:
-                if (on_enter_) motor_ctrl.Enable();
+                if (on_enter_) bindings::motor_controller_en.SetHigh();
 
                 if (elapsed > 50) transition = PWRUP_MOTOR_PRECHARGE_OFF;
                 break;
 
             case PWRUP_MOTOR_PRECHARGE_OFF:
-                if (on_enter_) motor_ctrl_precharge.Disable();
+                if (on_enter_) bindings::motor_ctrl_precharge_en.SetLow();
 
-                if (elapsed > 50) transition = PWRUP_IMU_GPS_ON;
-                break;
-
-            case PWRUP_IMU_GPS_ON:
-                if (on_enter_) imu_gps.Enable();
-
-                {
-                    auto contactors = veh_can.GetRxContactorStates();
-                    if (contactors.has_value()) {
-                        if (contactors->PackPositive() == false &&
-                            contactors->PackNegative() == false &&
-                            contactors->PackPrecharge() == false) {
-                            transition = PWRUP_SHUTDOWN_ON;
-                        }
-                    }
-                }
+                if (elapsed > 50) transition = PWRUP_SHUTDOWN_ON;
                 break;
 
             case PWRUP_SHUTDOWN_ON:
-                if (on_enter_) shutdown_circuit.Enable();
+                if (on_enter_) bindings::shutdown_circuit_en.SetHigh();
 
                 {
                     auto contactors = veh_can.GetRxContactorStates();
@@ -159,24 +148,52 @@ public:
                         if (contactors->PackPositive() == true &&
                             contactors->PackNegative() == true &&
                             contactors->PackPrecharge() == false) {
-                            transition = WAITING_FOR_DCDC;
+                            transition = MOTOR_CONTROLLER_SWITCH_SEQ;
                         }
                     }
                 }
                 break;
 
-            case WAITING_FOR_DCDC:
-                if (on_enter_) dcdc.Enable();
+            case MOTOR_CONTROLLER_SWITCH_SEQ: {
+                static uint8_t switch_step = 0;
+                if (on_enter_) switch_step = 0;
 
-                if (dcdc.CheckValid() && elapsed > 50) {
-                    transition = POWERTRAIN_PUMP_ON;
+                // verify this logic
+                switch (switch_step) {
+                    case 0:
+                        bindings::motor_ctrl_switch_en.SetHigh();
+                        break;
+                    case 1:
+                        bindings::motor_ctrl_switch_en.SetLow();
+                        break;
+                    case 2:
+                        bindings::motor_ctrl_switch_en.SetHigh();
+                        transition = DCDC_ON;
+                        break;
                 }
+                switch_step++;
+            } break;
+
+            case DCDC_ON:
+                // should this be inverted?
+                if (on_enter_) bindings::dcdc_en.SetHigh();
+
+                if (elapsed > 100) transition = POWERTRAIN_PUMP_ON;
                 break;
 
             case POWERTRAIN_PUMP_ON:
-                if (on_enter_) powertrain_pump.Enable();
+                if (on_enter_) {
+                    bindings::powertrain_pump1_en.SetHigh();
+                    bindings::powertrain_pump2_en.SetHigh();
+                }
 
-                if (elapsed > 100) transition = POWERTRAIN_FAN_SWEEP;
+                if (elapsed > 100) transition = POWERTRAIN_FAN_ON;
+                break;
+
+            case POWERTRAIN_FAN_ON:
+                if (on_enter_) powertrain_fans.Enable();
+
+                if (elapsed > 50) transition = POWERTRAIN_FAN_SWEEP;
                 break;
 
             case POWERTRAIN_FAN_SWEEP: {
@@ -185,46 +202,80 @@ public:
                 constexpr float kSweepPeriodMs = 3000.0f;
 
                 if (on_enter_) {
-                    powertrain_fan.StartSweep({
+                    powertrain_fans.StartSweep({
                         static_cast<float>(time_ms),
                         kSweepPeriodMs,
                         kPowerInitial,
                         kPowerFinal,
                     });
                 } else {
-                    powertrain_fan.UpdateSweep(time_ms);
+                    powertrain_fans.UpdateSweep(time_ms);
                 }
             }
-                if (elapsed > 10000 || powertrain_fan.IsSweepComplete()) {
-                    transition = RUNNING;
+                if (elapsed > 10000 || powertrain_fans.IsSweepComplete()) {
+                    transition = READY_TO_DRIVE;
                 }
 
                 break;
 
-            case RUNNING:
-                // DCDC invalid transition is handled after the switch-case
+            case READY_TO_DRIVE:
+                break;
+
+            case SHUTDOWN_DRIVER_WARNING:
+                // This state's action is sending the State over CAN which
+                // happens before the switch
+
+                // Give the driver 30 s to stop before we make them.
+                if (elapsed > 30000) transition = SHUTDOWN_PUMP_OFF;
                 break;
 
             case SHUTDOWN_PUMP_OFF:
-                if (on_enter_) powertrain_pump.Disable();
+                if (on_enter_) {
+                    bindings::powertrain_pump1_en.SetLow();
+                    bindings::powertrain_pump2_en.SetLow();
+                }
 
                 if (elapsed > 50) transition = SHUTDOWN_FAN_OFF;
                 break;
 
             case SHUTDOWN_FAN_OFF:
-                if (on_enter_) powertrain_fan.Disable();
+                if (on_enter_) powertrain_fans.Disable();
 
-                if (elapsed > 50) transition = PWRUP_SHUTDOWN_ON;
+                if (elapsed > 50) transition = SHUTDOWN_COMPLETE;
+                break;
+
+            case SHUTDOWN_COMPLETE:
+                // there's no coming back from this
                 break;
         }
 
-        if (state_ == WAITING_FOR_DCDC || state_ == POWERTRAIN_PUMP_ON ||
-            state_ == POWERTRAIN_FAN_SWEEP || state_ == RUNNING) {
-            if (!dcdc.CheckValid()) {
-                transition = SHUTDOWN_PUMP_OFF;
+        // Shutdown checks that can occur from multiple states
+        bool check_shutdown =
+            state_ == DCDC_ON || state_ == POWERTRAIN_PUMP_ON ||
+            state_ == POWERTRAIN_FAN_ON || state_ == POWERTRAIN_FAN_SWEEP ||
+            state_ == READY_TO_DRIVE;
+
+        if (check_shutdown) {
+            const float kNoCurrentThresholdAmp = 0.5;  // what should this be?
+            bool lost_lv_comms =
+                false;  // this should come from a SPI heartbeat
+
+            if (dcdc.MeasureVoltage() < 19.2 ||
+                (lost_lv_comms &&
+                 dcdc.MeasureAmps() < kNoCurrentThresholdAmp)) {
+                transition = SHUTDOWN_DRIVER_WARNING;
             }
+
+            auto msg = veh_can.GetRxFcControllerStatus();
+            // remove static_cast once cangen properly handles enums
+            if (msg.has_value())
+                if (msg->FcState() ==
+                    static_cast<uint8_t>(FcState::HVIL_OPEN)) {
+                    transition = SHUTDOWN_PUMP_OFF;
+                }
         }
 
+        // If a transition was indicated, handle it
         on_enter_ = transition.has_value();
         if (on_enter_) {
             state_enter_time_ = time_ms;
@@ -233,60 +284,36 @@ public:
     }
 
 private:
-    // State enum should be generated from CANGEN
-    enum class State {
-        PWRUP_START,
-        PWRUP_TSSI_ON,
-        PWRUP_RASPI_ON,
-        PWRUP_FRONT_CONTROLLER_ON,
-        PWRUP_SPEEDGOAT_ON,
-        PWRUP_ACCUMULATOR_ON,
-        PWRUP_MOTOR_PRECHARGE_ON,
-        PWRUP_MOTOR_LV,
-        PWRUP_MOTOR_PRECHARGE_OFF,
-        PWRUP_IMU_GPS_ON,
-        PWRUP_SHUTDOWN_ON,
-        WAITING_FOR_DCDC,
-        POWERTRAIN_PUMP_ON,
-        POWERTRAIN_FAN_SWEEP,
-        RUNNING,
-        SHUTDOWN_PUMP_OFF,
-        SHUTDOWN_FAN_OFF,
-    };
-
-    State state_;
+    LvState state_;  // enum defined by cangen
     int state_enter_time_;
     bool on_enter_;
 };
 
-TxSuspensionTravel MeasureSuspension() {}
+void UpdateBrakeLight() {
+    auto msg = veh_can.GetRxBrakeLight();
+    if (msg.has_value()) {
+        bindings::brake_light_en.Set(msg->Enable());
+    } else {
+        bindings::brake_light_en.SetHigh();
+    }
+}
 
 int main(void) {
     bindings::Initialize();
 
-    for (auto& sys : all_subsystems) {
-        // This could be put into the PWRUP_START state handler
-        sys.Disable();
-    }
-
     StateMachine fsm;
 
-    const int kUpdatePeriodMs = 200;
+    const int kUpdatePeriodMs = 20;
     while (true) {
-        fsm.Update(bindings::GetTick());
+        int time_ms = bindings::GetTick();
+        fsm.Update(time_ms);
+        tssi.Update(bindings::bms_fault.Read(), bindings::imd_fault.Read(),
+                    time_ms);
 
-        auto inverter_command = veh_can.GetRxInverterCommand();
-        if (inverter_command.has_value() &&
-            inverter_command->EnableInverter()) {
-            motor_ctrl_switch.Enable();
-        } else {
-            motor_ctrl_switch.Disable();
-        }
+        UpdateBrakeLight();
 
-        TxSuspensionTravel suspension_msg{
+        TxSuspensionTravel34 suspension_msg{
             // todo: update the mapping
-            .stp1 = static_cast<uint8_t>(bindings::suspension_travel1.Read()),
-            .stp2 = static_cast<uint8_t>(bindings::suspension_travel2.Read()),
             .stp3 = static_cast<uint8_t>(bindings::suspension_travel3.Read()),
             .stp4 = static_cast<uint8_t>(bindings::suspension_travel4.Read()),
         };

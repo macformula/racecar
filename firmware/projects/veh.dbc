@@ -41,13 +41,17 @@ BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
  SG_ FC_userBtnR : 0|1@1+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 111 LvControllerStatus: 1 LVC
- SG_ LvControllerState : 0|8@1+ (1,0) [0|1] ""  RPI
+ SG_ LvState : 0|8@1+ (1,0) [0|1] ""  RPI
 
-BO_ 112 SuspensionTravel: 4 LVC
- SG_ STP1 : 0|8@1+ (1,0) [0|255] "" FC,RPI
- SG_ STP2 : 8|8@1+ (1,0) [0|255] "" FC,RPI
- SG_ STP3 : 16|8@1+ (1,0) [0|255] "" FC,RPI
- SG_ STP4 : 24|8@1+ (1,0) [0|255] "" FC,RPI
+BO_ 112 FcControllerStatus: 1 FC
+ SG_ FcState : 0|8@1+ (1,0) [0|1] "" LVC 
+
+BO_ 114 BrakeLight: 1 FC
+ SG_ Enable : 0|1@1+ (1,0) [0|1] "" LVC 
+
+BO_ 113 SuspensionTravel34: 2 LVC
+ SG_ STP3 : 0|8@1+ (1,0) [0|255] "" FC,RPI
+ SG_ STP4 : 8|8@1+ (1,0) [0|255] "" FC,RPI
 
 BO_ 255 VC_Status: 4 PC_SG
  SG_ VC_bmStatus : 24|4@1+ (1,0) [0|15] ""  FC
@@ -66,9 +70,6 @@ BO_ 511 FC_msg: 8 FC
 BO_ 256 FC_cmd: 1 PC_SG
  SG_ FC_readyToDriveSpeaker : 1|1@1+ (1,0) [0|1] ""  FC
  SG_ FC_brakeLight : 0|1@1+ (1,0) [0|1] ""  FC
-
-BO_ 1560 InverterCommand: 1 FC
- SG_ EnableInverter : 0|1@1+ (1,0) [0|0] ""  LVC
 
 BO_ 1570 ContactorStates: 3 FC
  SG_ PackPositive : 0|8@1+ (1,0) [0|0] ""  BMS,LVC
@@ -229,7 +230,8 @@ BA_DEF_  "BusType" STRING ;
 BA_DEF_  "MultiplexExtEnabled" ENUM  "No","Yes";
 BA_DEF_DEF_  "BusType" "CAN";
 BA_DEF_DEF_  "MultiplexExtEnabled" "No";
-VAL_ 111 LvControllerState 26 "DcdcEnabled" 25 "WaitingForOpenContactors" 24 "PowertrainFanPwmOff" 23 "PowertrainFanOff" 22 "PowertrainPumpOff" 21 "DisabledLed" 20 "LostDcdcValid" 19 "SequenceComplete" 18 "PowertrainFanSweeping" 17 "PowertrainFanEnabled" 16 "PowertrainPumpEnabled" 15 "DcdcLedEnabled" 14 "DcdcValid" 13 "WaitingForDcdcValid" 12 "WaitingForClosedContactors" 11 "ShutdownCircuitEnabled" 10 "ImuGpsEnabled" 9 "MotorControllerPrechargeDisabled" 8 "MotorControllerEnabled" 7 "MotorControllerPrechargeEnabled" 6 "AccumulatorEnabled" 5 "SpeedgoatEnabled" 4 "FrontControllerEnabled" 3 "RaspiEnabled" 2 "TsalEnabled" 1 "Startup" 0 "Unknown" ;
+VAL_ 111 LvState 0 "PWRUP_START" 1 "PWRUP_TSSI_ON" 2 "PWRUP_PERIPHERALS_ON" 3 "PWRUP_ACCUMULATOR_ON" 4 "PWRUP_MOTOR_PRECHARGE_ON" 5 "PWRUP_MOTOR_LV" 6 "PWRUP_MOTOR_PRECHARGE_OFF" 7 "PWRUP_SHUTDOWN_ON" 8 "MOTOR_CONTROLLER_SWITCH_SEQ" 9 "DCDC_ON" 10 "POWERTRAIN_PUMP_ON" 11 "POWERTRAIN_FAN_ON" 12 "POWERTRAIN_FAN_SWEEP" 13 "READY_TO_DRIVE" 14 "SHUTDOWN_DRIVER_WARNING" 15 "SHUTDOWN_PUMP_OFF" 16 "SHUTDOWN_FAN_OFF" 17 "SHUTDOWN_COMPLETE";
+VAL_ 112 FcState 0 "PWRUP_START" 1 "HVIL_OPEN";
 VAL_ 255 VC_bmStatus 9 "err_running" 8 "bm_low_soc" 7 "hvil_interrupt" 6 "bm_running" 5 "precharge" 4 "init_precharge" 3 "bm_startup" 2 "bm_idle" 1 "bm_init" 0 "bm_unknown" ;
 VAL_ 255 VC_diStatus 8 "di_error" 7 "di_running" 6 "hv_start_req" 5 "ready_to_drive_req" 4 "waiting_for_driver" 3 "di_startup" 2 "di_idle" 1 "di_sts_init" 0 "di_unknown" ;
 VAL_ 255 VC_miStatus 7 "off" 6 "mi_sts_error" 5 "shutdown" 4 "running" 3 "ready" 2 "startup" 1 "sts_init" 0 "unknown" ;
