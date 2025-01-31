@@ -1,3 +1,5 @@
+#include "vcan.hpp"
+
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include <net/if.h>
@@ -10,8 +12,6 @@
 #include <format>
 #include <iostream>
 #include <string>
-
-#include "vcan.hpp"
 
 namespace mcal::lnx::periph::vcan {
 
