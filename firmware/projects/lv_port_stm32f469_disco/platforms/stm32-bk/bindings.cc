@@ -1,3 +1,7 @@
+#include "../../bindings.hpp"
+
+#include <cstdint>
+
 #include "dma.h"
 #include "dma2d.h"
 #include "dsihost.h"
@@ -5,13 +9,11 @@
 #include "gpio.h"
 #include "i2c.h"
 #include "ltdc.h"
-#include "lvgl.h"
-#include "screen_driver.h"
-#include "stdint.h"
-#include "touch_sensor_driver.h"
 #include "usart.h"
 
+extern "C" {
 extern void SystemClock_Config(void);
+}
 
 #define SDRAM_MODEREG_BURST_LENGTH_1 ((uint16_t)0x0000)
 #define SDRAM_MODEREG_BURST_LENGTH_2 ((uint16_t)0x0001)
@@ -33,16 +35,9 @@ extern void SystemClock_Config(void);
 #define REFRESH_COUNT ((uint32_t)0x0569)
 #define SDRAM_TIMEOUT ((uint32_t)0xFFFF)
 
-int main(void) {
-    /* USER CODE BEGIN 1 */
+namespace bindings {
 
-    /* USER CODE END 1 */
-
-    /* MCU
-     * Configuration--------------------------------------------------------*/
-
-    /* Reset of all peripherals, Initializes the Flash interface and the
-     * Systick. */
+void Initialize() {
     HAL_Init();
 
     /* USER CODE BEGIN Init */
@@ -120,39 +115,10 @@ int main(void) {
     MX_LTDC_Init();
     MX_USART3_UART_Init();
     /* USER CODE BEGIN 2 */
-
-    lv_init();
-
-    screen_driver_init();
-    touch_sensor_driver_init();
-
-    // lv_demo_benchmark();
-    lv_obj_t* label1 = lv_label_create(lv_scr_act());
-
-    // HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
-    /* USER CODE END 2 */
-
-    /* Infinite loop */
-    /* USER CODE BEGIN WHILE */
-    char text[2] = {'*', '\0'};
-    lv_label_set_text(label1, text);
-    lv_obj_center(label1);
-
-    while (1) {
-        // text[0] = (char)((int)HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_3) + 48);
-        lv_label_set_text(label1, text);
-
-        HAL_Delay(5);
-        lv_timer_handler();
-
-        // char* text[1];
-
-        // char x = (char) ((int) HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8) + 48);
-        // text[0] = (char) (x + 48);
-
-        /* USER CODE END WHILE */
-
-        /* USER CODE BEGIN 3 */
-    }
-    /* USER CODE END 3 */
 }
+
+void DelayMs(uint32_t ms) {
+    HAL_Delay(ms);
+}
+
+}  // namespace bindings
