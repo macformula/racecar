@@ -12,6 +12,8 @@
 #include "usart.h"
 
 extern "C" {
+#include "screen_driver.h"
+#include "touch_sensor_driver.h"
 extern void SystemClock_Config(void);
 }
 
@@ -114,10 +116,12 @@ void Initialize() {
     MX_I2C1_Init();
     MX_LTDC_Init();
     MX_USART3_UART_Init();
-    /* USER CODE BEGIN 2 */
+
+    screen_driver_init();
+    touch_sensor_driver_init();
 }
 
-void DelayMs(uint32_t ms) {
+void DelayMS(uint32_t ms) {
     HAL_Delay(ms);
 }
 
