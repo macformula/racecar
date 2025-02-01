@@ -5,8 +5,11 @@
 	path = firmware/third-party/etl
 	url = https://github.com/ETLCPP/etl.git
 [submodule "firmware/projects/Dashboard/third-party/lv_drivers"]
-	path = firmware/projects/Dashboard/third-party/lv_drivers
+	path = firmware/projects/Dashboard/platforms/linux/third-party/lv_drivers
 	url = https://github.com/lvgl/lv_drivers.git
 [submodule "firmware/projects/Dashboard/third-party/lvgl"]
 	path = firmware/projects/Dashboard/third-party/lvgl
 	url = https://github.com/lvgl/lvgl.git
+[submodule "firmware/projects/Dashboard/platforms/stm32/third-party/32f469idiscovery-bsp"]
+	path = firmware/projects/Dashboard/platforms/stm32/third-party/32f469idiscovery-bsp
+	url = https://github.com/STMicroelectronics/32f469idiscovery-bsp.git
