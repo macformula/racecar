@@ -11,4 +11,4 @@ target_link_libraries(main
     # Add user defined libraries
 )
 
-target_sources(main PRIVATE main.c)
+target_sources(main PRIVATE main.cc)
