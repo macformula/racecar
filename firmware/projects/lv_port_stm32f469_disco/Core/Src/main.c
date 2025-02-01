@@ -1,35 +1,36 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2025 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdlib.h>
 #include <stdio.h>
-#include <lvgl.h>
-#include "./demos/lv_demos.h"
-#include <screen_driver.h>
-#include <touch_sensor_driver.h>
-//#include <etl/include/etl/debounce.h>
-//#include "../../Drivers/etl/include/etl/debounce.h"
-//#include <etl/debounce.h>
+#include <stdlib.h>
+
+#include "lvgl.h"
+#include "screen_driver.h"
+#include "touch_sensor_driver.h"
+
+// #include <etl/include/etl/debounce.h>
+// #include "../../Drivers/etl/include/etl/debounce.h"
+// #include <etl/debounce.h>
 
 /* USER CODE END Includes */
 
@@ -42,29 +43,29 @@
 /* USER CODE BEGIN PD */
 #define USE_FULL_ASSERT
 /**
-  * @brief  FMC SDRAM Mode definition register defines
-  *
-  * @brief  defines copied from the STM32F469I-Disco Board support package
-  */
-#define SDRAM_MODEREG_BURST_LENGTH_1             ((uint16_t)0x0000)
-#define SDRAM_MODEREG_BURST_LENGTH_2             ((uint16_t)0x0001)
-#define SDRAM_MODEREG_BURST_LENGTH_4             ((uint16_t)0x0002)
-#define SDRAM_MODEREG_BURST_LENGTH_8             ((uint16_t)0x0004)
-#define SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL      ((uint16_t)0x0000)
-#define SDRAM_MODEREG_BURST_TYPE_INTERLEAVED     ((uint16_t)0x0008)
-#define SDRAM_MODEREG_CAS_LATENCY_2              ((uint16_t)0x0020)
-#define SDRAM_MODEREG_CAS_LATENCY_3              ((uint16_t)0x0030)
-#define SDRAM_MODEREG_OPERATING_MODE_STANDARD    ((uint16_t)0x0000)
+ * @brief  FMC SDRAM Mode definition register defines
+ *
+ * @brief  defines copied from the STM32F469I-Disco Board support package
+ */
+#define SDRAM_MODEREG_BURST_LENGTH_1 ((uint16_t)0x0000)
+#define SDRAM_MODEREG_BURST_LENGTH_2 ((uint16_t)0x0001)
+#define SDRAM_MODEREG_BURST_LENGTH_4 ((uint16_t)0x0002)
+#define SDRAM_MODEREG_BURST_LENGTH_8 ((uint16_t)0x0004)
+#define SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL ((uint16_t)0x0000)
+#define SDRAM_MODEREG_BURST_TYPE_INTERLEAVED ((uint16_t)0x0008)
+#define SDRAM_MODEREG_CAS_LATENCY_2 ((uint16_t)0x0020)
+#define SDRAM_MODEREG_CAS_LATENCY_3 ((uint16_t)0x0030)
+#define SDRAM_MODEREG_OPERATING_MODE_STANDARD ((uint16_t)0x0000)
 #define SDRAM_MODEREG_WRITEBURST_MODE_PROGRAMMED ((uint16_t)0x0000)
-#define SDRAM_MODEREG_WRITEBURST_MODE_SINGLE     ((uint16_t)0x0200)
+#define SDRAM_MODEREG_WRITEBURST_MODE_SINGLE ((uint16_t)0x0200)
 
 /**
-  * @brief  SDRAM refresh counter (90 MHz SD clock)
-  *
-  * @brief  defines copied from the STM32F469I-Disco Board support package
-  */
-#define REFRESH_COUNT       ((uint32_t)0x0569)
-#define SDRAM_TIMEOUT       ((uint32_t)0xFFFF)
+ * @brief  SDRAM refresh counter (90 MHz SD clock)
+ *
+ * @brief  defines copied from the STM32F469I-Disco Board support package
+ */
+#define REFRESH_COUNT ((uint32_t)0x0569)
+#define SDRAM_TIMEOUT ((uint32_t)0xFFFF)
 
 /* USER CODE END PD */
 
@@ -148,40 +149,39 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  lv_init();
+    lv_init();
 
-  screen_driver_init();
-  touch_sensor_driver_init();
+    screen_driver_init();
+    touch_sensor_driver_init();
 
-  //lv_demo_benchmark();
-  lv_obj_t * label1 = lv_label_create(lv_scr_act());
+    // lv_demo_benchmark();
+    lv_obj_t* label1 = lv_label_create(lv_scr_act());
 
-  //HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
+    // HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  char text[2] = {'?', '\0'};
-  lv_label_set_text(label1, text);
-  lv_obj_center(label1);
+    char text[2] = {'?', '\0'};
+    lv_label_set_text(label1, text);
+    lv_obj_center(label1);
 
-  while (1)
-  {
-	  text[0] = (char) ((int) HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_3) + 48);
-	  lv_label_set_text(label1, text);
+    while (1) {
+        //   text[0] = (char) ((int) HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_3) + 48);
+        lv_label_set_text(label1, text);
 
-	  HAL_Delay(5);
-	  lv_timer_handler();
+        HAL_Delay(5);
+        lv_timer_handler();
 
-	  //char* text[1];
+        // char* text[1];
 
-	  //char x = (char) ((int) HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8) + 48);
-	  //text[0] = (char) (x + 48);
+        // char x = (char) ((int) HAL_GPIO_ReadPin(GPIOD, GPIO_PIN_8) + 48);
+        // text[0] = (char) (x + 48);
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+    }
   /* USER CODE END 3 */
 }
 
@@ -549,7 +549,7 @@ static void MX_FMC_Init(void)
 {
 
   /* USER CODE BEGIN FMC_Init 0 */
-  static FMC_SDRAM_CommandTypeDef Command;
+    static FMC_SDRAM_CommandTypeDef Command;
   /* USER CODE END FMC_Init 0 */
 
   FMC_SDRAM_TimingTypeDef SdramTiming = {0};
@@ -589,14 +589,15 @@ static void MX_FMC_Init(void)
   /* USER CODE BEGIN FMC_Init 2 */
 
     /*
-     * The following code is copied from the STM32F469I-Disco Board Support Package
+     * The following code is copied from the STM32F469I-Disco Board Support
+     * Package
      */
     __IO uint32_t tmpmrd = 0;
 
     /* Step 1: Configure a clock configuration enable command */
-    Command.CommandMode            = FMC_SDRAM_CMD_CLK_ENABLE;
-    Command.CommandTarget          = FMC_SDRAM_CMD_TARGET_BANK1;
-    Command.AutoRefreshNumber      = 1;
+    Command.CommandMode = FMC_SDRAM_CMD_CLK_ENABLE;
+    Command.CommandTarget = FMC_SDRAM_CMD_TARGET_BANK1;
+    Command.AutoRefreshNumber = 1;
     Command.ModeRegisterDefinition = 0;
 
     /* Send the command */
@@ -607,33 +608,32 @@ static void MX_FMC_Init(void)
     HAL_Delay(1);
 
     /* Step 3: Configure a PALL (precharge all) command */
-    Command.CommandMode            = FMC_SDRAM_CMD_PALL;
-    Command.CommandTarget          = FMC_SDRAM_CMD_TARGET_BANK1;
-    Command.AutoRefreshNumber      = 1;
+    Command.CommandMode = FMC_SDRAM_CMD_PALL;
+    Command.CommandTarget = FMC_SDRAM_CMD_TARGET_BANK1;
+    Command.AutoRefreshNumber = 1;
     Command.ModeRegisterDefinition = 0;
 
     /* Send the command */
     HAL_SDRAM_SendCommand(&hsdram1, &Command, SDRAM_TIMEOUT);
 
     /* Step 4: Configure an Auto Refresh command */
-    Command.CommandMode            = FMC_SDRAM_CMD_AUTOREFRESH_MODE;
-    Command.CommandTarget          = FMC_SDRAM_CMD_TARGET_BANK1;
-    Command.AutoRefreshNumber      = 8;
+    Command.CommandMode = FMC_SDRAM_CMD_AUTOREFRESH_MODE;
+    Command.CommandTarget = FMC_SDRAM_CMD_TARGET_BANK1;
+    Command.AutoRefreshNumber = 8;
     Command.ModeRegisterDefinition = 0;
 
     /* Send the command */
     HAL_SDRAM_SendCommand(&hsdram1, &Command, SDRAM_TIMEOUT);
 
     /* Step 5: Program the external memory mode register */
-    tmpmrd = (uint32_t)SDRAM_MODEREG_BURST_LENGTH_1          |\
-                       SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL   |\
-                       SDRAM_MODEREG_CAS_LATENCY_3           |\
-                       SDRAM_MODEREG_OPERATING_MODE_STANDARD |\
-                       SDRAM_MODEREG_WRITEBURST_MODE_SINGLE;
+    tmpmrd = (uint32_t)SDRAM_MODEREG_BURST_LENGTH_1 |
+             SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL | SDRAM_MODEREG_CAS_LATENCY_3 |
+             SDRAM_MODEREG_OPERATING_MODE_STANDARD |
+             SDRAM_MODEREG_WRITEBURST_MODE_SINGLE;
 
-    Command.CommandMode            = FMC_SDRAM_CMD_LOAD_MODE;
-    Command.CommandTarget          = FMC_SDRAM_CMD_TARGET_BANK1;
-    Command.AutoRefreshNumber      = 1;
+    Command.CommandMode = FMC_SDRAM_CMD_LOAD_MODE;
+    Command.CommandTarget = FMC_SDRAM_CMD_TARGET_BANK1;
+    Command.AutoRefreshNumber = 1;
     Command.ModeRegisterDefinition = tmpmrd;
 
     /* Send the command */
@@ -763,10 +763,9 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-int _write(int file, char *ptr, int len)
-{
-  HAL_UART_Transmit(&huart3, (const uint8_t *)ptr, len, 100);
-  return len;
+int _write(int file, char* ptr, int len) {
+    HAL_UART_Transmit(&huart3, (const uint8_t*)ptr, len, 100);
+    return len;
 }
 
 /* USER CODE END 4 */
@@ -778,11 +777,11 @@ int _write(int file, char *ptr, int len)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+    /* User can add his own implementation to report the HAL error return state
+     */
+    __disable_irq();
+    while (1) {
+    }
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -797,8 +796,9 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    /* User can add his own implementation to report the file name and line
+       number, ex: printf("Wrong parameters value: file %s on line %d\r\n",
+       file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
