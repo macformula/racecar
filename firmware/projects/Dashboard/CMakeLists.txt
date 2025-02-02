@@ -22,6 +22,7 @@ target_link_libraries(main PRIVATE lv_drivers)
 target_link_libraries(lv_drivers PRIVATE lvgl)
 target_include_directories(lv_drivers PRIVATE third-party)
 
+
 target_include_directories(main PRIVATE third-party)
 
 target_sources(main PRIVATE main.cc)
@@ -35,3 +36,5 @@ target_link_libraries(main PRIVATE
 )
 
 target_include_directories(main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_compile_definitions(lvgl PUBLIC LV_CONF_PATH=${CMAKE_CURRENT_SOURCE_DIR}/third-party/lv_conf.h)
