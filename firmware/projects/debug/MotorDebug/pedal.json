@@ -1,0 +1,49 @@
+{
+  "name": "pedal",
+  "baud_rate": null,
+  "nodes": [
+    {
+      "name": "FRONTCONTROLLER"
+    }
+  ],
+  "enum_types": {},
+  "messages": [
+    {
+      "name": "APPS",
+      "id": 217056510,
+      "is_extended_id": true,
+      "length": 8,
+      "sender": "FRONTCONTROLLER",
+      "receivers": [],
+      "frequency": 100,
+      "signals": [
+        {
+          "name": "APPS1",
+          "start_bit": 0,
+          "length": 16,
+          "endianness": "LITTLE",
+          "description": "Accel Pedal 1",
+          "signal_type": "integral",
+          "value_range": [
+            0,
+            100
+          ],
+          "is_signed": false
+        },
+        {
+          "name": "APPS2",
+          "start_bit": 16,
+          "length": 16,
+          "endianness": "LITTLE",
+          "description": "Accel Pedal 2",
+          "signal_type": "integral",
+          "value_range": [
+            0,
+            100
+          ],
+          "is_signed": false
+        }
+      ]
+    }
+  ]
+}
