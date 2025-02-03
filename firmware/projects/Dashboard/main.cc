@@ -102,6 +102,10 @@ int main(int argc, char **argv)
         // State changed, update menu
         previous_state = dashboard_menu.dashboard_state;
 
+        //store current screen that needs to be deleted
+        lv_obj_t* delete_screen = lv_scr_act();
+
+        //overwrite to new screen
         if (dashboard_menu.dashboard_state == STATE_DASHBOARD) {
             dashboard_menu.create_menu();
         } 
@@ -117,6 +121,10 @@ int main(int argc, char **argv)
         else if (dashboard_menu.dashboard_state == STATE_PROFILES) {
             profiles_menu.create_menu();
         }
+
+        //delete the previous screen that was overwritten
+        lv_obj_del(delete_screen);  
+
     }
 
 
