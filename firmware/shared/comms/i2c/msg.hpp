@@ -81,6 +81,7 @@ public:
 }  // namespace shared::i2c
 
 // Operator overload for stream insertion
-std::ostream& operator<<(std::ostream& os, const shared::i2c::Message& msg) {
+inline std::ostream& operator<<(std::ostream& os,
+                                const shared::i2c::Message& msg) {
     return os << msg.ToString();
 }
