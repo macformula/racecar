@@ -1,6 +1,6 @@
-# 🏎⚡️ ANN-E ⚡️🏎
+# 🧠⚡️ ANN-E ⚡️🧠
 
-Building the fastest Formula SAE Electric car requires the fastest firmware.
+Exploring the frontier of analog neural networks: where speed meets efficiency. 
 
 ## Want to see how we do it?
 
