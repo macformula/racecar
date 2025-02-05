@@ -1,0 +1,1 @@
+target_sources(mcal-stm32f4 INTERFACE can.cc)
