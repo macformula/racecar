@@ -5,7 +5,6 @@
 #include "main.h"
 #include "stm32f7xx_hal.h"
 
-
 extern "C" {
 // This requires extern since it is not declared in a header, only defined in
 // cubemx/../main.c
