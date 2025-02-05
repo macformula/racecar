@@ -257,4 +257,4 @@ Setting DigitalOutput Channel Indicator to false
 
 ### stm32f767 Platform
 
-See [Create a CubeMX Project](../cubemx-project/index.md).
+See [Create a CubeMX Project](../stm32/start-cubemx-project.md).
