@@ -1,6 +1,6 @@
 # Binding CubeMX Peripherals to Firmware
 
-!!! info
+!!! danger "Prerequisite Reading"
 
     This article assumes you are familiar with the [`racecar/` Architecture](../architecture/index.md).
 
@@ -10,7 +10,7 @@ Open your `board_config.ioc` file in CubeMX and click "Generate Code." This will
 
 ![Generated Files](img/bindings/generated-files.png){width=40%}
 
-We must "lift" the generated C functions and variables into C++ and *bind* them to our firmware.
+We must lift the generated C functions and variables into C++ and "bind" them to our firmware.
 
 Start by creating a new file `platforms/stm32f767/bindings.cc`.
 

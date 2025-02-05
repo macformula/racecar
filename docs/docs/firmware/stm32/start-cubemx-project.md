@@ -52,9 +52,9 @@ You can ignore the Linker, Thread-safe, and Package settings sections.
 Configure "Project Manager → Code Generator → Generated files"
 
 - Check `Generate peripheral initialization as a pair of '.c/.h' files`
-- Check `Delete previously generated files`
 - Uncheck `Backup previously generate files`
 - Uncheck `Keep User Code`
+- Check `Delete previously generated files`
 
     !!! info
 
@@ -98,4 +98,4 @@ include(${CMAKE_SOURCE_DIR}/cmake/build_cubemx.cmake)
 
 ---
 
-Your CubeMX project is now ready to be compiled within `racecar/`! But the microcontroller hasn't been configured to do anything yet. Let's change that in the next tutorial.
+Your CubeMX project is now ready to be compiled within `racecar/`! But the microcontroller hasn't been configured to do anything yet. Let's change that in the [next tutorial](configure.md).

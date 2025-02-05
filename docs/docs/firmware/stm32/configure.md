@@ -36,7 +36,7 @@ PC2 is now a GPIO output, but we should give it a descriptive name. Expand the `
 
 ![Label Pin](img/config/3-pc2-settings.png)
 
-Now repeat this process for the `TSSI_GN_SIG`! Check the schematic for its pin number and give it a label.
+Now repeat this process for the `TSSI_GN_SIG`! Check the schematic for its pin number (PC3) and give it a label.
 
 ### Analog Inputs (ADC)
 
@@ -58,7 +58,7 @@ To name the pin, go to `Analog -> ADC1 -> GPIO Settings`, click on PC0, and ente
 
 The `DCDC_SNS` input is ready to ready voltages!
 
-LV Controller also has two sensors `STP3_SIG` and `STP4_SIG` to measure suspension travel position. The output voltage is proportional to how compressed the suspension is. Repeat this process for those two inputs using the `ADC1` channels.
+The LV Controller schematic also has two sensors `STP3_SIG` and `STP4_SIG` to measure suspension travel position. The output voltage is proportional to how compressed the suspension is. Repeat this process for those two inputs using the `ADC1` channels.
 
 ### CAN
 
@@ -106,6 +106,6 @@ We do not need to further configure or rename the JTAG pins, we only need to tel
 
 ## Conclusion
 
-We are now done configuring the pins in this schematic! Next, we will show how to bind the generated C code to our firmware.
+We are now done configuring the pins in this schematic! We will now bind the generated C code to our firmware in the [final tutorial](bindings.md).
 
 ![CubeMX final configuration](img/config/11-io-complete.png)
