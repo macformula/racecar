@@ -4,6 +4,9 @@ STM32CubeMX is a graphical software which generates code to configure an STM32 M
 
 The project must be configured correctly to fit our build system.
 
+!!! tip
+    Click on an image to enlarge it.
+
 ## Create a new project
 
 Open CubeMX and start a new project.
@@ -26,7 +29,7 @@ When prompted about Memory Protection, select "Yes." If asked, initialize all pe
 
     CubeMX will now create your new project but __do not save it yet!__ Some settings cannot be changed after the first save.
 
-## Configure Project Settings
+## Configure project settings
 
 Go to the "Project Manager → Project" tab and configure the "Project Settings":
 
@@ -34,6 +37,8 @@ Go to the "Project Manager → Project" tab and configure the "Project Settings"
 - Project Location = Browse and select `racecar/firmware/projects/<PROJECT>/platforms/stm32f767`
 
     > Replace `<PROJECT>` with your project folder created in [this tutorial](../project-structure/index.md).
+    >
+    > `stm32f767` can be changed as appropriate.
 
 - Application Structure = `Basic`
 - Check `Do not generate main()`
@@ -61,7 +66,7 @@ Configure "Project Manager → Code Generator → Generated files"
 
     You can now save the project. Click "File → Save Project" or ++ctrl+s++.
 
-## Build System Integration
+## Build system integration
 
 Close CubeMX and open the Project Location we set earlier. You should see `platforms/stm32f767/board_config/board_config.ioc`. Rename the `board_config/` folder to `cubemx/` but do not rename the `board_config.ioc` file.
 
