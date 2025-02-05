@@ -1,75 +1,95 @@
----
-hide:
-    - toc
----
-
 # Start a CubeMX Project
 
 STM32CubeMX is a graphical software which generates code to configure an STM32 Microcontroller.
 
 The project must be configured correctly to fit our build system.
 
-1. Open CubeMX and start a new project.
+## Create a new project
 
-    ![new project](img/start-project/1-new-project.png)
+Open CubeMX and start a new project.
 
-2. In the "MCU/MPU Selector" tab, search for the microcontroller. Most of MAC FSAE boards are `STM32F767ZIT6`. Select the board and click "Start Project."
+![new project](img/start-project/1-new-project.png)
 
-    ![select mcu](img/start-project/2-board-select.png)
+In the "MCU/MPU Selector" tab, search for the microcontroller. Most of MAC FSAE boards are `STM32F767ZIT6`. Select the board and click "Start Project."
 
-3. When prompted about Memory Protection, select "Yes."
+!!! info
 
-    ![memory protection](img/start-project/3-default-config.png)
+    If you are using a "discovery board" like a [Nucleo](https://www.st.com/en/evaluation-tools/nucleo-f767zi.html) or the dashboard's [STM32F469-DISCO](https://www.st.com/en/evaluation-tools/32f469idiscovery.html), search for the board under "Board Selector" as this will configure many of the IO for the board's hardware.
 
-    !!! warning "Do not save!"
+![select mcu](img/start-project/2-board-select.png)
 
-        CubeMX will now create your new project but __do not save it yet!__ Some settings cannot be changed after the first save.
+When prompted about Memory Protection, select "Yes." If asked, initialize all peripherals in their default mode.
 
-4. Go to the "Project Manager → Project" tab and configure the "Project Settings":
-    - Project Name = `board_config`
-    - Project Location = Browse and select `racecar/firmware/projects/<PROJECT>/platforms/stm32f767`
+![memory protection](img/start-project/3-default-config.png)
 
-        > Replace `<PROJECT>` with your project folder created in [this tutorial](../project-structure/index.md).
+!!! warning "Do not save!"
 
-    - Application Structure = `Basic`
-    - Check `Do not generate main()`
-    - Toolchain Folder Location = leave as is.
-    - Toolchain / IDE = `CMake`
+    CubeMX will now create your new project but __do not save it yet!__ Some settings cannot be changed after the first save.
 
-    ![project-config](img/start-project/4-proj-mgr-project.png)
+## Configure Project Settings
 
-    You can ignore the Linker, Thread-safe, and Package settings sections.
+Go to the "Project Manager → Project" tab and configure the "Project Settings":
 
-5. Configure "Project Manager → Code Generator → Generated files"
-    - Check `Generate peripheral initialization as a pair of '.c/.h' files`
-    - Check `Delete previously generated files`
-    - Uncheck `Backup previously generate files`
-    - Uncheck `Keep User Code`
+- Project Name = `board_config`
+- Project Location = Browse and select `racecar/firmware/projects/<PROJECT>/platforms/stm32f767`
+
+    > Replace `<PROJECT>` with your project folder created in [this tutorial](../project-structure/index.md).
+
+- Application Structure = `Basic`
+- Check `Do not generate main()`
+- Toolchain Folder Location = leave as is.
+- Toolchain / IDE = `CMake`
+
+![project-config](img/start-project/4-proj-mgr-project.png)
+
+You can ignore the Linker, Thread-safe, and Package settings sections.
+
+Configure "Project Manager → Code Generator → Generated files"
+
+- Check `Generate peripheral initialization as a pair of '.c/.h' files`
+- Check `Delete previously generated files`
+- Uncheck `Backup previously generate files`
+- Uncheck `Keep User Code`
 
     !!! info
 
         CubeMX generates C files which you can add code to, but our [Architecture](../architecture/index.md) works at a higher level. Therefore, we do not support adding code to the generated files. Unchecking these settings enforces this rule since user code will be removed.
 
-    !!! success "Save Now"
+![project-config](img/start-project/5-proj-mgr-codegen.png)
 
-        You can now save the project. Click "File → Save Project" or ++ctrl+s++.
+!!! success "Save Now"
 
-6. Close CubeMX and open the Project Location we set earlier. You should see `platforms/stm32f767/board_config/board_config.ioc`. Rename the `board_config/` folder to `cubemx/` but do not rename the `board_config.ioc` file.
+    You can now save the project. Click "File → Save Project" or ++ctrl+s++.
 
-    ??? info "Why do we do this?"
+## Build System Integration
 
-        We shouldn't need to. The CMake build system is hardcoded to look for a `board_config.ioc` file in a `cubemx/` folder.
-        
-        If you want to write a better CMake function which takes the folder/filename as parameters, please be my guest. (Don't forget to update these docs afterwards!)
+Close CubeMX and open the Project Location we set earlier. You should see `platforms/stm32f767/board_config/board_config.ioc`. Rename the `board_config/` folder to `cubemx/` but do not rename the `board_config.ioc` file.
 
-7. Create a `.gitignore` file to ignore all generated files in the `cubemx/` folder. We only track the `.ioc` configuration file and let CubeMX regenerate the code files locally.
+??? info "Why do we do this?"
 
-    ```txt title="stm32f767/cubemx/.gitignore"
-    # Do not track any files generated by STM32CubeMX.
-    *
-    !.gitignore
-    !.board_config.ioc
-    ```
+    We shouldn't need to. The CMake build system is hardcoded to look for a `board_config.ioc` file in a `cubemx/` folder.
+    
+    If you want to write a better CMake function which takes the folder/filename as parameters, please be my guest. (Don't forget to update these docs afterwards!)
+
+Create a `.gitignore` file to ignore all generated files in the `cubemx/` folder. We only track the `.ioc` configuration file and let CubeMX regenerate the code files locally.
+
+```txt title="platforms/stm32f767/cubemx/.gitignore"
+# Do not track any files generated by STM32CubeMX.
+*
+!.gitignore
+!.board_config.ioc
+```
+
+Finally, create an `mcal_conf.cmake` file for the platform to inform the build system of how to generate the CubeMX code at build time.
+
+```cmake title="platforms/stm32f767/mcal_conf.cmake"
+set(MCAL stm32f767)
+include(${CMAKE_SOURCE_DIR}/cmake/build_cubemx.cmake)
+```
+
+> The `set(MCAL ...)` command is required in any platform's `mcal_conf`.
+>
+> The second line is unique to `stm32` platforms, providing CubeMX generation and the `arm-none-eabi` toolchain.
 
 ---
 
