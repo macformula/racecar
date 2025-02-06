@@ -85,7 +85,7 @@ Create a `.gitignore` file to ignore all generated files in the `cubemx/` folder
 !.board_config.ioc
 ```
 
-Finally, create an `mcal_conf.cmake` file for the platform to inform the build system of how to generate the CubeMX code at build time.
+Create an `mcal_conf.cmake` file for the platform to inform the build system of how to generate the CubeMX code at build time.
 
 ```cmake title="platforms/stm32f767/mcal_conf.cmake"
 set(MCAL stm32f767)
@@ -95,6 +95,20 @@ include(${CMAKE_SOURCE_DIR}/cmake/build_cubemx.cmake)
 > The `set(MCAL ...)` command is required in any platform's `mcal_conf`.
 >
 > The second line is unique to `stm32` platforms, providing CubeMX generation and the `arm-none-eabi` toolchain.
+
+Finally, create a CMakeLists with commands to link the CubeMX code to our `main` executable.
+
+```cmake title="platforms/stm32f767/CMakeLists.txt"
+target_sources(main PRIVATE bindings.cc)
+target_link_libraries(main PRIVATE mcal-stm32f767)
+
+add_subdirectory(cubemx/cmake/stm32cubemx)
+target_link_libraries(main PRIVATE stm32cubemx)
+```
+
+!!! note
+
+    `bindings.cc` doesn't exist yet, see the next tutorial.
 
 ---
 
