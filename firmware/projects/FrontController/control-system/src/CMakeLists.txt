@@ -1,0 +1,9 @@
+target_sources(fc-control
+    INTERFACE
+    amk_block.cc
+    battery_monitor.cc
+    driver_interface_fsm.cc
+    driver_interface.cc
+    governor.cc
+    simp_vd_interface.cc
+)
