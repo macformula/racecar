@@ -2,7 +2,7 @@ canGen:
   busses:
     - name: veh
       node: fc
-      dbcFile: "../veh.dbc"
+      dbcFile: "../../dbc/veh.dbc"
     - name: pt
       node: fc
-      dbcFile: "../pt.dbc"
+      dbcFile: "../../dbc/pt.dbc"

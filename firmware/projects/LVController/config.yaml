@@ -2,4 +2,4 @@ canGen:
   busses:
     - name: veh
       node: lvc
-      dbcFile: "../veh.dbc"
+      dbcFile: "../../dbc/veh.dbc"
