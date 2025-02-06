@@ -2,6 +2,8 @@
 
 #include <optional>
 
+#include "control-system/enums.hpp"
+
 Governor::Governor() : fsm_state_(std::nullopt) {}
 
 Governor::Output Governor::Update(const Governor::Input input,
@@ -68,11 +70,11 @@ Governor::Output Governor::Update(const Governor::Input input,
             break;
 
         case ERR_RUNNING_HV:
-            output_.di_cmd = DiCmd::ERR_RUN;
+            output_.di_cmd = DiCmd::RUN_ERROR;
             break;
 
         case ERR_RUNNING_MOTOR:
-            output_.di_cmd = DiCmd::ERR_RUN;
+            output_.di_cmd = DiCmd::RUN_ERROR;
             break;
     }
 
@@ -126,7 +128,7 @@ std::optional<GovSts> Governor::Transition(const Governor::Input input,
             break;
 
         case STARTUP_READY_TO_DRIVE:
-            if (input.di_sts == DiSts::READY_TO_DRIVE_REQ) {
+            if (input.di_sts == DiSts::MOTOR_START_REQ) {
                 return STARTUP_MOTOR;
             }
             break;
