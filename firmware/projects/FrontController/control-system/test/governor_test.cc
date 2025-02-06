@@ -44,7 +44,7 @@ Governor CycleToState(GovSts desired_state_) {
     assert(g.Update(in, ++time).gov_sts == STARTUP_READY_TO_DRIVE);
     if (desired_state_ == STARTUP_READY_TO_DRIVE) return g;
 
-    in.di_sts = DiSts::READY_TO_DRIVE_REQ;
+    in.di_sts = DiSts::MOTOR_START_REQ;
     assert(g.Update(in, ++time).gov_sts == STARTUP_MOTOR);
     if (desired_state_ == STARTUP_MOTOR) return g;
 
@@ -64,7 +64,7 @@ Governor CycleToState(GovSts desired_state_) {
     assert(false);
 }
 
-void test_normal_sequence() {
+void test_gov_normal_sequence() {
     Governor g;
 
     Governor::Input in{
@@ -111,7 +111,7 @@ void test_normal_sequence() {
         assert(g.Update(in, ++time).gov_sts == GovSts::STARTUP_READY_TO_DRIVE);
     }
 
-    in.di_sts = DiSts::READY_TO_DRIVE_REQ;
+    in.di_sts = DiSts::MOTOR_START_REQ;
 
     {
         auto out = g.Update(in, ++time);
@@ -139,7 +139,7 @@ void test_normal_sequence() {
         assert(out.gov_sts == GovSts::RUNNING);
     }
 
-    std::cout << "Passed test_normal_sequence!" << std::endl;
+    std::cout << "Passed test_gov_normal_sequence!" << std::endl;
 }
 
 void test_shutdown_hvil() {
@@ -228,7 +228,7 @@ void test_running_err() {
 
     auto out = g.Update(in, ++time);
     assert(out.gov_sts == GovSts::ERR_RUNNING_HV);
-    assert(out.di_cmd == DiCmd::ERR_RUN);
+    assert(out.di_cmd == DiCmd::RUN_ERROR);
 
     std::cout << "Passed test_running_err!" << std::endl;
 }
@@ -249,7 +249,7 @@ void test_running_mi_err() {
 
     auto out = g.Update(in, ++time);
     assert(out.gov_sts == GovSts::ERR_RUNNING_MOTOR);
-    assert(out.di_cmd == DiCmd::ERR_RUN);
+    assert(out.di_cmd == DiCmd::RUN_ERROR);
 
     std::cout << "Passed test_running_mi_err!" << std::endl;
 }
@@ -378,7 +378,7 @@ void test_startup_motor_error() {
             // Go back to MOTOR_STARTUP state to increment counter
             in.bm_sts = BmSts::RUNNING;
             g.Update(in, ++time);
-            in.di_sts = DiSts::READY_TO_DRIVE_REQ;
+            in.di_sts = DiSts::MOTOR_START_REQ;
             assert(g.Update(in, ++time).gov_sts == STARTUP_MOTOR);
         }
 
@@ -399,7 +399,7 @@ void test_startup_motor_error() {
 }
 
 void GovTest() {
-    test_normal_sequence();
+    test_gov_normal_sequence();
     test_shutdown_hvil();
     test_shutdown_low_soc();
 
