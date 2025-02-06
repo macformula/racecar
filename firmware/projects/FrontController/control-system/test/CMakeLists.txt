@@ -1,0 +1,10 @@
+add_executable(test
+    PRIVATE
+    main.cc
+    amk_block_test.cc
+    battery_monitor_test.cc
+    driver_interface_fsm_test.cc
+    driver_interface_test.cc
+    governor_test.cc
+    simp_vd_interface_test.cc
+)

@@ -2,6 +2,8 @@
 
 #include <optional>
 
+#include "control-system/enums.hpp"
+
 BatteryMonitor::BatteryMonitor()
     : current_status_(std::nullopt), bm_control_status_(std::nullopt) {}
 
@@ -28,10 +30,10 @@ BatteryMonitor::Output BatteryMonitor::Update(const Input& input, int time_ms) {
                   .contactor = contactor_cmd};
 }
 
-std::optional<BmStatus> BatteryMonitor::TransitionStatus(const Input& input,
-                                                         int time_ms) {
+std::optional<BmSts> BatteryMonitor::TransitionStatus(const Input& input,
+                                                      int time_ms) {
     using enum ContactorState;
-    using enum BmStatus;
+    using enum BmSts;
 
     if (!current_status_.has_value()) {
         return INIT;
@@ -108,10 +110,10 @@ std::optional<BmStatus> BatteryMonitor::TransitionStatus(const Input& input,
     return std::nullopt;
 }
 
-std::optional<ControlStatus> BatteryMonitor::TransitionControl(BmStatus status,
+std::optional<ControlStatus> BatteryMonitor::TransitionControl(BmSts status,
                                                                int time_ms) {
     using enum ContactorState;
-    using enum BmStatus;
+    using enum BmSts;
 
     if (!bm_control_status_.has_value()) {
         return ControlStatus::STARTUP_CMD;

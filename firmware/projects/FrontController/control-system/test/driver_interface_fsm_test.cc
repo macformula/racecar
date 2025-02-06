@@ -203,12 +203,12 @@ void test_shutdown() {
     std::cout << "Passed test_shutdown" << std::endl;
 }
 
-void TestFsm() {
+void DiFsmTest() {
     test_sequence();
     test_start_running();
     test_running_error();
     test_general_error();
     test_shutdown();
 
-    std::cout << "All tests passed!" << std::endl;
+    std::cout << "All DiFsm tests passed!" << std::endl;
 }

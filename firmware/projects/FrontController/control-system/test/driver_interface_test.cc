@@ -3,6 +3,7 @@
 #include <cassert>
 #include <iostream>
 
+#include "control-system/enums.hpp"
 #include "driver_interface_fsm.hpp"
 #include "driver_interface_fsm_test.hpp"
 #include "shared/controls/testing.h"
@@ -135,7 +136,7 @@ void test_steering_angle() {
     }
 }
 
-int main() {
+void DiTest() {
     TestFsm();
 
     test_brake_light();
@@ -143,7 +144,5 @@ int main() {
     test_driver_torque_req();
     test_not_ready_drive();
 
-    std::cout << "All tests passed!" << std::endl;
-
-    return 0;
+    std::cout << "All DI tests passed!" << std::endl;
 }

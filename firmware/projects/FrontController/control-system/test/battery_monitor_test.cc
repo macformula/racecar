@@ -7,7 +7,9 @@
 #include <iostream>
 #include <vector>
 
-BatteryMonitor CycleToState(BmStatus desired_state, int& time_ms) {
+#include "control-system/enums.hpp"
+
+BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
     using enum ContactorState;
 
     BatteryMonitor bm{};
@@ -25,7 +27,7 @@ BatteryMonitor CycleToState(BmStatus desired_state, int& time_ms) {
         },
         time_ms);
 
-    if (desired_state == BmStatus::INIT) {
+    if (desired_state == BmSts::INIT) {
         return bm;
     }
 
@@ -37,7 +39,7 @@ BatteryMonitor CycleToState(BmStatus desired_state, int& time_ms) {
                   .pack_soc = 50.0,
               },
               time_ms)
-            .status == BmStatus::HVIL_INTERRUPT) {
+            .status == BmSts::HVIL_INTERRUPT) {
         return bm;
     }
 
@@ -48,7 +50,7 @@ BatteryMonitor CycleToState(BmStatus desired_state, int& time_ms) {
                   .pack_soc = 20.0,
               },
               time_ms)
-            .status == BmStatus::LOW_SOC) {
+            .status == BmSts::LOW_SOC) {
         return bm;
     }
 
@@ -65,7 +67,7 @@ BatteryMonitor CycleToState(BmStatus desired_state, int& time_ms) {
         },
         time_ms);
 
-    if (desired_state == BmStatus::IDLE) {
+    if (desired_state == BmSts::IDLE) {
         return bm;
     }
 
@@ -82,7 +84,7 @@ BatteryMonitor CycleToState(BmStatus desired_state, int& time_ms) {
         },
         time_ms);
 
-    if (desired_state == BmStatus::STARTUP) {
+    if (desired_state == BmSts::STARTUP) {
         return bm;
     }
 
@@ -99,7 +101,7 @@ BatteryMonitor CycleToState(BmStatus desired_state, int& time_ms) {
         },
         time_ms);
 
-    if (desired_state == BmStatus::INIT_PRECHARGE) {
+    if (desired_state == BmSts::INIT_PRECHARGE) {
         return bm;
     }
 
@@ -116,7 +118,7 @@ BatteryMonitor CycleToState(BmStatus desired_state, int& time_ms) {
         },
         time_ms);
 
-    if (desired_state == BmStatus::PRECHARGE) {
+    if (desired_state == BmSts::PRECHARGE) {
         return bm;
     }
 
@@ -133,7 +135,7 @@ BatteryMonitor CycleToState(BmStatus desired_state, int& time_ms) {
         },
         time_ms);
 
-    if (desired_state == BmStatus::RUNNING) {
+    if (desired_state == BmSts::RUNNING) {
         return bm;
     }
 
@@ -148,23 +150,23 @@ BatteryMonitor CycleToState(BmStatus desired_state, int& time_ms) {
     return bm;
 }
 
-std::string BmStatusToString(BmStatus status) {
+std::string BmStatusToString(BmSts status) {
     switch (status) {
-        case BmStatus::INIT:
+        case BmSts::INIT:
             return "INIT";
-        case BmStatus::IDLE:
+        case BmSts::IDLE:
             return "IDLE";
-        case BmStatus::STARTUP:
+        case BmSts::STARTUP:
             return "STARTUP";
-        case BmStatus::INIT_PRECHARGE:
+        case BmSts::INIT_PRECHARGE:
             return "INIT_PRECHARGE";
-        case BmStatus::PRECHARGE:
+        case BmSts::PRECHARGE:
             return "PRECHARGE";
-        case BmStatus::RUNNING:
+        case BmSts::RUNNING:
             return "RUNNING";
-        case BmStatus::LOW_SOC:
+        case BmSts::LOW_SOC:
             return "LOW_SOC";
-        case BmStatus::HVIL_INTERRUPT:
+        case BmSts::HVIL_INTERRUPT:
             return "HVIL_INTERRUPT";
         default:
             return "UNKNOWN";
@@ -173,12 +175,12 @@ std::string BmStatusToString(BmStatus status) {
 
 void test_low_soc_transitions() {
     using enum ContactorState;
-    std::vector<BmStatus> states = {BmStatus::IDLE, BmStatus::STARTUP,
-                                    BmStatus::INIT_PRECHARGE,
-                                    BmStatus::PRECHARGE, BmStatus::RUNNING};
+    std::vector<BmSts> states = {BmSts::IDLE, BmSts::STARTUP,
+                                 BmSts::INIT_PRECHARGE, BmSts::PRECHARGE,
+                                 BmSts::RUNNING};
     int time_ms;
 
-    for (BmStatus state : states) {
+    for (BmSts state : states) {
         BatteryMonitor bm = CycleToState(state, time_ms);
 
         std::cout << "Testing transition from " << BmStatusToString(state)
@@ -192,7 +194,7 @@ void test_low_soc_transitions() {
             },
             time_ms);
 
-        assert(output.status == BmStatus::LOW_SOC);
+        assert(output.status == BmSts::LOW_SOC);
         assert(output.contactor.precharge == OPEN);
         assert(output.contactor.hv_negative == OPEN);
         assert(output.contactor.hv_positive == OPEN);
@@ -204,12 +206,12 @@ void test_low_soc_transitions() {
 
 void test_hvil_interrupt_transitions() {
     using enum ContactorState;
-    std::vector<BmStatus> states = {BmStatus::IDLE, BmStatus::STARTUP,
-                                    BmStatus::INIT_PRECHARGE,
-                                    BmStatus::PRECHARGE, BmStatus::RUNNING};
+    std::vector<BmSts> states = {BmSts::IDLE, BmSts::STARTUP,
+                                 BmSts::INIT_PRECHARGE, BmSts::PRECHARGE,
+                                 BmSts::RUNNING};
     int time_ms;
 
-    for (BmStatus state : states) {
+    for (BmSts state : states) {
         BatteryMonitor bm = CycleToState(state, time_ms);
 
         std::cout << "Testing transition from " << BmStatusToString(state)
@@ -223,7 +225,7 @@ void test_hvil_interrupt_transitions() {
             },
             time_ms);
 
-        assert(output.status == BmStatus::HVIL_INTERRUPT);
+        assert(output.status == BmSts::HVIL_INTERRUPT);
         assert(output.contactor.precharge == OPEN);
         assert(output.contactor.hv_negative == OPEN);
         assert(output.contactor.hv_positive == OPEN);
@@ -251,7 +253,7 @@ void test_state_transitions() {
         },
         time_ms);
 
-    assert(output1.status == BmStatus::INIT);
+    assert(output1.status == BmSts::INIT);
     assert(output1.control_status == ControlStatus::STARTUP_CMD);
 
     // Test: Transition from INIT to IDLE
@@ -268,7 +270,7 @@ void test_state_transitions() {
         },
         time_ms);
 
-    assert(output2.status == BmStatus::IDLE);
+    assert(output2.status == BmSts::IDLE);
     assert(output2.control_status == ControlStatus::CLOSE_HV_NEG);
 
     // Test: Transition from IDLE to STARTUP
@@ -285,7 +287,7 @@ void test_state_transitions() {
         },
         time_ms);
 
-    assert(output3.status == BmStatus::STARTUP);
+    assert(output3.status == BmSts::STARTUP);
     assert(output3.control_status == ControlStatus::CLOSE_PRECHARGE);
 
     // Test: Transition from STARTUP to INIT_PRECHARGE
@@ -302,7 +304,7 @@ void test_state_transitions() {
         },
         time_ms);
 
-    assert(output4.status == BmStatus::INIT_PRECHARGE);
+    assert(output4.status == BmSts::INIT_PRECHARGE);
     assert(output4.control_status == ControlStatus::CLOSE_HV_POS);
 
     // Test: Transition from INIT_PRECHARGE to PRECHARGE
@@ -319,7 +321,7 @@ void test_state_transitions() {
         },
         time_ms);
 
-    assert(output5.status == BmStatus::PRECHARGE);
+    assert(output5.status == BmSts::PRECHARGE);
     assert(output5.control_status == ControlStatus::OPEN_PRECHARGE);
 
     // Test: Transition from PRECHARGE to RUNNING
@@ -336,13 +338,13 @@ void test_state_transitions() {
         },
         time_ms);
 
-    assert(output6.status == BmStatus::RUNNING);
+    assert(output6.status == BmSts::RUNNING);
     assert(output6.control_status == ControlStatus::OPEN_PRECHARGE);
 
     std::cout << "Test sequence passed!" << std::endl;
 }
 
-int main() {
+void BmTest() {
     std::cout << "TEST CASES FOR LOW_SOC TRANSITIONS" << std::endl;
     test_low_soc_transitions();
     std::cout << std::endl << std::endl;
@@ -355,7 +357,5 @@ int main() {
     test_state_transitions();
     std::cout << std::endl << std::endl;
 
-    std::cout << "All tests passed!" << std::endl;
-
-    return 0;
+    std::cout << "All BM tests passed!" << std::endl;
 }

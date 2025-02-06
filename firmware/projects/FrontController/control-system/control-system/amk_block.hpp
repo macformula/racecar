@@ -2,28 +2,8 @@
 
 #include <concepts>
 
+#include "enums.hpp"
 #include "generated/can/pt_can_messages.hpp"
-
-// MiStatus enum class used in AmkOutput
-enum class MiStatus {
-    UNKNOWN,
-    INIT,
-    STARTUP,
-    READY,
-    RUNNING,
-    SHUTDOWN,
-    ERROR,
-    OFF
-};
-
-// MiCmd enum class used in AmkInput
-enum class MiCmd {
-    INIT,
-    IDLE,
-    STARTUP,
-    SHUTDOWN,
-    ERR_RESET
-};
 
 // AmkStates enum class which defines all states in the amk state machine
 enum class AmkStates {
@@ -60,7 +40,7 @@ struct AmkInput {
 
 // AmkOutput struct, the output that is produced from the state machine
 struct AmkOutput {
-    MiStatus status;
+    MiSts status;
     generated::can::AMK0_SetPoints1 left_setpoints;
     generated::can::AMK1_SetPoints1 right_setpoints;
     bool inverter_enable;
@@ -101,7 +81,7 @@ concept SetPoints = requires(MsgType msg) {
 template <SetPoints SP>
 struct UpdateMotorOutput {
     SP setpoints;
-    MiStatus status;
+    MiSts status;
     bool inverter_enable;
 };
 
@@ -120,7 +100,7 @@ public:
 private:
     AmkStates amk_state_;
     int amk_state_start_time_ = 0;
-    UpdateMotorOutput<SP> output_{.status = MiStatus::OFF,
+    UpdateMotorOutput<SP> output_{.status = MiSts::OFF,
                                   .inverter_enable = false};
 };
 
@@ -135,9 +115,9 @@ private:
     AmkManager<generated::can::AMK1_ActualValues1,
                generated::can::AMK1_SetPoints1>
         right_amk_manager{AmkStates::MOTOR_OFF_WAITING_FOR_GOV};
-    MiStatus status_ = MiStatus::OFF;
+    MiSts status_ = MiSts::OFF;
 
-    void UpdateOutputStatus(MiStatus left_status, MiStatus right_status);
+    void UpdateOutputStatus(MiSts left_status, MiSts right_status);
 };
 
 template <AmkActualValues1 V1, SetPoints SP>
@@ -153,7 +133,7 @@ UpdateMotorOutput<SP> AmkManager<V1, SP>::UpdateMotor(
     amk_state_ = Transition(val1, cmd, time_ms);
     switch (amk_state_) {
         case MOTOR_OFF_WAITING_FOR_GOV:
-            output_.status = MiStatus::OFF;
+            output_.status = MiSts::OFF;
             output_.inverter_enable = false;
 
             output_.setpoints.amk_b_inverter_on = false;
@@ -167,7 +147,7 @@ UpdateMotorOutput<SP> AmkManager<V1, SP>::UpdateMotor(
             break;
 
         case STARTUP_SYS_READY:
-            output_.status = MiStatus::STARTUP;
+            output_.status = MiSts::STARTUP;
 
             break;
 
@@ -190,13 +170,13 @@ UpdateMotorOutput<SP> AmkManager<V1, SP>::UpdateMotor(
             break;
 
         case READY:
-            output_.status = MiStatus::READY;
+            output_.status = MiSts::READY;
             output_.inverter_enable = true;
 
             break;
 
         case RUNNING:
-            output_.status = MiStatus::RUNNING;
+            output_.status = MiSts::RUNNING;
 
             output_.setpoints.amk__target_velocity = motor_input.speed_request;
             output_.setpoints.amk__torque_limit_positiv =
@@ -216,7 +196,7 @@ UpdateMotorOutput<SP> AmkManager<V1, SP>::UpdateMotor(
             break;
 
         case ERROR_DETECTED:
-            output_.status = MiStatus::ERROR;
+            output_.status = MiSts::ERROR;
 
             break;
 

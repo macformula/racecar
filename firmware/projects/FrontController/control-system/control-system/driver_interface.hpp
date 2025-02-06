@@ -1,6 +1,7 @@
 #pragma once
 
 #include "driver_interface_fsm.hpp"
+#include "enums.hpp"
 
 class DriverInterface {
 public:

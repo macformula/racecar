@@ -288,7 +288,7 @@ void test_7(SimpVdInterface* simp_vd_int) {
                  output_7_expected.lm_torque_limit_positive);
 }
 
-int start_tests() {
+void VdTest() {
     const float pedal_torque_lut_data[][2] = {{0.0f, 0.0f}, {100.0f, 100.0f}};
     constexpr int pedal_torque_lut_length =
         (sizeof(pedal_torque_lut_data)) / (sizeof(pedal_torque_lut_data[0]));
@@ -308,7 +308,5 @@ int start_tests() {
     test_6(&simp_vd_int_2);
     test_7(&simp_vd_int_2);
 
-    std::cout << "Testing done!" << std::endl;
-
-    return 0;
+    std::cout << "ll VD tests done!" << std::endl;
 }

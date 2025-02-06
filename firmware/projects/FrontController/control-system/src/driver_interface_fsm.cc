@@ -1,5 +1,7 @@
 #include "driver_interface_fsm.hpp"
 
+#include "control-system/enums.hpp"
+
 DiFsm::DiFsm(DiSts initial_state) : status_(initial_state) {}
 
 DiFsm::Output DiFsm::Update(const DiFsm::Input input, const int time_ms) {

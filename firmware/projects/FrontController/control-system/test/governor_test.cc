@@ -5,6 +5,8 @@
 #include <tuple>
 #include <vector>
 
+#include "control-system/enums.hpp"
+
 /// Helper function to prepare a Governor in a specific state for testing.
 Governor CycleToState(GovSts desired_state_) {
     using enum GovSts;
@@ -396,7 +398,7 @@ void test_startup_motor_error() {
     std::cout << "Passed test_startup_motor_error" << std::endl;
 }
 
-int main() {
+void GovTest() {
     test_normal_sequence();
     test_shutdown_hvil();
     test_shutdown_low_soc();
@@ -408,7 +410,5 @@ int main() {
     test_running_err();
     test_running_mi_err();
 
-    std::cout << "All tests passed!" << std::endl;
-
-    return 0;
+    std::cout << "All GOV tests passed!" << std::endl;
 }

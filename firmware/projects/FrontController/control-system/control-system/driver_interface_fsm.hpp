@@ -1,24 +1,6 @@
 #pragma once
 
-enum class DiCmd {
-    INIT,
-    HV_ON,
-    READY_TO_DRIVE,
-    SHUTDOWN,
-    RUN_ERROR,
-    ERR_RESET,
-    UNKNOWN,
-};
-
-enum class DiSts {
-    INIT,
-    WAITING_FOR_DRVR,
-    HV_START_REQ,
-    MOTOR_START_REQ,
-    RUNNING,
-    ERR_COASTING,
-    ERR,
-};
+#include "enums.hpp"
 
 class DiFsm {
 public:

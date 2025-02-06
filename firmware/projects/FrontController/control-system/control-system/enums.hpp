@@ -24,20 +24,19 @@ enum class DiCmd {
     HV_ON,
     READY_TO_DRIVE,
     SHUTDOWN,
-    ERR_RUN,
-    ERR_RESET
+    RUN_ERROR,
+    ERR_RESET,
+    UNKNOWN,
 };
 
 enum class DiSts {
-    UNKNOWN,
     INIT,
-    IDLE,
-    STARTUP,
-    WAITING_FOR_DRIVER,
-    READY_TO_DRIVE_REQ,
+    WAITING_FOR_DRVR,
     HV_START_REQ,
+    MOTOR_START_REQ,
     RUNNING,
-    ERR
+    ERR_COASTING,
+    ERR,
 };
 
 enum class GovSts {

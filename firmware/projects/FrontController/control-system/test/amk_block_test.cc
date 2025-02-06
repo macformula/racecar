@@ -3,6 +3,8 @@
 #include <cassert>
 #include <iostream>
 
+#include "control-system/enums.hpp"
+
 using namespace generated::can;
 
 template <SetPoints SP>
@@ -39,7 +41,7 @@ void test_normal_sequence() {
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::STARTUP);
+        assert(output.status == MiSts::STARTUP);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
         assert(output.inverter_enable == false);
     }
@@ -50,7 +52,7 @@ void test_normal_sequence() {
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::STARTUP);
+        assert(output.status == MiSts::STARTUP);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
         assert(output.inverter_enable == false);
     }
@@ -61,7 +63,7 @@ void test_normal_sequence() {
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::STARTUP);
+        assert(output.status == MiSts::STARTUP);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
         assert(output.inverter_enable == false);
     }
@@ -71,7 +73,7 @@ void test_normal_sequence() {
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::STARTUP);
+        assert(output.status == MiSts::STARTUP);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
         assert(output.inverter_enable == false);
     }
@@ -83,7 +85,7 @@ void test_normal_sequence() {
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::STARTUP);
+        assert(output.status == MiSts::STARTUP);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
         assert(output.inverter_enable == false);
     }
@@ -93,7 +95,7 @@ void test_normal_sequence() {
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::READY);
+        assert(output.status == MiSts::READY);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
         assert(output.inverter_enable == true);
     }
@@ -106,7 +108,7 @@ void test_normal_sequence() {
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::RUNNING);
+        assert(output.status == MiSts::RUNNING);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
         assert(output.inverter_enable == true);
     }
@@ -119,7 +121,7 @@ void test_normal_sequence() {
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::RUNNING);
+        assert(output.status == MiSts::RUNNING);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
         assert(output.inverter_enable == false);
     }
@@ -129,7 +131,7 @@ void test_normal_sequence() {
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::RUNNING);
+        assert(output.status == MiSts::RUNNING);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
         assert(output.inverter_enable == false);
     }
@@ -140,7 +142,7 @@ void test_normal_sequence() {
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::OFF);
+        assert(output.status == MiSts::OFF);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
         assert(output.inverter_enable == false);
     }
@@ -163,7 +165,7 @@ void test_error_detected_state() {
             AmkStates::STARTUP_SYS_READY);
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::ERROR);
+        assert(output.status == MiSts::ERROR);
     }
 
     // Test transition STARTUP_TOGGLE_D_CON to ERROR_DETECTED
@@ -172,7 +174,7 @@ void test_error_detected_state() {
             AmkStates::STARTUP_TOGGLE_D_CON);
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::ERROR);
+        assert(output.status == MiSts::ERROR);
     }
 
     // Test transition STARTUP_ENFORCE_SETPOINTS_ZERO to ERROR_DETECTED
@@ -181,7 +183,7 @@ void test_error_detected_state() {
             AmkStates::STARTUP_ENFORCE_SETPOINTS_ZERO);
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::ERROR);
+        assert(output.status == MiSts::ERROR);
     }
 
     // Test transition STARTUP_COMMAND_ON to ERROR_DETECTED
@@ -190,7 +192,7 @@ void test_error_detected_state() {
             AmkStates::STARTUP_COMMAND_ON);
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::ERROR);
+        assert(output.status == MiSts::ERROR);
     }
 
     // Test transition READY to ERROR_DETECTED
@@ -199,7 +201,7 @@ void test_error_detected_state() {
             AmkStates::READY);
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::ERROR);
+        assert(output.status == MiSts::ERROR);
     }
 
     // Test transition RUNNING to ERROR_DETECTED
@@ -208,7 +210,7 @@ void test_error_detected_state() {
             AmkStates::RUNNING);
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::ERROR);
+        assert(output.status == MiSts::ERROR);
     }
 }
 
@@ -280,17 +282,15 @@ void test_error_sequence() {
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
-        assert(output.status == MiStatus::OFF);
+        assert(output.status == MiSts::OFF);
         assert_setpoint_equal(output.setpoints, expected_setpoints);
     }
 }
 
-int run_tests() {
+void AmkTest() {
     test_normal_sequence();
     test_error_detected_state();
     test_error_sequence();
 
-    std::cout << "All tests passed!" << std::endl;
-
-    return 0;
+    std::cout << "All AMK tests passed!" << std::endl;
 }

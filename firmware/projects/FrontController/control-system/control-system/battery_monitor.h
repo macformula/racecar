@@ -1,16 +1,7 @@
 #pragma once
 #include <optional>
 
-enum class BmStatus {
-    INIT,
-    IDLE,
-    STARTUP,
-    INIT_PRECHARGE,
-    PRECHARGE,
-    RUNNING,
-    HVIL_INTERRUPT,
-    LOW_SOC,
-};
+#include "enums.hpp"
 
 enum class ControlStatus {
     STARTUP_CMD,
@@ -18,12 +9,6 @@ enum class ControlStatus {
     CLOSE_PRECHARGE,
     CLOSE_HV_POS,
     OPEN_PRECHARGE,
-};
-
-enum class BmCmd {
-    INIT,
-    HV_STARTUP,
-    HV_SHUTDOWN,
 };
 
 enum class ContactorState : bool {
@@ -48,7 +33,7 @@ public:
         float pack_soc;
     };
     struct Output {
-        BmStatus status;
+        BmSts status;
         ControlStatus control_status;
         ContactorCMD contactor;
     };
@@ -57,13 +42,12 @@ public:
     Output Update(const Input& input, int time_ms);
 
 private:
-    std::optional<BmStatus> TransitionStatus(const Input& input, int time_ms);
-    std::optional<ControlStatus> TransitionControl(BmStatus status,
-                                                   int time_ms);
+    std::optional<BmSts> TransitionStatus(const Input& input, int time_ms);
+    std::optional<ControlStatus> TransitionControl(BmSts status, int time_ms);
     ContactorCMD SelectContactorCmd(ControlStatus bm_control_status_);
 
     // State machine variables (BmUpdate)
-    std::optional<BmStatus> current_status_;
+    std::optional<BmSts> current_status_;
     std::optional<ControlStatus> bm_control_status_;
     int status_snapshot_time_ms_;
     int control_snapshot_time_ms_;

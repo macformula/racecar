@@ -1,5 +1,7 @@
 #include "amk_block.hpp"
 
+#include "control-system/enums.hpp"
+
 // Given motor inputs, will produce a motor output returned
 AmkOutput MotorInterface::Update(const AmkInput& input, const int time_ms) {
     auto left = left_amk_manager.UpdateMotor(

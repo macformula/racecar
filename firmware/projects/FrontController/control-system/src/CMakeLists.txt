@@ -1,4 +1,4 @@
-target_sources(fc-control
+target_sources(control-system
     INTERFACE
     amk_block.cc
     battery_monitor.cc
