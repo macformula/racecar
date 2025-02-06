@@ -21,12 +21,12 @@ public:
     CanBase(std::string can_iface) : iface_(can_iface){};
 
     void Setup() {
-        std::cout << std::format("can interface: {}", iface_) << std::endl;
+        std::cout << "can interface: " << iface_ << std::endl;
     }
 
     void Send(const shared::can::RawMessage& msg) override {
-        std::cout << std::format("CanBase {}: Sending\n| {}", iface_, msg)
-                  << std::endl;
+        std::cout << "CanBase " << iface_ << ": Sending\n| " 
+                  << format_raw_message(msg) << std::endl;
     }
 
 private:

@@ -10,10 +10,10 @@
 
 namespace mcal::cli::periph {
 
-class I2C : public shared::periph::I2C {
+class I2CBus : public shared::periph::I2CBus {
 public:
-    I2C(int bus_number) : bus_number_(bus_number) {}
-    virtual ~I2C() = default;
+    I2CBus(int bus_number) : bus_number_(bus_number) {}
+    virtual ~I2CBus() = default;
 
     virtual void Write(const shared::i2c::Message& msg) override {
         std::cout << "I2C " << bus_number_ << " - " << msg << "\n";

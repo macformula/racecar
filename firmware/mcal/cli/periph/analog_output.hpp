@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <format>
+#include <iomanip>
 #include <iostream>
 #include <string>
 
@@ -16,9 +16,8 @@ public:
     AnalogOutput(std::string name) : name_(name) {}
 
     void SetVoltage(float voltage) override {
-        std::cout << std::format("Setting AnalogOutput {} to {:.3f} V", name_,
-                                 voltage)
-                  << std::endl;
+        std::cout << "Setting AnalogOutput " << name_ << " to " << std::fixed
+                  << std::setprecision(3) << voltage << " V" << std::endl;
     }
 
 private:

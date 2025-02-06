@@ -2,7 +2,8 @@
 
 #include <concepts>
 #include <cstdint>
-#include <format>
+#include <iomanip>
+#include <sstream>
 
 namespace shared::can {
 
@@ -46,20 +47,13 @@ inline uint8_t pack_right_shift(T value, uint8_t shift, uint8_t mask) {
 
 }  // namespace shared::can
 
-// Convert RawMessage to string with `std::format`
-template <>
-struct std::formatter<shared::can::RawMessage> {
-    constexpr auto parse(auto& ctx) {
-        return ctx.begin();
+inline std::string format_raw_message(const shared::can::RawMessage& msg) {
+    std::stringstream ss;
+    ss << '[' << std::hex << std::uppercase << std::setw(2) << std::setfill('0')
+       << static_cast<int>(msg.id) << ']';
+    for (int i = 0; i < msg.data_length; ++i) {
+        ss << ' ' << std::setw(2) << std::setfill('0')
+           << static_cast<int>(msg.data[i]);
     }
-
-    template <typename FormatContext>
-    auto format(const shared::can::RawMessage& msg, FormatContext& ctx) const {
-        std::string str = std::format("[{:02X}]", msg.id);
-        for (int i = 0; i < msg.data_length; ++i) {
-            str += std::format(" {:02X}", msg.data[i]);
-        }
-
-        return std::format_to(ctx.out(), "{}", str);
-    }
-};
+    return ss.str();
+}

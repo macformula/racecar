@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <format>
+#include <iomanip>
 #include <iostream>
 
 #include "shared/periph/analog_input.hpp"
@@ -15,12 +15,12 @@ public:
     AnalogInput(std::string name) : name_(name) {}
 
     float ReadVoltage() override {
-        std::cout << std::format("Reading ADC {} ...", name_) << std::endl;
+        std::cout << "Reading ADC " << name_ << " ..." << std::endl;
         std::cout << " | Enter a voltage level: ";
         float voltage;
         std::cin >> voltage;
-        std::cout << std::format(" | Obtained value {:.3f} V", voltage)
-                  << std::endl;
+        std::cout << " | Obtained value " << std::fixed << std::setprecision(3)
+                  << voltage << " V" << std::endl;
         return voltage;
     }
 
