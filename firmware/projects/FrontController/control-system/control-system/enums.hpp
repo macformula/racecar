@@ -3,11 +3,9 @@
 enum class BmCmd {
     INIT,
     HV_STARTUP,
-    HV_SHUTDOWN
 };
 
 enum class BmSts {
-    UNKNOWN,
     INIT,
     IDLE,
     STARTUP,
@@ -26,7 +24,6 @@ enum class DiCmd {
     SHUTDOWN,
     RUN_ERROR,
     ERR_RESET,
-    UNKNOWN,
 };
 
 enum class DiSts {
@@ -57,19 +54,16 @@ enum class GovSts {
 
 enum class MiCmd {
     INIT,
-    IDLE,
     STARTUP,
     SHUTDOWN,
     ERR_RESET
 };
 
 enum class MiSts {
-    UNKNOWN,
     INIT,
     STARTUP,
     READY,
     RUNNING,
-    SHUTDOWN,
     ERR,
     OFF
 };

@@ -10,7 +10,7 @@ void test_sequence() {
 
     int time_ms = 0;
     DiFsm::Input in{
-        .command = DiCmd::UNKNOWN,
+        .command = DiCmd::HV_ON,  // not init
         .driver_button = false,
         .brake_pedal_pos = 0.,
         .di_error = false,
