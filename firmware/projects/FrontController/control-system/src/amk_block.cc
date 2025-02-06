@@ -19,10 +19,9 @@ AmkOutput MotorInterface::Update(const AmkInput& input, const int time_ms) {
 }
 
 // Processes the new output status given the left/right statuses
-void MotorInterface::UpdateOutputStatus(MiStatus left_status,
-                                        MiStatus right_status) {
-    if (left_status == MiStatus::ERROR || right_status == MiStatus::ERROR) {
-        status_ = MiStatus::ERROR;
+void MotorInterface::UpdateOutputStatus(MiSts left_status, MiSts right_status) {
+    if (left_status == MiSts::ERR || right_status == MiSts::ERR) {
+        status_ = MiSts::ERR;
     } else if (left_status == right_status) {
         status_ = left_status;
     }

@@ -1,9 +1,8 @@
 #pragma once
-
 #include <concepts>
 
 #include "enums.hpp"
-#include "generated/can/pt_can_messages.hpp"
+#include "generated/can/pt_messages.hpp"
 
 // AmkStates enum class which defines all states in the amk state machine
 enum class AmkStates {
@@ -32,8 +31,8 @@ struct MotorInput {
 // AmkInput struct, the input that is fed into the state machine
 struct AmkInput {
     MiCmd cmd;
-    generated::can::AMK0_ActualValues1 left_actual1;
-    generated::can::AMK1_ActualValues1 right_actual1;
+    generated::can::RxAMK0_ActualValues1 left_actual1;
+    generated::can::RxAMK1_ActualValues1 right_actual1;
     MotorInput left_motor_input;
     MotorInput right_motor_input;
 };
@@ -41,8 +40,8 @@ struct AmkInput {
 // AmkOutput struct, the output that is produced from the state machine
 struct AmkOutput {
     MiSts status;
-    generated::can::AMK0_SetPoints1 left_setpoints;
-    generated::can::AMK1_SetPoints1 right_setpoints;
+    generated::can::TxAMK0_SetPoints1 left_setpoints;
+    generated::can::TxAMK1_SetPoints1 right_setpoints;
     bool inverter_enable;
 };
 
@@ -50,17 +49,17 @@ struct AmkOutput {
 // into one common type for easier use
 template <typename MsgType>
 concept AmkActualValues1 = requires(MsgType msg) {
-    { msg.amk_b_system_ready } -> std::convertible_to<bool>;
-    { msg.amk_b_error } -> std::convertible_to<bool>;
-    { msg.amk_b_warn } -> std::convertible_to<bool>;
-    { msg.amk_b_quit_dc_on } -> std::convertible_to<bool>;
-    { msg.amk_b_dc_on } -> std::convertible_to<bool>;
-    { msg.amk_b_quit_inverter_on } -> std::convertible_to<bool>;
-    { msg.amk_b_inverter_on } -> std::convertible_to<bool>;
-    { msg.amk_b_derating } -> std::convertible_to<bool>;
-    { msg.amk__actual_velocity } -> std::convertible_to<int16_t>;
-    { msg.amk__torque_current } -> std::convertible_to<int16_t>;
-    { msg.amk__magnetizing_current } -> std::convertible_to<int16_t>;
+    { msg.AMK_bSystemReady() } -> std::same_as<bool>;
+    { msg.AMK_bError() } -> std::same_as<bool>;
+    { msg.AMK_bWarn() } -> std::same_as<bool>;
+    { msg.AMK_bQuitDcOn() } -> std::same_as<bool>;
+    { msg.AMK_bDcOn() } -> std::same_as<bool>;
+    { msg.AMK_bQuitInverterOn() } -> std::same_as<bool>;
+    { msg.AMK_bInverterOn() } -> std::same_as<bool>;
+    { msg.AMK_bDerating() } -> std::same_as<bool>;
+    { msg.AMK_ActualVelocity() } -> std::same_as<int16_t>;
+    { msg.AMK_TorqueCurrent() } -> std::same_as<int16_t>;
+    { msg.AMK_MagnetizingCurrent() } -> std::same_as<int16_t>;
 };
 
 // SetPoints concept, combines AMK0_SetPoints1 and AMK1_SetPoints1 into one
@@ -109,11 +108,11 @@ public:
     AmkOutput Update(const AmkInput& input, const int time_ms);
 
 private:
-    AmkManager<generated::can::AMK0_ActualValues1,
-               generated::can::AMK0_SetPoints1>
+    AmkManager<generated::can::RxAMK0_ActualValues1,
+               generated::can::TxAMK0_SetPoints1>
         left_amk_manager{AmkStates::MOTOR_OFF_WAITING_FOR_GOV};
-    AmkManager<generated::can::AMK1_ActualValues1,
-               generated::can::AMK1_SetPoints1>
+    AmkManager<generated::can::RxAMK1_ActualValues1,
+               generated::can::TxAMK1_SetPoints1>
         right_amk_manager{AmkStates::MOTOR_OFF_WAITING_FOR_GOV};
     MiSts status_ = MiSts::OFF;
 
@@ -196,7 +195,7 @@ UpdateMotorOutput<SP> AmkManager<V1, SP>::UpdateMotor(
             break;
 
         case ERROR_DETECTED:
-            output_.status = MiSts::ERROR;
+            output_.status = MiSts::ERR;
 
             break;
 
@@ -239,7 +238,7 @@ AmkStates AmkManager<V1, SP>::Transition(const V1 val1, const MiCmd cmd,
          amk_state_ == STARTUP_ENFORCE_SETPOINTS_ZERO ||
          amk_state_ == STARTUP_COMMAND_ON || amk_state_ == READY ||
          amk_state_ == RUNNING) &&
-        val1.amk_b_error) {
+        val1.AMK_bError()) {
         amk_state_start_time_ = time_ms;
         return ERROR_DETECTED;
     }
@@ -256,14 +255,14 @@ AmkStates AmkManager<V1, SP>::Transition(const V1 val1, const MiCmd cmd,
             break;
 
         case STARTUP_SYS_READY:
-            if (val1.amk_b_system_ready) {
+            if (val1.AMK_bSystemReady()) {
                 new_state = STARTUP_TOGGLE_D_CON;
             }
 
             break;
 
         case STARTUP_TOGGLE_D_CON:
-            if (val1.amk_b_dc_on && val1.amk_b_quit_dc_on) {
+            if (val1.AMK_bDcOn() && val1.AMK_bQuitDcOn()) {
                 new_state = STARTUP_ENFORCE_SETPOINTS_ZERO;
             }
 
@@ -277,14 +276,14 @@ AmkStates AmkManager<V1, SP>::Transition(const V1 val1, const MiCmd cmd,
             break;
 
         case STARTUP_COMMAND_ON:
-            if (val1.amk_b_inverter_on) {
+            if (val1.AMK_bInverterOn()) {
                 new_state = READY;
             }
 
             break;
 
         case READY:
-            if (val1.amk_b_quit_inverter_on) {
+            if (val1.AMK_bQuitInverterOn()) {
                 new_state = RUNNING;
             }
 
@@ -312,7 +311,7 @@ AmkStates AmkManager<V1, SP>::Transition(const V1 val1, const MiCmd cmd,
             break;
 
         case ERROR_RESET_ENFORCE_SETPOINTS_ZERO:
-            if (!val1.amk_b_inverter_on) {
+            if (!val1.AMK_bInverterOn()) {
                 new_state = ERROR_RESET_TOGGLE_ENABLE;
             }
 
@@ -333,7 +332,7 @@ AmkStates AmkManager<V1, SP>::Transition(const V1 val1, const MiCmd cmd,
             break;
 
         case ERROR_RESET_TOGGLE_RESET:
-            if (val1.amk_b_system_ready) {
+            if (val1.AMK_bSystemReady()) {
                 new_state = MOTOR_OFF_WAITING_FOR_GOV;
             }
 
