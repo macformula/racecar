@@ -5,6 +5,7 @@
 
 #include <concepts>
 #include <cstdint>
+#include <type_traits>
 
 #include "shared/comms/i2c/msg.hpp"
 #include "shared/periph/i2c.hpp"
@@ -30,8 +31,10 @@ namespace shared::device {
  *                      |
  *   Terminal(B)___/ ___|
  */
-template <typename ResolutionT>
-    requires std::unsigned_integral<ResolutionT>
+template <typename PotIndexT, typename ResolutionT>
+    requires(std::unsigned_integral<PotIndexT> ||
+             std::unsigned_integral<std::underlying_type_t<PotIndexT>>) &&
+            std::unsigned_integral<ResolutionT>
 class DigitalPotentiometer : public util::Device {
 public:
     enum class Terminal {
@@ -40,15 +43,14 @@ public:
         W,
     };
 
-    virtual void SetPosition(uint8_t circuit_index, ResolutionT position) = 0;
-    virtual ResolutionT GetPosition(uint8_t circuit_index) = 0;
-    virtual void SetTerminalConnection(uint8_t circuit_index, Terminal terminal,
-                                       bool connected) = 0;
-    virtual bool GetTerminalConnection(uint8_t circuit_index,
+    virtual void SetPosition(PotIndexT pot_index, ResolutionT position) = 0;
+    virtual ResolutionT GetPosition(PotIndexT pot_index) = 0;
+    virtual bool GetTerminalConnection(PotIndexT pot_index,
                                        Terminal terminal) = 0;
-    virtual void SetTerminalConnections(uint8_t circuit_index,
+    virtual void SetTerminalConnections(PotIndexT pot_index,
                                         bool terminalConnectedA,
                                         bool terminalConnectedB,
                                         bool terminalConnectedW) = 0;
 };
+
 }  // namespace shared::device
