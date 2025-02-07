@@ -3,8 +3,7 @@ CTRL_OBJ = $(patsubst %.cc,%.o,$(CTRL_SRC))
 
 TEST_SRC = $(wildcard test/*.cc)
 
-
-INC = -Icontrol-system -I. -I ../ -I ../../../
+INC = -I. -I ../ -I ../../../
 
 FLAGS = $(INC) -std=c++20
 

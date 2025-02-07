@@ -1,7 +1,7 @@
 /// @author Teghveer Singh Ateliey
 /// @date 2024-11-23
 
-#include "simp_vd_interface.hpp"
+#include "control-system/simp_vd_interface.hpp"
 
 using namespace ctrl;
 

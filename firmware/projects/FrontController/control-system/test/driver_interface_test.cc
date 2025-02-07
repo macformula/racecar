@@ -1,10 +1,9 @@
-#include "driver_interface.hpp"
+#include "control-system/driver_interface.hpp"
 
 #include <cassert>
 #include <iostream>
 
 #include "control-system/enums.hpp"
-#include "driver_interface_fsm.hpp"
 #include "shared/controls/testing.h"
 
 DriverInterface CycleToRunning() {

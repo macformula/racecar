@@ -1,8 +1,8 @@
-#include "driver_interface.hpp"
+#include "control-system/driver_interface.hpp"
 
 #include <cmath>
 
-#include "driver_interface_fsm.hpp"
+#include "control-system/driver_interface_fsm.hpp"
 #include "shared/util/mappers/lookup_table.hpp"
 
 template <typename T>
