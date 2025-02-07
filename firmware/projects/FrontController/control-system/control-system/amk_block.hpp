@@ -5,32 +5,6 @@
 #include "enums.hpp"
 #include "generated/can/pt_messages.hpp"
 
-// AmkStates enum class which defines all states in the amk state machine
-
-// MotorInput struct used in AmkInput to group identical left/right values
-struct MotorInput {
-    double speed_request;
-    double torque_limit_positive;
-    double torque_limit_negative;
-};
-
-// AmkInput struct, the input that is fed into the state machine
-struct AmkInput {
-    MiCmd cmd;
-    generated::can::RxAMK0_ActualValues1 left_actual1;
-    generated::can::RxAMK1_ActualValues1 right_actual1;
-    MotorInput left_motor_input;
-    MotorInput right_motor_input;
-};
-
-// AmkOutput struct, the output that is produced from the state machine
-struct AmkOutput {
-    MiSts status;
-    generated::can::TxAMK0_SetPoints1 left_setpoints;
-    generated::can::TxAMK1_SetPoints1 right_setpoints;
-    bool inverter_enable;
-};
-
 // AmkActualValues1 concept, combines AMK0_ActualValues1 and AMK1_ActualValues1
 // into one common type for easier use
 template <typename MsgType>
@@ -62,9 +36,14 @@ concept SetPoints = requires(MsgType msg) {
 };
 
 class AmkManagerBase {
-    // This exists solely to make the FsmState enum a non-dependent type on the
+    // This exists solely to define types which are not dependent on the
     // AmkManager template
 public:
+    struct Request {
+        float speed_request;
+        float torque_limit_positive;
+        float torque_limit_negative;
+    };
     enum class FsmState {
         MOTOR_OFF_WAITING_FOR_GOV,
         STARTUP_SYS_READY,
@@ -82,34 +61,45 @@ public:
     };
 };
 
-// UpdateMotorOutput struct, used to create a return type for UpdateMotor such
-// that it does not matter if setpoints is for left or right
-template <SetPoints SP>
-struct UpdateMotorOutput {
-    SP setpoints;
-    MiSts status;
-    bool inverter_enable;
-    AmkManagerBase::FsmState fsm_state;
-};
-
 template <AmkActualValues1 V1, SetPoints SP>
 class AmkManager : public AmkManagerBase {
 public:
-    UpdateMotorOutput<SP> UpdateMotor(const V1 val1,
-                                      const MotorInput motor_input,
-                                      const MiCmd cmd, int time_ms);
+    struct Output {
+        SP setpoints;
+        MiSts status;
+        bool inverter_enable;
+        AmkManagerBase::FsmState fsm_state;
+    };
+
+    Output UpdateMotor(const V1 val1, const Request motor_input,
+                       const MiCmd cmd, int time_ms);
 
 private:
     FsmState amk_state_;
     int amk_state_start_time_ = 0;
-    UpdateMotorOutput<SP> output_{};
+    Output output_{};
 
     FsmState Transition(const V1 val1, const MiCmd cmd, const int time_ms);
 };
 
 class MotorInterface {
 public:
-    AmkOutput Update(const AmkInput& input, const int time_ms);
+    struct Input {
+        MiCmd cmd;
+        generated::can::RxAMK0_ActualValues1 left_actual1;
+        generated::can::RxAMK1_ActualValues1 right_actual1;
+        AmkManagerBase::Request left_motor_input;
+        AmkManagerBase::Request right_motor_input;
+    };
+
+    struct Output {
+        MiSts status;
+        generated::can::TxAMK0_SetPoints1 left_setpoints;
+        generated::can::TxAMK1_SetPoints1 right_setpoints;
+        bool inverter_enable;
+    };
+
+    Output Update(const Input& input, const int time_ms);
 
 private:
     AmkManager<generated::can::RxAMK0_ActualValues1,
@@ -124,8 +114,8 @@ private:
 };
 
 template <AmkActualValues1 V1, SetPoints SP>
-UpdateMotorOutput<SP> AmkManager<V1, SP>::UpdateMotor(
-    const V1 val1, const MotorInput motor_input, const MiCmd cmd,
+AmkManager<V1, SP>::Output AmkManager<V1, SP>::UpdateMotor(
+    const V1 val1, const Request motor_input, const MiCmd cmd,
     const int time_ms) {
     using enum FsmState;
 

@@ -3,14 +3,19 @@
 
 #include "control-system/simp_vd_interface.hpp"
 
+#include "shared/controls/motor_torque.h"
+#include "shared/controls/tc_scale_factor.h"
+#include "shared/controls/tvFactor.h"
+
 using namespace ctrl;
 
 SimpVdInterface::SimpVdInterface(
     const shared::util::Mapper<float>& pedal_to_torque, float target_slip)
     : pedal_to_torque(pedal_to_torque), target_slip(target_slip) {}
 
-VdOutput SimpVdInterface::update(const VdInput& input, int time_ms) {
-    VdOutput output{
+SimpVdInterface::Output SimpVdInterface::update(const Input& input,
+                                                int time_ms) {
+    Output output{
         .lm_torque_limit_positive = 0.0f,
         .rm_torque_limit_positive = 0.0f,
         .lm_torque_limit_negative = 0.0f,  // negative limit fields fixed at

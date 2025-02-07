@@ -7,6 +7,10 @@
 #include <iostream>
 
 #include "shared/controls/testing.h"
+#include "shared/util/mappers/lookup_table.hpp"
+
+using VdInput = SimpVdInterface::Input;
+using VdOutput = SimpVdInterface::Output;
 
 void test_1(SimpVdInterface* simp_vd_int) {
     std::cout << "Test 1 loading" << std::endl;

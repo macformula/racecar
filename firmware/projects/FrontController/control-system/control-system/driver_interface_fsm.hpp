@@ -4,16 +4,16 @@
 
 class DiFsm {
 public:
-    struct Output {
-        DiSts status;
-        bool speaker_enable;
-        bool ready_to_drive;
-    };
     struct Input {
         DiCmd command;
         bool driver_button;
         float brake_pedal_pos;
         bool di_error;
+    };
+    struct Output {
+        DiSts status;
+        bool speaker_enable;
+        bool ready_to_drive;
     };
 
     DiFsm(DiSts initial_state = DiSts::INIT);

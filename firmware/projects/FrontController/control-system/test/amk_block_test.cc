@@ -45,6 +45,8 @@ struct DummySetpoints1 {
 };
 // clang-format on
 
+using AmkMgr = AmkManager<DummyActualValues1, DummySetpoints1>;
+
 template <SetPoints SP>
 void assert_setpoint_equal(SP actual_sp, SP expected_sp) {
     assert(actual_sp.amk_b_inverter_on == expected_sp.amk_b_inverter_on);
@@ -82,12 +84,12 @@ AmkManager<DummyActualValues1, DummySetpoints1> CycleToState(
     }
     assert(desired_state_is_supported);
 
-    AmkManager<DummyActualValues1, DummySetpoints1> mgr{};
+    AmkMgr mgr{};
     if (desired_state == MOTOR_OFF_WAITING_FOR_GOV) return mgr;
 
     DummyActualValues1 val1{};
-    UpdateMotorOutput<DummySetpoints1> out;
-    MotorInput motor{};
+    AmkMgr::Output out;
+    AmkMgr::Request motor{};
     out = mgr.UpdateMotor(val1, motor, MiCmd::STARTUP, 0);
     assert(out.fsm_state == STARTUP_SYS_READY);
     if (desired_state == STARTUP_SYS_READY) return mgr;
@@ -127,21 +129,23 @@ AmkManager<DummyActualValues1, DummySetpoints1> CycleToState(
 void test_normal_sequence() {
     std::cout << "test_normal_sequence... ";
 
-    UpdateMotorOutput<DummySetpoints1> output;
-    AmkManager<DummyActualValues1, DummySetpoints1> amk_manager{};
+    AmkMgr::Output output;
+    AmkMgr amk_manager{};
 
     // Inputs to change and use in each Update call
     DummyActualValues1 actual_values{};
-    MotorInput motor_input = MotorInput{.speed_request = 1.5,
-                                        .torque_limit_positive = 2.5,
-                                        .torque_limit_negative = 3.5};
+    AmkMgr::Request motor_input{.speed_request = 15,
+                                .torque_limit_positive = 25,
+                                .torque_limit_negative = 35};
     MiCmd cmd = MiCmd::STARTUP;
     int time_ms = 0;
 
     // Expected setpoints to change and use in assert calls
-    DummySetpoints1 expected_setpoints;
+    DummySetpoints1 expected_setpoints{};
 
-    // Test transition MOTOR_OFF_WAITING_FOR_GOV to STARTUP_SYS_READY
+    std::cout
+        << "Test transition MOTOR_OFF_WAITING_FOR_GOV to STARTUP_SYS_READY"
+        << std::endl;
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
@@ -150,7 +154,8 @@ void test_normal_sequence() {
         assert(output.inverter_enable == false);
     }
 
-    // Test transition STARTUP_SYS_READY to STARTUP_TOGGLE_D_CON
+    std::cout << "Test transition STARTUP_SYS_READY to STARTUP_TOGGLE_D_CON"
+              << std::endl;
     actual_values.amk_b_system_ready = true;
     expected_setpoints.amk_b_dc_on = true;
     {
@@ -161,7 +166,9 @@ void test_normal_sequence() {
         assert(output.inverter_enable == false);
     }
 
-    // Test transition STARTUP_TOGGLE_D_CON to STARTUP_ENFORCE_SETPOINTS_ZERO
+    std::cout << "Test transition STARTUP_TOGGLE_D_CON to "
+                 "STARTUP_ENFORCE_SETPOINTS_ZERO"
+              << std::endl;
     actual_values.amk_b_dc_on = true;
     actual_values.amk_b_quit_dc_on = true;
     {
@@ -172,7 +179,9 @@ void test_normal_sequence() {
         assert(output.inverter_enable == false);
     }
 
-    // Test NO transition in STARTUP_TOGGLE_D_CON with not enough time elapsed
+    std::cout << "Test NO transition in STARTUP_TOGGLE_D_CON with not enough "
+                 "time elapsed"
+              << std::endl;
     time_ms += 50;
     {
         output =
@@ -182,7 +191,9 @@ void test_normal_sequence() {
         assert(output.inverter_enable == false);
     }
 
-    // Test transition STARTUP_ENFORCE_SETPOINTS_ZERO to STARTUP_COMMAND_ON
+    std::cout << "Test transition STARTUP_ENFORCE_SETPOINTS_ZERO to "
+                 "STARTUP_COMMAND_ON"
+              << std::endl;
     time_ms += 50;
     expected_setpoints.amk_b_enable = true;
     expected_setpoints.amk_b_inverter_on = true;
@@ -194,7 +205,7 @@ void test_normal_sequence() {
         assert(output.inverter_enable == false);
     }
 
-    // Test transition STARTUP_COMMAND_ON to READY
+    std::cout << "Test transition STARTUP_COMMAND_ON to READY" << std::endl;
     actual_values.amk_b_inverter_on = true;
     {
         output =
@@ -204,11 +215,11 @@ void test_normal_sequence() {
         assert(output.inverter_enable == true);
     }
 
-    // Test transition READY to RUNNING
+    std::cout << "Test transition READY to RUNNING" << std::endl;
     actual_values.amk_b_quit_inverter_on = true;
-    expected_setpoints.amk__target_velocity = 1.5;
-    expected_setpoints.amk__torque_limit_positiv = 2.5;
-    expected_setpoints.amk__torque_limit_negativ = 3.5;
+    expected_setpoints.amk__target_velocity = 15;
+    expected_setpoints.amk__torque_limit_positiv = 25;
+    expected_setpoints.amk__torque_limit_negativ = 35;
     {
         output =
             amk_manager.UpdateMotor(actual_values, motor_input, cmd, time_ms);
@@ -217,7 +228,7 @@ void test_normal_sequence() {
         assert(output.inverter_enable == true);
     }
 
-    // Test transition RUNNING to SHUTDOWN
+    std::cout << "Test transition RUNNING to SHUTDOWN" << std::endl;
     cmd = MiCmd::SHUTDOWN;
     expected_setpoints.amk__target_velocity = 0;
     expected_setpoints.amk__torque_limit_positiv = 0;
@@ -230,7 +241,8 @@ void test_normal_sequence() {
         assert(output.inverter_enable == false);
     }
 
-    // Test NO transition in SHUTDOWN with not enough time elapsed
+    std::cout << "Test NO transition in SHUTDOWN with not enough time elapsed"
+              << std::endl;
     time_ms += 250;
     {
         output =
@@ -240,7 +252,8 @@ void test_normal_sequence() {
         assert(output.inverter_enable == false);
     }
 
-    // Test transition SHUTDOWN to MOTOR_OFF_WAITING_FOR_GOV
+    std::cout << "Test transition SHUTDOWN to MOTOR_OFF_WAITING_FOR_GOV"
+              << std::endl;
     time_ms += 250;
     expected_setpoints = DummySetpoints1{};
     {
@@ -259,9 +272,9 @@ void test_error_detected_state() {
     using enum AmkManagerBase::FsmState;
 
     // Define inputs/output
-    UpdateMotorOutput<DummySetpoints1> output;
+    AmkMgr::Output output;
     DummyActualValues1 actual_values;
-    MotorInput motor_input = MotorInput{};
+    AmkMgr::Request motor_input{};
     MiCmd cmd = MiCmd::STARTUP;
     int time_ms = 0;
 
@@ -330,11 +343,11 @@ void test_error_sequence() {
     using enum AmkManagerBase::FsmState;
     auto amk_manager = CycleToState(RUNNING);
 
-    UpdateMotorOutput<DummySetpoints1> output;
+    AmkMgr::Output output;
 
     // Inputs
     DummyActualValues1 actual_values;
-    MotorInput motor_input = MotorInput{};
+    AmkMgr::Request motor_input{};
     int time_ms = 0;
 
     // put amk into error state
