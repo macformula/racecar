@@ -2,9 +2,11 @@
 
 #include "control-system/enums.hpp"
 
-// Given motor inputs, will produce a motor output returned
-MotorInterface::Output MotorInterface::Update(const Input& input,
-                                              const int time_ms) {
+template <AmkActualValues1 LV1, AmkActualValues1 RV1, SetPoints LSP,
+          SetPoints RSP>
+MotorInterface<LV1, RV1, LSP, RSP>::Output
+MotorInterface<LV1, RV1, LSP, RSP>::Update(const Input& input,
+                                           const int time_ms) {
     auto left = left_amk_manager.UpdateMotor(
         input.left_actual1, input.left_motor_input, input.cmd, time_ms);
     auto right = right_amk_manager.UpdateMotor(
@@ -19,8 +21,10 @@ MotorInterface::Output MotorInterface::Update(const Input& input,
         .inverter_enable = left.inverter_enable && right.inverter_enable};
 }
 
-// Processes the new output status given the left/right statuses
-void MotorInterface::UpdateOutputStatus(MiSts left_status, MiSts right_status) {
+template <AmkActualValues1 LV1, AmkActualValues1 RV1, SetPoints LSP,
+          SetPoints RSP>
+void MotorInterface<LV1, RV1, LSP, RSP>::UpdateOutputStatus(
+    MiSts left_status, MiSts right_status) {
     if (left_status == MiSts::ERR || right_status == MiSts::ERR) {
         status_ = MiSts::ERR;
     } else if (left_status == right_status) {

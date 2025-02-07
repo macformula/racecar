@@ -3,7 +3,6 @@
 #include <cstdint>
 
 #include "enums.hpp"
-#include "generated/can/pt_messages.hpp"
 
 // AmkActualValues1 concept, combines AMK0_ActualValues1 and AMK1_ActualValues1
 // into one common type for easier use
@@ -82,32 +81,30 @@ private:
     FsmState Transition(const V1 val1, const MiCmd cmd, const int time_ms);
 };
 
+template <AmkActualValues1 LEFT_ACTUAL1, AmkActualValues1 RIGHT_ACTUAL1,
+          SetPoints LEFT_SP, SetPoints RIGHT_SP>
 class MotorInterface {
 public:
     struct Input {
         MiCmd cmd;
-        generated::can::RxAMK0_ActualValues1 left_actual1;
-        generated::can::RxAMK1_ActualValues1 right_actual1;
+        LEFT_ACTUAL1 left_actual1;
+        RIGHT_ACTUAL1 right_actual1;
         AmkManagerBase::Request left_motor_input;
         AmkManagerBase::Request right_motor_input;
     };
 
     struct Output {
         MiSts status;
-        generated::can::TxAMK0_SetPoints1 left_setpoints;
-        generated::can::TxAMK1_SetPoints1 right_setpoints;
+        LEFT_SP left_setpoints;
+        RIGHT_SP right_setpoints;
         bool inverter_enable;
     };
 
     Output Update(const Input& input, const int time_ms);
 
 private:
-    AmkManager<generated::can::RxAMK0_ActualValues1,
-               generated::can::TxAMK0_SetPoints1>
-        left_amk_manager{};
-    AmkManager<generated::can::RxAMK1_ActualValues1,
-               generated::can::TxAMK1_SetPoints1>
-        right_amk_manager{};
+    AmkManager<LEFT_ACTUAL1, LEFT_SP> left_amk_manager{};
+    AmkManager<RIGHT_ACTUAL1, RIGHT_SP> right_amk_manager{};
     MiSts status_ = MiSts::OFF;
 
     void UpdateOutputStatus(MiSts left_status, MiSts right_status);
