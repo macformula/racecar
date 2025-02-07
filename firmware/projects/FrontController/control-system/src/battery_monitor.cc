@@ -106,6 +106,10 @@ std::optional<BmSts> BatteryMonitor::TransitionStatus(const Input& input,
 
         case LOW_SOC:
             break;
+
+        case ERR_RUNNING:
+            break;  // The Simulink model never entered this state! Should
+                    // remove but Governor has behaviour which uses it. Uh oh!
     }
     return std::nullopt;
 }

@@ -102,8 +102,7 @@ public:
 private:
     FsmState amk_state_;
     int amk_state_start_time_ = 0;
-    UpdateMotorOutput<SP> output_{.status = MiSts::OFF,
-                                  .inverter_enable = false};
+    UpdateMotorOutput<SP> output_{};
 
     FsmState Transition(const V1 val1, const MiCmd cmd, const int time_ms);
 };

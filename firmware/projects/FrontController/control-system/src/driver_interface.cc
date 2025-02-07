@@ -21,14 +21,14 @@ DriverInterface::Output DriverInterface::Update(const Input input,
     const shared::util::LookupTable<lut_length, double> accel_pedal_map{
         accel_lut_data};
 
-    const double lut_data[][2] = {
+    const double brake_lut_data[][2] = {
         {0., 0.},
         {1., 1},
     };
     static constexpr int brake_lut_length =
-        sizeof(accel_lut_data) / sizeof(accel_lut_data[0]);
+        sizeof(brake_lut_data) / sizeof(brake_lut_data[0]);
     const shared::util::LookupTable<brake_lut_length, double> brake_pedal_map{
-        accel_lut_data};
+        brake_lut_data};
 
     Output out;
 

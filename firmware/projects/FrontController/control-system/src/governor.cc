@@ -21,11 +21,9 @@ Governor::Output Governor::Update(const Governor::Input input,
 
     switch (*fsm_state_) {
         case INIT:
-            output_ = {
-                .bm_cmd = BmCmd::INIT,
-                .mi_cmd = MiCmd::INIT,
-                .di_cmd = DiCmd::INIT,
-            };
+            output_.bm_cmd = BmCmd::INIT;
+            output_.mi_cmd = MiCmd::INIT;
+            output_.di_cmd = DiCmd::INIT;
             motor_start_count_ = 0;
             break;
 
