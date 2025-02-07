@@ -5,7 +5,6 @@
 
 #include <cassert>
 #include <cmath>
-#include <concepts>
 
 const double TOLERANCE = 1e-5;
 

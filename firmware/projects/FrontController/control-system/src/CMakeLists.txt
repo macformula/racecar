@@ -6,4 +6,5 @@ target_sources(control-system
     driver_interface.cc
     governor.cc
     vehicle_dynamics.cc
+    vehicle_dynamics_calc.cc
 )

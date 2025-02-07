@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "shared/controls/testing.h"
+#include "testing.h"
 
 void test_sequence() {
     DiFsm fsm{};

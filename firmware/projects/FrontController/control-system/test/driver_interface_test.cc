@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "control-system/enums.hpp"
-#include "shared/controls/testing.h"
+#include "testing.h"
 
 DriverInterface CycleToRunning() {
     DriverInterface di;

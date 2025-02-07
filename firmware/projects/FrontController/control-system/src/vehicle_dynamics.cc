@@ -3,15 +3,17 @@
 
 #include "control-system/vehicle_dynamics.hpp"
 
-#include "shared/controls/motor_torque.h"
-#include "shared/controls/tc_scale_factor.h"
-#include "shared/controls/tvFactor.h"
+#include "control-system/vehicle_dynamics_calc.hpp"
 
 using namespace ctrl;
 
 VehicleDynamics::VehicleDynamics(
     const shared::util::Mapper<float>& pedal_to_torque, float target_slip)
     : pedal_to_torque(pedal_to_torque), target_slip(target_slip) {}
+
+void VehicleDynamics::Init(int time_ms) {
+    traction_control_.Init(time_ms);
+}
 
 VehicleDynamics::Output VehicleDynamics::update(const Input& input,
                                                 int time_ms) {
@@ -28,16 +30,16 @@ VehicleDynamics::Output VehicleDynamics::update(const Input& input,
         CalculateActualSlip(input.wheel_speed_lr, input.wheel_speed_rr,
                             input.wheel_speed_lf, input.wheel_speed_rf);
     float tc_scale_factor =
-        CalculateTCScaleFactor(actual_slip, target_slip, time_ms);
+        traction_control_.UpdateScaleFactor(actual_slip, target_slip, time_ms);
 
-    TorqueVector<float> torque_vector;
+    TorqueVector torque_vector;
     if (input.tv_enable) {
         torque_vector = AdjustTorqueVectoring(input.steering_angle);
     } else {
         torque_vector = {.left = 1.0f, .right = 1.0f};
     }
 
-    float motor_torque_request = ComputeTorqueRequest(
+    float motor_torque_request = torque_request_.Update(
         input.driver_torque_request, input.brake_pedal_postion);
 
     motor_torque_req_running_avg.LoadValue(

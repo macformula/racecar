@@ -1,12 +1,13 @@
 /// @author Teghveer Singh Ateliey
 /// @date 2024-11-23
 
+#include "control-system/vehicle_dynamics.hpp"
+
 #include <cassert>
 #include <iostream>
 
-#include "control-system/vehicle_dynamics.hpp"
-#include "shared/controls/testing.h"
 #include "shared/util/mappers/lookup_table.hpp"
+#include "testing.h"
 
 using VdInput = VehicleDynamics::Input;
 using VdOutput = VehicleDynamics::Output;
@@ -299,6 +300,8 @@ void VdTest() {
         pedal_torque_lut_data};
 
     VehicleDynamics simp_vd_int{pedal_to_torque};
+    simp_vd_int.Init(0);
+
     // Below tests all use the same VehicleDynamics object with running avg
     test_1(&simp_vd_int);
     test_2(&simp_vd_int);

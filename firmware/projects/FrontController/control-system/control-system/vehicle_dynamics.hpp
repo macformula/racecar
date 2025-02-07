@@ -7,6 +7,7 @@
 
 #include "shared/util/mappers/mapper.hpp"
 #include "shared/util/moving_average.hpp"
+#include "vehicle_dynamics_calc.hpp"
 
 class VehicleDynamics {
 public:
@@ -32,6 +33,7 @@ public:
     VehicleDynamics(
         const shared::util::Mapper<float>& pedal_to_torque,
         float target_slip = 0.2f);  // default target slip is float 0.2
+    void Init(int time_ms);
     Output update(const Input& input, int time_ms);
 
 private:
@@ -40,4 +42,7 @@ private:
         motor_torque_req_running_avg;  // "Raw torque running avg" in Simulink
                                        // model
     float target_slip;
+
+    ctrl::TractionControl traction_control_;
+    ctrl::TorqueRequest torque_request_;
 };

@@ -6,6 +6,7 @@ extern void DiTest();
 extern void DiFsmTest();
 extern void GovTest();
 extern void VdTest();
+extern void VdCalcTest();
 
 int main() {
     AmkTest();
@@ -14,6 +15,7 @@ int main() {
     DiFsmTest();
     GovTest();
     VdTest();
+    VdCalcTest();
 
     std::cout << "All Control System tests passed!" << std::endl;
     return 0;
