@@ -2,8 +2,8 @@
 
 #include "control-system/enums.hpp"
 
-template <AmkActualValues1 LV1, AmkActualValues1 RV1, SetPoints LSP,
-          SetPoints RSP>
+template <AmkActualValues1 LV1, AmkActualValues1 RV1, AmkSetPoints1 LSP,
+          AmkSetPoints1 RSP>
 MotorInterface<LV1, RV1, LSP, RSP>::Output
 MotorInterface<LV1, RV1, LSP, RSP>::Update(const Input& input,
                                            const int time_ms) {
@@ -16,13 +16,13 @@ MotorInterface<LV1, RV1, LSP, RSP>::Update(const Input& input,
 
     return Output{
         .status = status_,
-        .left_setpoints = left.setpoints,
+        .left_AmkSetPoints1 = left.setpoints,
         .right_setpoints = right.setpoints,
         .inverter_enable = left.inverter_enable && right.inverter_enable};
 }
 
-template <AmkActualValues1 LV1, AmkActualValues1 RV1, SetPoints LSP,
-          SetPoints RSP>
+template <AmkActualValues1 LV1, AmkActualValues1 RV1, AmkSetPoints1 LSP,
+          AmkSetPoints1 RSP>
 void MotorInterface<LV1, RV1, LSP, RSP>::UpdateOutputStatus(
     MiSts left_status, MiSts right_status) {
     if (left_status == MiSts::ERR || right_status == MiSts::ERR) {

@@ -47,7 +47,7 @@ struct DummySetpoints1 {
 
 using AmkMgr = AmkManager<DummyActualValues1, DummySetpoints1>;
 
-template <SetPoints SP>
+template <AmkSetPoints1 SP>
 void assert_setpoint_equal(SP actual_sp, SP expected_sp) {
     assert(actual_sp.amk_b_inverter_on == expected_sp.amk_b_inverter_on);
     assert(actual_sp.amk_b_dc_on == expected_sp.amk_b_dc_on);

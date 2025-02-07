@@ -24,7 +24,7 @@ concept AmkActualValues1 = requires(MsgType msg) {
 // SetPoints concept, combines AMK0_SetPoints1 and AMK1_SetPoints1 into one
 // common type for easier use
 template <typename MsgType>
-concept SetPoints = requires(MsgType msg) {
+concept AmkSetPoints1 = requires(MsgType msg) {
     { msg.amk_b_inverter_on } -> std::convertible_to<bool>;
     { msg.amk_b_dc_on } -> std::convertible_to<bool>;
     { msg.amk_b_enable } -> std::convertible_to<bool>;
@@ -60,7 +60,7 @@ public:
     };
 };
 
-template <AmkActualValues1 V1, SetPoints SP>
+template <AmkActualValues1 V1, AmkSetPoints1 SP>
 class AmkManager : public AmkManagerBase {
 public:
     struct Output {
@@ -82,7 +82,7 @@ private:
 };
 
 template <AmkActualValues1 LEFT_ACTUAL1, AmkActualValues1 RIGHT_ACTUAL1,
-          SetPoints LEFT_SP, SetPoints RIGHT_SP>
+          AmkSetPoints1 LEFT_SP, AmkSetPoints1 RIGHT_SP>
 class MotorInterface {
 public:
     struct Input {
@@ -110,7 +110,7 @@ private:
     void UpdateOutputStatus(MiSts left_status, MiSts right_status);
 };
 
-template <AmkActualValues1 V1, SetPoints SP>
+template <AmkActualValues1 V1, AmkSetPoints1 SP>
 AmkManager<V1, SP>::Output AmkManager<V1, SP>::UpdateMotor(
     const V1 val1, const Request motor_input, const MiCmd cmd,
     const int time_ms) {
@@ -215,7 +215,7 @@ AmkManager<V1, SP>::Output AmkManager<V1, SP>::UpdateMotor(
 }
 
 // Computes the state to transition to in an update
-template <AmkActualValues1 V1, SetPoints SP>
+template <AmkActualValues1 V1, AmkSetPoints1 SP>
 AmkManagerBase::FsmState AmkManager<V1, SP>::Transition(const V1 val1,
                                                         const MiCmd cmd,
                                                         const int time_ms) {
