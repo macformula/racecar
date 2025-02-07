@@ -1,18 +1,17 @@
 /// @author Teghveer Singh Ateliey
 /// @date 2024-11-23
 
-#include "control-system/simp_vd_interface.hpp"
-
 #include <cassert>
 #include <iostream>
 
+#include "control-system/vehicle_dynamics.hpp"
 #include "shared/controls/testing.h"
 #include "shared/util/mappers/lookup_table.hpp"
 
-using VdInput = SimpVdInterface::Input;
-using VdOutput = SimpVdInterface::Output;
+using VdInput = VehicleDynamics::Input;
+using VdOutput = VehicleDynamics::Output;
 
-void test_1(SimpVdInterface* simp_vd_int) {
+void test_1(VehicleDynamics* simp_vd_int) {
     std::cout << "Test 1 loading" << std::endl;
 
     int time_ms = 0;
@@ -49,7 +48,7 @@ void test_1(SimpVdInterface* simp_vd_int) {
                  output_1_expected.lm_torque_limit_positive);
 }
 
-void test_2(SimpVdInterface* simp_vd_int) {
+void test_2(VehicleDynamics* simp_vd_int) {
     std::cout << "Test 2 loading" << std::endl;
 
     int time_ms = 0;
@@ -88,7 +87,7 @@ void test_2(SimpVdInterface* simp_vd_int) {
                  output_2_expected.lm_torque_limit_positive);
 }
 
-void test_3(SimpVdInterface* simp_vd_int) {
+void test_3(VehicleDynamics* simp_vd_int) {
     std::cout << "Test 3 loading" << std::endl;
 
     int time_ms = 0;
@@ -131,7 +130,7 @@ void test_3(SimpVdInterface* simp_vd_int) {
                  output_3_expected.lm_torque_limit_positive);
 }
 
-void test_4(SimpVdInterface* simp_vd_int) {
+void test_4(VehicleDynamics* simp_vd_int) {
     std::cout << "Test 4 loading" << std::endl;
 
     int time_ms = 0;
@@ -173,7 +172,7 @@ void test_4(SimpVdInterface* simp_vd_int) {
                  output_4_expected.rm_torque_limit_positive);
 }
 
-void test_5(SimpVdInterface* simp_vd_int) {
+void test_5(VehicleDynamics* simp_vd_int) {
     std::cout << "Test 5 loading" << std::endl;
 
     int time_ms = 55;
@@ -215,7 +214,7 @@ void test_5(SimpVdInterface* simp_vd_int) {
                  output_5_expected.rm_torque_limit_positive);
 }
 
-void test_6(SimpVdInterface* simp_vd_int) {
+void test_6(VehicleDynamics* simp_vd_int) {
     std::cout << "Test 6 loading" << std::endl;
 
     int time_ms = 0;
@@ -252,7 +251,7 @@ void test_6(SimpVdInterface* simp_vd_int) {
                  output_6_expected.lm_torque_limit_positive);
 }
 
-void test_7(SimpVdInterface* simp_vd_int) {
+void test_7(VehicleDynamics* simp_vd_int) {
     std::cout << "Test 7 loading" << std::endl;
 
     // Ensure traction control resets
@@ -299,15 +298,15 @@ void VdTest() {
     const shared::util::LookupTable<pedal_torque_lut_length> pedal_to_torque{
         pedal_torque_lut_data};
 
-    SimpVdInterface simp_vd_int{pedal_to_torque};
-    // Below tests all use the same SimpVdInterface object with running avg
+    VehicleDynamics simp_vd_int{pedal_to_torque};
+    // Below tests all use the same VehicleDynamics object with running avg
     test_1(&simp_vd_int);
     test_2(&simp_vd_int);
     test_3(&simp_vd_int);
     test_4(&simp_vd_int);
     test_5(&simp_vd_int);
 
-    SimpVdInterface simp_vd_int_2{pedal_to_torque};
+    VehicleDynamics simp_vd_int_2{pedal_to_torque};
     // New object with reset running avg
     test_6(&simp_vd_int_2);
     test_7(&simp_vd_int_2);

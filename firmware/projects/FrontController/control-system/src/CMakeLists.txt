@@ -1,9 +1,9 @@
 target_sources(control-system
     INTERFACE
-    amk_block.cc
+    motor_interface.cc
     battery_monitor.cc
     driver_interface_fsm.cc
     driver_interface.cc
     governor.cc
-    simp_vd_interface.cc
+    vehicle_dynamics.cc
 )

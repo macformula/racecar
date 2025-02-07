@@ -8,7 +8,7 @@
 #include "shared/util/mappers/mapper.hpp"
 #include "shared/util/moving_average.hpp"
 
-class SimpVdInterface {
+class VehicleDynamics {
 public:
     struct Input {
         float driver_torque_request;
@@ -29,7 +29,7 @@ public:
         uint16_t right_motor_speed_request;
     };
 
-    SimpVdInterface(
+    VehicleDynamics(
         const shared::util::Mapper<float>& pedal_to_torque,
         float target_slip = 0.2f);  // default target slip is float 0.2
     Output update(const Input& input, int time_ms);

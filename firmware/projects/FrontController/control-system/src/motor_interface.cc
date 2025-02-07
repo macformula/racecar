@@ -1,6 +1,5 @@
-#include "control-system/amk_block.hpp"
-
 #include "control-system/enums.hpp"
+#include "control-system/motor_interface.hpp"
 
 template <AmkActualValues1 LV1, AmkActualValues1 RV1, AmkSetPoints1 LSP,
           AmkSetPoints1 RSP>

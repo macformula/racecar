@@ -1,4 +1,4 @@
-#include "control-system/amk_block.hpp"
+#include "control-system/motor_interface.hpp"
 
 #include <cassert>
 #include <cstdint>

@@ -1,7 +1,7 @@
 /// @author Teghveer Singh Ateliey
 /// @date 2024-11-23
 
-#include "control-system/simp_vd_interface.hpp"
+#include "control-system/vehicle_dynamics.hpp"
 
 #include "shared/controls/motor_torque.h"
 #include "shared/controls/tc_scale_factor.h"
@@ -9,11 +9,11 @@
 
 using namespace ctrl;
 
-SimpVdInterface::SimpVdInterface(
+VehicleDynamics::VehicleDynamics(
     const shared::util::Mapper<float>& pedal_to_torque, float target_slip)
     : pedal_to_torque(pedal_to_torque), target_slip(target_slip) {}
 
-SimpVdInterface::Output SimpVdInterface::update(const Input& input,
+VehicleDynamics::Output VehicleDynamics::update(const Input& input,
                                                 int time_ms) {
     Output output{
         .lm_torque_limit_positive = 0.0f,
