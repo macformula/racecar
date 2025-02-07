@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <format>
+#include <iomanip>
 #include <iostream>
 #include <string>
 
@@ -17,25 +17,25 @@ public:
     PWMOutput(std::string name) : name_(name) {}
 
     void Start() override {
-        std::cout << std::format("Starting PWM {}", name_) << std::endl;
+        std::cout << "Starting PWM " << name_ << std::endl;
     }
 
     void Stop() override {
-        std::cout << std::format("Stopping PWM {}", name_) << std::endl;
+        std::cout << "Stopping PWM " << name_ << std::endl;
     }
 
     void SetDutyCycle(float duty_cycle) override {
         duty_cycle_ =
             shared::util::Clamper<float>::Evaluate(duty_cycle, 0, 100);
 
-        std::cout << std::format("Setting PWM {} duty cycle to {:.3g}%", name_,
-                                 duty_cycle_)
+        std::cout << "Setting PWM " << name_ << " duty cycle to " 
+                  << std::fixed << std::setprecision(3) << duty_cycle_ << "%"
                   << std::endl;
     }
 
     float GetDutyCycle() override {
-        std::cout << std::format("PWM {} has duty cycle {:.3g}%", name_,
-                                 duty_cycle_)
+        std::cout << "PWM " << name_ << " has duty cycle "
+                  << std::fixed << std::setprecision(3) << duty_cycle_ << "%"
                   << std::endl;
         return duty_cycle_;
     }
@@ -43,14 +43,14 @@ public:
     void SetFrequency(float frequency) override {
         frequency_ = std::max((float)0, frequency);
 
-        std::cout << std::format("Setting PWM {} frequency to {:.3f} Hz", name_,
-                                 frequency_)
+        std::cout << "Setting PWM " << name_ << " frequency to "
+                  << std::fixed << std::setprecision(3) << frequency_ << " Hz"
                   << std::endl;
     }
 
     float GetFrequency() override {
-        std::cout << std::format("PWM {} has frequency {:.3f} Hz", name_,
-                                 frequency_)
+        std::cout << "PWM " << name_ << " has frequency "
+                  << std::fixed << std::setprecision(3) << frequency_ << " Hz"
                   << std::endl;
         return frequency_;
     }

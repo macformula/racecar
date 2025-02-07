@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <iostream>
 
+#include "mcal/cli/periph/analog_output.hpp"
 #include "shared/periph/analog_input.hpp"
 
 namespace mcal::cli::periph {
@@ -26,6 +27,21 @@ public:
 
 private:
     std::string name_;
+};
+
+// This class is purely for testing purposes
+class AnalogInputConnectedToAnalogOutput : public AnalogInput {
+public:
+    AnalogInputConnectedToAnalogOutput(std::string name,
+                                       AnalogOutput& analog_output)
+        : AnalogInput(name), analog_output_(analog_output) {}
+
+    float ReadVoltage() override {
+        return analog_output_.GetLoadedVoltage();
+    }
+
+private:
+    AnalogOutput& analog_output_;
 };
 
 }  // namespace mcal::cli::periph

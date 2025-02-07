@@ -20,14 +20,16 @@ namespace shared::device {
  *
  *   Terminal(A)___/ ___
  *                      |
+ *                      |_
+ *                     |  |
+ *                     |RA|
+ *                     |__|
  *                      |
- *                     [RA]
- *                      |
- *                      |
- *                      |___/ ___Terminal(W)
- *                      |
- *                      |
- *                     [RB]
+ *                      |____/ ___Terminal(W)
+ *                      |_
+ *                     |  |
+ *                     |RB|
+ *                     |__|
  *                      |
  *   Terminal(B)___/ ___|
  */
