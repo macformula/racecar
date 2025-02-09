@@ -135,6 +135,10 @@ nav:
     - firmware/dev-setup.md
     - firmware/architecture/index.md
     - firmware/project-structure/index.md
+    - STM32 Platform:
+      - firmware/stm32/start-cubemx-project.md
+      - firmware/stm32/configure.md
+      - firmware/stm32/bindings.md
     - firmware/compile-project.md
     - firmware/flashing/index.md
     - firmware/hw-debug.md

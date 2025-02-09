@@ -19,3 +19,8 @@
 *[MCAL]: MicroController Abstraction Layer.
 *[BMS]: Battery Management System. A vehicle device responsible for consistently and safely drawing power from the accumulator / battery.
 *[SSH]: Secure Shell.
+*[PCB]: Printed Circuit Board.
+*[JTAG]: Joint Test Action Group. Usually refers to a standardized connector for programming and debugging microcontrollers.
+*[TSSI]: Tractive System Status Indicator. A light on the vehicle which indicates when the vehicle has power or errors. Required by FSAE rule EV.5.11.5.
+*[MPU]: MicroProcessor Unit
+*[MCU]: MicroController Unit
