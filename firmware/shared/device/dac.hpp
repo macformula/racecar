@@ -22,8 +22,7 @@ public:
     virtual void SetAndLoadAllVoltages(float voltages[num_channels]) = 0;
 };
 
-template <uint8_t num_external_dacs, uint8_t num_channels_per_dac,
-          typename ChannelT>
+template <uint8_t num_external_dacs, uint8_t num_channels_per_dac>
     requires(num_external_dacs > 0)
 class DigitalAnalogConverterGroup
     : public periph::AnalogOutputGroup<num_external_dacs *
@@ -32,9 +31,9 @@ public:
     static constexpr uint8_t kTotalChannels =
         num_external_dacs * num_channels_per_dac;
 
-    DigitalAnalogConverterGroup(
-        DigitalAnalogConverter<num_channels_per_dac> dacs[num_external_dacs])
-        : dacs_{dacs} {}
+    DigitalAnalogConverterGroup(DigitalAnalogConverter<num_channels_per_dac>* (
+        &dacs)[num_external_dacs])
+        : dacs_(dacs) {}
     virtual ~DigitalAnalogConverterGroup() = default;
 
     void SetVoltage(uint8_t channel, float voltage) override {
@@ -59,8 +58,28 @@ public:
         LoadVoltages();
     }
 
+    float GetLoadedVoltage(uint8_t channel) override {
+        uint8_t dac_index = channel / num_channels_per_dac;
+        uint8_t dac_channel = channel % num_channels_per_dac;
+
+        return dacs_[dac_index]->GetLoadedVoltage(dac_channel);
+    }
+
+    float GetVoltageSetpoint(uint8_t channel) override {
+        uint8_t dac_index = channel / num_channels_per_dac;
+        uint8_t dac_channel = channel % num_channels_per_dac;
+
+        return dacs_[dac_index]->GetVoltageSetpoint(dac_channel);
+    }
+
 private:
-    DigitalAnalogConverter<num_channels_per_dac> dacs_[num_external_dacs];
+    DigitalAnalogConverter<num_channels_per_dac>* (&dacs_)[num_external_dacs];
 };
+
+// Deduction guide
+template <uint8_t num_external_dacs, uint8_t num_channels_per_dac>
+DigitalAnalogConverterGroup(
+    DigitalAnalogConverter<num_channels_per_dac>* (&dacs)[num_external_dacs])
+    -> DigitalAnalogConverterGroup<num_external_dacs, num_channels_per_dac>;
 
 }  // namespace shared::device
