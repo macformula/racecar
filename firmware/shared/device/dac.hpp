@@ -15,16 +15,11 @@ template <uint8_t num_channels>
 class DigitalAnalogConverter : public util::Device,
                                public periph::AnalogOutputGroup<num_channels> {
 public:
-    DigitalAnalogConverter() : channel_count_(num_channels), voltages_{} {}
-    virtual ~DigitalAnalogConverter() = default;
-
     virtual void SetVoltage(uint8_t channel, float voltage) = 0;
+    virtual float GetLoadedVoltage(uint8_t channel) = 0;
+    virtual float GetVoltageSetpoint(uint8_t channel) = 0;
     virtual void LoadVoltages() = 0;
     virtual void SetAndLoadAllVoltages(float voltages[num_channels]) = 0;
-
-protected:
-    float voltages_[num_channels];
-    uint8_t channel_count_;
 };
 
 template <uint8_t num_external_dacs, uint8_t num_channels_per_dac,
