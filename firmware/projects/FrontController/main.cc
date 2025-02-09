@@ -1,12 +1,16 @@
+// $ make PROJECT=FrontController PLATFORM=dummy
+// if get to "linking main.elf" then your code compiles.
+// if fails after that, no issue
+
 /// @author Blake Freer
 /// @date 2025-02
 
 #include "bindings.hpp"
-#include "control-system/amk_block.hpp"
 #include "control-system/battery_monitor.h"
 #include "control-system/driver_interface.hpp"
 #include "control-system/governor.hpp"
-#include "control-system/simp_vd_interface.hpp"
+#include "control-system/motor_interface.hpp"
+#include "control-system/vehicle_dynamics.hpp"
 #include "generated/can/pt_bus.hpp"
 #include "generated/can/pt_messages.hpp"
 #include "generated/can/veh_bus.hpp"
@@ -51,11 +55,40 @@ AnalogInput steering_wheel{bindings::steering_angle_sensor,
 
 auto pedal_to_torque = LinearMap<float, float>{1, 0};
 
-MotorInterface mi;
+using MotorIface = MotorInterface<RxAMK0_ActualValues1, RxAMK1_ActualValues1,
+                                  TxAMK0_SetPoints1, TxAMK0_SetPoints1>;
+MotorIface mi;
 BatteryMonitor bm;
 Governor gov;
 DriverInterface di;
-SimpVdInterface vd{pedal_to_torque};
+VehicleDynamics vd{pedal_to_torque};
+
+Governor::Input gov_in;
+
+void UpdateControls() {
+    // cmd always from governor to module
+    // // sts always from module to gov
+
+    // MotorIface::Input mi_in{
+    //     // cmd from gov
+    //     .left_actual1 = pt_can_bus.GetRxAMK0_ActualValues1().value(),
+    //     //.request come from DI and VD
+    // };
+
+    // int time_ms = os::GetTickCount();
+    // // gov update
+    // Governor::Output out = gov.Update(gov_in, tims_ms);
+    // // battery_monitor
+    // // di
+    // DriverInterface::Input di_in{
+    //     .di_cmd = out.di_cmd,
+    //     .brake_pedal_pos = brake_pedal_front.Update(),
+    // };
+    // auto di_out = di.Update(di_in, time_ms);
+    // // vd
+    // // mi
+    // gov_in = {.di_sts = di_out.di_sts};
+}
 
 /***************************************************************
     RTOS
@@ -82,6 +115,8 @@ void Task_5ms(void* arg) {
     uint32_t task_delay_ms = os::GetTickCount();
 
     while (true) {
+        UpdateControls();
+
         // Repeat after another 5ms
         task_delay_ms += 5;
         os::TickUntil(task_delay_ms);
