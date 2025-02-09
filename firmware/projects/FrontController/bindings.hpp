@@ -1,5 +1,5 @@
 /// @author Blake Freer
-/// @date 2025-02
+/// @date 2024-05-29
 
 #pragma once
 
@@ -16,10 +16,10 @@ extern shared::periph::CanBase& pt_can_base;
 // =========== Vehicle Dynamics Sensors ====================
 extern shared::periph::AnalogInput& suspension_travel1;
 extern shared::periph::AnalogInput& suspension_travel2;
-extern shared::periph::AnalogInput& wheel_speed_front_left;
-extern shared::periph::AnalogInput& wheel_speed_front_right;
-extern shared::periph::AnalogInput& wheel_speed_rear_left;
-extern shared::periph::AnalogInput& wheel_speed_rear_right;
+extern shared::periph::AnalogInput& wheel_speed_front_left;   // A
+extern shared::periph::AnalogInput& wheel_speed_front_right;  // A
+extern shared::periph::AnalogInput& wheel_speed_rear_left;    // B
+extern shared::periph::AnalogInput& wheel_speed_rear_right;   // B
 
 // =========== Driver Control ==============================
 extern shared::periph::AnalogInput& steering_angle_sensor;
