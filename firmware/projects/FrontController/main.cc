@@ -85,6 +85,7 @@ void UpdateControls() {
     // NOTE #1: For defining inputs, I commented out inputs where I didn't know what to set it to
     // NOTE #2: Some binding values like brake_pedal_front and accel_pedal are defined above, I used those and used Update(), idk if thats the correct thing to do or not
     // NOTE #3: There are some warnings for type conversions, I don't know if those are mistakes from me or some conversions from simulink to c++ were wrong
+    // NOTE #4: All outputs are created and most of them are supposed to be sent to CAN. Assuming Blake will be doing that part?
 
     // Capture time to use in Update call for each block
     int time_ms = os::GetTickCount();
@@ -147,7 +148,7 @@ void UpdateControls() {
     };
     MotorIface::Output mi_out = mi.Update(mi_in, time_ms);
 
-    // Craft global Governer input to use for next UpdateControls call
+    // Set global Governer input to use for next UpdateControls call
     gov_in = {
         .bm_sts = bm_out.status,
         .mi_sts = mi_out.status,
