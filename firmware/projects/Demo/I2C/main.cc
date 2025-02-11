@@ -1,22 +1,21 @@
 #include <cstdint>
+#include <iostream>
 
-#include "bindings.h"
+#include "bindings.hpp"
 #include "shared/comms/i2c/msg.hpp"
 
 int main() {
     bindings::Initialize();
 
+    constexpr uint8_t kAddress = 0x2C;
+
     while (true) {
-        uint8_t data1[] = {0x02, 0x03, 0x05};
+        uint8_t data1[] = {0xDE, 0xAD, 0xBE, 0xEF};
+        auto write_msg = shared::i2c::Message(kAddress, data1,
+                                              shared::i2c::MessageType::Write);
+        std::cout << "WR -> " << write_msg << std::endl;
 
-        bindings::i2c_bus1.Write(
-            shared::i2c::Message(0x01, data1, shared::i2c::MessageType::Write));
-        bindings::DelayMS(1000);
-
-        uint8_t data2[3];
-        auto read_msg =
-            shared::i2c::Message(0x03, data2, shared::i2c::MessageType::Read);
-        bindings::i2c_bus2.Read(read_msg);
+        bindings::i2c_bus1.Write(write_msg);
         bindings::DelayMS(1000);
     }
 

@@ -11,8 +11,7 @@
 namespace mcal {
 using namespace cli::periph;
 
-I2C i2c_bus1(1);
-I2C i2c_bus2(2);
+I2CBus i2c_bus1(1);
 DigitalOutput indicator("Indicator");
 
 }  // namespace mcal
@@ -20,8 +19,7 @@ DigitalOutput indicator("Indicator");
 namespace bindings {
 
 shared::periph::DigitalOutput& indicator = mcal::indicator;
-shared::periph::I2C& i2c_bus1 = mcal::i2c_bus1;
-shared::periph::I2C& i2c_bus2 = mcal::i2c_bus2;
+shared::periph::I2CBus& i2c_bus1 = mcal::i2c_bus1;
 
 void DelayMS(unsigned int ms) {
     usleep(ms * 1000);
