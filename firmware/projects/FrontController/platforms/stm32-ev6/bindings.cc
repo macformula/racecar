@@ -1,4 +1,5 @@
 #include "../../bindings.hpp"
+
 #include "adc.h"
 #include "can.h"
 #include "gpio.h"
@@ -18,8 +19,8 @@ namespace mcal {
 using namespace stm32f767::periph;
 
 // Power, CAN, JTAG, PWM Section:
-AnalogInput precharge_monitor{&hadc, ADC_CHANNEL_1};
-AnalogInput steering_angle{&hadc1, ADC_CHANNEL_2};
+AnalogInput precharge_monitor{&hadc1, ADC_CHANNEL_1};
+AnalogInput steering_angle_sensor{&hadc1, ADC_CHANNEL_2};
 DigitalOutput dashboard_power_en{GPIOA, GPIO_PIN_6};
 CanBase pt_can_base{&hcan1};
 
@@ -63,7 +64,8 @@ shared::periph::AnalogInput& wheel_speed_rear_left =
 shared::periph::AnalogInput& wheel_speed_rear_right =
     mcal::wheel_speed_rear_right;
 
-shared::periph::AnalogInput& steering_angle = mcal::steering_angle;
+shared::periph::AnalogInput& steering_angle_sensor =
+    mcal::steering_angle_sensor;
 
 shared::periph::AnalogInput& accel_pedal_sensor1 = mcal::accel_pedal_sensor1;
 shared::periph::AnalogInput& accel_pedal_sensor2 = mcal::accel_pedal_sensor2;
@@ -96,6 +98,14 @@ void Initialize() {
 
     mcal::veh_can_base.Setup();
     mcal::pt_can_base.Setup();
+}
+
+int GetTickMs() {
+    return HAL_GetTick();
+}
+
+void DelayMs(int ms) {
+    HAL_Delay(ms);
 }
 
 }  // namespace bindings

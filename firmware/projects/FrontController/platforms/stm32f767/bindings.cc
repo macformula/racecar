@@ -9,7 +9,6 @@
 #include "shared/periph/analog_input.hpp"
 #include "shared/periph/can.hpp"
 #include "stm32f7xx_hal_adc.h"
-#include "tim.h"
 
 // fw imports
 #include "../../bindings.hpp"
@@ -28,122 +27,85 @@ void SystemClock_Config();
 namespace mcal {
 using namespace stm32f767::periph;
 
-AnalogInput brake_pedal_front{
-    &hadc1,
-    ADC_CHANNEL_2,  // TODO is front BPPS1 = chn 2?
-};
-AnalogInput brake_pedal_rear{
-    &hadc1,
-    ADC_CHANNEL_1,  // TODO is rear BPPS2 = chn 1?
-};
-DigitalOutput debug_led{
-    DEBUG_LED_GPIO_Port,
-    DEBUG_LED_Pin,
-};
-AnalogInput hvil_feedback{
-    &hadc1,
-    ADC_CHANNEL_5,
-};
-DigitalOutput dashboard_hsd{
-    DASHBOARD_HSD_EN_GPIO_Port,
-    DASHBOARD_HSD_EN_Pin,
-};
-DigitalOutput hvil_led{
-    HVIL_LED_EN_GPIO_Port,
-    HVIL_LED_EN_Pin,
-};
-DigitalOutput driver_speaker{
-    RTDS_EN_GPIO_Port,
-    RTDS_EN_Pin,
-};
-DigitalInput start_button{
-    START_BUTTON_GPIO_Port,
-    START_BUTTON_Pin,
-};
-DigitalOutput brake_light{
-    BRAKE_LIGHT_EN_GPIO_Port,
-    BRAKE_LIGHT_EN_Pin,
-};
-DigitalOutput status_light{
-    STATUS_LED_EN_GPIO_Port,
-    STATUS_LED_EN_Pin,
-};
-AnalogInput wheel_speed_right_b{
-    &hadc1,
-    ADC_CHANNEL_10,
-};
-AnalogInput wheel_speed_right_a{
-    &hadc1,
-    ADC_CHANNEL_11,
-};
-AnalogInput accel_pedal_1{
-    &hadc1,
-    ADC_CHANNEL_12,
-};
-AnalogInput accel_pedal_2{
-    &hadc1,
-    ADC_CHANNEL_13,
-};
-AnalogInput wheel_speed_left_b{
-    &hadc1,
-    ADC_CHANNEL_14,
-};
-AnalogInput wheel_speed_left_a{
-    &hadc1,
-    ADC_CHANNEL_15,
-};
-AnalogInput steering_wheel{
-    &hadc1,
-    ADC_CHANNEL_4,
-};
-AnalogInput suspension_sensor_1{
-    &hadc1,
-    ADC_CHANNEL_8,
-};
-AnalogInput suspension_sensor_2{
-    &hadc1,
-    ADC_CHANNEL_9,
-};
-
+// =========== CAN =========================================
 CanBase veh_can_base{&hcan3};
 CanBase pt_can_base{&hcan1};
+
+// =========== Vehicle Dynamics Sensors ====================
+AnalogInput suspension_travel1{&hadc1, ADC_CHANNEL_8};
+AnalogInput suspension_travel2{&hadc1, ADC_CHANNEL_9};
+AnalogInput wheel_speed_front_left{&hadc1, ADC_CHANNEL_15};   // A
+AnalogInput wheel_speed_front_right{&hadc1, ADC_CHANNEL_11};  // A
+AnalogInput wheel_speed_rear_left{&hadc1, ADC_CHANNEL_14};    // B
+AnalogInput wheel_speed_rear_right{&hadc1, ADC_CHANNEL_10};   // B
+
+// =========== Driver Control ==============================
+DigitalInput start_button{START_BUTTON_GPIO_Port, START_BUTTON_Pin};
+
+AnalogInput steering_angle_sensor{&hadc1, ADC_CHANNEL_4};
+AnalogInput brake_pressure_sensor1{&hadc1, ADC_CHANNEL_2};
+AnalogInput brake_pressure_sensor2{&hadc1, ADC_CHANNEL_1};
+AnalogInput accel_pedal_sensor1{&hadc1, ADC_CHANNEL_12};
+AnalogInput accel_pedal_sensor2{&hadc1, ADC_CHANNEL_13};
+
+// =========== Outputs =====================================
+DigitalOutput dashboard_power_en{DASHBOARD_HSD_EN_GPIO_Port,
+                                 DASHBOARD_HSD_EN_Pin};
+DigitalOutput hvil_led_en{HVIL_LED_EN_GPIO_Port, HVIL_LED_EN_Pin};
+DigitalOutput rtds_en{RTDS_EN_GPIO_Port, RTDS_EN_Pin};
+DigitalOutput brake_light_en{BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin};
+DigitalOutput status_led_en{STATUS_LED_EN_GPIO_Port, STATUS_LED_EN_Pin};
+DigitalOutput debug_led{DEBUG_LED_GPIO_Port, DEBUG_LED_Pin};
+
+// =========== Other =======================================
+AnalogInput hvil_feedback{&hadc1, ADC_CHANNEL_5};
 
 }  // namespace mcal
 namespace bindings {
 
-// peripherals are ordered as in Pin Mapping spreadsheet
-
-shared::periph::AnalogInput& brake_pedal_front = mcal::brake_pedal_front;
-shared::periph::AnalogInput& brake_pedal_rear = mcal::brake_pedal_rear;
-shared::periph::DigitalOutput& debug_led = mcal::debug_led;
-shared::periph::AnalogInput& hvil_feedback = mcal::hvil_feedback;
-shared::periph::DigitalOutput& dashboard_hsd = mcal::dashboard_hsd;
-shared::periph::DigitalOutput& hvil_led = mcal::hvil_led;
-
-// (SAM) Confirm that PA11,PA12 is CAN1-powertrain and
-// PA8,PA15 is CAN3-vehicle
+// =========== CAN =========================================
 shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
 shared::periph::CanBase& pt_can_base = mcal::pt_can_base;
 
-shared::periph::DigitalOutput& driver_speaker = mcal::driver_speaker;
+// =========== Vehicle Dynamics Sensors ====================
+shared::periph::AnalogInput& suspension_travel1 = mcal::suspension_travel1;
+shared::periph::AnalogInput& suspension_travel2 = mcal::suspension_travel2;
+shared::periph::AnalogInput& wheel_speed_front_left =
+    mcal::wheel_speed_front_left;
+shared::periph::AnalogInput& wheel_speed_front_right =
+    mcal::wheel_speed_front_right;
+shared::periph::AnalogInput& wheel_speed_rear_left =
+    mcal::wheel_speed_rear_left;
+shared::periph::AnalogInput& wheel_speed_rear_right =
+    mcal::wheel_speed_rear_right;
+
+// =========== Driver Control ==============================
 shared::periph::DigitalInput& start_button = mcal::start_button;
-shared::periph::DigitalOutput& brake_light = mcal::brake_light;
-shared::periph::DigitalOutput& status_light = mcal::status_light;
-shared::periph::AnalogInput& wheel_speed_right_b = mcal::wheel_speed_right_b;
-shared::periph::AnalogInput& wheel_speed_right_a = mcal::wheel_speed_right_a;
-shared::periph::AnalogInput& accel_pedal_1 = mcal::accel_pedal_1;
-shared::periph::AnalogInput& accel_pedal_2 = mcal::accel_pedal_2;
-shared::periph::AnalogInput& wheel_speed_left_b = mcal::wheel_speed_left_b;
-shared::periph::AnalogInput& wheel_speed_left_a = mcal::wheel_speed_left_a;
-shared::periph::AnalogInput& steering_wheel = mcal::steering_wheel;
-shared::periph::AnalogInput& suspension_sensor_1 = mcal::suspension_sensor_1;
-shared::periph::AnalogInput& suspension_sensor_2 = mcal::suspension_sensor_2;
+
+shared::periph::AnalogInput& steering_angle_sensor =
+    mcal::steering_angle_sensor;
+shared::periph::AnalogInput& brake_pressure_sensor1 =
+    mcal::brake_pressure_sensor1;
+shared::periph::AnalogInput& brake_pressure_sensor2 =
+    mcal::brake_pressure_sensor2;
+shared::periph::AnalogInput& accel_pedal_sensor1 = mcal::accel_pedal_sensor1;
+shared::periph::AnalogInput& accel_pedal_sensor2 = mcal::accel_pedal_sensor2;
+
+// =========== Outputs =====================================
+shared::periph::DigitalOutput& dashboard_power_en = mcal::dashboard_power_en;
+shared::periph::DigitalOutput& hvil_led_en = mcal::hvil_led_en;
+shared::periph::DigitalOutput& rtds_en = mcal::rtds_en;
+shared::periph::DigitalOutput& brake_light_en = mcal::brake_light_en;
+shared::periph::DigitalOutput& status_led_en = mcal::status_led_en;
+shared::periph::DigitalOutput& debug_led = mcal::debug_led;
+
+// =========== Other =======================================
+shared::periph::AnalogInput& hvil_feedback = mcal::hvil_feedback;
 
 void Initialize() {
     SystemClock_Config();
     HAL_Init();
 
-    MX_TIM2_Init();
     MX_GPIO_Init();
     MX_ADC1_Init();
     MX_CAN1_Init();
@@ -151,6 +113,14 @@ void Initialize() {
 
     mcal::veh_can_base.Setup();
     mcal::pt_can_base.Setup();
+}
+
+int GetTickMs() {
+    return HAL_GetTick();
+}
+
+void DelayMs(int ms) {
+    HAL_Delay(ms);
 }
 
 }  // namespace bindings

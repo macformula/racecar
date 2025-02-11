@@ -21,7 +21,8 @@ public:
         float wheel_speed_rf;
         bool tv_enable;
     };
-    struct Output {
+    struct Output {  // this should produce a left and right
+                     // AmkManagerBase::MotorRequest
         float lm_torque_limit_positive;
         float rm_torque_limit_positive;
         float lm_torque_limit_negative;
