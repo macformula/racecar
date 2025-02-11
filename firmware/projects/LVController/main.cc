@@ -56,7 +56,8 @@ class StateMachine {
     // shorter and clearer code of the first implementation is justified.
 
 public:
-    StateMachine() : state_(LvState::PWRUP_START), on_enter_(true) {}
+    StateMachine(int start_time)
+        : state_(LvState::PWRUP_START), state_enter_time_(start_time) {}
 
     void Update(int time_ms) {
         using enum LvState;
@@ -64,7 +65,10 @@ public:
         std::optional<LvState> transition = std::nullopt;
         int elapsed = time_ms - state_enter_time_;
 
-        veh_can.Send(TxLvControllerStatus{static_cast<uint8_t>(state_)});
+        veh_can.Send(
+            TxLvControllerStatus{.lv_state = static_cast<uint8_t>(state_),
+                                 .elapsed = elapsed,
+                                 .flag = flag});
 
         switch (state_) {
             case PWRUP_START:
@@ -99,27 +103,37 @@ public:
                     bindings::imu_gps_en.SetHigh();
                 }
 
-                if (elapsed > 50) {
-                    auto msg = veh_can.GetRxFcControllerStatus();
-                    if (msg.has_value()) {
-                        // don't actually care about the status, just that FC
-                        // has send a message
-                        transition = PWRUP_ACCUMULATOR_ON;
-                    }
-                }
+                if (elapsed > 50) transition = PWRUP_ACCUMULATOR_ON;  // temp
+
+                // flag = false;
+                // if (elapsed > 50) {
+                //     flag = true;
+                //     auto msg =
+                //         veh_can
+                //             .GetRxFcControllerStatus();  // not reading from
+                //             CAN
+                //     if (msg.has_value()) {
+                //         // don't actually care about the status, just that FC
+                //         // has send a message
+                //         transition = PWRUP_ACCUMULATOR_ON;
+                //     }
+                // }
                 break;
 
             case PWRUP_ACCUMULATOR_ON: {
                 if (on_enter_) bindings::accumulator_en.SetHigh();
 
-                auto contactors = veh_can.GetRxContactorStates();
-                if (contactors.has_value()) {
-                    if (contactors->PackPositive() == false &&
-                        contactors->PackNegative() == false &&
-                        contactors->PackPrecharge() == false) {
-                        transition = PWRUP_MOTOR_PRECHARGE_ON;
-                    }
-                }
+                if (elapsed > 100)
+                    transition = PWRUP_MOTOR_PRECHARGE_ON;  // temp
+
+                // auto contactors = veh_can.GetRxContactorStates();
+                // if (contactors.has_value()) {
+                //     if (contactors->PackPositive() == false &&
+                //         contactors->PackNegative() == false &&
+                //         contactors->PackPrecharge() == false) {
+                //         transition = PWRUP_MOTOR_PRECHARGE_ON;
+                //     }
+                // }
             } break;
 
             case PWRUP_MOTOR_PRECHARGE_ON:
@@ -288,6 +302,7 @@ private:
     LvState state_;  // enum defined by cangen
     int state_enter_time_;
     bool on_enter_;
+    bool flag = false;  // temp
 };
 
 void UpdateBrakeLight() {
@@ -302,7 +317,7 @@ void UpdateBrakeLight() {
 int main(void) {
     bindings::Initialize();
 
-    StateMachine fsm;
+    StateMachine fsm(bindings::GetTick());
 
     const int kUpdatePeriodMs = 20;
     while (true) {
