@@ -63,10 +63,13 @@ public:
 
         // Format message type
         if (type_ == MessageType::Write) {
-            ss << " WR ->";
+            ss << " WR -> ";
         } else {
-            ss << " RD <-";
+            ss << " RD <- ";
         }
+
+        // Format data length
+        ss << "(" << static_cast<int>(data_length_) << ")";
 
         // Format data
         for (size_t i = 0; i < data_length_; ++i) {
