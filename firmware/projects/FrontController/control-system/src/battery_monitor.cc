@@ -173,19 +173,39 @@ ContactorCMD BatteryMonitor::SelectContactorCmd(
 
     switch (bm_control_status_) {
         case ControlStatus::STARTUP_CMD:
-            return ContactorCMD{OPEN, OPEN, OPEN};
+            return ContactorCMD{
+                .precharge = OPEN,
+                .hv_positive = OPEN,
+                .hv_negative = OPEN,
+            };
 
         case ControlStatus::CLOSE_HV_NEG:
-            return ContactorCMD{OPEN, OPEN, CLOSED};
+            return ContactorCMD{
+                .precharge = OPEN,
+                .hv_positive = OPEN,
+                .hv_negative = CLOSED,
+            };
 
         case ControlStatus::CLOSE_PRECHARGE:
-            return ContactorCMD{CLOSED, OPEN, CLOSED};
+            return ContactorCMD{
+                .precharge = CLOSED,
+                .hv_positive = OPEN,
+                .hv_negative = CLOSED,
+            };
 
         case ControlStatus::CLOSE_HV_POS:
-            return ContactorCMD{CLOSED, CLOSED, CLOSED};
+            return ContactorCMD{
+                .precharge = CLOSED,
+                .hv_positive = CLOSED,
+                .hv_negative = CLOSED,
+            };
 
         case ControlStatus::OPEN_PRECHARGE:
-            return ContactorCMD{OPEN, CLOSED, CLOSED};
+            return ContactorCMD{
+                .precharge = OPEN,
+                .hv_positive = CLOSED,
+                .hv_negative = CLOSED,
+            };
     }
 
     return {};  // switch case shouold return. return needed to satisfy warning
