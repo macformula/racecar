@@ -88,7 +88,7 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
         return bm;
     }
 
-    // Transition to INIT_PRECHARGE
+    // Transition to PRECHARGE
     time_ms += 6500;
     bm.Update(
         {
@@ -101,11 +101,11 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
         },
         time_ms);
 
-    if (desired_state == BmSts::INIT_PRECHARGE) {
+    if (desired_state == BmSts::PRECHARGE) {
         return bm;
     }
 
-    // Transition to PRECHARGE
+    // Transition to PRECHARGE_DONE
     time_ms += 100;
     bm.Update(
         {
@@ -118,7 +118,7 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
         },
         time_ms);
 
-    if (desired_state == BmSts::PRECHARGE) {
+    if (desired_state == BmSts::PRECHARGE_DONE) {
         return bm;
     }
 
@@ -158,10 +158,10 @@ std::string BmStatusToString(BmSts status) {
             return "IDLE";
         case BmSts::STARTUP:
             return "STARTUP";
-        case BmSts::INIT_PRECHARGE:
-            return "INIT_PRECHARGE";
         case BmSts::PRECHARGE:
             return "PRECHARGE";
+        case BmSts::PRECHARGE_DONE:
+            return "PRECHARGE_DONE";
         case BmSts::RUNNING:
             return "RUNNING";
         case BmSts::LOW_SOC:
@@ -175,9 +175,8 @@ std::string BmStatusToString(BmSts status) {
 
 void test_low_soc_transitions() {
     using enum ContactorState;
-    std::vector<BmSts> states = {BmSts::IDLE, BmSts::STARTUP,
-                                 BmSts::INIT_PRECHARGE, BmSts::PRECHARGE,
-                                 BmSts::RUNNING};
+    std::vector<BmSts> states = {BmSts::IDLE, BmSts::STARTUP, BmSts::PRECHARGE,
+                                 BmSts::PRECHARGE_DONE, BmSts::RUNNING};
     int time_ms;
 
     for (BmSts state : states) {
@@ -195,7 +194,7 @@ void test_low_soc_transitions() {
             time_ms);
 
         assert(output.status == BmSts::LOW_SOC);
-        assert(output.contactor.precharge == OPEN);
+        assert(output.contactor.PRECHARGE_DONE == OPEN);
         assert(output.contactor.hv_negative == OPEN);
         assert(output.contactor.hv_positive == OPEN);
 
@@ -206,9 +205,8 @@ void test_low_soc_transitions() {
 
 void test_hvil_interrupt_transitions() {
     using enum ContactorState;
-    std::vector<BmSts> states = {BmSts::IDLE, BmSts::STARTUP,
-                                 BmSts::INIT_PRECHARGE, BmSts::PRECHARGE,
-                                 BmSts::RUNNING};
+    std::vector<BmSts> states = {BmSts::IDLE, BmSts::STARTUP, BmSts::PRECHARGE,
+                                 BmSts::PRECHARGE_DONE, BmSts::RUNNING};
     int time_ms;
 
     for (BmSts state : states) {
@@ -226,7 +224,7 @@ void test_hvil_interrupt_transitions() {
             time_ms);
 
         assert(output.status == BmSts::HVIL_INTERRUPT);
-        assert(output.contactor.precharge == OPEN);
+        assert(output.contactor.PRECHARGE_DONE == OPEN);
         assert(output.contactor.hv_negative == OPEN);
         assert(output.contactor.hv_positive == OPEN);
 
@@ -290,13 +288,13 @@ void test_state_transitions() {
     assert(output3.status == BmSts::STARTUP);
     assert(output3.control_status == ControlStatus::CLOSE_PRECHARGE);
 
-    // Test: Transition from STARTUP to INIT_PRECHARGE
-    std::cout << "Running Test 4: startup to init precharge\n";
+    // Test: Transition from STARTUP to PRECHARGE
+    std::cout << "Running Test 4: startup to init PRECHARGE_DONE\n";
     time_ms += 6500;
     auto output4 = bm.Update(
         {
             .cmd = BmCmd::HV_STARTUP,
-            .precharge_contactor_states = CLOSED,  // Precharge active
+            .precharge_contactor_states = CLOSED,  // PRECHARGE_DONE active
             .hv_pos_contactor_states = OPEN,
             .hv_neg_contactor_states = CLOSED,
             .hvil_status = CLOSED,
@@ -304,11 +302,11 @@ void test_state_transitions() {
         },
         time_ms);
 
-    assert(output4.status == BmSts::INIT_PRECHARGE);
+    assert(output4.status == BmSts::PRECHARGE);
     assert(output4.control_status == ControlStatus::CLOSE_HV_POS);
 
-    // Test: Transition from INIT_PRECHARGE to PRECHARGE
-    std::cout << "Running Test 5: init precharge to precharge\n";
+    // Test: Transition from PRECHARGE to PRECHARGE_DONE
+    std::cout << "Running Test 5: init PRECHARGE_DONE to PRECHARGE_DONE\n";
     time_ms += 100;
     auto output5 = bm.Update(
         {
@@ -321,16 +319,16 @@ void test_state_transitions() {
         },
         time_ms);
 
-    assert(output5.status == BmSts::PRECHARGE);
+    assert(output5.status == BmSts::PRECHARGE_DONE);
     assert(output5.control_status == ControlStatus::OPEN_PRECHARGE);
 
-    // Test: Transition from PRECHARGE to RUNNING
-    std::cout << "Running Test 6: precharge to running\n";
+    // Test: Transition from PRECHARGE_DONE to RUNNING
+    std::cout << "Running Test 6: PRECHARGE_DONE to running\n";
     time_ms += 10;
     auto output6 = bm.Update(
         {
             .cmd = BmCmd::HV_STARTUP,
-            .precharge_contactor_states = OPEN,  // Precharge inactive
+            .precharge_contactor_states = OPEN,  // PRECHARGE_DONE inactive
             .hv_pos_contactor_states = CLOSED,
             .hv_neg_contactor_states = CLOSED,
             .hvil_status = CLOSED,

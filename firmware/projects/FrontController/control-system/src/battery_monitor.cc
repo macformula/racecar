@@ -67,20 +67,20 @@ std::optional<BmSts> BatteryMonitor::TransitionStatus(const Input& input,
             if (input.precharge_contactor_states == CLOSED &&
                 input.hv_neg_contactor_states == CLOSED &&
                 input.hv_pos_contactor_states == OPEN) {
-                return INIT_PRECHARGE;
-            }
-            break;
-
-        case INIT_PRECHARGE:
-            if (input.precharge_contactor_states == CLOSED &&
-                input.hv_neg_contactor_states == CLOSED &&
-                input.hv_pos_contactor_states == CLOSED) {
                 return PRECHARGE;
             }
-
             break;
 
         case PRECHARGE:
+            if (input.precharge_contactor_states == CLOSED &&
+                input.hv_neg_contactor_states == CLOSED &&
+                input.hv_pos_contactor_states == CLOSED) {
+                return PRECHARGE_DONE;
+            }
+
+            break;
+
+        case PRECHARGE_DONE:
             if (input.precharge_contactor_states == OPEN &&
                 input.hv_neg_contactor_states == CLOSED &&
                 input.hv_pos_contactor_states == CLOSED) {
@@ -127,6 +127,8 @@ std::optional<ControlStatus> BatteryMonitor::TransitionControl(BmSts status,
         return ControlStatus::STARTUP_CMD;
     }
 
+    int elapsed = time_ms - control_snapshot_time_ms_;
+
     switch (bm_control_status_.value()) {
         case ControlStatus::STARTUP_CMD:
             if (status == IDLE) {
@@ -136,22 +138,19 @@ std::optional<ControlStatus> BatteryMonitor::TransitionControl(BmSts status,
 
         case ControlStatus::CLOSE_HV_NEG:
 
-            if (time_ms - control_snapshot_time_ms_ >= 100 &&
-                status == STARTUP) {
+            if (elapsed >= 500 && status == STARTUP) {
                 return ControlStatus::CLOSE_PRECHARGE;
             }
             break;
 
         case ControlStatus::CLOSE_PRECHARGE:
-            if (time_ms - control_snapshot_time_ms_ >= 6500 &&
-                status == INIT_PRECHARGE) {
+            if (elapsed >= 10000 && status == PRECHARGE) {
                 return ControlStatus::CLOSE_HV_POS;
             }
             break;
 
         case ControlStatus::CLOSE_HV_POS:
-            if (time_ms - control_snapshot_time_ms_ >= 100 &&
-                status == PRECHARGE) {
+            if (elapsed >= 500 && status == PRECHARGE_DONE) {
                 return ControlStatus::OPEN_PRECHARGE;
             }
 
