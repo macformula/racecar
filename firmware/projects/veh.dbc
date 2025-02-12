@@ -55,11 +55,12 @@ BO_ 113 SuspensionTravel34: 2 LVC
  SG_ STP3 : 0|8@1+ (1,0) [0|255] "" FC,RPI
  SG_ STP4 : 8|8@1+ (1,0) [0|255] "" FC,RPI
 
-BO_ 255 VC_Status: 4 PC_SG
- SG_ VC_bmStatus : 24|4@1+ (1,0) [0|15] ""  FC
- SG_ VC_diStatus : 8|4@1+ (1,0) [0|15] ""  FC
- SG_ VC_miStatus : 16|3@1+ (1,0) [0|7] ""  FC
- SG_ VC_govStatus : 0|4@1+ (1,0) [0|15] ""  FC
+BO_ 255 FC_Status: 5 FC
+ SG_ GovStatus : 0|8@1+ (1,0) [0|255] "" LVC, PC_SG
+ SG_ DiStatus : 8|8@1+ (1,0) [0|255] "" LVC, PC_SG
+ SG_ MiStatus : 16|8@1+ (1,0) [0|255] "" LVC, PC_SG
+ SG_ BmStatus : 24|8@1+ (1,0) [0|255] "" LVC, PC_SG
+ SG_ UserFlag : 32|8@1+ (1,0) [0|255] "" LVC, PC_SG
 
 BO_ 511 FC_msg: 8 FC
  SG_ FC_hvilSts : 60|1@1+ (1,0) [0|1] ""  PC_SG
@@ -73,7 +74,7 @@ BO_ 256 FC_cmd: 1 PC_SG
  SG_ FC_readyToDriveSpeaker : 1|1@1+ (1,0) [0|1] ""  FC
  SG_ FC_brakeLight : 0|1@1+ (1,0) [0|1] ""  FC
 
-BO_ 1570 ContactorStates: 3 FC
+BO_ 1570 ContactorCommand: 3 FC
  SG_ PackPositive : 0|8@1+ (1,0) [0|0] ""  BMS,LVC
  SG_ PackPrecharge : 8|8@1+ (1,0) [0|0] ""  BMS,LVC
  SG_ PackNegative : 16|8@1+ (1,0) [0|0] ""  BMS,LVC
@@ -93,9 +94,9 @@ BO_ 1573 Pack_SOC: 3 BMS
  SG_ Maximum_Pack_Voltage : 8|16@1+ (0.1,0) [0|0] "Volts"  FC
 
 BO_ 1574 Contactor_Feedback: 3 BMS
- SG_ Pack_Precharge_Feedback : 16|1@1+ (1,0) [0|1] ""  FC
- SG_ Pack_Negative_Feedback : 8|1@1+ (1,0) [0|1] ""  FC
  SG_ Pack_Positive_Feedback : 0|1@1+ (1,0) [0|1] ""  FC
+ SG_ Pack_Negative_Feedback : 8|1@1+ (1,0) [0|1] ""  FC
+ SG_ Pack_Precharge_Feedback : 16|1@1+ (1,0) [0|1] ""  FC
 
 BO_ 2553934720 BmsBroadcast: 8 TMS
  SG_ ThermModuleNum : 0|8@1+ (1,0) [0|0] ""  BMS

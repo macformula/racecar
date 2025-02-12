@@ -85,6 +85,14 @@ void UpdateControls() {
     // do I set some value?
     Governor::Output gov_out = gov.Update(gov_in, time_ms);
 
+    veh_can_bus.Send(TxFC_Status{
+        .gov_status = static_cast<uint8_t>(gov_out.gov_sts),
+        .di_status = static_cast<uint8_t>(gov_in.di_sts),
+        .mi_status = static_cast<uint8_t>(gov_in.mi_sts),
+        .bm_status = static_cast<uint8_t>(gov_in.bm_sts),
+        .user_flag = bindings::start_button.Read(),
+    });
+
     auto contactor_states = veh_can_bus.GetRxContactor_Feedback();
     if (!contactor_states.has_value()) {
         return;
@@ -93,18 +101,18 @@ void UpdateControls() {
     BatteryMonitor::Input bm_in = {
         .cmd = gov_out.bm_cmd,
         .precharge_contactor_states = static_cast<ContactorState>(
-            contactor_states->Pack_Precharge_Feedback()),
+            !contactor_states->Pack_Precharge_Feedback()),
         .hv_pos_contactor_states = static_cast<ContactorState>(
-            contactor_states->Pack_Positive_Feedback()),
+            !contactor_states->Pack_Positive_Feedback()),
         .hv_neg_contactor_states = static_cast<ContactorState>(
-            contactor_states->Pack_Negative_Feedback()),
-        .hvil_status = static_cast<ContactorState>(
-            bindings::hvil_feedback.ReadVoltage() > 1),
-        .pack_soc = 550  // temporary
+            !contactor_states->Pack_Negative_Feedback()),
+        .hvil_status = ContactorState::CLOSED,  // should remove, not on ev5 hsd
+        .pack_soc = 550                         // temporary
     };
     BatteryMonitor::Output bm_out = bm.Update(bm_in, time_ms);
+    gov_in.bm_sts = bm_out.status;
 
-    veh_can_bus.Send(TxContactorStates{
+    veh_can_bus.Send(TxContactorCommand{
         .pack_positive = static_cast<bool>(bm_out.contactor.hv_positive),
         .pack_precharge = static_cast<bool>(bm_out.contactor.precharge),
         .pack_negative = static_cast<bool>(bm_out.contactor.hv_negative),
@@ -119,6 +127,7 @@ void UpdateControls() {
         .accel_pedal_pos2 = accel_pedal_2.Update(),
         .steering_angle = steering_wheel.Update()};
     DriverInterface::Output di_out = di.Update(di_in, time_ms);
+    gov_in.di_sts = di_out.di_sts;
 
     bindings::rtds_en.Set(di_out.driver_speaker);
     bindings::brake_light_en.Set(di_out.brake_light_en);
@@ -170,13 +179,10 @@ void UpdateControls() {
     (void)mi_out.inverter_enable;  // unused -> inverter en signal is set in the
                                    // setpoint message inside MI.Update()
 
+    gov_in.mi_sts = mi_out.status;
+
     pt_can_bus.Send(mi_out.left_setpoints);
     pt_can_bus.Send(mi_out.right_setpoints);
-
-    // Set global Governer input to use for next UpdateControls call
-    gov_in = {.bm_sts = bm_out.status,
-              .mi_sts = mi_out.status,
-              .di_sts = di_out.di_sts};
 }
 
 int main(void) {
@@ -185,9 +191,6 @@ int main(void) {
     bool state = true;
 
     while (true) {
-        veh_can_bus.Send(
-            TxFcControllerStatus{.fc_state = 0});  // improve to use enums
-
         UpdateControls();
 
         bindings::debug_led.Set(state);
