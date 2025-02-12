@@ -58,7 +58,8 @@ DigitalOutput status_led_en{STATUS_LED_EN_GPIO_Port, STATUS_LED_EN_Pin};
 DigitalOutput debug_led{DEBUG_LED_GPIO_Port, DEBUG_LED_Pin};
 
 // =========== Other =======================================
-AnalogInput hvil_feedback{&hadc1, ADC_CHANNEL_5};
+AnalogInput hvil_feedback{&hadc1,
+                          ADC_CHANNEL_5};  // remove, not on HSD even in ev5
 
 }  // namespace mcal
 namespace bindings {
@@ -80,7 +81,8 @@ shared::periph::AnalogInput& wheel_speed_rear_right =
     mcal::wheel_speed_rear_right;
 
 // =========== Driver Control ==============================
-shared::periph::DigitalInput& start_button = mcal::start_button;
+shared::periph::InvertedDigitalInput start_button_inv{mcal::start_button};
+shared::periph::DigitalInput& start_button = start_button_inv;
 
 shared::periph::AnalogInput& steering_angle_sensor =
     mcal::steering_angle_sensor;
