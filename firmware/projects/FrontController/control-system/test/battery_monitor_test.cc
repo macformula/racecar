@@ -248,7 +248,7 @@ void test_state_transitions() {
 
     // Test: Transition from IDLE to STARTUP
     std::cout << "Running Test 3: idle to startup\n";
-    time_ms += 100;
+    time_ms += 500;
     auto output3 = bm.Update(
         {
             .cmd = BmCmd::HV_STARTUP,
@@ -264,7 +264,7 @@ void test_state_transitions() {
 
     // Test: Transition from STARTUP to PRECHARGE
     std::cout << "Running Test 4: startup to init PRECHARGE_DONE\n";
-    time_ms += 6500;
+    time_ms += 10000;
     auto output4 = bm.Update(
         {
             .cmd = BmCmd::HV_STARTUP,
@@ -280,7 +280,7 @@ void test_state_transitions() {
 
     // Test: Transition from PRECHARGE to PRECHARGE_DONE
     std::cout << "Running Test 5: init PRECHARGE_DONE to PRECHARGE_DONE\n";
-    time_ms += 100;
+    time_ms += 500;
     auto output5 = bm.Update(
         {
             .cmd = BmCmd::HV_STARTUP,
