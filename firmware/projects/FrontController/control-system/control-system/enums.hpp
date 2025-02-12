@@ -12,7 +12,6 @@ enum class BmSts {
     PRECHARGE,
     PRECHARGE_DONE,
     RUNNING,
-    HVIL_INTERRUPT,
     LOW_SOC,
     ERR_RUNNING
 };

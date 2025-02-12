@@ -22,7 +22,6 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
             .precharge_contactor_states = OPEN,
             .hv_pos_contactor_states = OPEN,
             .hv_neg_contactor_states = OPEN,
-            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -31,22 +30,9 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
         return bm;
     }
 
-    // Check for HVIL_INTERRUPT or LOW_SOC transition
     if (bm.Update(
               {
                   .cmd = BmCmd::HV_STARTUP,
-                  .hvil_status = OPEN,
-                  .pack_soc = 50.0,
-              },
-              time_ms)
-            .status == BmSts::HVIL_INTERRUPT) {
-        return bm;
-    }
-
-    if (bm.Update(
-              {
-                  .cmd = BmCmd::HV_STARTUP,
-                  .hvil_status = CLOSED,
                   .pack_soc = 20.0,
               },
               time_ms)
@@ -62,7 +48,6 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
             .precharge_contactor_states = OPEN,
             .hv_pos_contactor_states = OPEN,
             .hv_neg_contactor_states = OPEN,
-            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -79,7 +64,6 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
             .precharge_contactor_states = OPEN,
             .hv_pos_contactor_states = OPEN,
             .hv_neg_contactor_states = CLOSED,
-            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -96,7 +80,6 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
             .precharge_contactor_states = CLOSED,
             .hv_pos_contactor_states = OPEN,
             .hv_neg_contactor_states = CLOSED,
-            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -113,7 +96,6 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
             .precharge_contactor_states = CLOSED,
             .hv_pos_contactor_states = CLOSED,
             .hv_neg_contactor_states = CLOSED,
-            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -130,7 +112,6 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
             .precharge_contactor_states = OPEN,
             .hv_pos_contactor_states = CLOSED,
             .hv_neg_contactor_states = CLOSED,
-            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -166,8 +147,6 @@ std::string BmStatusToString(BmSts status) {
             return "RUNNING";
         case BmSts::LOW_SOC:
             return "LOW_SOC";
-        case BmSts::HVIL_INTERRUPT:
-            return "HVIL_INTERRUPT";
         default:
             return "UNKNOWN";
     }
@@ -188,13 +167,12 @@ void test_low_soc_transitions() {
         auto output = bm.Update(
             {
                 .cmd = BmCmd::HV_STARTUP,
-                .hvil_status = CLOSED,
                 .pack_soc = 20.0,
             },
             time_ms);
 
         assert(output.status == BmSts::LOW_SOC);
-        assert(output.contactor.PRECHARGE_DONE == OPEN);
+        assert(output.contactor.precharge == OPEN);
         assert(output.contactor.hv_negative == OPEN);
         assert(output.contactor.hv_positive == OPEN);
 
@@ -218,13 +196,12 @@ void test_hvil_interrupt_transitions() {
         auto output = bm.Update(
             {
                 .cmd = BmCmd::HV_STARTUP,
-                .hvil_status = OPEN,
                 .pack_soc = 50.0,
             },
             time_ms);
 
-        assert(output.status == BmSts::HVIL_INTERRUPT);
-        assert(output.contactor.PRECHARGE_DONE == OPEN);
+        // assert(output.status == BmSts::HVIL_INTERRUPT);
+        assert(output.contactor.precharge == OPEN);
         assert(output.contactor.hv_negative == OPEN);
         assert(output.contactor.hv_positive == OPEN);
 
@@ -246,7 +223,6 @@ void test_state_transitions() {
             .precharge_contactor_states = OPEN,
             .hv_pos_contactor_states = OPEN,
             .hv_neg_contactor_states = OPEN,
-            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -263,7 +239,6 @@ void test_state_transitions() {
             .precharge_contactor_states = OPEN,
             .hv_pos_contactor_states = OPEN,
             .hv_neg_contactor_states = OPEN,
-            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -280,7 +255,6 @@ void test_state_transitions() {
             .precharge_contactor_states = OPEN,
             .hv_pos_contactor_states = OPEN,
             .hv_neg_contactor_states = CLOSED,
-            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -297,7 +271,6 @@ void test_state_transitions() {
             .precharge_contactor_states = CLOSED,  // PRECHARGE_DONE active
             .hv_pos_contactor_states = OPEN,
             .hv_neg_contactor_states = CLOSED,
-            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -314,7 +287,6 @@ void test_state_transitions() {
             .precharge_contactor_states = CLOSED,
             .hv_pos_contactor_states = CLOSED,  // HV_POS active
             .hv_neg_contactor_states = CLOSED,
-            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
@@ -331,7 +303,6 @@ void test_state_transitions() {
             .precharge_contactor_states = OPEN,  // PRECHARGE_DONE inactive
             .hv_pos_contactor_states = CLOSED,
             .hv_neg_contactor_states = CLOSED,
-            .hvil_status = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);

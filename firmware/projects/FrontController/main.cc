@@ -106,8 +106,7 @@ void UpdateControls() {
             !contactor_states->Pack_Positive_Feedback()),
         .hv_neg_contactor_states = static_cast<ContactorState>(
             !contactor_states->Pack_Negative_Feedback()),
-        .hvil_status = ContactorState::CLOSED,  // should remove, not on ev5 hsd
-        .pack_soc = 550                         // temporary
+        .pack_soc = 550  // temporary, should it come from sensor?
     };
     BatteryMonitor::Output bm_out = bm.Update(bm_in, time_ms);
     gov_in.bm_sts = bm_out.status;

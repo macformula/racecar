@@ -57,10 +57,6 @@ DigitalOutput brake_light_en{BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin};
 DigitalOutput status_led_en{STATUS_LED_EN_GPIO_Port, STATUS_LED_EN_Pin};
 DigitalOutput debug_led{DEBUG_LED_GPIO_Port, DEBUG_LED_Pin};
 
-// =========== Other =======================================
-AnalogInput hvil_feedback{&hadc1,
-                          ADC_CHANNEL_5};  // remove, not on HSD even in ev5
-
 }  // namespace mcal
 namespace bindings {
 
@@ -100,9 +96,6 @@ shared::periph::DigitalOutput& rtds_en = mcal::rtds_en;
 shared::periph::DigitalOutput& brake_light_en = mcal::brake_light_en;
 shared::periph::DigitalOutput& status_led_en = mcal::status_led_en;
 shared::periph::DigitalOutput& debug_led = mcal::debug_led;
-
-// =========== Other =======================================
-shared::periph::AnalogInput& hvil_feedback = mcal::hvil_feedback;
 
 void Initialize() {
     SystemClock_Config();

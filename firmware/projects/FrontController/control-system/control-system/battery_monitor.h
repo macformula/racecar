@@ -29,7 +29,6 @@ public:
         ContactorState precharge_contactor_states;
         ContactorState hv_pos_contactor_states;
         ContactorState hv_neg_contactor_states;
-        ContactorState hvil_status;
         float pack_soc;
     };
     struct Output {

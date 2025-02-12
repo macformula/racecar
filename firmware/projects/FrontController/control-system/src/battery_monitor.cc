@@ -41,8 +41,6 @@ std::optional<BmSts> BatteryMonitor::TransitionStatus(const Input& input,
 
     if (input.pack_soc < 30) {
         return LOW_SOC;
-    } else if (current_status_ != LOW_SOC && input.hvil_status == OPEN) {
-        return HVIL_INTERRUPT;
     }
 
     switch (current_status_.value()) {
@@ -97,13 +95,6 @@ std::optional<BmSts> BatteryMonitor::TransitionStatus(const Input& input,
             }
             break;
 
-        case HVIL_INTERRUPT:
-            if (time_ms - status_snapshot_time_ms_ >= 5000 &&
-                input.hvil_status == CLOSED) {
-                return INIT;
-            }
-            break;
-
         case LOW_SOC:
             break;
 
@@ -123,7 +114,7 @@ std::optional<ControlStatus> BatteryMonitor::TransitionControl(BmSts status,
         return ControlStatus::STARTUP_CMD;
     }
 
-    if (status == HVIL_INTERRUPT || status == LOW_SOC) {
+    if (status == LOW_SOC) {
         return ControlStatus::STARTUP_CMD;
     }
 

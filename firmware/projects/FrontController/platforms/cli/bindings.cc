@@ -30,7 +30,6 @@ DigitalOutput rtds_en{"RTDS_EN"};
 DigitalOutput brake_light_en{"BRAKE_LIGHT_EN"};
 DigitalOutput status_led_en{"STATUS_LED_EN"};
 DigitalOutput debug_led{"DEBUG_LED"};
-AnalogInput hvil_feedback{"HVIL_FEEDBACK"};
 }  // namespace mcal
 
 namespace bindings {
@@ -70,9 +69,6 @@ shared::periph::DigitalOutput& rtds_en = mcal::rtds_en;
 shared::periph::DigitalOutput& brake_light_en = mcal::brake_light_en;
 shared::periph::DigitalOutput& status_led_en = mcal::status_led_en;
 shared::periph::DigitalOutput& debug_led = mcal::debug_led;
-
-// =========== Other =======================================
-shared::periph::AnalogInput& hvil_feedback = mcal::hvil_feedback;
 
 void Initialize() {
     std::cout << "Initializing CLI..." << std::endl;

@@ -90,11 +90,14 @@ std::optional<GovSts> Governor::Transition(const Governor::Input input,
         return INIT;
     }
 
+    // HVIL_INTERRUPT is not part of BM anymore. What should this condition be?
+    bool hvil_interrupt = false;
+
     // Handle the startup superstate errors
     if (*fsm_state_ == STARTUP_HV || *fsm_state_ == STARTUP_READY_TO_DRIVE ||
         *fsm_state_ == STARTUP_MOTOR ||
         *fsm_state_ == STARTUP_SEND_READY_TO_DRIVE) {
-        if (input.bm_sts == BmSts::HVIL_INTERRUPT) {
+        if (hvil_interrupt) {
             return ERR_STARTUP_HV;
         }
 
@@ -144,8 +147,7 @@ std::optional<GovSts> Governor::Transition(const Governor::Input input,
             break;
 
         case RUNNING:
-            if (input.bm_sts == BmSts::HVIL_INTERRUPT ||
-                input.bm_sts == BmSts::LOW_SOC) {
+            if (hvil_interrupt || input.bm_sts == BmSts::LOW_SOC) {
                 return SHUTDOWN;
             }
 

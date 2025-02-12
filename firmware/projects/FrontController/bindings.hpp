@@ -38,9 +38,6 @@ extern shared::periph::DigitalOutput& brake_light_en;
 extern shared::periph::DigitalOutput& status_led_en;
 extern shared::periph::DigitalOutput& debug_led;
 
-// =========== Other =======================================
-extern shared::periph::AnalogInput& hvil_feedback;
-
 namespace ev6 {
 
 // =========== CAN =========================================
