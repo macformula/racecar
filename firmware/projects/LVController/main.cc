@@ -103,37 +103,27 @@ public:
                     bindings::imu_gps_en.SetHigh();
                 }
 
-                if (elapsed > 50) transition = PWRUP_ACCUMULATOR_ON;  // temp
-
-                // flag = false;
-                // if (elapsed > 50) {
-                //     flag = true;
-                //     auto msg =
-                //         veh_can
-                //             .GetRxFcControllerStatus();  // not reading from
-                //             CAN
-                //     if (msg.has_value()) {
-                //         // don't actually care about the status, just that FC
-                //         // has send a message
-                //         transition = PWRUP_ACCUMULATOR_ON;
-                //     }
-                // }
+                if (elapsed > 50) {
+                    auto msg = veh_can.GetRxFC_Status();
+                    if (msg.has_value()) {
+                        // don't actually care about the status, just that FC
+                        // has come online
+                        transition = PWRUP_ACCUMULATOR_ON;
+                    }
+                }
                 break;
 
             case PWRUP_ACCUMULATOR_ON: {
                 if (on_enter_) bindings::accumulator_en.SetHigh();
 
-                if (elapsed > 100)
-                    transition = PWRUP_MOTOR_PRECHARGE_ON;  // temp
-
-                // auto contactors = veh_can.GetRxContactorStates();
-                // if (contactors.has_value()) {
-                //     if (contactors->PackPositive() == false &&
-                //         contactors->PackNegative() == false &&
-                //         contactors->PackPrecharge() == false) {
-                //         transition = PWRUP_MOTOR_PRECHARGE_ON;
-                //     }
-                // }
+                auto contactors = veh_can.GetRxContactorCommand();
+                if (contactors.has_value()) {
+                    if (contactors->PackPositive() == false &&
+                        contactors->PackNegative() == false &&
+                        contactors->PackPrecharge() == false) {
+                        transition = PWRUP_MOTOR_PRECHARGE_ON;
+                    }
+                }
             } break;
 
             case PWRUP_MOTOR_PRECHARGE_ON:
@@ -158,7 +148,8 @@ public:
                 if (on_enter_) bindings::shutdown_circuit_en.SetHigh();
 
                 {
-                    auto contactors = veh_can.GetRxContactorStates();
+                    auto contactors =
+                        veh_can.GetRxContactorCommand();  // fix to feedback
                     if (contactors.has_value()) {
                         if (contactors->PackPositive() == true &&
                             contactors->PackNegative() == true &&
@@ -237,7 +228,7 @@ public:
                 break;
 
             case SHUTDOWN_DRIVER_WARNING:
-                // This state's action is sending the State over CAN which
+                // This state's action is "sending the State over CAN" which
                 // happens before the switch
 
                 // Give the driver 30 s to stop before we make them.
@@ -281,11 +272,12 @@ public:
                 transition = SHUTDOWN_DRIVER_WARNING;
             }
 
-            auto msg = veh_can.GetRxFcControllerStatus();
+            auto msg = veh_can.GetRxFC_Status();
             // remove static_cast once cangen properly handles enums
             if (msg.has_value())
-                if (msg->FcState() ==
-                    static_cast<uint8_t>(FcState::HVIL_OPEN)) {
+                // -1 is NOT SENT by FC as of 2025/02/12. This should be updated
+                // in the future once FC sends useful statuses
+                if (msg->GovStatus() == static_cast<uint8_t>(-1)) {
                     transition = SHUTDOWN_PUMP_OFF;
                 }
         }
@@ -323,8 +315,12 @@ int main(void) {
     while (true) {
         int time_ms = bindings::GetTick();
         fsm.Update(time_ms);
-        tssi.Update(bindings::bms_fault.Read(), bindings::imd_fault.Read(),
-                    time_ms);
+
+        // {  // temporarily commented -> may be causing problems on EV5 TSAL
+        //     tssi.Update(bindings::bms_fault.Read(),
+        //     bindings::imd_fault.Read(),
+        //                 time_ms);
+        // }
 
         UpdateBrakeLight();
 
