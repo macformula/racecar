@@ -157,8 +157,9 @@ std::optional<ControlStatus> BatteryMonitor::TransitionControl(BmSts status,
             break;
 
         case ControlStatus::OPEN_PRECHARGE:
-            if (status != RUNNING) {
-                return ControlStatus::STARTUP_CMD;
+            if (elapsed > 500 && status != RUNNING) {
+                return ControlStatus::STARTUP_CMD;  // should this affect bm
+                                                    // status?
             }
             break;
     }
