@@ -118,7 +118,7 @@ void Initialize() {
     MX_USART3_UART_Init();
 
     screen_driver_init();
-    touch_sensor_driver_init();
+    //touch_sensor_driver_init();
 }
 
 void DelayMS(uint32_t ms) {

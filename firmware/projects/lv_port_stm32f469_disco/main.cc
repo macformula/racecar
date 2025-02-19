@@ -40,8 +40,12 @@ int main(void) {
         bindings::DelayMS(5);
 
         if (dashboard_menu.dashboard_state != previous_state) {
-            // State changed, update menu
+            
+            //state changed, update menu
             previous_state = dashboard_menu.dashboard_state;
+
+            //store current screen that needs to be deleted
+            lv_obj_t* delete_screen = lv_scr_act();
 
             if (dashboard_menu.dashboard_state == STATE_DASHBOARD) {
                 dashboard_menu.create_menu();
@@ -58,35 +62,11 @@ int main(void) {
             else if (dashboard_menu.dashboard_state == STATE_PROFILES) {
                 profiles_menu.create_menu();
             }
+
+            //delete the previous screen that was overwritten
+            lv_obj_del(delete_screen);  
+
         }
     }
 
-    // // lv_demo_benchmark();
-    // lv_obj_t* label1 = lv_label_create(lv_scr_act());
-
-    // // HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);
-    // /* USER CODE END 2 */
-
-    // /* Infinite loop */
-    // /* USER CODE BEGIN WHILE */
-    // char text[2] = {'*', '\0'};
-    // lv_label_set_text(label1, text);
-    // lv_obj_center(label1);
-
-    // uint8_t counter = 0;
-    // int led = true;
-
-    // while (1) {
-    //     lv_timer_handler();
-    //     HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin,
-    //                       static_cast<GPIO_PinState>(led));
-    //     led = !led;
-
-    //     text[0] = counter + 48;
-    //     counter++;
-    //     if (counter >= 10) counter = 0;
-    //     lv_label_set_text(label1, text);
-
-    //     bindings::DelayMs(50);
-    // }
 }
