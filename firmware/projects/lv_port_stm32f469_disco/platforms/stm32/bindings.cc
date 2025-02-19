@@ -125,4 +125,22 @@ void DelayMS(uint32_t ms) {
     HAL_Delay(ms);
 }
 
+int readSelect() {
+
+    if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_4) == GPIO_PIN_SET) {
+        return 0;
+    }
+
+    return 1;
+}
+
+int readScroll() {
+    
+    if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_5) == GPIO_PIN_SET) {
+        return 0;
+    }
+    
+    return 1;
+}
+
 }  // namespace bindings
