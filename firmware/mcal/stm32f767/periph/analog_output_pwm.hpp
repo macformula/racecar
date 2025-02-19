@@ -11,9 +11,9 @@
 
 namespace mcal::stm32f767::periph {
 
-class AnalogOutput : public shared::periph::AnalogOutput {
+class AnalogOutputPWM : public shared::periph::AnalogOutput {
 public:
-    AnalogOutput(TIM_HandleTypeDef* htim, uint32_t channel)
+    AnalogOutputPWM(TIM_HandleTypeDef* htim, uint32_t channel)
         : htim_(htim), channel_(channel) {}
 
     void SetVoltage(float voltage) override {
