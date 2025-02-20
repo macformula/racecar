@@ -1,5 +1,0 @@
-canGen:
-  busses:
-    - name: pt
-      node: fc
-      dbcFile: "../pt.dbc"

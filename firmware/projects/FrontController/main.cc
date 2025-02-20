@@ -1,295 +1,201 @@
+// $ make PROJECT=FrontController PLATFORM=dummy
+// if get to "linking main.elf" then your code compiles.
+// if fails after that, no issue
+
 /// @author Blake Freer
-/// @date 2024-02-24
+/// @date 2025-02
 
 #include "bindings.hpp"
-#include "generated/can/pt_can_messages.hpp"
-#include "generated/can/pt_msg_registry.hpp"
-#include "generated/can/veh_can_messages.hpp"
-#include "generated/can/veh_msg_registry.hpp"
+#include "control-system/battery_monitor.h"
+#include "control-system/driver_interface.hpp"
+#include "control-system/governor.hpp"
+#include "control-system/motor_interface.hpp"
+#include "control-system/vehicle_dynamics.hpp"
+#include "generated/can/pt_bus.hpp"
+#include "generated/can/pt_messages.hpp"
+#include "generated/can/veh_bus.hpp"
+#include "generated/can/veh_messages.hpp"
 #include "inc/app.hpp"
-#include "inc/simulink.hpp"
-#include "shared/comms/can/can_bus.hpp"
-#include "shared/os/os.hpp"
-#include "shared/periph/analog_input.hpp"
-#include "shared/periph/gpio.hpp"
 #include "shared/util/mappers/linear_map.hpp"
-#include "shared/util/mappers/mapper.hpp"
 
 /***************************************************************
     CAN
 ***************************************************************/
+using namespace generated::can;
 
-generated::can::VehMsgRegistry veh_can_registry{};
-shared::can::CanBus veh_can_bus{
-    bindings::veh_can_base,
-    veh_can_registry,
-};
-
-generated::can::PtMsgRegistry pt_can_registry{};
-shared::can::CanBus pt_can_bus{
-    bindings::pt_can_base,
-    pt_can_registry,
-};
+generated::can::VehBus veh_can_bus{bindings::veh_can_base};
+generated::can::PtBus pt_can_bus{bindings::pt_can_base};
 
 /***************************************************************
     Objects
 ***************************************************************/
-
-ControlSystem control_system{};
-
-Speaker driver_speaker{bindings::driver_speaker};
-BrakeLight brake_light{bindings::brake_light};
-StatusLight status_light{bindings::status_light};
+using shared::util::LinearMap;
 
 // See fc_docs/pedal_function and
-// vehicle_control_system/firmware_io/simulink_input.csv
-auto accel_pedal_1_map = shared::util::LinearMap<double, uint16_t>{
-    0.5,
-    -0.25,
-};
-AnalogInput accel_pedal_1{
-    bindings::accel_pedal_1,
-    &accel_pedal_1_map,
-};
-
-auto accel_pedal_2_map = shared::util::LinearMap<double, uint16_t>{
-    0.5,
-    -0.25,
-};
-AnalogInput accel_pedal_2{
-    bindings::accel_pedal_2,
-    &accel_pedal_2_map,
-};
+auto accel_pedal_map = LinearMap<float, uint16_t>{0.5, -0.25};
+AnalogInput accel_pedal_1{bindings::accel_pedal_sensor1, &accel_pedal_map};
+AnalogInput accel_pedal_2{bindings::accel_pedal_sensor2, &accel_pedal_map};
 
 const float kPressureRange = 2000;
 
 // See datasheets/race_grade/RG_SPEC-0030_M_APT_G2_DTM.pdf
-auto brake_pedal_front_map = shared::util::LinearMap<double, uint16_t>{
-    0.378788 * kPressureRange,
-    -0.125 * kPressureRange,
-};
-AnalogInput brake_pedal_front{
-    bindings::brake_pedal_front,
-    &brake_pedal_front_map,
-};
+auto brake_pedal_front_map = LinearMap<float, uint16_t>{
+    0.378788f * kPressureRange, -0.125f * kPressureRange};
+AnalogInput brake_pedal_front{bindings::brake_pressure_sensor1,
+                              &brake_pedal_front_map};
 
-// See datasheets/race_grade/RG_SPEC-0030_M_APT_G2_DTM.pdf
-auto brake_pedal_rear_map = shared::util::LinearMap<double, uint16_t>{
-    0.378788 * kPressureRange,
-    -0.125 * kPressureRange,
-};
-AnalogInput brake_pedal_rear{
-    bindings::brake_pedal_rear,
-    &brake_pedal_rear_map,
-};
-
-auto steering_wheel_map = shared::util::LinearMap<double, uint16_t>{
-    0.606061,
-    -1,
-};  // Assuming 0 Volts is full left, 3.3 is full right
-AnalogInput steering_wheel{
-    bindings::steering_wheel,
-    &steering_wheel_map,
-};
-
-Button start_button{bindings::start_button};
-
-AMKMotor motor_left{pt_can_bus, 1};
-AMKMotor motor_right{pt_can_bus, 0};
-
-Contactors contactors{veh_can_bus};
+// Full Left (0V) -> -1. Full right (3.3V) -> +1 --> convert
+// testing: Full Left -> 0, Full Right -> +1
+auto steering_wheel_map = LinearMap<float, uint16_t>{1.0 / 3.3, 0};
+AnalogInput steering_wheel{bindings::steering_angle_sensor,
+                           &steering_wheel_map};
 
 /***************************************************************
-    Task Functions
+    Control System
 ***************************************************************/
 
-extern "C" {
-void Task_5ms(void* argument);
-void Task_500ms(void* argument);
-}
+auto pedal_to_torque = LinearMap<float, float>{1, 0};
 
-/***************************************************************
-    RTOS
-***************************************************************/
-namespace os {
-extern void TickUntil(uint32_t ticks);
-extern uint32_t GetTickCount();
-extern void InitializeKernel();
-extern void StartKernel();
-}  // namespace os
+using MotorIface = MotorInterface<RxAMK0_ActualValues1, RxAMK1_ActualValues1,
+                                  TxAMK0_SetPoints1, TxAMK0_SetPoints1>;
+MotorIface mi;
+BatteryMonitor bm;
+Governor gov;
+DriverInterface di;
+VehicleDynamics vd{pedal_to_torque};
 
-void ReadContactorFeedback(SimulinkInput& input) {}
+// Global Governer input defined
+Governor::Input gov_in{};
 
-/**
- * @brief Read the inputs from all devices to send to the control system.
- * @note Replaces readFromAdc()
- *
- * @return SimulinkInput
- */
-SimulinkInput ReadCtrlSystemInput() {
-    SimulinkInput input;
+void UpdateControls() {
+    // NOTE #1: For defining inputs, I commented out inputs where I didn't know
+    // what to set it to NOTE #2: Some binding values like brake_pedal_front and
+    // accel_pedal are defined above, I used those and used Update(), idk if
+    // thats the correct thing to do or not NOTE #3: There are some warnings for
+    // type conversions, I don't know if those are mistakes from me or some
+    // conversions from simulink to c++ were wrong NOTE #4: All outputs are
+    // created and most of them are supposed to be sent to CAN. Assuming Blake
+    // will be doing that part?
 
-    // Driver Input
-    input.DI_SteeringAngle = steering_wheel.Update();
-    input.DI_FrontBrakePressure = brake_pedal_front.Update();
-    input.DI_RearBrakePressure = brake_pedal_rear.Update();
-    input.DI_StartButton = start_button.Read();
-    input.DI_AccelPedalPosition1 = accel_pedal_1.Update();
-    input.DI_AccelPedalPosition2 = accel_pedal_2.Update();
+    // Capture time to use in Update call for each block
+    int time_ms = bindings::GetTickMs();
 
-    // Wheel Speed Sensors
-    input.VD_LFWheelSpeed = NULL;
-    input.VD_RFWheelSpeed = NULL;
+    // Governer update
+    // Question: do I just use the default values for the gov input at first, or
+    // do I set some value?
+    Governor::Output gov_out = gov.Update(gov_in, time_ms);
 
-    // Contactors
-    auto contactor_states = contactors.ReadInput();
-    input.BM_prechrgContactorSts = contactor_states.Pack_Precharge_Feedback;
-    input.BM_HVposContactorSts = contactor_states.Pack_Negative_Feedback;
-    input.BM_HVnegContactorSts = contactor_states.Pack_Positive_Feedback;
-    input.BM_HvilFeedback = contactor_states.HvilFeedback;
-    input.BM_LowThermValue = contactor_states.LowThermValue;
-    input.BM_HighThermValue = contactor_states.HighThermValue;
-    input.BM_AvgThermValue = contactor_states.AvgThermValue;
-    input.BM_PackSOC = contactor_states.PackSOC;
-
-    // Right Motor Input
-    auto amk_right_in = motor_right.UpdateInputs();
-    input.AMK0_bReserve = amk_right_in.bReserve;
-    input.AMK0_bSystemReady = amk_right_in.bSystemReady;
-    input.AMK0_bError = amk_right_in.bError;
-    input.AMK0_bWarn = amk_right_in.bWarn;
-    input.AMK0_bQuitDcOn = amk_right_in.bQuitDcOn;
-    input.AMK0_bDcOn = amk_right_in.bDcOn;
-    input.AMK0_bQuitInverterOn = amk_right_in.bQuitInverterOn;
-    input.AMK0_bInverterOn = amk_right_in.bInverterOn;
-    input.AMK0_bDerating = amk_right_in.bDerating;
-    input.AMK0_ActualVelocity = amk_right_in.ActualVelocity;
-    input.AMK0_TorqueCurrent = amk_right_in.TorqueCurrent;
-    input.AMK0_MagnetizingCurrent = amk_right_in.MagnetizingCurrent;
-    input.AMK0_TempMotor = amk_right_in.TempMotor;
-    input.AMK0_TempInverter = amk_right_in.TempInverter;
-    input.AMK0_ErrorInfo = amk_right_in.ErrorInfo;
-    input.AMK0_TempIGBT = amk_right_in.TempIGBT;
-
-    // Left Motor Input
-    auto amk_left_in = motor_left.UpdateInputs();
-    input.AMK1_bReserve = amk_left_in.bReserve;
-    input.AMK1_bSystemReady = amk_left_in.bSystemReady;
-    input.AMK1_bError = amk_left_in.bError;
-    input.AMK1_bWarn = amk_left_in.bWarn;
-    input.AMK1_bQuitDcOn = amk_left_in.bQuitDcOn;
-    input.AMK1_bDcOn = amk_left_in.bDcOn;
-    input.AMK1_bQuitInverterOn = amk_left_in.bQuitInverterOn;
-    input.AMK1_bInverterOn = amk_left_in.bInverterOn;
-    input.AMK1_bDerating = amk_left_in.bDerating;
-    input.AMK1_ActualVelocity = amk_left_in.ActualVelocity;
-    input.AMK1_TorqueCurrent = amk_left_in.TorqueCurrent;
-    input.AMK1_MagnetizingCurrent = amk_left_in.MagnetizingCurrent;
-    input.AMK1_TempMotor = amk_left_in.TempMotor;
-    input.AMK1_TempInverter = amk_left_in.TempInverter;
-    input.AMK1_ErrorInfo = amk_left_in.ErrorInfo;
-    input.AMK1_TempIGBT = amk_left_in.TempIGBT;
-
-    return input;
-}
-
-/**
- * @brief Update output devices based on the results of the control system.
- * @note Replaces getControlSystemOutputs() setDigitalOutputs(),
- * transmitToAMKMotors(), and transmitToBMS()
- *
- * @param output
- */
-void SetCtrlSystemOutput(const SimulinkOutput& output) {
-    driver_speaker.Update(output.DI_DriverSpeaker);
-
-    brake_light.Update(output.DI_BrakeLightEn);
-
-    // @todo This Update() is not implemented
-    // status_light.Update(output.DI_p_PWMstatusLightCycle,
-    //                     output.DI_PWMstatusLightFreq);
-
-    // TODO the following 2 outputs
-    auto foo = output.GOV_Status;
-    auto bar = output.MI_InverterEn;
-
-    motor_right.Transmit(AMKOutput{
-        .bInverterOn_tx = output.AMK0_bInverterOn_tx,
-        .bDcOn_tx = output.AMK0_bDcOn_tx,
-        .bEnable = output.AMK0_bEnable,
-        .bErrorReset = output.AMK0_bErrorReset,
-        .TargetVelocity = output.AMK0_TargetVelocity,
-        .TorqueLimitPositiv = output.AMK0_TorqueLimitPositiv,
-        .TorqueLimitNegativ = output.AMK0_TorqueLimitNegativ,
-    });
-    motor_left.Transmit(AMKOutput{
-        .bInverterOn_tx = output.AMK1_bInverterOn_tx,
-        .bDcOn_tx = output.AMK1_bDcOn_tx,
-        .bEnable = output.AMK1_bEnable,
-        .bErrorReset = output.AMK1_bErrorReset,
-        .TargetVelocity = output.AMK1_TargetVelocity,
-        .TorqueLimitPositiv = output.AMK1_TorqueLimitPositiv,
-        .TorqueLimitNegativ = output.AMK1_TorqueLimitNegativ,
+    veh_can_bus.Send(TxFC_Status{
+        .gov_status = static_cast<uint8_t>(gov_out.gov_sts),
+        .di_status = static_cast<uint8_t>(gov_in.di_sts),
+        .mi_status = static_cast<uint8_t>(gov_in.mi_sts),
+        .bm_status = static_cast<uint8_t>(gov_in.bm_sts),
+        .user_flag = bindings::start_button.Read(),
     });
 
-    contactors.Transmit(ContactorOutput{
-        // .prechargeContactorCMD = output.BM_PrechargeContactorCmd,
-        // .HVposContactorCMD = output.BM_HVposContactorCmd,
-        // .HVnegContactorCMD = output.BM_HVnegContactorCmd, // TODO uncomment
-    });
-}
-
-/**
- * @brief Update the status light
- * @note Replaces setPWMOutputs()
- *
- */
-void UpdateStatusLight() {
-    status_light.Toggle();
-}
-
-/***************************************************************
-    RTOS Tasks
-***************************************************************/
-
-void Task_5ms(void* arg) {
-    SimulinkInput simulink_input;
-    SimulinkOutput simulink_output;
-
-    uint32_t task_delay_ms = os::GetTickCount();
-
-    while (true) {
-        simulink_input = ReadCtrlSystemInput();
-        simulink_output = control_system.Update(&simulink_input);
-        SetCtrlSystemOutput(simulink_output);
-
-        // Repeat after another 5ms
-        task_delay_ms += 5;
-        os::TickUntil(task_delay_ms);
+    auto contactor_states = veh_can_bus.GetRxContactor_Feedback();
+    if (!contactor_states.has_value()) {
+        return;
     }
-}
 
-void Task_500ms(void* arg) {
-    uint32_t task_delay_ms = os::GetTickCount();
+    BatteryMonitor::Input bm_in = {
+        .cmd = gov_out.bm_cmd,
+        .precharge_contactor_states = static_cast<ContactorState>(
+            !contactor_states->Pack_Precharge_Feedback()),
+        .hv_pos_contactor_states = static_cast<ContactorState>(
+            !contactor_states->Pack_Positive_Feedback()),
+        .hv_neg_contactor_states = static_cast<ContactorState>(
+            !contactor_states->Pack_Negative_Feedback()),
+        .pack_soc = 550  // temporary, should it come from sensor?
+    };
+    BatteryMonitor::Output bm_out = bm.Update(bm_in, time_ms);
+    gov_in.bm_sts = bm_out.status;
 
-    while (true) {
-        UpdateStatusLight();
+    veh_can_bus.Send(TxContactorCommand{
+        .pack_positive = static_cast<bool>(bm_out.contactor.hv_positive),
+        .pack_precharge = static_cast<bool>(bm_out.contactor.precharge),
+        .pack_negative = static_cast<bool>(bm_out.contactor.hv_negative),
+    });
 
-        // Repeat after another 500ms
-        task_delay_ms += 500;
-        os::TickUntil(task_delay_ms);
+    // Driver Interface update
+    DriverInterface::Input di_in = {
+        .di_cmd = gov_out.di_cmd,
+        .brake_pedal_pos = brake_pedal_front.Update(),
+        .driver_button = bindings::start_button.Read(),
+        .accel_pedal_pos1 = accel_pedal_1.Update(),
+        .accel_pedal_pos2 = accel_pedal_2.Update(),
+        .steering_angle = steering_wheel.Update()};
+    DriverInterface::Output di_out = di.Update(di_in, time_ms);
+    gov_in.di_sts = di_out.di_sts;
+
+    bindings::rtds_en.Set(di_out.driver_speaker);
+    bindings::brake_light_en.Set(di_out.brake_light_en);
+
+    // Vehicle Dynamics update
+    VehicleDynamics::Input vd_in = {
+        .driver_torque_request = di_out.driver_torque_req,
+        .brake_pedal_postion = di_out.brake_pedal_position,
+        .steering_angle = di_out.steering_angle,
+        // These are all connected to GND in simulink, assuming that means set
+        // to 0
+        .wheel_speed_lr = 0,  // set to wheel speed sensors later
+        .wheel_speed_rr = 0,
+        .wheel_speed_lf = 0,
+        .wheel_speed_rf = 0,
+        .tv_enable = false,
+    };
+    VehicleDynamics::Output vd_out = vd.Update(vd_in, time_ms);
+
+    auto left_act = pt_can_bus.GetRxAMK0_ActualValues1();
+    auto right_act = pt_can_bus.GetRxAMK1_ActualValues1();
+
+    if (!left_act.has_value() || !right_act.has_value()) {
+        return;
     }
+
+    // Motor Interface Update
+    MotorIface::Input mi_in = {
+        .cmd = gov_out.mi_cmd,
+        .left_actual1 = left_act.value(),
+        .right_actual1 = right_act.value(),
+        .left_motor_input =
+            {
+                .speed_request =
+                    static_cast<float>(vd_out.left_motor_speed_request),
+                .torque_limit_positive = vd_out.lm_torque_limit_positive,
+                .torque_limit_negative = vd_out.lm_torque_limit_negative,
+            },
+        .right_motor_input =
+            {
+                .speed_request =
+                    static_cast<float>(vd_out.right_motor_speed_request),
+                .torque_limit_positive = vd_out.rm_torque_limit_positive,
+                .torque_limit_negative = vd_out.rm_torque_limit_negative,
+            },
+    };
+    MotorIface::Output mi_out = mi.Update(mi_in, time_ms);
+    (void)mi_out.inverter_enable;  // unused -> inverter en signal is set in the
+                                   // setpoint message inside MI.Update()
+
+    gov_in.mi_sts = mi_out.status;
+
+    pt_can_bus.Send(mi_out.left_setpoints);
+    pt_can_bus.Send(mi_out.right_setpoints);
 }
 
 int main(void) {
     bindings::Initialize();
-    control_system.Initialize();
 
-    os::InitializeKernel();
+    bool state = true;
 
-    os::StartKernel();
+    while (true) {
+        UpdateControls();
 
-    while (true) continue;  // logic is handled by OS tasks
+        bindings::debug_led.Set(state);
+        state = !state;
+
+        bindings::DelayMs(10);
+    }
 
     return 0;
 }
