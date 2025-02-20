@@ -144,8 +144,7 @@ void UpdateControls() {
         .wheel_speed_rf = 0,
         .tv_enable = false,
     };
-    VehicleDynamics::Output vd_out =
-        vd.update(vd_in, time_ms);  // update should be capitalized
+    VehicleDynamics::Output vd_out = vd.Update(vd_in, time_ms);
 
     auto left_act = pt_can_bus.GetRxAMK0_ActualValues1();
     auto right_act = pt_can_bus.GetRxAMK1_ActualValues1();

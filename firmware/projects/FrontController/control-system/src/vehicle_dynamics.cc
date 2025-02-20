@@ -15,7 +15,7 @@ void VehicleDynamics::Init(int time_ms) {
     traction_control_.Init(time_ms);
 }
 
-VehicleDynamics::Output VehicleDynamics::update(const Input& input,
+VehicleDynamics::Output VehicleDynamics::Update(const Input& input,
                                                 int time_ms) {
     Output output{
         .lm_torque_limit_positive = 0.0f,

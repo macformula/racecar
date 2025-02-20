@@ -35,7 +35,7 @@ public:
         const shared::util::Mapper<float>& pedal_to_torque,
         float target_slip = 0.2f);  // default target slip is float 0.2
     void Init(int time_ms);
-    Output update(const Input& input, int time_ms);
+    Output Update(const Input& input, int time_ms);
 
 private:
     const shared::util::Mapper<float>& pedal_to_torque;

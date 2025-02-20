@@ -18,7 +18,7 @@ void test_1(VehicleDynamics* simp_vd_int) {
     int time_ms = 0;
 
     VdOutput output_1 =
-        simp_vd_int->update(VdInput{.driver_torque_request = 0.0f,
+        simp_vd_int->Update(VdInput{.driver_torque_request = 0.0f,
                                     .brake_pedal_postion = 0.0f,
                                     .steering_angle = 0.0f,
                                     .wheel_speed_lr = 0.0f,
@@ -55,7 +55,7 @@ void test_2(VehicleDynamics* simp_vd_int) {
     int time_ms = 0;
 
     VdOutput output_2 =
-        simp_vd_int->update(VdInput{.driver_torque_request = 100.0f,
+        simp_vd_int->Update(VdInput{.driver_torque_request = 100.0f,
                                     .brake_pedal_postion = 0.0f,
                                     .steering_angle = 0.0f,
                                     .wheel_speed_lr = 0.0f,
@@ -94,7 +94,7 @@ void test_3(VehicleDynamics* simp_vd_int) {
     int time_ms = 0;
 
     VdOutput output_3 =
-        simp_vd_int->update(VdInput{.driver_torque_request = 100.0f,
+        simp_vd_int->Update(VdInput{.driver_torque_request = 100.0f,
                                     .brake_pedal_postion = 0.0f,
                                     .steering_angle = 25.0f,
                                     .wheel_speed_lr = 0.0f,
@@ -137,7 +137,7 @@ void test_4(VehicleDynamics* simp_vd_int) {
     int time_ms = 0;
 
     VdOutput output_4 =
-        simp_vd_int->update(VdInput{.driver_torque_request = 50.0f,
+        simp_vd_int->Update(VdInput{.driver_torque_request = 50.0f,
                                     .brake_pedal_postion = 0.0f,
                                     .steering_angle = 0.0f,
                                     .wheel_speed_lr = 15.0f,  // actual slip 0.5
@@ -179,7 +179,7 @@ void test_5(VehicleDynamics* simp_vd_int) {
     int time_ms = 55;
 
     VdOutput output_5 =
-        simp_vd_int->update(VdInput{.driver_torque_request = 50.0f,
+        simp_vd_int->Update(VdInput{.driver_torque_request = 50.0f,
                                     .brake_pedal_postion = 0.0f,
                                     .steering_angle = 0.0f,
                                     .wheel_speed_lr = 15.0f,  // actual slip 0.5
@@ -221,7 +221,7 @@ void test_6(VehicleDynamics* simp_vd_int) {
     int time_ms = 0;
 
     VdOutput output_6 =
-        simp_vd_int->update(VdInput{.driver_torque_request = 0.0f,
+        simp_vd_int->Update(VdInput{.driver_torque_request = 0.0f,
                                     .brake_pedal_postion = 0.0f,
                                     .steering_angle = 0.0f,
                                     .wheel_speed_lr = 0.0f,
@@ -259,7 +259,7 @@ void test_7(VehicleDynamics* simp_vd_int) {
     int time_ms = 200;
 
     VdOutput output_7 =
-        simp_vd_int->update(VdInput{.driver_torque_request = 100.0f,
+        simp_vd_int->Update(VdInput{.driver_torque_request = 100.0f,
                                     .brake_pedal_postion = 0.0f,
                                     .steering_angle = 0.0f,
                                     .wheel_speed_lr = 0.0f,
