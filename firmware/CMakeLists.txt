@@ -120,4 +120,6 @@ add_subdirectory(${DIR_PLATFORM}) # modifies "bindings" (library)
 
 target_link_libraries(main PRIVATE shared)
 
+target_compile_options(main PRIVATE -Wno-psabi)
+
 include("${POSTBUILD_FILE}")
