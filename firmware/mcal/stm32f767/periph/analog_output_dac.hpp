@@ -19,10 +19,13 @@ public:
         : hdac_(hdac), channel_(channel) {}
 
     void SetVoltage(float voltage) override {
+        HAL_DAC_Start(hdac_, channel_);
+        
         uint32_t dacValue = shared::util::Clamper<float>::Evaluate(
             (voltage / 3.3f) * 4095, 0, 4095);
 
         HAL_DAC_SetValue(hdac_, channel_, DAC_ALIGN_12B_R, dacValue);
+        // HAL_DAC_SetValue(hdac_, channel_, DAC_ALIGN_12B_R, 2048);
     }
 
 private:
