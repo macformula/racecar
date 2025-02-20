@@ -167,7 +167,8 @@ void DelayMS(uint32_t milliseconds) {
 }
 
 int GetTick() {
-    return HAL_GetTick();
+    static uint32_t first_tick = HAL_GetTick();
+    return HAL_GetTick() - first_tick;
 }
 
 }  // namespace bindings
