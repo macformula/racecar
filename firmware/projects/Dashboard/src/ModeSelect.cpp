@@ -82,7 +82,10 @@ void ModeSelect::confirm_btn_event_handler(lv_event_t* e) {
     lv_event_code_t code = lv_event_get_code(e);
 
     if (code == LV_EVENT_CLICKED) {
-        Menu::dashboard_state = STATE_DRIVE_MODE;
+        Menu::dashboard_state = STATE_CONFIRM;
+
+        //Same function as DriverSelect.cpp, read comments there
+        selected_mode = 1;
     }
 }
 

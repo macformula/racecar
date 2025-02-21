@@ -83,6 +83,22 @@ void DriverSelect::confirm_btn_event_handler(lv_event_t* e) {
 
     if (code == LV_EVENT_CLICKED) {
         Menu::dashboard_state = STATE_MODE;
+
+        //Map the roller input to the driver data you want to send via CAN
+        //e.g say all the driver data is stored in an array of objects called drivers_data
+        //and its stored in the same order as drivers
+        //then just have if statements checking if it matches, if so set selected_drivers to the correct drivers_data
+        //then in the main function access drivers_data and send it via CAN
+        //Not implemented yet because I'm unsure what data types and format we are sending and recieving
+
+        /*if(lv_roller_get_selected(roller) == drivers[0]){
+            selected_driver = drivers_data[0]
+        }
+            ...
+        */
+
+        //for now, just setting selected_driver = 1;
+        selected_driver = 1;
     }
 }
 

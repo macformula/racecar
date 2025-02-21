@@ -9,6 +9,11 @@ typedef enum {
     STATE_PROFILES,    //Profiles state
     STATE_DRIVER,
     STATE_MODE,
+    STATE_CONFIRM,
+    STATE_WAITING,
+    STATE_HV,
+    STATE_MOTORS,
+    STATE_START_DRIVING,
 } dashboardStates;
 
 #endif // STATE_MACHINE_H
