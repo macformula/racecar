@@ -7,6 +7,8 @@ typedef enum {
     STATE_DRIVE_MODE,  //Drive mode state
     STATE_DEBUG,       //Debug mode state
     STATE_PROFILES,    //Profiles state
+    STATE_DRIVER,
+    STATE_MODE,
 } dashboardStates;
 
 #endif // STATE_MACHINE_H

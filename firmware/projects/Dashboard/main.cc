@@ -27,6 +27,8 @@ extern "C" {
 #include "inc/DriveModeMenu.hpp"
 #include "inc/ProfilesMenu.hpp"
 #include "inc/DashboardFSM.hpp"
+#include "inc/DriverSelect.hpp"
+#include "inc/ModeSelect.hpp"
 
 
 /*********************
@@ -84,12 +86,15 @@ int main(int argc, char **argv)
     DebugMenu debug_menu;
     DriveModeMenu drive_menu;
     ProfilesMenu profiles_menu;
+    DriverSelect driver_select;
+    ModeSelect modes_select;
 
     //initialize the program to start with the main dashboard menu
-    dashboard_menu.create_menu();
+    dashboard_menu.dashboard_state = STATE_DRIVER;
+    driver_select.create_menu();
 
     //create previous state tracker and initialize to dashboard menu 
-    dashboardStates previous_state =  STATE_DASHBOARD;
+    dashboardStates previous_state =  STATE_DRIVER;
 
     while(1) {
         /* Periodically call the lv_task handler.
@@ -120,6 +125,14 @@ int main(int argc, char **argv)
         
         else if (dashboard_menu.dashboard_state == STATE_PROFILES) {
             profiles_menu.create_menu();
+        }
+
+        else if (dashboard_menu.dashboard_state == STATE_DRIVER) {
+            driver_select.create_menu();
+        }
+
+        else if (dashboard_menu.dashboard_state == STATE_MODE) {
+            modes_select.create_menu();
         }
 
         //delete the previous screen that was overwritten
