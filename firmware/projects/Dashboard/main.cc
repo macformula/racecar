@@ -67,15 +67,13 @@ extern "C" {
 
 
 
+ //Start main function
 
 
 
-
-
-int main(int argc, char **argv)
-{
-    (void)argc; /*Unused*/
-    (void)argv; /*Unused*/
+ int main(int argc, char ** argv) {
+    (void) argc; /*Unused*/
+    (void) argv; /*Unused*/
 
     /* Initialize LVGL */
     lv_init();
@@ -84,9 +82,9 @@ int main(int argc, char **argv)
     hal_init();
 
     // Set up the dashboard
-    lv_obj_t* dashboard_frame = lv_obj_create(lv_scr_act());
+    lv_obj_t * dashboard_frame = lv_obj_create(lv_scr_act());
     lv_obj_set_size(dashboard_frame, LV_HOR_RES, LV_VER_RES);
-    
+
     DashboardMenu dashboard_menu;
     DriveModeMenu drive_menu;
     DriverSelect driver_select;
@@ -102,135 +100,105 @@ int main(int argc, char **argv)
     driver_select.create_menu();
 
     //create previous state tracker and initialize to dashboard menu 
-    dashboardStates previous_state =  STATE_DRIVER;
+    dashboardStates previous_state = STATE_DRIVER;
 
-    while(1) {
+    while (1) {
         /* Periodically call the lv_task handler.
          * It could be done in a timer interrupt or an OS task too. */
         lv_timer_handler();
-        usleep(5 * 1000);  // Sleep for 5ms
-
-        std::cout << driver_select.selected_driver << std::endl;
-        std::cout << modes_select.selected_mode << std::endl;
+        usleep(5 * 1000); // Sleep for 5ms
 
         if (dashboard_menu.dashboard_state != previous_state) {
 
-        // State changed, update menu
-        previous_state = dashboard_menu.dashboard_state;
+            // State changed, update menu
+            previous_state = dashboard_menu.dashboard_state;
 
-        //store current screen that needs to be deleted
-        lv_obj_t* delete_screen = lv_scr_act();
+            //store current screen that needs to be deleted
+            lv_obj_t * delete_screen = lv_scr_act();
 
-        //overwrite to new screen
-        if (dashboard_menu.dashboard_state == STATE_DASHBOARD) {
-            dashboard_menu.create_menu();
-        } 
-        
-        else if (dashboard_menu.dashboard_state == STATE_DRIVE_MODE) {
-            drive_menu.create_menu();
-        } 
-        
-        else if (dashboard_menu.dashboard_state == STATE_DRIVER) {
-            driver_select.create_menu();
+            //overwrite to new screen
+            switch (dashboard_menu.dashboard_state) {
+                case STATE_DASHBOARD:    dashboard_menu.create_menu(); break;
+                case STATE_DRIVER:       driver_select.create_menu(); break;
+                case STATE_MODE:         modes_select.create_menu(); break;
+                case STATE_CONFIRM:      confirm_menu.create_menu(); break;
+                case STATE_WAITING:      waiting_screen.create_menu(); break;
+                case STATE_HV:           start_hv.create_menu(); break;
+                case STATE_MOTORS:       start_motors.create_menu(); break;
+                case STATE_START_DRIVING: start_driving.create_menu(); break;
+                case STATE_DRIVE_MODE:   drive_menu.create_menu(); break;
+                default: break;
+            }
+
+            //delete the previous screen that was overwritten
+            lv_obj_del(delete_screen);
+
         }
 
-        else if (dashboard_menu.dashboard_state == STATE_MODE) {
-            modes_select.create_menu();
+        // -------- PURELY FOR TESTING --------------------------------------------------
+        //testing code just to simulate a wait between can messages
+        static uint32_t start_time = 0; // Store the timestamp when condition is met
+
+        if (confirm_menu.initiate_start == 1 && dashboard_menu.dashboard_state == STATE_WAITING) {
+            if (start_time == 0) {
+                start_time = lv_tick_get(); // Capture current time (in milliseconds)
+            }
+
+            // Check if 2000ms (2 seconds) has elapsed
+            if (lv_tick_get() - start_time >= 2000) {
+                dashboard_menu.dashboard_state = STATE_HV;
+                confirm_menu.initiate_start = 2;
+                start_time = 0; // Reset for future use
+            }
         }
 
-        else if (dashboard_menu.dashboard_state == STATE_CONFIRM) {
-            confirm_menu.create_menu();
+        // Testing code to simulate a wait between CAN messages
+        static uint32_t start_time1 = 0; // Store the timestamp when condition is met
+
+        if (start_hv.start_HV_toggle == 1 && dashboard_menu.dashboard_state == STATE_WAITING) {
+            if (start_time1 == 0) {
+                start_time1 = lv_tick_get(); // Capture current time (in milliseconds)
+            }
+
+            // Check if 2000ms (2 seconds) has elapsed
+            if (lv_tick_get() - start_time1 >= 2000) {
+                dashboard_menu.dashboard_state = STATE_MOTORS;
+                start_hv.start_HV_toggle = 2;
+                start_time1 = 0; // Reset for future use
+            }
         }
 
-        else if (dashboard_menu.dashboard_state == STATE_WAITING) {
-            waiting_screen.create_menu();
+        // Testing code to simulate a wait between CAN messages
+        static uint32_t start_time2 = 0; // Store the timestamp when condition is met
+
+        if (start_motors.start_motors_toggle == 1 && dashboard_menu.dashboard_state == STATE_WAITING) {
+            if (start_time2 == 0) {
+                start_time2 = lv_tick_get(); // Capture current time (in milliseconds)
+            }
+
+            // Check if 2000ms (2 seconds) has elapsed
+            if (lv_tick_get() - start_time2 >= 2000) {
+                dashboard_menu.dashboard_state = STATE_START_DRIVING;
+                start_motors.start_motors_toggle = 2;
+                start_time2 = 0; // Reset for future use
+            }
         }
 
-        else if (dashboard_menu.dashboard_state == STATE_HV) {
-            start_hv.create_menu();
+        // Testing code to simulate a wait between CAN messages
+        static uint32_t start_time3 = 0; // Store the timestamp when entering STATE_START_DRIVING
+
+        if (dashboard_menu.dashboard_state == STATE_START_DRIVING) {
+            if (start_time3 == 0) {
+                start_time3 = lv_tick_get(); // Capture current time (in milliseconds)
+            }
+
+            // Check if 3000ms (3 seconds) has elapsed
+            if (lv_tick_get() - start_time3 >= 3000) {
+                dashboard_menu.dashboard_state = STATE_DRIVE_MODE;
+                start_time3 = 0; // Reset for future use
+            }
         }
-
-        else if (dashboard_menu.dashboard_state == STATE_MOTORS) {
-            start_motors.create_menu();
-        }
-
-        else if (dashboard_menu.dashboard_state == STATE_START_DRIVING) {
-            start_driving.create_menu();
-        }
-
-        //delete the previous screen that was overwritten
-        lv_obj_del(delete_screen);  
-
-    }
-
-    // -------- PURELY FOR TESTING --------------------------------------------------
-    //testing code just to simulate a wait between can messages
-    static uint32_t start_time = 0;  // Store the timestamp when condition is met
-
-    if (confirm_menu.initiate_start == 1 && dashboard_menu.dashboard_state == STATE_WAITING) {
-        if (start_time == 0) {  
-            start_time = lv_tick_get();  // Capture current time (in milliseconds)
-        }
-    
-        // Check if 2000ms (2 seconds) has elapsed
-        if (lv_tick_get() - start_time >= 2000) {
-            dashboard_menu.dashboard_state = STATE_HV;
-            confirm_menu.initiate_start = 2;
-            start_time = 0;  // Reset for future use
-        }
-    }
-
-    
-    // Testing code to simulate a wait between CAN messages
-    static uint32_t start_time1 = 0;  // Store the timestamp when condition is met
-
-    if (start_hv.start_HV_toggle == 1 && dashboard_menu.dashboard_state == STATE_WAITING) {
-        if (start_time1 == 0) {  
-            start_time1 = lv_tick_get();  // Capture current time (in milliseconds)
-        }
-
-        // Check if 2000ms (2 seconds) has elapsed
-        if (lv_tick_get() - start_time1 >= 2000) {
-            dashboard_menu.dashboard_state = STATE_MOTORS;
-            start_hv.start_HV_toggle = 2;
-            start_time1 = 0;  // Reset for future use
-        }
-    }
-
-    // Testing code to simulate a wait between CAN messages
-    static uint32_t start_time2 = 0;  // Store the timestamp when condition is met
-
-    if (start_motors.start_motors_toggle == 1 && dashboard_menu.dashboard_state == STATE_WAITING) {
-        if (start_time2 == 0) {  
-            start_time2 = lv_tick_get();  // Capture current time (in milliseconds)
-        }
-
-        // Check if 2000ms (2 seconds) has elapsed
-        if (lv_tick_get() - start_time2 >= 2000) {
-            dashboard_menu.dashboard_state = STATE_START_DRIVING;
-            start_motors.start_motors_toggle = 2;
-            start_time2 = 0;  // Reset for future use
-        }
-    }
-
-    // Testing code to simulate a wait between CAN messages
-    static uint32_t start_time3 = 0;  // Store the timestamp when entering STATE_START_DRIVING
-
-    if (dashboard_menu.dashboard_state == STATE_START_DRIVING) {
-        if (start_time3 == 0) {  
-            start_time3 = lv_tick_get();  // Capture current time (in milliseconds)
-        }
-
-        // Check if 3000ms (3 seconds) has elapsed
-        if (lv_tick_get() - start_time3 >= 3000) {
-            dashboard_menu.dashboard_state = STATE_DRIVE_MODE;
-            start_time3 = 0;  // Reset for future use
-        }
-    }
-    // -------- PURELY FOR TESTING --------------------------------------------------
-    
-
-
+        // -------- PURELY FOR TESTING --------------------------------------------------
 
     }
 
@@ -239,7 +207,7 @@ int main(int argc, char **argv)
 
 
 
-
+//End main function
 
 
 
