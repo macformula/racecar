@@ -6,6 +6,12 @@ Menu::~Menu() {}
 
 dashboardStates Menu::dashboard_state = STATE_DASHBOARD;
 
+int Menu::selected_driver = 0;
+int Menu::selected_mode = 0;
+int Menu::front_controller_status[3] = {0, 0, 0};
+
+
+
 void Menu::init_menu(lv_obj_t* frame) {
     // Create a background for the menu
     lv_obj_t* rect = lv_obj_create(frame);

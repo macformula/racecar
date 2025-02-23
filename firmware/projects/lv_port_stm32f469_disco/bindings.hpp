@@ -9,5 +9,4 @@ extern int readSelect();
 
 extern int readScroll();
 
-
 }  // namespace bindings
