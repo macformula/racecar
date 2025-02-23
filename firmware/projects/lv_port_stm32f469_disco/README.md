@@ -10,3 +10,5 @@ This is a rough solution. The CMake is a mess so you have to do some manual work
     ```
 
 5. Flash the binary to the board with STM32CubeProgrammer.
+
+Note: GPIO button pins are set to internal pull-ups enabled, so no resistors needed on breadboard.
