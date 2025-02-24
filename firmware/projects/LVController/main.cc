@@ -56,7 +56,8 @@ class StateMachine {
     // shorter and clearer code of the first implementation is justified.
 
 public:
-    StateMachine() : state_(LvState::PWRUP_START), on_enter_(true) {}
+    StateMachine(int start_time)
+        : state_(LvState::PWRUP_START), state_enter_time_(start_time) {}
 
     void Update(int time_ms) {
         using enum LvState;
@@ -64,7 +65,10 @@ public:
         std::optional<LvState> transition = std::nullopt;
         int elapsed = time_ms - state_enter_time_;
 
-        veh_can.Send(TxLvControllerStatus{static_cast<uint8_t>(state_)});
+        veh_can.Send(
+            TxLvControllerStatus{.lv_state = static_cast<uint8_t>(state_),
+                                 .elapsed = elapsed,
+                                 .flag = flag});
 
         switch (state_) {
             case PWRUP_START:
@@ -100,10 +104,10 @@ public:
                 }
 
                 if (elapsed > 50) {
-                    auto msg = veh_can.GetRxFcControllerStatus();
+                    auto msg = veh_can.GetRxFC_Status();
                     if (msg.has_value()) {
                         // don't actually care about the status, just that FC
-                        // has send a message
+                        // has come online
                         transition = PWRUP_ACCUMULATOR_ON;
                     }
                 }
@@ -112,7 +116,7 @@ public:
             case PWRUP_ACCUMULATOR_ON: {
                 if (on_enter_) bindings::accumulator_en.SetHigh();
 
-                auto contactors = veh_can.GetRxContactorStates();
+                auto contactors = veh_can.GetRxContactorCommand();
                 if (contactors.has_value()) {
                     if (contactors->PackPositive() == false &&
                         contactors->PackNegative() == false &&
@@ -144,7 +148,8 @@ public:
                 if (on_enter_) bindings::shutdown_circuit_en.SetHigh();
 
                 {
-                    auto contactors = veh_can.GetRxContactorStates();
+                    auto contactors =
+                        veh_can.GetRxContactorCommand();  // fix to feedback
                     if (contactors.has_value()) {
                         if (contactors->PackPositive() == true &&
                             contactors->PackNegative() == true &&
@@ -156,23 +161,31 @@ public:
                 break;
 
             case MOTOR_CONTROLLER_SWITCH_SEQ: {
-                static uint8_t switch_step = 0;
-                if (on_enter_) switch_step = 0;
+                // static uint8_t switch_step = 0;
+                // if (on_enter_) switch_step = 0;
 
-                // verify this logic
-                switch (switch_step) {
-                    case 0:
-                        bindings::motor_ctrl_switch_en.SetHigh();
-                        break;
-                    case 1:
-                        bindings::motor_ctrl_switch_en.SetLow();
-                        break;
-                    case 2:
-                        bindings::motor_ctrl_switch_en.SetHigh();
-                        transition = DCDC_ON;
-                        break;
+                bindings::motor_ctrl_switch_en.SetLow();
+
+                if (elapsed > 5000) {
+                    auto m = veh_can.GetRxLvSwitch();
+                    if (m.has_value()) {
+                        bindings::motor_ctrl_switch_en.Set(m->SwitchClose());
+                    }
                 }
-                switch_step++;
+
+                // // verify this logic --> DEFINITELY INCORRECT
+                // switch (switch_step) {
+                //     case 0:
+                //         break;
+                //     case 1:
+                //         bindings::motor_ctrl_switch_en.SetLow();
+                //         break;
+                //     case 2:
+                //         bindings::motor_ctrl_switch_en.SetHigh();
+                //         transition = DCDC_ON;
+                //         break;
+                // }
+                // switch_step++;
             } break;
 
             case DCDC_ON:
@@ -223,7 +236,7 @@ public:
                 break;
 
             case SHUTDOWN_DRIVER_WARNING:
-                // This state's action is sending the State over CAN which
+                // This state's action is "sending the State over CAN" which
                 // happens before the switch
 
                 // Give the driver 30 s to stop before we make them.
@@ -256,7 +269,7 @@ public:
             state_ == POWERTRAIN_FAN_ON || state_ == POWERTRAIN_FAN_SWEEP ||
             state_ == READY_TO_DRIVE;
 
-        if (check_shutdown) {
+        if (false && check_shutdown) {  // temporary -> not on EV5
             const float kNoCurrentThresholdAmp = 0.5;  // what should this be?
             bool lost_lv_comms =
                 false;  // this should come from a SPI heartbeat
@@ -267,11 +280,12 @@ public:
                 transition = SHUTDOWN_DRIVER_WARNING;
             }
 
-            auto msg = veh_can.GetRxFcControllerStatus();
+            auto msg = veh_can.GetRxFC_Status();
             // remove static_cast once cangen properly handles enums
             if (msg.has_value())
-                if (msg->FcState() ==
-                    static_cast<uint8_t>(FcState::HVIL_OPEN)) {
+                // -1 is NOT SENT by FC as of 2025/02/12. This should be updated
+                // in the future once FC sends useful statuses
+                if (msg->GovStatus() == static_cast<uint8_t>(-1)) {
                     transition = SHUTDOWN_PUMP_OFF;
                 }
         }
@@ -288,6 +302,7 @@ private:
     LvState state_;  // enum defined by cangen
     int state_enter_time_;
     bool on_enter_;
+    bool flag = false;  // temp
 };
 
 void UpdateBrakeLight() {
@@ -302,14 +317,20 @@ void UpdateBrakeLight() {
 int main(void) {
     bindings::Initialize();
 
-    StateMachine fsm;
+    StateMachine fsm(bindings::GetTick());
 
     const int kUpdatePeriodMs = 20;
     while (true) {
         int time_ms = bindings::GetTick();
         fsm.Update(time_ms);
-        tssi.Update(bindings::bms_fault.Read(), bindings::imd_fault.Read(),
-                    time_ms);
+
+        // {  // temporarily commented -> may be causing problems on EV5 TSAL
+        //     tssi.Update(bindings::bms_fault.Read(),
+        //     bindings::imd_fault.Read(),
+        //                 time_ms);
+        // }
+
+        bindings::tssi_en.Set(time_ms & (1 << 11));
 
         UpdateBrakeLight();
 

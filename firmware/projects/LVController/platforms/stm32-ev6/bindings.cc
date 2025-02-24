@@ -111,7 +111,7 @@ DigitalOutput& imu_gps_en = mcal::imu_gps_en;
 DigitalOutput& raspberry_pi_en = mcal::raspberry_pi_en;
 DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 
-// DCDC System & Measurement = mcal::Measurement
+// DCDC System & Measurement
 DigitalOutput& dcdc_en = mcal::dcdc_en;
 DigitalOutput& dcdc_sense_select = mcal::dcdc_sense_select;
 AnalogInput& dcdc_sense = mcal::dcdc_sense;
@@ -138,7 +138,8 @@ void DelayMS(uint32_t milliseconds) {
 }
 
 int GetTick() {
-    return HAL_GetTick();
+    static uint32_t first_tick = HAL_GetTick();
+    return HAL_GetTick() - first_tick;
 }
 
 }  // namespace bindings
