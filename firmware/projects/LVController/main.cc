@@ -161,31 +161,23 @@ public:
                 break;
 
             case MOTOR_CONTROLLER_SWITCH_SEQ: {
-                // static uint8_t switch_step = 0;
-                // if (on_enter_) switch_step = 0;
+                static uint8_t switch_step = 0;
+                if (on_enter_) switch_step = 0;
 
-                bindings::motor_ctrl_switch_en.SetLow();
-
-                if (elapsed > 5000) {
-                    auto m = veh_can.GetRxLvSwitch();
-                    if (m.has_value()) {
-                        bindings::motor_ctrl_switch_en.Set(m->SwitchClose());
-                    }
+                // verify this logic
+                switch (switch_step) {
+                    case 0:
+                        bindings::motor_ctrl_switch_en.SetHigh();
+                        break;
+                    case 1:
+                        bindings::motor_ctrl_switch_en.SetLow();
+                        break;
+                    case 2:
+                        bindings::motor_ctrl_switch_en.SetHigh();
+                        transition = DCDC_ON;
+                        break;
                 }
-
-                // // verify this logic --> DEFINITELY INCORRECT
-                // switch (switch_step) {
-                //     case 0:
-                //         break;
-                //     case 1:
-                //         bindings::motor_ctrl_switch_en.SetLow();
-                //         break;
-                //     case 2:
-                //         bindings::motor_ctrl_switch_en.SetHigh();
-                //         transition = DCDC_ON;
-                //         break;
-                // }
-                // switch_step++;
+                switch_step++;
             } break;
 
             case DCDC_ON:
@@ -269,7 +261,7 @@ public:
             state_ == POWERTRAIN_FAN_ON || state_ == POWERTRAIN_FAN_SWEEP ||
             state_ == READY_TO_DRIVE;
 
-        if (false && check_shutdown) {  // temporary -> not on EV5
+        if (check_shutdown) {
             const float kNoCurrentThresholdAmp = 0.5;  // what should this be?
             bool lost_lv_comms =
                 false;  // this should come from a SPI heartbeat
@@ -329,8 +321,6 @@ int main(void) {
         //     bindings::imd_fault.Read(),
         //                 time_ms);
         // }
-
-        bindings::tssi_en.Set(time_ms & (1 << 11));
 
         UpdateBrakeLight();
 

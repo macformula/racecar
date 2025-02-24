@@ -35,8 +35,6 @@ BS_:
 
 BU_: PC_SG BMS FC TMS CANmod LVC RPI
 
-BO_ 110 LvSwitch: 6 PC_SG
- SG_ SwitchClose : 0|8@1+ (1,0) [0|1] ""  LVC
 
 BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
  SG_ FC_userBtnL : 0|1@1+ (1,0) [0|1] "" Vector__XXX
