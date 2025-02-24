@@ -151,6 +151,8 @@ AnalogInput& suspension_travel3 = mcal::suspension_travel3;
 AnalogInput& suspension_travel4 = mcal::suspension_travel4;
 CanBase& veh_can_base = mcal::veh_can_base;
 
+static uint32_t first_tick;
+
 void Initialize() {
     SystemClock_Config();
     HAL_Init();
@@ -160,6 +162,8 @@ void Initialize() {
     MX_TIM2_Init();
 
     mcal::veh_can_base.Setup();
+
+    first_tick = HAL_GetTick();
 }
 
 void DelayMS(uint32_t milliseconds) {
@@ -167,7 +171,6 @@ void DelayMS(uint32_t milliseconds) {
 }
 
 int GetTick() {
-    static uint32_t first_tick = HAL_GetTick();
     return HAL_GetTick() - first_tick;
 }
 
