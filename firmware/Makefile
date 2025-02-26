@@ -50,3 +50,6 @@ debug-openocd:
 
 debug-gdb:
 	arm-none-eabi-gdb "$(BUILD_DIR)/main.elf" -ex "target extended-remote localhost:3333" -ex "load"
+
+openocd-flash: build
+	openocd -f interface/stlink.cfg -f target/stm32f7x.cfg -c "program $(BUILD_DIR)/$(PROJECT_NAME).bin 0x08000000 verify reset exit"
