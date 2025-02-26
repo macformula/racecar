@@ -4,6 +4,3 @@
 [submodule "firmware/third-party/etl"]
 	path = firmware/third-party/etl
 	url = https://github.com/ETLCPP/etl.git
-[submodule "firmware/projects/FrontControllerSimple/vehicle_control_system"]
-	path = firmware/projects/debug/FrontControllerSimple/vehicle_control_system
-	url = https://github.com/macformula/vehicle_control_system.git

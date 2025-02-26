@@ -1,5 +1,0 @@
-canGen:
-  busses:
-    - name: vehicle
-      node: FRONTCONTROLLER
-      dbcFile: "pedal.dbc"
