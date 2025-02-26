@@ -36,8 +36,7 @@ private:
     const shared::util::Mapper<float>& volt_to_temp_;
 
     static constexpr int moving_average_length_ = 20;
-    shared::util::MovingAverage<float, moving_average_length_>
-        rolling_temperature_;
+    shared::util::MovingAverage<moving_average_length_> rolling_temperature_;
 
     float Read() {
         float volt = analog_input_.ReadVoltage();

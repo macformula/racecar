@@ -39,9 +39,9 @@ public:
 
 private:
     const shared::util::Mapper<float>& pedal_to_torque;
-    shared::util::MovingAverage<float, 10>
-        motor_torque_req_running_avg;  // "Raw torque running avg" in Simulink
-                                       // model
+    // "Raw torque running avg" in Simulink
+    shared::util::MovingAverage<10> motor_torque_req_running_avg;
+
     float target_slip;
 
     ctrl::TractionControl traction_control_;

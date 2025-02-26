@@ -6,38 +6,36 @@
 #include <cstddef>
 #include <type_traits>
 
-#include "shared/util/circular_queue.hpp"
+#include "etl/circular_buffer.h"
 
 namespace shared::util {
 
-template <typename T, size_t length>
-    requires(std::is_arithmetic_v<T>) && (length > 0)
+template <size_t length, typename T = float>
+    requires(std::is_floating_point_v<T>) && (length > 0)
 class MovingAverage {
 public:
-    MovingAverage() : sum_(0), count_(0) {}
+    MovingAverage() : sum_(0) {
+        // preload with zeros
+        for (size_t i = 0; i < length; i++) {
+            buffer_.push(0);
+        }
+    }
 
     /// @brief Updates the moving average with a new value.
     void LoadValue(T new_value) {
-        if (buffer_.is_full()) {
-            sum_ -= buffer_.Dequeue();
-        } else {
-            count_ += 1;
-        }
+        sum_ -= buffer_.front();  // safe since buffer is preloaded with 0
         sum_ += new_value;
-        buffer_.Enqueue(new_value);
+        buffer_.push(new_value);
     }
 
     /// @brief Get the average of the last `length` values.
     T GetValue() {
-        return T(sum_ / float(count_));
+        return sum_ / static_cast<T>(length);
     }
 
 private:
-    CircularQueue<T, length> buffer_;
-    float sum_;  // using float is not ideal, it should be an integer type for
-                 // integer templates types, but using T does not guarantee a
-                 // sufficient dynamic range.
-    int count_;
+    etl::circular_buffer<T, length> buffer_;
+    float sum_;
 };
 
 }  // namespace shared::util
