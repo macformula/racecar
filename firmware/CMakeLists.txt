@@ -105,10 +105,32 @@ enable_language(C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
-set(CMAKE_CXX_STANDARD 20) # required for c++ concepts
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 set(CMAKE_CXX_EXTENSIONS ON)
+
+# ------------ Testing ------------
+set(TESTING_ENABLED OFF)
+
+if(MCAL STREQUAL "cli" OR MCAL STREQUAL "linux")
+    set(TESTING_ENABLED ON) # checked by subfolders to add their tests
+
+    set(GTEST_DIR "third-party/googletest")
+
+    if(NOT EXISTS ${GTEST_DIR}/CMakeLists.txt)
+        message(FATAL_ERROR
+            "GoogleTest was not found at ${GTEST_DIR}.\n"
+            "Run `git submodule update --init --recursive`")
+    endif()
+
+    add_subdirectory(${GTEST_DIR})
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    enable_testing()
+    add_executable(tests)
+else()
+    message(STATUS "Skipping tests - GoogleTest is not supported on this platform.")
+endif()
 
 add_executable(main)
 
@@ -123,3 +145,20 @@ target_link_libraries(main PRIVATE shared)
 target_compile_options(main PRIVATE -Wno-psabi)
 
 include("${POSTBUILD_FILE}")
+
+if(TESTING_ENABLED)
+    target_link_libraries(tests PUBLIC GTest::gtest_main)
+    include(GoogleTest)
+    gtest_discover_tests(tests)
+
+    set(UNIT_TEST tests)
+    add_custom_command(
+        TARGET ${UNIT_TEST}
+        COMMENT "Run tests"
+        POST_BUILD
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMAND ${UNIT_TEST}
+    )
+
+    target_link_libraries(tests PRIVATE shared)
+endif()
