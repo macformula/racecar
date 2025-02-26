@@ -144,6 +144,9 @@ target_link_libraries(main PRIVATE shared)
 
 target_compile_options(main PRIVATE -Wno-psabi)
 
+add_subdirectory(third-party/etl)
+target_link_libraries(main PRIVATE etl)
+
 include("${POSTBUILD_FILE}")
 
 if(TESTING_ENABLED)
@@ -160,5 +163,5 @@ if(TESTING_ENABLED)
         COMMAND ${UNIT_TEST}
     )
 
-    target_link_libraries(tests PRIVATE shared)
+    target_link_libraries(tests PRIVATE shared etl)
 endif()
