@@ -6,7 +6,6 @@
 #include <cstdint>
 
 #include "shared/comms/can/msg.hpp"
-#include "shared/util/peripheral.hpp"
 
 namespace shared::can {
 class Bus;  // forward declare to avoid circular dependency
@@ -14,7 +13,7 @@ class Bus;  // forward declare to avoid circular dependency
 
 namespace shared::periph {
 
-class CanBase : public util::Peripheral {
+class CanBase {
 public:
     virtual void Send(const shared::can::RawMessage&) = 0;
     void AddToBus(can::RawMessage msg);

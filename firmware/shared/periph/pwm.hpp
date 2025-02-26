@@ -3,11 +3,9 @@
 
 #pragma once
 
-#include "shared/util/peripheral.hpp"
-
 namespace shared::periph {
 
-class PWMOutput : public util::Peripheral {
+class PWMOutput {
 public:
     virtual void Start() = 0;
     virtual void Stop() = 0;

@@ -3,16 +3,14 @@
 
 #pragma once
 
-#include "shared/util/peripheral.hpp"
-
 namespace shared::periph {
 
-class DigitalInput : public util::Peripheral {
+class DigitalInput {
 public:
     virtual bool Read() = 0;
 };
 
-class DigitalOutput : public util::Peripheral {
+class DigitalOutput {
 public:
     virtual void SetHigh() = 0;
     virtual void SetLow() = 0;
