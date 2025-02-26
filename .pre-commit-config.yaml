@@ -16,6 +16,7 @@ repos:
         name: Run git-clang-format
         entry: git clang-format --style=file --staged
         language: python
+        require_serial: true
         stages: [commit]
         additional_dependencies:
           - clang-format~=19.0
