@@ -3,11 +3,9 @@
 
 #pragma once
 
-#include "shared/util/peripheral.hpp"
-
 namespace shared::periph {
 
-class AnalogOutput : public util::Peripheral {
+class AnalogOutput {
 public:
     virtual void SetVoltage(float voltage) = 0;
 };
