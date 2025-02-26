@@ -1,8 +1,7 @@
-#include "control-system/driver_interface.hpp"
-
 #include <cassert>
 #include <iostream>
 
+#include "control-system/driver_interface.hpp"
 #include "control-system/enums.hpp"
 #include "testing.h"
 

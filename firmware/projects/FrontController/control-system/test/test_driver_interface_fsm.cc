@@ -1,7 +1,6 @@
-#include "control-system/driver_interface_fsm.hpp"
-
 #include <iostream>
 
+#include "control-system/driver_interface_fsm.hpp"
 #include "testing.h"
 
 void test_sequence() {

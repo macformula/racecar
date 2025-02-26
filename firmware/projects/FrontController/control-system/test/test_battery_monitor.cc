@@ -1,12 +1,11 @@
 // To run these tests, cd into this directory and run:
 // make
 // this will compile it to bm_test.exe. Run the test by executing ./bm_test.exe
-#include "control-system/battery_monitor.h"
-
 #include <cassert>
 #include <iostream>
 #include <vector>
 
+#include "control-system/battery_monitor.h"
 #include "control-system/enums.hpp"
 
 BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
