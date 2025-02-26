@@ -92,6 +92,14 @@ Verify that the calculated baud rate is 500 000 bit/s.
 
 ![CAN Timing](img/config/9-can-clock.png)
 
+Finally, under __NVIC Settings__, enable the `RX0` interrupt.
+
+![CAN RX0](img/config/12-can-rx0.png)
+
+!!! important
+
+    This step is __very important__. Without enabling the `RX0` interrupt, your ECU will not be able to receive CAN messages!
+
 ### JTAG Connector
 
 The only remaining pins are the JTAG connector pins which enable programming and debugging.
