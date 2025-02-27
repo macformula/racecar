@@ -67,9 +67,6 @@ Governor CycleToState(GovSts desired_state_) {
 }
 
 TEST(FrontController_Governor, NormalSequence) {
-
-    ASSERT_EQ(1, 2);
-
     Governor g;
 
     Governor::Input in{
