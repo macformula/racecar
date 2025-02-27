@@ -12,7 +12,3 @@ add_custom_target(
 )
 
 add_dependencies(main generated_can)
-
-# Link ETL which is needed for generated/can/msg_registry.hpp
-add_subdirectory(${CMAKE_SOURCE_DIR}/third-party/etl ${CMAKE_BINARY_DIR}/third-party)
-target_link_libraries(main PRIVATE etl)
