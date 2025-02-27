@@ -40,7 +40,7 @@ jobs:
           python-version: '>=3.10'
           cache: pip
       - name: Install Dependencies
-        run: pip install -e scripts/cangen
+        run: pip install -e scripts/cangen # Will always result in cache hit due to setup-python
       - name: Build and Test ${{ matrix.project }} for ${{ matrix.platform }}
         shell: bash
         run: |
