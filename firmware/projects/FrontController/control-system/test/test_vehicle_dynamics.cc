@@ -1,11 +1,10 @@
 /// @author Teghveer Singh Ateliey
 /// @date 2024-11-23
 
-#include "control-system/vehicle_dynamics.hpp"
-
 #include <cassert>
 #include <iostream>
 
+#include "control-system/vehicle_dynamics.hpp"
 #include "shared/util/mappers/lookup_table.hpp"
 #include "testing.h"
 

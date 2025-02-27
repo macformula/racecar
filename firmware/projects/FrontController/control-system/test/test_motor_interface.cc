@@ -1,10 +1,9 @@
-#include "control-system/motor_interface.hpp"
-
 #include <cassert>
 #include <cstdint>
 #include <iostream>
 
 #include "control-system/enums.hpp"
+#include "control-system/motor_interface.hpp"
 
 // Define Dummy CAN messages to make the test module independent
 // clang-format off

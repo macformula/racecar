@@ -1,7 +1,6 @@
-#include "control-system/vehicle_dynamics_calc.hpp"
-
 #include <iostream>
 
+#include "control-system/vehicle_dynamics_calc.hpp"
 #include "testing.h"
 
 using namespace ctrl;

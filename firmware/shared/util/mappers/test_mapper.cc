@@ -15,7 +15,7 @@ Clamper<float> clamp{-8.f, 2.f};
 using CompF = CompositeMap<float>;
 
 TEST(CompositeMapTest, LinearThenClamp) {
-    CompositeMap<float> lin_then_clamp{clamp, linear};
+    CompositeMap<float> lin_then_clamp{linear, clamp};
 
     EXPECT_EQ(lin_then_clamp.Evaluate(1.f), -3.f);
     EXPECT_EQ(lin_then_clamp.Evaluate(5.f), 2.f);
@@ -24,7 +24,7 @@ TEST(CompositeMapTest, LinearThenClamp) {
 }
 
 TEST(CompositeMapTest, ClampThenLinear) {
-    CompositeMap<float> clamp_then_lin{linear, clamp};
+    CompositeMap<float> clamp_then_lin{clamp, linear};
 
     EXPECT_EQ(clamp_then_lin.Evaluate(1.f), -3.f);
     EXPECT_EQ(clamp_then_lin.Evaluate(3.f), -1.f);

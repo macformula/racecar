@@ -1,11 +1,10 @@
-#include "control-system/governor.hpp"
-
 #include <cassert>
-#include <iostream>
 #include <tuple>
 #include <vector>
 
 #include "control-system/enums.hpp"
+#include "control-system/governor.hpp"
+#include "gtest/gtest.h"
 
 /// Helper function to prepare a Governor in a specific state for testing.
 Governor CycleToState(GovSts desired_state_) {
@@ -22,6 +21,8 @@ Governor CycleToState(GovSts desired_state_) {
             break;
         }
     }
+
+    // Uses regular assert since this is not a test but a function used by tests
     assert(desired_state_is_supported);
 
     Governor g;
@@ -65,7 +66,7 @@ Governor CycleToState(GovSts desired_state_) {
     assert(false);
 }
 
-void test_gov_normal_sequence() {
+TEST(FrontController_Governor, NormalSequence) {
     Governor g;
 
     Governor::Input in{
@@ -76,71 +77,57 @@ void test_gov_normal_sequence() {
 
     int time = 0;
 
-    {
-        auto out = g.Update(in, time);
-        assert(out.gov_sts == GovSts::INIT);
-        assert(out.di_cmd == DiCmd::INIT);
-        assert(out.bm_cmd == BmCmd::INIT);
-        assert(out.mi_cmd == MiCmd::INIT);
-    }
+    auto out1 = g.Update(in, time);
+    EXPECT_EQ(out1.gov_sts, GovSts::INIT);
+    EXPECT_EQ(out1.di_cmd, DiCmd::INIT);
+    EXPECT_EQ(out1.bm_cmd, BmCmd::INIT);
+    EXPECT_EQ(out1.mi_cmd, MiCmd::INIT);
 
     in.di_sts = DiSts::HV_START_REQ;
     time += 1999;
 
-    {  // Shouldn't go yet
-        auto out = g.Update(in, time);
-        assert(out.gov_sts == GovSts::INIT);
-    }
+    auto out2 = g.Update(in, time);
+    ASSERT_EQ(out2.gov_sts, GovSts::INIT)
+        << "Shouldn't go until 2000 ms elapsed";
 
     time += 1;
 
-    {  // 2s have elapsed -> enter startup
-        auto out = g.Update(in, time);
-        assert(out.gov_sts == GovSts::STARTUP_HV);
-        assert(out.bm_cmd == BmCmd::HV_STARTUP);
+    // 2s have elapsed -> enter startup
+    auto out3 = g.Update(in, time);
+    ASSERT_EQ(out3.gov_sts, GovSts::STARTUP_HV);
+    EXPECT_EQ(out3.bm_cmd, BmCmd::HV_STARTUP);
 
-        assert(g.Update(in, ++time).gov_sts == GovSts::STARTUP_HV);
-    }
+    ASSERT_EQ(g.Update(in, ++time).gov_sts, GovSts::STARTUP_HV);
 
     in.bm_sts = BmSts::RUNNING;
 
-    {
-        auto out = g.Update(in, ++time);
-        assert(out.gov_sts == GovSts::STARTUP_READY_TO_DRIVE);
-        assert(out.di_cmd == DiCmd::HV_ON);
+    auto out4 = g.Update(in, ++time);
+    ASSERT_EQ(out4.gov_sts, GovSts::STARTUP_READY_TO_DRIVE);
+    EXPECT_EQ(out4.di_cmd, DiCmd::HV_ON);
 
-        assert(g.Update(in, ++time).gov_sts == GovSts::STARTUP_READY_TO_DRIVE);
-    }
+    ASSERT_EQ(g.Update(in, ++time).gov_sts, GovSts::STARTUP_READY_TO_DRIVE);
 
     in.di_sts = DiSts::MOTOR_START_REQ;
 
-    {
-        auto out = g.Update(in, ++time);
-        assert(out.gov_sts == GovSts::STARTUP_MOTOR);
-        assert(out.mi_cmd == MiCmd::STARTUP);
+    auto out5 = g.Update(in, ++time);
+    ASSERT_EQ(out5.gov_sts, GovSts::STARTUP_MOTOR);
+    EXPECT_EQ(out5.mi_cmd, MiCmd::STARTUP);
 
-        assert(g.Update(in, ++time).gov_sts == GovSts::STARTUP_MOTOR);
-    }
+    ASSERT_EQ(g.Update(in, ++time).gov_sts, GovSts::STARTUP_MOTOR);
 
     in.mi_sts = MiSts::RUNNING;
 
-    {
-        auto out = g.Update(in, ++time);
-        assert(out.gov_sts == GovSts::STARTUP_SEND_READY_TO_DRIVE);
-        assert(out.di_cmd == DiCmd::READY_TO_DRIVE);
+    auto out6 = g.Update(in, ++time);
+    ASSERT_EQ(out6.gov_sts, GovSts::STARTUP_SEND_READY_TO_DRIVE);
+    EXPECT_EQ(out6.di_cmd, DiCmd::READY_TO_DRIVE);
 
-        assert(g.Update(in, ++time).gov_sts ==
-               GovSts::STARTUP_SEND_READY_TO_DRIVE);
-    }
+    ASSERT_EQ(g.Update(in, ++time).gov_sts,
+              GovSts::STARTUP_SEND_READY_TO_DRIVE);
 
     in.di_sts = DiSts::RUNNING;
 
-    {
-        auto out = g.Update(in, ++time);
-        assert(out.gov_sts == GovSts::RUNNING);
-    }
-
-    std::cout << "Passed test_gov_normal_sequence!" << std::endl;
+    auto out7 = g.Update(in, ++time);
+    ASSERT_EQ(out7.gov_sts, GovSts::RUNNING);
 }
 
 // HVIL not part of BM anymore
@@ -179,7 +166,7 @@ void test_gov_normal_sequence() {
 //     std::cout << "Passed test_shutdown_hvil!" << std::endl;
 // }
 
-void test_shutdown_low_soc() {
+TEST(FrontController_Governor, ShutdownLowSoc) {
     Governor g = CycleToState(GovSts::RUNNING);
 
     Governor::Input in{
@@ -189,32 +176,24 @@ void test_shutdown_low_soc() {
     };
 
     int time = 5000;
-    assert(g.Update(in, time).gov_sts == GovSts::RUNNING);
+    ASSERT_EQ(g.Update(in, time).gov_sts, GovSts::RUNNING);
 
     in.bm_sts = BmSts::LOW_SOC;
+    auto out1 = g.Update(in, ++time);
+    ASSERT_EQ(out1.gov_sts, GovSts::SHUTDOWN);
+    EXPECT_EQ(out1.mi_cmd, MiCmd::SHUTDOWN);
+    EXPECT_EQ(out1.di_cmd, DiCmd::SHUTDOWN);
 
-    {
-        auto out = g.Update(in, ++time);
-        assert(out.gov_sts == GovSts::SHUTDOWN);
-        assert(out.mi_cmd == MiCmd::SHUTDOWN);
-        assert(out.di_cmd == DiCmd::SHUTDOWN);
-
-        assert(g.Update(in, ++time).gov_sts == GovSts::SHUTDOWN);
-    }
+    ASSERT_EQ(g.Update(in, ++time).gov_sts, GovSts::SHUTDOWN);
 
     in.bm_sts = BmSts::INIT;
-
-    {
-        auto out = g.Update(in, ++time);
-        assert(out.gov_sts == GovSts::INIT);
-        assert(out.bm_cmd == BmCmd::INIT);
-        assert(out.di_cmd == DiCmd::INIT);
-    }
-
-    std::cout << "Passed test_shutdown_low_soc!" << std::endl;
+    auto out2 = g.Update(in, ++time);
+    ASSERT_EQ(out2.gov_sts, GovSts::INIT);
+    EXPECT_EQ(out2.bm_cmd, BmCmd::INIT);
+    EXPECT_EQ(out2.di_cmd, DiCmd::INIT);
 }
 
-void test_running_err() {
+TEST(FrontController_Governor, RunningError) {
     Governor g = CycleToState(GovSts::RUNNING);
 
     Governor::Input in{
@@ -224,18 +203,16 @@ void test_running_err() {
     };
     int time = 0;
 
-    assert(g.Update(in, ++time).gov_sts == GovSts::RUNNING);
+    ASSERT_EQ(g.Update(in, ++time).gov_sts, GovSts::RUNNING);
 
     in.bm_sts = BmSts::ERR_RUNNING;
 
     auto out = g.Update(in, ++time);
-    assert(out.gov_sts == GovSts::ERR_RUNNING_HV);
-    assert(out.di_cmd == DiCmd::RUN_ERROR);
-
-    std::cout << "Passed test_running_err!" << std::endl;
+    ASSERT_EQ(out.gov_sts, GovSts::ERR_RUNNING_HV);
+    EXPECT_EQ(out.di_cmd, DiCmd::RUN_ERROR);
 }
 
-void test_running_mi_err() {
+TEST(FrontController_Governor, RunningMotorErr) {
     Governor g = CycleToState(GovSts::RUNNING);
 
     Governor::Input in{
@@ -245,18 +222,16 @@ void test_running_mi_err() {
     };
     int time = 0;
 
-    assert(g.Update(in, ++time).gov_sts == GovSts::RUNNING);
+    ASSERT_EQ(g.Update(in, ++time).gov_sts, GovSts::RUNNING);
 
     in.mi_sts = MiSts::ERR;
 
     auto out = g.Update(in, ++time);
-    assert(out.gov_sts == GovSts::ERR_RUNNING_MOTOR);
-    assert(out.di_cmd == DiCmd::RUN_ERROR);
-
-    std::cout << "Passed test_running_mi_err!" << std::endl;
+    ASSERT_EQ(out.gov_sts, GovSts::ERR_RUNNING_MOTOR);
+    EXPECT_EQ(out.di_cmd, DiCmd::RUN_ERROR);
 }
 
-void test_startup_di_err() {
+TEST(FrontController_Governor, StartupDriverErr) {
     for (auto start_state : {
              GovSts::STARTUP_HV,
              GovSts::STARTUP_READY_TO_DRIVE,
@@ -271,15 +246,14 @@ void test_startup_di_err() {
             .di_sts = DiSts::INIT,
         };
 
-        assert(g.Update(in, 0).gov_sts == start_state);
+        EXPECT_EQ(g.Update(in, 0).gov_sts, start_state);
 
         in.di_sts = DiSts::ERR;
 
         auto out = g.Update(in, 1);
 
-        assert(out.gov_sts == GovSts::ERR_STARTUP_DI);
+        EXPECT_EQ(out.gov_sts, GovSts::ERR_STARTUP_DI);
     }
-    std::cout << "Passed test_startup_di_err!" << std::endl;
 }
 
 // hvil is not part of BM anymore
@@ -324,7 +298,7 @@ void test_startup_di_err() {
 //     std::cout << "Passed test_startup_hv_err!" << std::endl;
 // }
 
-void test_startup_motor_error() {
+TEST(FrontController_Governor, StartupMotorError) {
     // fail the motors 6 times. should go through reset until the last time
     // this tests both the ERR_STARTUP_MOTOR_FAULT and ERR_STARTUP_MOTOR_RESET
     // states
@@ -341,7 +315,6 @@ void test_startup_motor_error() {
     };
 
     for (auto [start_state, str] : start_states) {
-        std::cout << "  startup_motor_error from " << str << "... ";
         Governor g = CycleToState(start_state);
 
         // Must reduce the number of attempts if CycleToState already
@@ -359,7 +332,7 @@ void test_startup_motor_error() {
         };
         int time = 0;
 
-        assert(g.Update(in, time).gov_sts == start_state);
+        ASSERT_EQ(g.Update(in, time).gov_sts, start_state);
 
         // repeatedly fail the motor and go through the ERR_RESET state
         for (int attempts = 0;
@@ -368,50 +341,31 @@ void test_startup_motor_error() {
             in.mi_sts = MiSts::ERR;
 
             auto out = g.Update(in, ++time);
-            assert(out.gov_sts == ERR_STARTUP_MOTOR_RESET);
-            assert(out.mi_cmd == MiCmd::ERR_RESET);
+            ASSERT_EQ(out.gov_sts, ERR_STARTUP_MOTOR_RESET);
+            EXPECT_EQ(out.mi_cmd, MiCmd::ERR_RESET);
 
             // Return to Startup only once MI turns off
-            assert(g.Update(in, ++time).gov_sts == ERR_STARTUP_MOTOR_RESET);
+            ASSERT_EQ(g.Update(in, ++time).gov_sts, ERR_STARTUP_MOTOR_RESET);
 
             in.mi_sts = MiSts::OFF;
             out = g.Update(in, ++time);
-            assert(out.gov_sts == STARTUP_HV);
+            ASSERT_EQ(out.gov_sts, STARTUP_HV);
 
             // Go back to MOTOR_STARTUP state to increment counter
             in.bm_sts = BmSts::RUNNING;
             g.Update(in, ++time);
             in.di_sts = DiSts::MOTOR_START_REQ;
-            assert(g.Update(in, ++time).gov_sts == STARTUP_MOTOR);
+            ASSERT_EQ(g.Update(in, ++time).gov_sts, STARTUP_MOTOR);
         }
-
-        // the next ERR should go to MOTOR_FAULT
+        //
         in.mi_sts = MiSts::ERR;
         auto out = g.Update(in, ++time);
-        assert(out.gov_sts == ERR_STARTUP_MOTOR_FAULT);
-        assert(out.mi_cmd == MiCmd::SHUTDOWN);
+        ASSERT_EQ(out.gov_sts, ERR_STARTUP_MOTOR_FAULT)
+            << "The next ERR should go to MOTOR_FAULT";
+        EXPECT_EQ(out.mi_cmd, MiCmd::SHUTDOWN);
 
-        // We should NOT be able to exit this state
         in.mi_sts = MiSts::OFF;
-        assert(g.Update(in, ++time).gov_sts == ERR_STARTUP_MOTOR_FAULT);
-
-        std::cout << "passed" << std::endl;
+        ASSERT_EQ(g.Update(in, ++time).gov_sts, ERR_STARTUP_MOTOR_FAULT)
+            << "We should NOT be able to exit this state";
     }
-
-    std::cout << "Passed test_startup_motor_error" << std::endl;
-}
-
-void GovTest() {
-    test_gov_normal_sequence();
-    // test_shutdown_hvil();
-    test_shutdown_low_soc();
-
-    test_startup_di_err();
-    // test_startup_hv_err();
-    test_startup_motor_error();
-
-    test_running_err();
-    test_running_mi_err();
-
-    std::cout << "All GOV tests passed!" << std::endl;
 }
