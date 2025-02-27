@@ -55,3 +55,5 @@ def main():
     logger.setLevel(args.level)
 
     generate_can_for_project(args.project)
+
+    print("This is a test print commit to check cache")
