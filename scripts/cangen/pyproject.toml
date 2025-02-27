@@ -6,10 +6,11 @@ authors = ["Andrew Iammancini"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.13"
+python = "^3.10"
 cantools = "39.4.5"
 Jinja2 = "3.1.5"
 numpy = "1.26.4"
+pandas = "2.2.3"
 PyYAML = "6.0.1"
 
 
