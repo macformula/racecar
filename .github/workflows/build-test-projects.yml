@@ -8,10 +8,6 @@ jobs:
   setup-python:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -19,13 +15,6 @@ jobs:
           cache: pip
       - name: Install Dependencies
         run: pip install -e scripts/cangen
-      - name: Cache Installed Dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: python-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            python-${{ runner.os }}-
   build-test:
     needs: setup-python
     runs-on: ubuntu-latest
@@ -48,13 +37,8 @@ jobs:
         with:
           python-version: '>=3.10'
           cache: pip
-      - name: Restore Cached Dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: python-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            python-${{ runner.os }}-
+      - name: Install Dependencies
+        run: pip install -e scripts/cangen
       - name: Build and Test ${{ matrix.project }} for ${{ matrix.platform }}
         shell: bash
         run: |
