@@ -1,0 +1,20 @@
+name: Build and Test Projects
+on:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project:
+          - FrontController
+        platform:
+          - cli
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and Test Project
+        shell: bash
+        run: |
+          cd firmware
+          make PROJECT=${{ matrix.project }} PLATFORM=${{ matrix.platform }}
