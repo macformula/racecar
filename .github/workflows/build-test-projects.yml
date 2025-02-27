@@ -50,6 +50,8 @@ jobs:
           key: python-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             python-${{ runner.os }}-
+      - name: Install Dependencies
+        run: pip install -e scripts/cangen
       - name: Build and Test ${{ matrix.project }} for ${{ matrix.platform }}
         shell: bash
         run: |
