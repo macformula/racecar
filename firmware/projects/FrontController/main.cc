@@ -41,7 +41,7 @@ const float kPressureRange = 2000;
 // See datasheets/race_grade/RG_SPEC-0030_M_APT_G2_DTM.pdf
 auto brake_pedal_front_map = LinearMap<float, uint16_t>{
     0.378788f * kPressureRange, -0.125f * kPressureRange};
-AnalogInput brake_pedal_front{bindings::brake_pressure_sensor1,
+AnalogInput brake_pedal_front{bindings::brake_pressure_sensor,
                               &brake_pedal_front_map};
 
 // Full Left (0V) -> -1. Full right (3.3V) -> +1 --> convert
