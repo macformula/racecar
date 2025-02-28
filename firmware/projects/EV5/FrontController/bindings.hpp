@@ -31,7 +31,6 @@ extern shared::periph::AnalogInput& brake_pressure_sensor;
 extern shared::periph::DigitalOutput& dashboard_power_en;
 extern shared::periph::DigitalOutput& debug_led;
 
-// namespace ev5 {
 // =========== Driver Control ==============================
 extern shared::periph::DigitalInput& start_button;
 extern shared::periph::AnalogInput& brake_pressure_sensor2;
@@ -41,21 +40,6 @@ extern shared::periph::DigitalOutput& hvil_led_en;
 extern shared::periph::DigitalOutput& rtds_en;
 extern shared::periph::DigitalOutput& brake_light_en;
 extern shared::periph::DigitalOutput& status_led_en;
-
-// }  // namespace ev5
-
-namespace ev6 {
-
-// =========== Status Monitors =============================
-extern shared::periph::AnalogInput& precharge_monitor;
-extern shared::periph::DigitalInput& bspd_fault;
-
-// =========== Outputs =====================================
-extern shared::periph::DigitalOutput& imd_fault_led_en;
-extern shared::periph::DigitalOutput& bms_fault_led_en;
-extern shared::periph::DigitalOutput& ready_to_drive_sig_en;
-
-}  // namespace ev6
 
 extern void Initialize();
 
