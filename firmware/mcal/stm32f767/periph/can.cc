@@ -1,3 +1,4 @@
+#include "main.h"
 #include "stm32f7xx_hal.h"
 #ifdef HAL_CAN_MODULE_ENABLED
 
@@ -132,7 +133,9 @@ void CanBase::ConfigFilters() {
         .FilterActivation = CAN_FILTER_ENABLE,
         .SlaveStartFilterBank = 14,
     };
-
+    if (hcan_->Instance == CAN2) {
+        filter_config.FilterBank = 14;
+    }
     HAL_CAN_ConfigFilter(hcan_, &filter_config);
 }
 
