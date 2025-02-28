@@ -1,7 +1,3 @@
-// $ make PROJECT=FrontController PLATFORM=dummy
-// if get to "linking main.elf" then your code compiles.
-// if fails after that, no issue
-
 /// @author Blake Freer
 /// @date 2025-02
 
