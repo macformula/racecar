@@ -24,6 +24,11 @@
 #include <stdarg.h>
 
 
+void NT35510_IO_Delay(uint32_t Delay) // blake added
+{
+  HAL_Delay(Delay);
+}
+
 /** @addtogroup BSP
   * @{
   */

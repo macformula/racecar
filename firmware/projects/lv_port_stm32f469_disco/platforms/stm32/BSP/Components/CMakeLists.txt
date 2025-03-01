@@ -1,7 +1,9 @@
 set(SRC
-    otm8009a/otm8009a.c
+
+    # otm8009a/otm8009a.c
     nt35510/nt35510.c
-    ft6x06/ft6x06.c
+
+    # ft6x06/ft6x06.c
 )
 set_source_files_properties(${SRC} PROPERTIES LANGUAGE C)
 add_library(bspcomp INTERFACE)
