@@ -1,4 +1,4 @@
-set(SRC screen_driver.c touch_sensor_driver.c)
+set(SRC screen_driver.c)
 set_source_files_properties(${SRC} PROPERTIES LANGUAGE C)
 add_library(hal_lvgl INTERFACE)
 target_sources(hal_lvgl INTERFACE ${SRC})
