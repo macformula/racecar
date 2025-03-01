@@ -14,5 +14,5 @@
 	path = firmware/projects/Dashboard/platforms/stm32/third-party/32f469idiscovery-bsp
 	url = https://github.com/STMicroelectronics/32f469idiscovery-bsp.git
 [submodule "firmware/projects/lv_port_stm32f469_disco/Drivers/lvgl"]
-	path = firmware/projects/lv_port_stm32f469_disco/Drivers/lvgl
+	path = firmware/projects/lv_port_stm32f469_disco/lvgl
 	url = https://github.com/lvgl/lvgl.git
