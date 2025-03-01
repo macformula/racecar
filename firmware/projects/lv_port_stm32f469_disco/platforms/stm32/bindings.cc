@@ -2,18 +2,23 @@
 
 #include <cstdint>
 
+#include "can.h"
 #include "dma.h"
 #include "dma2d.h"
 #include "dsihost.h"
 #include "fmc.h"
 #include "gpio.h"
-#include "i2c.h"
+// #include "i2c.h"
 #include "ltdc.h"
 #include "usart.h"
 
+// firmware includes
+#include "mcal/stm32f4/periph/can.hpp"
+#include "mcal/stm32f4/periph/gpio.hpp"
+
 extern "C" {
 #include "screen_driver.h"
-#include "touch_sensor_driver.h"
+// #include "touch_sensor_driver.h"
 extern void SystemClock_Config(void);
 }
 
@@ -37,7 +42,22 @@ extern void SystemClock_Config(void);
 #define REFRESH_COUNT ((uint32_t)0x0569)
 #define SDRAM_TIMEOUT ((uint32_t)0xFFFF)
 
+namespace mcal {
+using namespace stm32f4::periph;
+
+CanBase veh_can_base{&hcan1};
+DigitalInput button_scroll{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
+DigitalInput button_select{BUTTON_SELECT_GPIO_Port, BUTTON_SELECT_Pin};
+// DigitalOutput debug{DEBUG_GPIO_Port, DEBUG_Pin};
+
+}  // namespace mcal
+
 namespace bindings {
+
+shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
+shared::periph::DigitalInput& button_scroll = mcal::button_scroll;
+shared::periph::DigitalInput& button_select = mcal::button_select;
+// shared::periph::DigitalOutput& debug = mcal::debug;
 
 void Initialize() {
     HAL_Init();
@@ -59,6 +79,7 @@ void Initialize() {
     MX_DMA2D_Init();
     MX_DSIHOST_DSI_Init();
     MX_FMC_Init();
+    MX_CAN1_Init();
 
     /* USER CODE BEGIN FMC_Init 2 */
     static FMC_SDRAM_CommandTypeDef Command;
@@ -113,34 +134,18 @@ void Initialize() {
     /* Step 6: Set the refresh rate counter */
     /* Set the device refresh rate */
     HAL_SDRAM_ProgramRefreshRate(&hsdram1, REFRESH_COUNT);
-    MX_I2C1_Init();
+    // MX_I2C1_Init();
     MX_LTDC_Init();
     MX_USART3_UART_Init();
 
     screen_driver_init();
-    //touch_sensor_driver_init();
+    // touch_sensor_driver_init();
+
+    mcal::veh_can_base.Setup();
 }
 
 void DelayMS(uint32_t ms) {
     HAL_Delay(ms);
-}
-
-int readSelect() {
-
-    if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_4) == GPIO_PIN_SET) {
-        return 0;
-    }
-
-    return 1;
-}
-
-int readScroll() {
-    
-    if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_5) == GPIO_PIN_SET) {
-        return 0;
-    }
-    
-    return 1;
 }
 
 }  // namespace bindings
