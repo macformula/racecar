@@ -1,9 +1,8 @@
 include("${CMAKE_SOURCE_DIR}/cmake/cangen.cmake")
 
-# Add linked libraries
-add_subdirectory(Drivers)
+add_subdirectory(lvgl)
 
-target_compile_definitions(lvgl PUBLIC LV_CONF_PATH=${CMAKE_CURRENT_SOURCE_DIR}/Drivers/lv_conf.h)
+target_compile_definitions(lvgl PUBLIC LV_CONF_PATH=${CMAKE_CURRENT_SOURCE_DIR}/lv_conf.h)
 target_link_libraries(lvgl PUBLIC stm32cubemx)
 
 target_link_libraries(main
