@@ -1,3 +1,5 @@
+include("${CMAKE_SOURCE_DIR}/cmake/cangen.cmake")
+
 # Add linked libraries
 add_subdirectory(Drivers)
 
