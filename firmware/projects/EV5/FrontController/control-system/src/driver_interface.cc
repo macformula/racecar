@@ -43,7 +43,7 @@ DriverInterface::Output DriverInterface::Update(const Input input,
     // bool di_error = accel_pedal_1_error || accel_pedal_2_error ||
     //                 brake_pedal_error || steering_angle_error ||
     //                 accel_pedal_implausible; // temp
-    bool di_error = false;  // TODO - enable errors
+    bool di_error = accel_pedal_1_error;
 
     out.brake_light_en = input.brake_pedal_pos > 0.1 && !brake_pedal_error;
 

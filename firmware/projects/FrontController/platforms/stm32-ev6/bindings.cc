@@ -54,8 +54,6 @@ DigitalOutput debug_led{DEBUG_LED_GPIO_Port, DEBUG_LED_Pin};
 
 namespace bindings {
 
-namespace ev6 {
-
 // =========== CAN =========================================
 shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
 shared::periph::CanBase& pt_can_base = mcal::pt_can_base;
@@ -91,8 +89,6 @@ shared::periph::DigitalOutput& bms_fault_led_en = mcal::bms_fault_led_en;
 shared::periph::DigitalOutput& ready_to_drive_sig_en =
     mcal::ready_to_drive_sig_en;
 shared::periph::DigitalOutput& debug_led = mcal::debug_led;
-
-}  // namespace ev6
 
 void Initialize() {
     SystemClock_Config();

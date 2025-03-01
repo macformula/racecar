@@ -86,22 +86,8 @@ void UpdateControls() {
         .di_status = static_cast<uint8_t>(gov_in.di_sts),
         .mi_status = static_cast<uint8_t>(gov_in.mi_sts),
         .bm_status = static_cast<uint8_t>(gov_in.bm_sts),
-        .user_flag = false,  // bindings::start_button.Read(),
+        .user_flag = bindings::start_button.Read(),
     });
-
-    // Driver Interface update
-    DriverInterface::Input di_in = {
-        .di_cmd = gov_out.di_cmd,
-        .brake_pedal_pos = brake_pedal_front.Update(),
-        .driver_button = 0,  // bindings::start_button.Read(),
-        .accel_pedal_pos1 = accel_pedal_1.Update(),
-        .accel_pedal_pos2 = accel_pedal_2.Update(),
-        .steering_angle = steering_wheel.Update()};
-    DriverInterface::Output di_out = di.Update(di_in, time_ms);
-    gov_in.di_sts = di_out.di_sts;
-
-    // bindings::rtds_en.Set(di_out.driver_speaker);
-    // bindings::brake_light_en.Set(di_out.brake_light_en);
 
     auto contactor_states = veh_can_bus.GetRxContactor_Feedback();
     if (!contactor_states.has_value()) {
@@ -126,6 +112,20 @@ void UpdateControls() {
         .pack_precharge = static_cast<bool>(bm_out.contactor.precharge),
         .pack_negative = static_cast<bool>(bm_out.contactor.hv_negative),
     });
+
+    // Driver Interface update
+    DriverInterface::Input di_in = {
+        .di_cmd = gov_out.di_cmd,
+        .brake_pedal_pos = brake_pedal_front.Update(),
+        .driver_button = bindings::start_button.Read(),
+        .accel_pedal_pos1 = accel_pedal_1.Update(),
+        .accel_pedal_pos2 = accel_pedal_2.Update(),
+        .steering_angle = steering_wheel.Update()};
+    DriverInterface::Output di_out = di.Update(di_in, time_ms);
+    gov_in.di_sts = di_out.di_sts;
+
+    bindings::rtds_en.Set(di_out.driver_speaker);
+    bindings::brake_light_en.Set(di_out.brake_light_en);
 
     // Vehicle Dynamics update
     VehicleDynamics::Input vd_in = {
@@ -181,8 +181,6 @@ void UpdateControls() {
 
 int main(void) {
     bindings::Initialize();
-
-    bindings::dashboard_power_en.SetHigh();
 
     bool state = true;
 

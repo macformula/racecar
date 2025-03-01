@@ -82,7 +82,7 @@ shared::periph::DigitalInput& start_button = start_button_inv;
 
 shared::periph::AnalogInput& steering_angle_sensor =
     mcal::steering_angle_sensor;
-shared::periph::AnalogInput& brake_pressure_sensor1 =
+shared::periph::AnalogInput& brake_pressure_sensor =
     mcal::brake_pressure_sensor1;
 shared::periph::AnalogInput& brake_pressure_sensor2 =
     mcal::brake_pressure_sensor2;
