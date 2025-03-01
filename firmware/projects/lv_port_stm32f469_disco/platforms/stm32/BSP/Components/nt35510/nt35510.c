@@ -22,6 +22,7 @@
 #include "nt35510.h"
 #include <stdio.h>
 #include <stdarg.h>
+#include "stm32f4xx_hal.h"
 
 
 void NT35510_IO_Delay(uint32_t Delay) // blake added
