@@ -1,6 +1,8 @@
 set(SRC
     STM32469I-Discovery/stm32469i_discovery_lcd.c
-    STM32469I-Discovery/stm32469i_discovery_ts.c
+
+    # STM32469I-Discovery/stm32469i_discovery_ts.c
+    STM32469I-Discovery/stm32469i_discovery_sdram.c
     STM32469I-Discovery/stm32469i_discovery.c
 )
 set_source_files_properties(${SRC} PROPERTIES LANGUAGE C)
