@@ -85,6 +85,15 @@ class FloatType(ConfigType[float]):
                 raise ValueError("A value is required but none was provided.")
             else:
                 return None
+
+        # Convert string to float if needed
+        # This is needed for YAML parsing interpreting numerical values as strings (e.g. 1e-06)
+        if isinstance(value, str):
+            try:
+                value = float(value)
+            except ValueError:
+                raise ValueError(f"Cannot convert string '{value}' to float")
+
         if not isinstance(value, (int, float)):
             raise ValueError(f"Expected number, got {type(value)}")
         val = float(value)

@@ -1,0 +1,23 @@
+name: errors
+baud_rate: null
+nodes:
+  - name: TMS
+enum_types: {}
+messages:
+  - name: TMS_ERROR
+    id: 390
+    is_extended_id: false
+    length: 8
+    sender: TMS
+    receivers: []
+    frequency: 100
+    signals:
+      - name: Errors
+        start_bit: 0
+        length: 64
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false

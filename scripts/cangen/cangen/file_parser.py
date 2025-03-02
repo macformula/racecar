@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import yaml
 from enum import Enum
 from typing import Dict, Any
 from database import (
@@ -18,36 +19,50 @@ from database_config import BusConfig, NodeConfig, EnumTypesConfig
 
 def _parse_signal(signal_data: Dict[str, Any], enum_types: Dict[str, Enum]) -> Signal:
     base_attrs = {
-        "name": signal_data["name"],
-        "start_bit": signal_data["start_bit"],
-        "length": signal_data["length"],
-        "endianness": Endian[signal_data["endianness"]],
-        "description": signal_data.get("description"),
-        "additional_receivers": signal_data.get("additional_receivers"),
+        "name": signal_data.pop("name"),
+        "start_bit": signal_data.pop("start_bit"),
+        "length": signal_data.pop("length"),
+        "endianness": Endian[signal_data.pop("endianness")],
+        "description": signal_data.pop("description", None),
+        "additional_receivers": signal_data.pop("additional_receivers", None),
     }
 
-    signal_type = signal_data["signal_type"]
-    if signal_type == "integral":
-        return IntegralSignal(
-            **base_attrs,
-            is_signed=signal_data.get("is_signed", False),
-            value_range=signal_data.get("value_range", (0, 0)),
+    signal_type = signal_data.pop("signal_type")
+
+    match signal_type:
+        case "integral":
+            signal = IntegralSignal(
+                **base_attrs,
+                is_signed=signal_data.pop("is_signed", False),
+                value_range=signal_data.pop("value_range", (0, 0)),
+            )
+        case "boolean":
+            signal = BooleanSignal(**base_attrs)
+        case "enum":
+            signal = EnumSignal(
+                **base_attrs, enum_config=signal_data.pop("enum_config")
+            )
+        case "floating":
+            signal = FloatingSignal(
+                **base_attrs,
+                is_signed=signal_data.pop("is_signed", False),
+                value_range=signal_data.pop("value_range", None),
+                scale=signal_data.pop("scale", None),
+                offset=signal_data.pop("offset", None),
+                unit=signal_data.pop("unit", None),
+            )
+        case _:
+            raise ValueError(f"Unknown signal type: {signal_type}")
+
+    # Warn if there are any unexpected fields left
+    non_none_data = {k: v for k, v in signal_data.items() if v is not None}
+    if non_none_data:
+        unexpected_fields = ", ".join(non_none_data.keys())
+        print(
+            f"Warning: Unexpected fields for signal {base_attrs['name']}: {unexpected_fields}"
         )
-    elif signal_type == "boolean":
-        return BooleanSignal(**base_attrs)
-    elif signal_type == "enum":
-        return EnumSignal(**base_attrs, enum_config=signal_data["enum_config"])
-    elif signal_type == "floating":
-        return FloatingSignal(
-            **base_attrs,
-            is_signed=signal_data.get("is_signed", False),
-            value_range=signal_data.get("value_range"),
-            scale=signal_data.get("scale"),
-            offset=signal_data.get("offset"),
-            unit=signal_data.get("unit"),
-        )
-    else:
-        raise ValueError(f"Unknown signal type: {signal_type}")
+
+    return signal
 
 
 def _parse_message(
@@ -97,7 +112,12 @@ def parse_bus(data: Dict[str, Any]) -> Bus:
 
 def parse_file(file_path: str) -> Bus:
     with open(file_path, "r") as f:
-        data = json.load(f)
+        if file_path.endswith((".yaml", ".yml")):
+            data = yaml.safe_load(f)
+        elif file_path.endswith((".json")):
+            data = json.load(f)
+        else:
+            raise ValueError(f"Unsupported file extension: {file_path}")
     return parse_bus(data)
 
 

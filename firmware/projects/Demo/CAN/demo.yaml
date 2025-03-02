@@ -1,0 +1,21 @@
+name: demo
+baud_rate: null
+nodes:
+  - name: SEND
+  - name: RECV
+enum_types: {}
+messages:
+  - name: ButtonStatus
+    id: 940
+    is_extended_id: false
+    length: 1
+    sender: SEND
+    receivers:
+      - RECV
+    frequency: 100
+    signals:
+      - name: State
+        start_bit: 0
+        length: 1
+        endianness: LITTLE
+        signal_type: boolean
