@@ -1,3 +1,6 @@
+#include "stm32f7xx_hal.h"
+#ifdef HAL_CAN_MODULE_ENABLED
+
 /// @author Samuel Parent
 /// @date 2023-01-12
 
@@ -174,3 +177,5 @@ private:
 };
 
 }  // namespace mcal::stm32f767::periph
+
+#endif  // HAL_CAN_MODULE_ENABLED
