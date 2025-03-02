@@ -12,102 +12,71 @@ from database import (
     BooleanSignal,
     EnumSignal,
     FloatingSignal,
-    Endian,
 )
-from database_config import BusConfig, NodeConfig, EnumTypesConfig
 
 
 def _parse_signal(signal_data: Dict[str, Any], enum_types: Dict[str, Enum]) -> Signal:
-    base_attrs = {
-        "name": signal_data.pop("name"),
-        "start_bit": signal_data.pop("start_bit"),
-        "length": signal_data.pop("length"),
-        "endianness": Endian[signal_data.pop("endianness")],
-        "description": signal_data.pop("description", None),
-        "additional_receivers": signal_data.pop("additional_receivers", None),
+    signal_type = signal_data.get("signal_type")
+    if not signal_type:
+        raise ValueError("Signal type is required")
+
+    # Create appropriate signal class based on signal type
+    signal_classes = {
+        "integral": IntegralSignal,
+        "boolean": BooleanSignal,
+        "enum": EnumSignal,
+        "floating": FloatingSignal,
     }
 
-    signal_type = signal_data.pop("signal_type")
+    # Create the signal instance with appropriate context for validation
+    parse_context = None
+    if signal_type == "enum":
+        parse_context = {"enum_types": enum_types}
 
-    match signal_type:
-        case "integral":
-            signal = IntegralSignal(
-                **base_attrs,
-                is_signed=signal_data.pop("is_signed", False),
-                value_range=signal_data.pop("value_range", (0, 0)),
-            )
-        case "boolean":
-            signal = BooleanSignal(**base_attrs)
-        case "enum":
-            signal = EnumSignal(
-                **base_attrs, enum_config=signal_data.pop("enum_config")
-            )
-        case "floating":
-            signal = FloatingSignal(
-                **base_attrs,
-                is_signed=signal_data.pop("is_signed", False),
-                value_range=signal_data.pop("value_range", None),
-                scale=signal_data.pop("scale", None),
-                offset=signal_data.pop("offset", None),
-                unit=signal_data.pop("unit", None),
-            )
-        case _:
-            raise ValueError(f"Unknown signal type: {signal_type}")
-
-    # Warn if there are any unexpected fields left
-    non_none_data = {k: v for k, v in signal_data.items() if v is not None}
-    if non_none_data:
-        unexpected_fields = ", ".join(non_none_data.keys())
-        print(
-            f"Warning: Unexpected fields for signal {base_attrs['name']}: {unexpected_fields}"
-        )
-
-    return signal
+    return signal_classes[signal_type](signal_data, context=parse_context)
 
 
 def _parse_message(
     message_data: Dict[str, Any], nodes: Dict[str, Node], enum_types: Dict[str, Enum]
 ) -> Message:
-    return Message(
-        name=message_data["name"],
-        id=message_data["id"],
-        is_extended_id=message_data["is_extended_id"],
-        length=message_data["length"],
-        sender=nodes[message_data["sender"]],
-        signals=[_parse_signal(s, enum_types) for s in message_data["signals"]],
-        receivers=[nodes[receiver] for receiver in message_data["receivers"]],
-        frequency=message_data["frequency"],
-        description=message_data.get("description"),
-    )
+    # Parse and create a Message object with its signals and node references.
+
+    signal_data_list = message_data.get("signals", [])
+    message_data_copy = {k: v for k, v in message_data.items() if k != "signals"}
+
+    message = Message(message_data_copy, context={"nodes": nodes.keys()})
+
+    message.signals = [_parse_signal(s, enum_types) for s in signal_data_list]
+    message.sender = nodes[message_data["sender"]]
+    message.receivers = [nodes[receiver] for receiver in message_data["receivers"]]
+
+    return message
 
 
 def parse_bus(data: Dict[str, Any]) -> Bus:
-    validated_nodes = [NodeConfig.validate(node) for node in data["nodes"]]
-    nodes = {
-        node["name"]: Node(name=node["name"], description=node.get("description"))
-        for node in validated_nodes
-    }
+    # Nodes, enum types and bus data are parsed separately as they are passed as down for validation with messages/ signals
+    nodes = {node_data["name"]: Node(node_data) for node_data in data.get("nodes", [])}
 
-    validated_enum_types = EnumTypesConfig.validate(data)
     enum_types = {
-        enum_name: Enum(enum_name, validated_enum_types[enum_name])
-        for enum_name in validated_enum_types
+        enum_name: Enum(enum_name, enum_values)
+        for enum_name, enum_values in data.get("enum_types", {}).items()
     }
 
-    validated_bus = BusConfig.validate(
-        data, context={"nodes": nodes, "enum_types": enum_types}
-    )
-    return Bus(
-        name=validated_bus["name"],
-        baud_rate=validated_bus["baud_rate"],
-        nodes=list(nodes.values()),
-        messages=[
-            _parse_message(message, nodes, enum_types)
-            for message in validated_bus["messages"]
-        ],
-        enum_types=enum_types,
-        description=validated_bus.get("description"),
-    )
+    bus_data = {
+        k: v for k, v in data.items() if k not in ["nodes", "enum_types", "messages"]
+    }
+
+    bus = Bus(bus_data)
+
+    # Parse messages with node and enum references
+    bus.messages = [
+        _parse_message(msg, nodes, enum_types) for msg in data.get("messages", [])
+    ]
+
+    bus.nodes = list(nodes.values())
+    bus.enum_types = enum_types
+
+    return bus
 
 
 def parse_file(file_path: str) -> Bus:
@@ -140,12 +109,13 @@ if __name__ == "__main__":
     print(f"\nEnum Types: ({len(bus.enum_types)})")
     for enum_name, enum_type in bus.enum_types.items():
         print(f"  {enum_name} ({len(enum_type.__members__)}):")
-        for name, member in enum_type.__members__.items():
+        for member in enum_type.__members__.values():
             print(f"    {member}: {member.value}")
     print(f"\nMessages ({len(bus.messages)}):")
     for msg in bus.messages:
         print(f"  - {msg.name} (ID: {msg.id}, Length: {msg.length})")
-        print(f"    Sender: {msg.sender}")
+        print(f"    Sender: {msg.sender.name}")
+        print(f"    Receivers: {[receiver.name for receiver in msg.receivers]}")
         print(f"    Signals:")
         for sig in msg.signals:
             print(f"      - {sig.name} ({sig.length} bits)")
