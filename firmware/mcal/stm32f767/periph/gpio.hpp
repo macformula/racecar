@@ -1,6 +1,9 @@
 /// @author Blake Freer
 /// @date 2023-11-08
 
+#include "stm32f7xx_hal.h"
+#ifdef HAL_GPIO_MODULE_ENABLED
+
 #pragma once
 
 #include <cstdint>
@@ -45,3 +48,6 @@ public:
 };
 
 }  // namespace mcal::stm32f767::periph
+
+
+#endif  // HAL_GPIO_MODULE_ENABLED

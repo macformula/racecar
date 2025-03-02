@@ -1,6 +1,9 @@
 /// @author Tamara Xu
 /// @date 2024-10-13
 
+#include "stm32f7xx_hal.h"
+#ifdef HAL_ANALOG_OUTPUT_MODULE_ENABLED
+
 #pragma once
 
 #include <cstdint>
@@ -30,3 +33,5 @@ private:
 };
 
 }  // namespace mcal::stm32f767::periph
+
+#endif  // HAL_ANALOG_OUTPUT_MODULE_ENABLED

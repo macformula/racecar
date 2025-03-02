@@ -1,6 +1,9 @@
 /// @author Blake Freer
 /// @date 2023-11-09
 
+#include "stm32f7xx_hal.h"
+#ifdef HAL_ADC_MODULE_ENABLED
+
 #pragma once
 
 #include <cstdint>
@@ -46,3 +49,5 @@ public:
 };
 
 }  // namespace mcal::stm32f767::periph
+
+#endif  // HAL_ADC_MODULE_ENABLED
