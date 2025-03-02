@@ -17,8 +17,6 @@ from database import (
 
 def _parse_signal(signal_data: Dict[str, Any], enum_types: Dict[str, Enum]) -> Signal:
     signal_type = signal_data.get("signal_type")
-    if not signal_type:
-        raise ValueError("Signal type is required")
 
     # Create appropriate signal class based on signal type
     signal_classes = {
@@ -40,7 +38,6 @@ def _parse_message(
     message_data: Dict[str, Any], nodes: Dict[str, Node], enum_types: Dict[str, Enum]
 ) -> Message:
     # Parse and create a Message object with its signals and node references.
-
     signal_data_list = message_data.get("signals", [])
     message_data_copy = {k: v for k, v in message_data.items() if k != "signals"}
 
