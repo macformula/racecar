@@ -25,11 +25,9 @@ public:
             (voltage / 3.3f) * 4095, 0, 4095);
 
         HAL_DAC_SetValue(hdac_, channel_, DAC_ALIGN_12B_R, dacValue);
-        // HAL_DAC_SetValue(hdac_, channel_, DAC_ALIGN_12B_R, 2048);
     }
 
 private:
-    // TIM_HandleTypeDef* htim_;
     DAC_HandleTypeDef* hdac_;
     uint32_t channel_;
 };
