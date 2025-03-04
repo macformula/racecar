@@ -20,6 +20,4 @@ target_sources(main PRIVATE main.cc)
 
 add_subdirectory(src)
 
-target_link_directories(lvgl PRIVATE Drivers)
 target_include_directories(main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Drivers)

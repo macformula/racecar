@@ -73,6 +73,8 @@ int main(void) {
     driver_select.create_menu();
     dashboardStates previous_state = STATE_DRIVER;
 
+    bindings::DelayMS(5000);
+
     while (1) {
         veh_can.Send(TxDashStatus{.status = 1});
 
