@@ -184,6 +184,8 @@ int main(void) {
 
     bindings::dashboard_power_en.SetHigh();
 
+    while (!veh_can_bus.GetRxDashStatus().has_value());
+
     bool state = true;
 
     while (true) {
