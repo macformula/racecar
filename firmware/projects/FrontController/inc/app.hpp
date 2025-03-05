@@ -10,21 +10,21 @@ class AnalogInput {
     static constexpr size_t kMovingAverageLength = 20;
 
 public:
-    AnalogInput(shared::periph::AnalogInput& adc,
-                shared::util::Mapper<float>* adc_to_position)
-        : adc_(adc), adc_to_position_(adc_to_position) {}
+    AnalogInput(shared::periph::AnalogInput& sensor,
+                shared::util::Mapper<float>* volt_to_position)
+        : sensor_(sensor), volt_to_position_(volt_to_position) {}
 
     float Update() {
-        moving_average_.LoadValue(adc_.ReadVoltage());
+        moving_average_.LoadValue(sensor_.ReadVoltage());
         return GetPosition();
     }
 
     inline float GetPosition() {
-        return adc_to_position_->Evaluate(moving_average_.GetValue());
+        return volt_to_position_->Evaluate(moving_average_.GetValue());
     }
 
 private:
-    shared::periph::AnalogInput& adc_;
+    shared::periph::AnalogInput& sensor_;
     shared::util::MovingAverage<kMovingAverageLength> moving_average_;
-    const shared::util::Mapper<float>* adc_to_position_;
+    const shared::util::Mapper<float>* volt_to_position_;
 };
