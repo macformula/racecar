@@ -35,7 +35,7 @@ public:
 
 private:
     etl::circular_buffer<T, length> buffer_;
-    float sum_;
+    T sum_;
 };
 
 }  // namespace shared::util
