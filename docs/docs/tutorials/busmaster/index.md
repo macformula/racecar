@@ -78,7 +78,7 @@ Under "Message Window" enable "Interpret."
 
 ![Interpret Window](img/enable-interpret.png)
 
-Now look at the Message Window. Each message should have a name (ex. `VC_Status`) and you can expand the signals by clicking the ++plus++.
+Now look at the Message Window. Each message should have a name (ex. `FC_Status`) and you can expand the signals by clicking the ++plus++.
 
 ![Interpreted Messages](img/interpreted.png)
 
