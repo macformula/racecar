@@ -42,7 +42,7 @@ Under "Channel Configuration," configure a Kvaser channel by selecting it on the
 
 ??? warning "Kvaser channel numbering"
 
-    The Kvaser has 2 D-Sub connectors to support 2 CAN channels / busses. The cables are labelled Ch.1 and Ch.2, but they appear in Busmaster configuration as Channel 0 and Channel 1, repsectively.
+    The Kvaser has 2 D-Sub connectors to support 2 CAN channels / busses. The cables are labelled Ch.1 and Ch.2, but they appear in Busmaster configuration as Channel 0 and Channel 1, respectively.
 
     ![Kvaser channel numbering](img/kvaser-ports.jpg)
 
