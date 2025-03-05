@@ -17,8 +17,6 @@ TEST(SharedUtil, Arrays) {
 
     float avg = GetAverage<float, 6>(data);
     EXPECT_FLOAT_EQ(avg, 2);
-
-    ASSERT_EQ(1, 1);
 }
 
 TEST(SharedUtil, ArraysDuplicate) {
