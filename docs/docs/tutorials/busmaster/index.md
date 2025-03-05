@@ -6,7 +6,7 @@
 
     > Install from <https://rbei-etas.github.io/busmaster/>
 
-- The Kvaser USB CAN adaptor (which should be kept in the bay).
+- The Kvaser USB CAN adapter (which should be kept in the bay).
 
     ![kvaser](img/kvaser.jpg)
 
