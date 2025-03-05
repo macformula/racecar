@@ -1,4 +1,4 @@
-# :material-serial-port: Monitor CAN Line with Busmaster
+# :material-serial-port: Monitor CAN Bus with Busmaster
 
 ## You will need
 
@@ -111,3 +111,39 @@ Now look at the Message Window. Each message should have a name (ex. `VC_Status`
     - The `Elapsed` field is is bits 8-39 of the `LvControllerStatus` message. The "Data Bytes" are `0x00001F95` which is hex for 8085, matching the interpreted value.
 
 ## Send CAN Messages
+
+Open the "Transmit Window."
+
+![Open Transmit Window](img/open-transmit-window.png)
+
+Select "Add Message" and choose a message from the database to send.
+
+!!! warning
+
+    If you are using multiple CAN channels, you must configure the "Channel" column to send the message on the right one.
+
+Edit the "Signal Details" to change the signal values.
+
+Click "Send Message" to send it once, or enable "Repetition" to periodically send the message.
+
+![Send Message](img/send-message.png)
+
+## Troubleshooting
+
+??? failure "Can't transmit over Channel 2"
+
+    There is a bug in the Transmit Window. If you change the transmit Channel to 2, you will lose the message's database information like its name and signals.
+
+    **You can still send a message over channel 2** but must manually set the bits in the "Data Byte View."
+
+    If you only need to transmit over one channel, connect the Ch.1 D-Sub to that bus to avoid this error.
+
+    ---
+
+    __Channel 1: Message has name and signal breakdown__
+
+    ![Channel2-Before](img/trouble-ch2-before.png)
+
+    __Channel 2: Message doesn't have name or signals__
+
+    ![Channel2-Before](img/trouble-ch2-after.png)
