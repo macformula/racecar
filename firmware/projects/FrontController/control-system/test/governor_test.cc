@@ -97,7 +97,7 @@ void test_gov_normal_sequence() {
     {  // 2s have elapsed -> enter startup
         auto out = g.Update(in, time);
         assert(out.gov_sts == GovSts::STARTUP_HV);
-        assert(out.bm_cmd == BmCmd::HV_STARTUP);
+        assert(out.bm_cmd == BmCmd::STARTUP);
 
         assert(g.Update(in, ++time).gov_sts == GovSts::STARTUP_HV);
     }
