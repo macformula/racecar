@@ -74,7 +74,7 @@ Under "Message Window" enable "Interpret."
 
 !!! note
 
-    "Interpet" is disabled until a database is associated.
+    "Interpret" is disabled until a database is associated.
 
 ![Interpret Window](img/enable-interpret.png)
 
