@@ -5,6 +5,7 @@
 
 #include <type_traits>
 
+#include "lut_checker.hpp"
 #include "mapper.hpp"
 
 namespace shared::util {
@@ -21,7 +22,11 @@ class LookupTable : public Mapper<T> {
 public:
     /// @warning The table's first columns (keys) must be sorted in increasing
     /// order.
-    LookupTable(T const (*table)[2]) : table_(table) {}
+    constexpr LookupTable(const T (&table)[row_count_][2])
+        : table_(table), lut_(construct_lut<row_count_ - 1, T>(table)) {
+        static_assert(is_sorted(construct_lut<row_count_ - 1, T>(table)),
+                      "Lookup table keys must be sorted.");
+    }
 
     inline T Evaluate(T key) const override {
         int least_greater_idx = 0;
@@ -49,7 +54,8 @@ public:
     }
 
 private:
-    const T (*table_)[2];
+    const T (&table_)[row_count_][2];
+    LUT_Entry<row_count_ - 1, T> lut_;
 };
 
 }  // namespace shared::util
