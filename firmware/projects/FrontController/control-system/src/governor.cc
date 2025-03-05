@@ -28,7 +28,7 @@ Governor::Output Governor::Update(const Governor::Input input,
             break;
 
         case STARTUP_HV:
-            output_.bm_cmd = BmCmd::HV_STARTUP;
+            output_.bm_cmd = BmCmd::STARTUP;
             break;
 
         case STARTUP_READY_TO_DRIVE:
