@@ -46,7 +46,7 @@ Under "Channel Configuration," configure a Kvaser channel by selecting it on the
 
     ![Kvaser channel numbering](img/kvaser-ports.jpg)
 
-    However, once you start reading CAN messages, they are correctly numbers 1 and 2 again (see next image).
+    However, once you start reading CAN messages, they are correctly numbered 1 and 2 again (see next image).
 
 Click "Connect" in the top-left to start viewing CAN messages!
 
