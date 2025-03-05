@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstddef>
-#include <cstdint>
 
 #include "shared/periph/analog_input.hpp"
 #include "shared/util/mappers/mapper.hpp"
@@ -11,25 +10,21 @@ class AnalogInput {
     static constexpr size_t kMovingAverageLength = 20;
 
 public:
-    AnalogInput(shared::periph::AnalogInput& adc,
-                shared::util::Mapper<float, uint16_t>* adc_to_position)
-        : adc_(adc), adc_to_position_(adc_to_position) {}
+    AnalogInput(shared::periph::AnalogInput& sensor,
+                shared::util::Mapper<float>* volt_to_position)
+        : sensor_(sensor), volt_to_position_(volt_to_position) {}
 
     float Update() {
-        uint32_t position = adc_.ReadVoltage();
-        moving_average_.LoadValue(uint16_t(position));
+        moving_average_.LoadValue(sensor_.ReadVoltage());
         return GetPosition();
     }
 
-    /**
-     * @brief Get the position from the last `Update()` call.
-     */
     inline float GetPosition() {
-        return adc_to_position_->Evaluate(moving_average_.GetValue());
+        return volt_to_position_->Evaluate(moving_average_.GetValue());
     }
 
 private:
-    shared::periph::AnalogInput& adc_;
-    shared::util::MovingAverage<uint16_t, kMovingAverageLength> moving_average_;
-    const shared::util::Mapper<float, uint16_t>* adc_to_position_;
+    shared::periph::AnalogInput& sensor_;
+    shared::util::MovingAverage<kMovingAverageLength> moving_average_;
+    const shared::util::Mapper<float>* volt_to_position_;
 };
