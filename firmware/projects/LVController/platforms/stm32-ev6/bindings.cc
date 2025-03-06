@@ -11,6 +11,7 @@
 #include "main.h"
 #include "mcal/stm32f767/periph/analog_input.hpp"
 #include "mcal/stm32f767/periph/can.hpp"
+#include "projects/FrontController/platforms/stm32-ev6/cubemx/Inc/main.h"
 #include "shared/periph/can.hpp"
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx_hal_tim.h"
@@ -140,6 +141,11 @@ void DelayMS(uint32_t milliseconds) {
 int GetTick() {
     static uint32_t first_tick = HAL_GetTick();
     return HAL_GetTick() - first_tick;
+}
+
+void SoftwareReset() {
+    NVIC_SystemReset();
+    Error_Handler();
 }
 
 }  // namespace bindings
