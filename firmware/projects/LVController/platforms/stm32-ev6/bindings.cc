@@ -142,17 +142,9 @@ int GetTick() {
     return HAL_GetTick() - first_tick;
 }
 
-<<<<<<< HEAD
 void SoftwareReset() {
     NVIC_SystemReset();
-    /*
-        Set boot pin High
-        Run reset
-        CAN Flash
-    */
     Error_Handler();
 }
 
-=======
->>>>>>> parent of e03fa0c (stm and cli)
 }  // namespace bindings
