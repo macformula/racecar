@@ -1,5 +1,4 @@
 #include "../../bindings.hpp"
-
 #include "adc.h"
 #include "can.h"
 #include "gpio.h"
@@ -109,6 +108,11 @@ int GetTickMs() {
 
 void DelayMs(int ms) {
     HAL_Delay(ms);
+}
+
+void SoftwareReset() {
+    NVIC_SystemReset();
+    Error_Handler();
 }
 
 }  // namespace bindings

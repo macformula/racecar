@@ -10,7 +10,6 @@
 #include "bindings.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
-#include "projects/LVController/bindings.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/util/mappers/identity.hpp"
 
@@ -316,6 +315,36 @@ void UpdateBrakeLight() {
 }
 
 int main(void) {
-    bindings::SoftwareReset();
+    bindings::Initialize();
+
+    StateMachine fsm(bindings::GetTick());
+
+    const int kUpdatePeriodMs = 20;
+    while (true) {
+        int time_ms = bindings::GetTick();
+        fsm.Update(time_ms);
+
+        // {  // temporarily commented -> may be causing problems on EV5 TSAL
+        //     tssi.Update(bindings::bms_fault.Read(),
+        //     bindings::imd_fault.Read(),
+        //                 time_ms);
+        // }
+
+        bindings::tssi_en.Set(time_ms & (1 << 11));
+
+        UpdateBrakeLight();
+
+        TxSuspensionTravel34 suspension_msg{
+            // todo: update the mapping
+            .stp3 = static_cast<uint8_t>(
+                bindings::suspension_travel3.ReadVoltage()),
+            .stp4 = static_cast<uint8_t>(
+                bindings::suspension_travel4.ReadVoltage()),
+        };
+        veh_can.Send(suspension_msg);
+
+        bindings::DelayMS(kUpdatePeriodMs);
+    }
+
     return 0;
 }
