@@ -1,4 +1,5 @@
 #include "../../bindings.hpp"
+
 #include "gpio.h"
 #include "main.h"
 #include "mcal/stm32f767/periph/gpio.hpp"

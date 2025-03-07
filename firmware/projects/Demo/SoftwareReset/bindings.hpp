@@ -4,7 +4,6 @@
 
 #include "shared/periph/gpio.hpp"
 
-
 namespace bindings {
 
 extern shared::periph::DigitalOutput& red_led;
