@@ -111,4 +111,9 @@ void DelayMs(int ms) {
     HAL_Delay(ms);
 }
 
+void SoftwareReset() {
+    NVIC_SystemReset();
+    Error_Handler();
+}
+
 }  // namespace bindings

@@ -142,4 +142,9 @@ int GetTick() {
     return HAL_GetTick() - first_tick;
 }
 
+void SoftwareReset() {
+    NVIC_SystemReset();
+    Error_Handler();
+}
+
 }  // namespace bindings

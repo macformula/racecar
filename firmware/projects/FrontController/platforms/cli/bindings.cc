@@ -97,4 +97,11 @@ void DelayMs(int milliseconds) {
     std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 
+void SoftwareReset() {
+    std::cout << "Simulating software reset" << std::endl;
+    while (true) {
+        continue;
+    }
+}
+
 }  // namespace bindings

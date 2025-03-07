@@ -41,6 +41,9 @@ extern shared::periph::DigitalOutput& debug_led;
 extern void Initialize();
 
 extern int GetTickMs();
+
 extern void DelayMs(int ms);
+
+extern void SoftwareReset();
 
 }  // namespace bindings
