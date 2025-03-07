@@ -121,7 +121,7 @@ void DelayMS(uint32_t milliseconds) {
 }
 
 void SoftwareReset() {
-    std::cout << "entering software test" << std::endl;
+    std::cout << "Simulating software reset" << std::endl;
     while (true) {
         continue;
     }
