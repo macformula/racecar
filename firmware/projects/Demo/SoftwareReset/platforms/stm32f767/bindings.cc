@@ -42,11 +42,6 @@ void DelayMS(uint32_t ms) {
 
 void SoftwareReset() {
     NVIC_SystemReset();
-    /*
-        Set boot pin High
-        Run reset
-        CAN Flash
-    */
     Error_Handler();
 }
 
