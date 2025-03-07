@@ -55,6 +55,4 @@ extern void DelayMS(uint32_t ms);
 
 extern int GetTick();
 
-extern void SoftwareReset();
-
 }  // namespace bindings

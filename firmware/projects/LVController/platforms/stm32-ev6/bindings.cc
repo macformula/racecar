@@ -11,7 +11,6 @@
 #include "main.h"
 #include "mcal/stm32f767/periph/analog_input.hpp"
 #include "mcal/stm32f767/periph/can.hpp"
-#include "projects/FrontController/platforms/stm32-ev6/cubemx/Inc/main.h"
 #include "shared/periph/can.hpp"
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx_hal_tim.h"
@@ -143,6 +142,7 @@ int GetTick() {
     return HAL_GetTick() - first_tick;
 }
 
+<<<<<<< HEAD
 void SoftwareReset() {
     NVIC_SystemReset();
     /*
@@ -153,4 +153,6 @@ void SoftwareReset() {
     Error_Handler();
 }
 
+=======
+>>>>>>> parent of e03fa0c (stm and cli)
 }  // namespace bindings

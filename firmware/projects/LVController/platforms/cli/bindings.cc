@@ -1,13 +1,14 @@
 /// @author Blake Freer
 /// @date 2023-12-25
 
+#include "../../bindings.hpp"
+
 #include <chrono>
 #include <cstdint>
 #include <iostream>
 #include <string>
 #include <thread>
 
-#include "../../bindings.hpp"
 #include "mcal/cli/periph/analog_input.hpp"
 #include "mcal/cli/periph/can.hpp"
 #include "mcal/cli/periph/gpio.hpp"
@@ -118,12 +119,4 @@ int GetTick() {
 void DelayMS(uint32_t milliseconds) {
     std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
-
-void SoftwareReset() {
-    std::cout << "entering software test" << std::endl;
-    while (true) {
-        continue;
-    }
-}
-
 }  // namespace bindings
