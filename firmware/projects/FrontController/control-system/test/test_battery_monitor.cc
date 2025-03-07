@@ -1,14 +1,9 @@
-// To run these tests, cd into this directory and run:
-// make
-// this will compile it to bm_test.exe. Run the test by executing ./bm_test.exe
-
-#include <cassert>
-#include <iostream>
-#include <vector>
-
 #include "control-system/battery_monitor.h"
 #include "control-system/enums.hpp"
+#include "gtest/gtest.h"
 
+// this is not a test itself, rather it produces a BatteryMonitor object in a
+// specific state to make it easier to run other tests
 BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
     using enum ContactorState;
 
@@ -200,7 +195,7 @@ std::string BmStatusToString(BmSts status) {
     }
 }
 
-void test_low_soc_transitions() {
+TEST(BatteryMonitor, LowSocTransitions) {
     using enum ContactorState;
     std::vector<BmSts> states = {
         BmSts::STARTUP_CLOSE_NEG, BmSts::STARTUP_CLOSE_PRECHARGE,
@@ -210,8 +205,6 @@ void test_low_soc_transitions() {
     for (BmSts state : states) {
         BatteryMonitor bm = CycleToState(state, time_ms);
 
-        std::cout << "Testing transition from " << BmStatusToString(state)
-                  << " to LOW_SOC\n";
         time_ms += 10;
         auto output = bm.Update(
             {
@@ -220,21 +213,19 @@ void test_low_soc_transitions() {
             },
             time_ms);
 
-        assert(output.status == BmSts::LOW_SOC);
-
-        std::cout << "Transition from " << BmStatusToString(state)
-                  << " to LOW_SOC passed!\n";
+        ASSERT_EQ(output.status, BmSts::LOW_SOC)
+            << "Failed transition from" << BmStatusToString(state)
+            << " to LOW_SOC.";
     }
 }
 
-void test_state_transitions() {
+TEST(BatteryMonitor, StateTransitions) {
     using enum ContactorState;
     using enum BmSts;
 
     BatteryMonitor bm{};
     int time_ms = 0;
 
-    std::cout << "Running Test 1: Initialized state\n";
     auto output1 = bm.Update(
         {
             .cmd = BmCmd::INIT,
@@ -244,10 +235,9 @@ void test_state_transitions() {
             .pack_soc = 50.0,
         },
         time_ms);
-    assert(output1.status == INIT);
+    ASSERT_EQ(output1.status, INIT) << "Should start in Initialized state";
 
     time_ms += 10;
-    std::cout << "Running Test 2: INIT to CLOSE_NEG\n";
     auto output2 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
@@ -257,10 +247,9 @@ void test_state_transitions() {
             .pack_soc = 50.0,
         },
         time_ms);
-    assert(output2.status == STARTUP_CLOSE_NEG);
+    ASSERT_EQ(output2.status, STARTUP_CLOSE_NEG) << "Failed INIT to CLOSE_NEG";
 
     time_ms += 10;
-    std::cout << "Running Test 3: CLOSE_NEG to HOLD_CLOSE_NEG\n";
     auto output3 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
@@ -270,10 +259,10 @@ void test_state_transitions() {
             .pack_soc = 50.0,
         },
         time_ms);
-    assert(output3.status == STARTUP_HOLD_CLOSE_NEG);
+    ASSERT_EQ(output3.status, STARTUP_HOLD_CLOSE_NEG)
+        << "Failed CLOSE_NEG to HOLD_CLOSE_NEG";
 
     time_ms += 100;
-    std::cout << "Running Test 4: HOLD_CLOSE_NEG to CLOSE_PRECHARGE\n";
     auto output4 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
@@ -283,10 +272,10 @@ void test_state_transitions() {
             .pack_soc = 50.0,
         },
         time_ms);
-    assert(output4.status == STARTUP_CLOSE_PRECHARGE);
+    ASSERT_EQ(output4.status, STARTUP_CLOSE_PRECHARGE)
+        << "Failed HOLD_CLOSE_NEG to CLOSE_PRECHARGE";
 
     time_ms += 10;
-    std::cout << "Running Test 5: CLOSE_PRECHARGE to HOLD_CLOSE_PRECHARGE\n";
     auto output5 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
@@ -296,10 +285,10 @@ void test_state_transitions() {
             .pack_soc = 50.0,
         },
         time_ms);
-    assert(output5.status == STARTUP_HOLD_CLOSE_PRECHARGE);
+    ASSERT_EQ(output5.status, STARTUP_HOLD_CLOSE_PRECHARGE)
+        << "Failed CLOSE_PRECHARGE to HOLD_CLOSE_PRECHARGE";
 
     time_ms += 6500;
-    std::cout << "Running Test 6: HOLD_CLOSE_PRECHARGE to CLOSE_POS\n";
     auto output6 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
@@ -309,10 +298,10 @@ void test_state_transitions() {
             .pack_soc = 50.0,
         },
         time_ms);
-    assert(output6.status == STARTUP_CLOSE_POS);
+    ASSERT_EQ(output6.status, STARTUP_CLOSE_POS)
+        << "Failed HOLD_CLOSE_PRECHARGE to CLOSE_POS";
 
     time_ms += 10;
-    std::cout << "Running Test 7: CLOSE_POS to HOLD_CLOSE_POS\n";
     auto output7 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
@@ -322,10 +311,10 @@ void test_state_transitions() {
             .pack_soc = 50.0,
         },
         time_ms);
-    assert(output7.status == STARTUP_HOLD_CLOSE_POS);
+    ASSERT_EQ(output7.status, STARTUP_HOLD_CLOSE_POS)
+        << "Failed CLOSE_POS to HOLD_CLOSE_POS";
 
     time_ms += 100;
-    std::cout << "Running Test 8: HOLD_CLOSE_POS to OPEN_PRECHARGE\n";
     auto output8 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
@@ -335,10 +324,10 @@ void test_state_transitions() {
             .pack_soc = 50.0,
         },
         time_ms);
-    assert(output8.status == STARTUP_OPEN_PRECHARGE);
+    ASSERT_EQ(output8.status, STARTUP_OPEN_PRECHARGE)
+        << "Failed HOLD_CLOSE_POS to OPEN_PRECHARGE";
 
     time_ms += 10;
-    std::cout << "Running Test 9: OPEN_PRECHARGE to RUNNING\n";
     auto output9 = bm.Update(
         {
             .cmd = BmCmd::RUNNING,
@@ -348,22 +337,5 @@ void test_state_transitions() {
             .pack_soc = 50.0,
         },
         time_ms);
-    assert(output9.status == RUNNING);
-
-    std::cout << "Test sequence passed!" << std::endl;
-}
-
-void BmTest() {
-    std::cout << std::endl;
-    std::cout << "Running Battery Monitor tests..." << std::endl;
-    std::cout << std::endl;
-    std::cout << "TEST CASES FOR LOW_SOC TRANSITIONS" << std::endl;
-    test_low_soc_transitions();
-    std::cout << std::endl << std::endl;
-
-    std::cout << "TEST CASES FOR STATE TRANSITIONS" << std::endl;
-    test_state_transitions();
-    std::cout << std::endl << std::endl;
-
-    std::cout << "All BM tests passed!" << std::endl;
+    ASSERT_EQ(output9.status, RUNNING) << "Failed OPEN_PRECHARGE to RUNNING";
 }
