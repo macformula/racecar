@@ -28,21 +28,21 @@ generated::can::PtBus pt_can_bus{bindings::pt_can_base};
 using shared::util::LinearMap;
 
 // See fc_docs/pedal_function and
-auto accel_pedal_map = LinearMap<float, uint16_t>{0.5, -0.25};
+auto accel_pedal_map = LinearMap<float>{0.5, -0.25};
 AnalogInput accel_pedal_1{bindings::accel_pedal_sensor1, &accel_pedal_map};
 AnalogInput accel_pedal_2{bindings::accel_pedal_sensor2, &accel_pedal_map};
 
 const float kPressureRange = 2000;
 
 // See datasheets/race_grade/RG_SPEC-0030_M_APT_G2_DTM.pdf
-auto brake_pedal_front_map = LinearMap<float, uint16_t>{
-    0.378788f * kPressureRange, -0.125f * kPressureRange};
+auto brake_pedal_front_map =
+    LinearMap<float>{0.378788f * kPressureRange, -0.125f * kPressureRange};
 AnalogInput brake_pedal_front{bindings::brake_pressure_sensor,
                               &brake_pedal_front_map};
 
 // Full Left (0V) -> -1. Full right (3.3V) -> +1 --> convert
 // testing: Full Left -> 0, Full Right -> +1
-auto steering_wheel_map = LinearMap<float, uint16_t>{1.0 / 3.3, 0};
+auto steering_wheel_map = LinearMap<float>{1.0 / 3.3, 0};
 AnalogInput steering_wheel{bindings::steering_angle_sensor,
                            &steering_wheel_map};
 
@@ -50,7 +50,7 @@ AnalogInput steering_wheel{bindings::steering_angle_sensor,
     Control System
 ***************************************************************/
 
-auto pedal_to_torque = LinearMap<float, float>{1, 0};
+auto pedal_to_torque = LinearMap<float>{1.f, 0.f};
 
 using MotorIface = MotorInterface<RxAMK0_ActualValues1, RxAMK1_ActualValues1,
                                   TxAMK0_SetPoints1, TxAMK0_SetPoints1>;
