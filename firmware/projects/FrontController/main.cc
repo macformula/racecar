@@ -122,9 +122,9 @@ void UpdateControls() {
     gov_in.bm_sts = bm_out.status;
 
     veh_can_bus.Send(TxContactorCommand{
-        .pack_positive = static_cast<bool>(bm_out.contactor.hv_positive),
+        .pack_positive = static_cast<bool>(bm_out.contactor.positive),
         .pack_precharge = static_cast<bool>(bm_out.contactor.precharge),
-        .pack_negative = static_cast<bool>(bm_out.contactor.hv_negative),
+        .pack_negative = static_cast<bool>(bm_out.contactor.negative),
     });
 
     // Vehicle Dynamics update
