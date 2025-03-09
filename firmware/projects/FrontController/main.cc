@@ -112,9 +112,9 @@ void UpdateControls() {
         .cmd = gov_out.bm_cmd,
         .precharge_contactor_states = static_cast<ContactorState>(
             !contactor_states->Pack_Precharge_Feedback()),
-        .hv_pos_contactor_states = static_cast<ContactorState>(
+        .pos_contactor_states = static_cast<ContactorState>(
             !contactor_states->Pack_Positive_Feedback()),
-        .hv_neg_contactor_states = static_cast<ContactorState>(
+        .neg_contactor_states = static_cast<ContactorState>(
             !contactor_states->Pack_Negative_Feedback()),
         .pack_soc = 550  // temporary, should it come from sensor?
     };

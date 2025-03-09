@@ -175,6 +175,9 @@ ContactorCMD BatteryMonitor::SelectContactorCmd(BmSts status) {
                 .positive = CLOSED,
                 .negative = CLOSED,
             };
+        case BmSts::LOW_SOC:
+        case BmSts::ERR_RUNNING:
+            break;
     }
 
     return {};  // switch case shouold return. return needed to satisfy warning
