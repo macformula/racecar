@@ -6,7 +6,7 @@ from nicegui.events import UploadEventArguments
 # Constants
 
 ECU_PLACEHOLDER = 'Select an ECU'
-ECUS = ['FrontController', 'LVController']
+ECUS = ['FrontController', 'LVController', 'TMS']
 
 # Clear uploads folder on startup
 
