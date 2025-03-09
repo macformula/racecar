@@ -31,6 +31,8 @@ def main_page():
         upload_box.reset()
         flash_button.disable()
 
+        ui.timer(0.1, lambda: ecu_select.set_value(ECU_PLACEHOLDER), once=True) # Timer since upload doesn't reset in time
+
     ui.markdown("""
             
     Welcome to CAN Flash!
@@ -45,8 +47,6 @@ def main_page():
                 
     3. Click the "Flash" button      
     """)
-
-    ui.timer(0.1, lambda: ecu_select.set_value(ECU_PLACEHOLDER), once=True) # Timer since upload doesn't reset in time
 
     file_path = ui.label(None)
     file_path.set_visibility(False)
