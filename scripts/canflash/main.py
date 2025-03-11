@@ -1,65 +1,67 @@
-import os
-import shutil
 from nicegui import ui
 from nicegui.events import UploadEventArguments
+from flash_logic import ECUS, save_uploaded_file, flash_file
+import os
 
-# Constants
 
-ECU_PLACEHOLDER = 'Select an ECU'
-ECUS = ['FrontController', 'LVController', 'TMS']
+class CanFlashApp:
+    def __init__(self):
+        self.starting_ecu = "Select ECU"
+        self.selected_ecu = self.starting_ecu
+        self.uploaded_file_path = None
+        self.build_ui()
 
-# Clear uploads folder on startup
+    def handle_upload(self, file: UploadEventArguments):
+        self.uploaded_file_path = save_uploaded_file(self.selected_ecu, file.name, file.content.read())
+        self.flash_button.enable()
 
-shutil.rmtree("uploads", ignore_errors=True)
+    def handle_flash(self):
+        try:
+            flash_file(self.selected_ecu, self.uploaded_file_path)
+            uploaded_file_name = os.path.split(self.uploaded_file_path)[-1]
+            ui.notify(
+                f"Successfully flashed {uploaded_file_name} to {self.selected_ecu}",
+                position="center",
+            )
 
-@ui.page('/')
+            # Reset upload box and disable flash button
+            self.upload_box.reset()
+            self.flash_button.disable()
+
+            # Reset ECU selection after a short delay (or else select box won't reset)
+            ui.timer(0.1, lambda: self.ecu_select.set_value(self.starting_ecu), once=True)
+
+        except ValueError as e:
+            ui.notify(str(e), type="negative")
+
+    def build_ui(self):
+        ui.colors(primary="#AA1F26")
+        ui.markdown("Welcome to CAN Flash! Select an ECU and upload a file to flash. See [docs](https://macformula.github.io/racecar/) for more information.")
+
+        # ECU Selection
+        self.ecu_select = ui.select([self.starting_ecu] + ECUS)
+        self.ecu_select.bind_value(self, "selected_ecu")
+
+        # File Upload
+        self.upload_box = ui.upload(
+            label="Select File",
+            on_upload=self.handle_upload,
+            auto_upload=True,
+        ).props("accept=.bin")
+        self.upload_box.bind_enabled_from(
+            self.ecu_select, "value", lambda v: v != self.starting_ecu
+        )
+
+        # Flash Button
+        self.flash_button = ui.button("Flash", on_click=self.handle_flash)
+        self.flash_button.disable()
+
+
+@ui.page("/")
 def main_page():
+    """Each client gets its own instance of CanFlashApp."""
+    CanFlashApp()
 
-    ui.colors(primary="#AA1F26")
-
-    def process_upload(file: UploadEventArguments):
-        file_path.set_text(file.name)
-        os.makedirs("uploads", exist_ok=True)
-        with open(os.path.join("uploads", file.name), 'wb') as f:
-            f.write(file.content.read())
-
-        flash_button.enable()
-
-    def flash_file():
-        ui.notify(f"Flashed {file_path.text} to {ecu_select.value}", position="center")
-
-        upload_box.reset()
-        flash_button.disable()
-
-        ui.timer(0.1, lambda: ecu_select.set_value(ECU_PLACEHOLDER), once=True) # Timer since upload doesn't reset in time
-
-    ui.markdown("""
-            
-    Welcome to CAN Flash!
-                
-    CAN Flash is a simple tool to flash binary files to different ECUs in the racecar. See [docs](https://macformula.github.io/racecar/) for more information.
-                
-    Use the following steps to flash a binary file:
-                
-    1. Select the ECU
-                
-    2. Select the binary file (it will be automatically uploaded)
-                
-    3. Click the "Flash" button      
-    """)
-
-    file_path = ui.label(None)
-    file_path.set_visibility(False)
-
-    ecu_select = ui.select([ECU_PLACEHOLDER] + ECUS, value=ECU_PLACEHOLDER)
-
-    upload_box = ui.upload(label="Select File (*.bin)", on_upload=lambda file: process_upload(file), auto_upload=True).props("accept=.bin")
-    upload_box.bind_enabled_from(ecu_select, 'value', lambda v: v != ECU_PLACEHOLDER)
-
-    flash_button = ui.button("Flash", on_click=flash_file)
-    flash_button.disable()
-
-ui.label().bind_text(globals(), 'file_name')
 
 if __name__ in {"__main__", "__mp_main__"}:
     ui.run(
@@ -67,13 +69,5 @@ if __name__ in {"__main__", "__mp_main__"}:
         favicon="favicon.ico",
         show=False,
         dark=None,
-        port=8000
+        port=8000,
     )
-
-# TODO:
-# Implement CAN teardown/setup and flashing
-# Security provided by local wifi connection to Raspberry Pi hotspot (no login needed)
-# User to enter name so we can track which files were flashed and when
-# Extra confirmation if file name being flashed does not match selected ECU
-# Remove Dashboard and TMS
-# Real time data streaming (pedals, steering, CAN messages, etc.)
