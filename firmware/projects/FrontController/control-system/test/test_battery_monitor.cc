@@ -11,7 +11,7 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
     time_ms = 0;
 
     // Initialize the BatteryMonitor
-    bm.Update(
+    auto output1 = bm.Update(
         {
             .cmd = BmCmd::INIT,
             .precharge_contactor_states = OPEN,
@@ -21,6 +21,7 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
         },
         time_ms);
 
+    assert(output1.status == BmSts::INIT);
     if (desired_state == BmSts::INIT) {
         return bm;
     }
@@ -37,7 +38,7 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
 
     // Transition to CLOSE_NEG
     time_ms += 10;
-    bm.Update(
+    auto output2 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = OPEN,
@@ -47,13 +48,14 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
         },
         time_ms);
 
+    assert(output2.status == BmSts::STARTUP_CLOSE_NEG);
     if (desired_state == BmSts::STARTUP_CLOSE_NEG) {
         return bm;
     }
 
     // Transition to HOLD_STARTUP_CLOSE_NEG
     time_ms += 10;
-    bm.Update(
+    auto output3 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = OPEN,
@@ -63,13 +65,14 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
         },
         time_ms);
 
+    assert(output3.status == BmSts::STARTUP_HOLD_CLOSE_NEG);
     if (desired_state == BmSts::STARTUP_HOLD_CLOSE_NEG) {
         return bm;
     }
 
     // Transition to STARTUP_CLOSE_PRECHARGE
     time_ms += 100;
-    bm.Update(
+    auto output4 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = CLOSED,
@@ -79,13 +82,14 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
         },
         time_ms);
 
+    assert(output4.status == BmSts::STARTUP_CLOSE_PRECHARGE);
     if (desired_state == BmSts::STARTUP_CLOSE_PRECHARGE) {
         return bm;
     }
 
     // Transition to HOLD_STARTUP_CLOSE_PRECHARGE
     time_ms += 10;
-    bm.Update(
+    auto output5 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = CLOSED,
@@ -95,13 +99,14 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
         },
         time_ms);
 
+    assert(output5.status == BmSts::STARTUP_HOLD_CLOSE_PRECHARGE);
     if (desired_state == BmSts::STARTUP_HOLD_CLOSE_PRECHARGE) {
         return bm;
     }
 
     // Transition to STARTUP_CLOSE_POS
-    time_ms += 6500;
-    bm.Update(
+    time_ms += 10000;
+    auto output6 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = CLOSED,
@@ -111,13 +116,14 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
         },
         time_ms);
 
+    assert(output6.status == BmSts::STARTUP_CLOSE_POS);
     if (desired_state == BmSts::STARTUP_CLOSE_POS) {
         return bm;
     }
 
     // Transition to HOLD_STARTUP_CLOSE_POS
     time_ms += 10;
-    bm.Update(
+    auto output7 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = CLOSED,
@@ -127,13 +133,14 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
         },
         time_ms);
 
+    assert(output7.status == BmSts::STARTUP_HOLD_CLOSE_POS);
     if (desired_state == BmSts::STARTUP_HOLD_CLOSE_POS) {
         return bm;
     }
 
     // Transition to STARTUP_OPEN_PRECHARGE
     time_ms += 100;
-    bm.Update(
+    auto output8 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = OPEN,
@@ -143,15 +150,16 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
         },
         time_ms);
 
+    assert(output8.status == BmSts::STARTUP_OPEN_PRECHARGE);
     if (desired_state == BmSts::STARTUP_OPEN_PRECHARGE) {
         return bm;
     }
 
     // Transition to RUNNING
     time_ms += 10;
-    bm.Update(
+    auto output9 = bm.Update(
         {
-            .cmd = BmCmd::RUNNING,
+            .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = OPEN,
             .pos_contactor_states = CLOSED,
             .neg_contactor_states = CLOSED,
@@ -159,18 +167,20 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
         },
         time_ms);
 
+    assert(output9.status == BmSts::RUNNING);
     if (desired_state == BmSts::RUNNING) {
         return bm;
     }
 
     // Transition to LOW_SOC
-    bm.Update(
+    auto output10 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
             .pack_soc = 20.0,
         },
         time_ms);
 
+    assert(output10.status == BmSts::LOW_SOC);
     return bm;
 }
 
@@ -288,7 +298,7 @@ TEST(BatteryMonitor, StateTransitions) {
     ASSERT_EQ(output5.status, STARTUP_HOLD_CLOSE_PRECHARGE)
         << "Failed CLOSE_PRECHARGE to HOLD_CLOSE_PRECHARGE";
 
-    time_ms += 6500;
+    time_ms += 10000;
     auto output6 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
@@ -330,7 +340,7 @@ TEST(BatteryMonitor, StateTransitions) {
     time_ms += 10;
     auto output9 = bm.Update(
         {
-            .cmd = BmCmd::RUNNING,
+            .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = OPEN,
             .pos_contactor_states = CLOSED,
             .neg_contactor_states = CLOSED,

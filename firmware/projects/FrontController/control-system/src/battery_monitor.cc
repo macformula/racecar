@@ -67,7 +67,7 @@ std::optional<BmSts> BatteryMonitor::TransitionStatus(const Input& input,
             break;
 
         case STARTUP_HOLD_CLOSE_PRECHARGE:
-            if (elapsed >= 6500) {
+            if (elapsed >= 10000) {
                 return STARTUP_CLOSE_POS;
             }
             break;
@@ -87,8 +87,7 @@ std::optional<BmSts> BatteryMonitor::TransitionStatus(const Input& input,
             break;
 
         case STARTUP_OPEN_PRECHARGE:
-            if (input.cmd == BmCmd::RUNNING &&
-                    input.precharge_contactor_states == OPEN ||
+            if (input.precharge_contactor_states == OPEN ||
                 input.neg_contactor_states == CLOSED ||
                 input.pos_contactor_states == CLOSED) {
                 return RUNNING;
@@ -121,12 +120,6 @@ ContactorCMD BatteryMonitor::SelectContactorCmd(BmSts status) {
             };
 
         case STARTUP_CLOSE_NEG:
-            return ContactorCMD{
-                .precharge = OPEN,
-                .positive = OPEN,
-                .negative = CLOSED,
-            };
-
         case STARTUP_HOLD_CLOSE_NEG:
             return ContactorCMD{
                 .precharge = OPEN,
@@ -135,12 +128,6 @@ ContactorCMD BatteryMonitor::SelectContactorCmd(BmSts status) {
             };
 
         case STARTUP_CLOSE_PRECHARGE:
-            return ContactorCMD{
-                .precharge = CLOSED,
-                .positive = OPEN,
-                .negative = CLOSED,
-            };
-
         case STARTUP_HOLD_CLOSE_PRECHARGE:
             return ContactorCMD{
                 .precharge = CLOSED,
@@ -149,12 +136,6 @@ ContactorCMD BatteryMonitor::SelectContactorCmd(BmSts status) {
             };
 
         case STARTUP_CLOSE_POS:
-            return ContactorCMD{
-                .precharge = CLOSED,
-                .positive = CLOSED,
-                .negative = CLOSED,
-            };
-
         case STARTUP_HOLD_CLOSE_POS:
             return ContactorCMD{
                 .precharge = CLOSED,
@@ -163,12 +144,6 @@ ContactorCMD BatteryMonitor::SelectContactorCmd(BmSts status) {
             };
 
         case STARTUP_OPEN_PRECHARGE:
-            return ContactorCMD{
-                .precharge = OPEN,
-                .positive = CLOSED,
-                .negative = CLOSED,
-            };
-
         case RUNNING:
             return ContactorCMD{
                 .precharge = OPEN,
@@ -176,8 +151,17 @@ ContactorCMD BatteryMonitor::SelectContactorCmd(BmSts status) {
                 .negative = CLOSED,
             };
         case BmSts::LOW_SOC:
+            return ContactorCMD{
+                .precharge = OPEN,
+                .positive = OPEN,
+                .negative = OPEN,
+            };
         case BmSts::ERR_RUNNING:
-            break;
+            return ContactorCMD{
+                .precharge = OPEN,
+                .positive = OPEN,
+                .negative = OPEN,
+            };
     }
 
     return {};  // switch case shouold return. return needed to satisfy warning

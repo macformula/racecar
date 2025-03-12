@@ -3,7 +3,6 @@
 enum class BmCmd {
     INIT,
     STARTUP,
-    RUNNING,
 };
 
 enum class BmSts {
