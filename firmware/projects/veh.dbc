@@ -36,7 +36,7 @@ BS_:
 BU_: PC_SG BMS FC TMS CANmod LVC RPI
 
 BO_ 109 InitiateCanFlash: 1 RPI
- SG_ ECU : 0|1@1+ (1,0) [0|1] "" FC,LVC
+ SG_ ECU : 0|8@1+ (1,0) [0|2] "" FC,LVC,TMS
 
 BO_ 110 LvSwitch: 6 PC_SG
  SG_ SwitchClose : 0|8@1+ (1,0) [0|1] ""  LVC
@@ -235,7 +235,7 @@ BA_DEF_  "BusType" STRING ;
 BA_DEF_  "MultiplexExtEnabled" ENUM  "No","Yes";
 BA_DEF_DEF_  "BusType" "CAN";
 BA_DEF_DEF_  "MultiplexExtEnabled" "No";
-VAL_ 109 ECU 0 "FrontController" 1 "LvController";
+VAL_ 109 ECU 0 "FrontController" 1 "LvController" 2 "TMS";
 VAL_ 111 LvState 0 "PWRUP_START" 1 "PWRUP_TSSI_ON" 2 "PWRUP_PERIPHERALS_ON" 3 "PWRUP_ACCUMULATOR_ON" 4 "PWRUP_MOTOR_PRECHARGE_ON" 5 "PWRUP_MOTOR_LV" 6 "PWRUP_MOTOR_PRECHARGE_OFF" 7 "PWRUP_SHUTDOWN_ON" 8 "MOTOR_CONTROLLER_SWITCH_SEQ" 9 "DCDC_ON" 10 "POWERTRAIN_PUMP_ON" 11 "POWERTRAIN_FAN_ON" 12 "POWERTRAIN_FAN_SWEEP" 13 "READY_TO_DRIVE" 14 "SHUTDOWN_DRIVER_WARNING" 15 "SHUTDOWN_PUMP_OFF" 16 "SHUTDOWN_FAN_OFF" 17 "SHUTDOWN_COMPLETE";
 VAL_ 112 FcState 0 "PWRUP_START" 1 "HVIL_OPEN";
 VAL_ 255 VC_bmStatus 9 "err_running" 8 "bm_low_soc" 7 "hvil_interrupt" 6 "bm_running" 5 "precharge" 4 "init_precharge" 3 "bm_startup" 2 "bm_idle" 1 "bm_init" 0 "bm_unknown" ;

@@ -194,10 +194,8 @@ int main(void) {
 
         auto msg = veh_can_bus.GetRxInitiateCanFlash();
 
-        // _ecu is a boolean value, our enum is defined as 0 :
-        // FrontController, 1 : LVController
-        // In this case _ecu must be 0
-        if (msg.has_value() && !msg->ECU()) {
+        if (msg.has_value() &&
+            static_cast<ECU>(msg->ECU()) == ECU::FrontController) {
             bindings::SoftwareReset();
         }
         bindings::DelayMs(10);
