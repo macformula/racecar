@@ -192,6 +192,12 @@ int main(void) {
         bindings::debug_led.Set(state);
         state = !state;
 
+        auto msg = veh_can_bus.GetRxInitiateCanFlash();
+
+        if (msg.has_value() &&
+            static_cast<ECU>(msg->ECU()) == ECU::FrontController) {
+            bindings::SoftwareReset();
+        }
         bindings::DelayMs(10);
     }
 

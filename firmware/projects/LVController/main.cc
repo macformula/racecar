@@ -343,6 +343,13 @@ int main(void) {
         };
         veh_can.Send(suspension_msg);
 
+        auto msg = veh_can.GetRxInitiateCanFlash();
+
+        if (msg.has_value() &&
+            static_cast<ECU>(msg->ECU()) == ECU::LvController) {
+            bindings::SoftwareReset();
+        }
+
         bindings::DelayMS(kUpdatePeriodMs);
     }
 

@@ -35,6 +35,9 @@ BS_:
 
 BU_: PC_SG BMS FC TMS CANmod LVC RPI
 
+BO_ 109 InitiateCanFlash: 1 RPI
+ SG_ ECU : 0|8@1+ (1,0) [0|2] "" FC,LVC,TMS
+
 BO_ 110 LvSwitch: 6 PC_SG
  SG_ SwitchClose : 0|8@1+ (1,0) [0|1] ""  LVC
 
@@ -232,10 +235,10 @@ BA_DEF_  "BusType" STRING ;
 BA_DEF_  "MultiplexExtEnabled" ENUM  "No","Yes";
 BA_DEF_DEF_  "BusType" "CAN";
 BA_DEF_DEF_  "MultiplexExtEnabled" "No";
+VAL_ 109 ECU 0 "FrontController" 1 "LvController" 2 "TMS";
 VAL_ 111 LvState 0 "PWRUP_START" 1 "PWRUP_TSSI_ON" 2 "PWRUP_PERIPHERALS_ON" 3 "PWRUP_ACCUMULATOR_ON" 4 "PWRUP_MOTOR_PRECHARGE_ON" 5 "PWRUP_MOTOR_LV" 6 "PWRUP_MOTOR_PRECHARGE_OFF" 7 "PWRUP_SHUTDOWN_ON" 8 "MOTOR_CONTROLLER_SWITCH_SEQ" 9 "DCDC_ON" 10 "POWERTRAIN_PUMP_ON" 11 "POWERTRAIN_FAN_ON" 12 "POWERTRAIN_FAN_SWEEP" 13 "READY_TO_DRIVE" 14 "SHUTDOWN_DRIVER_WARNING" 15 "SHUTDOWN_PUMP_OFF" 16 "SHUTDOWN_FAN_OFF" 17 "SHUTDOWN_COMPLETE";
 VAL_ 112 FcState 0 "PWRUP_START" 1 "HVIL_OPEN";
 VAL_ 255 VC_bmStatus 9 "err_running" 8 "bm_low_soc" 7 "hvil_interrupt" 6 "bm_running" 5 "precharge" 4 "init_precharge" 3 "bm_startup" 2 "bm_idle" 1 "bm_init" 0 "bm_unknown" ;
 VAL_ 255 VC_diStatus 8 "di_error" 7 "di_running" 6 "hv_start_req" 5 "ready_to_drive_req" 4 "waiting_for_driver" 3 "di_startup" 2 "di_idle" 1 "di_sts_init" 0 "di_unknown" ;
 VAL_ 255 VC_miStatus 7 "off" 6 "mi_sts_error" 5 "shutdown" 4 "running" 3 "ready" 2 "startup" 1 "sts_init" 0 "unknown" ;
 VAL_ 255 VC_govStatus 8 "motor_run_error" 7 "hv_run_error" 6 "gov_di_error" 5 "motor_startup_error" 4 "hv_startup_error" 3 "gov_shutdown" 2 "gov_running" 1 "gov_startup" 0 "gov_init" ;
-
