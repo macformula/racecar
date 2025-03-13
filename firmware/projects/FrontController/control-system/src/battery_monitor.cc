@@ -4,8 +4,7 @@
 
 #include "control-system/enums.hpp"
 
-BatteryMonitor::BatteryMonitor()
-    : current_status_(std::nullopt), bm_control_status_(std::nullopt) {}
+BatteryMonitor::BatteryMonitor() : current_status_(std::nullopt) {}
 
 BatteryMonitor::Output BatteryMonitor::Update(const Input& input, int time_ms) {
     auto new_transition = TransitionStatus(input, time_ms);
@@ -15,18 +14,9 @@ BatteryMonitor::Output BatteryMonitor::Update(const Input& input, int time_ms) {
         current_status_ = new_transition.value();
     }
 
-    auto new_control_transition =
-        TransitionControl(current_status_.value(), time_ms);
-
-    if (new_control_transition.has_value()) {
-        control_snapshot_time_ms_ = time_ms;
-        bm_control_status_ = new_control_transition.value();
-    }
-
-    ContactorCMD contactor_cmd = SelectContactorCmd(bm_control_status_.value());
+    ContactorCMD contactor_cmd = SelectContactorCmd(current_status_.value());
 
     return Output{.status = current_status_.value(),
-                  .control_status = bm_control_status_.value(),
                   .contactor = contactor_cmd};
 }
 
@@ -43,56 +33,68 @@ std::optional<BmSts> BatteryMonitor::TransitionStatus(const Input& input,
         return LOW_SOC;
     }
 
+    int elapsed = time_ms - status_snapshot_time_ms_;
+
     switch (current_status_.value()) {
         case INIT:
-            if (input.cmd == BmCmd::HV_STARTUP &&
+            if (input.cmd == BmCmd::STARTUP &&
                 input.precharge_contactor_states == OPEN &&
-                input.hv_pos_contactor_states == OPEN &&
-                input.hv_neg_contactor_states == OPEN) {
-                return IDLE;
+                input.pos_contactor_states == OPEN &&
+                input.neg_contactor_states == OPEN) {
+                return STARTUP_CLOSE_NEG;
             }
             break;
-
-        case IDLE:
+        case STARTUP_CLOSE_NEG:
             if (input.precharge_contactor_states == OPEN &&
-                input.hv_neg_contactor_states == CLOSED &&
-                input.hv_pos_contactor_states == OPEN) {
-                return STARTUP;
+                input.pos_contactor_states == OPEN &&
+                input.neg_contactor_states == CLOSED) {
+                return STARTUP_HOLD_CLOSE_NEG;
             }
             break;
 
-        case STARTUP:
+        case STARTUP_HOLD_CLOSE_NEG:
+            if (elapsed >= 100) {
+                return STARTUP_CLOSE_PRECHARGE;
+            }
+            break;
+
+        case STARTUP_CLOSE_PRECHARGE:
             if (input.precharge_contactor_states == CLOSED &&
-                input.hv_neg_contactor_states == CLOSED &&
-                input.hv_pos_contactor_states == OPEN) {
-                return PRECHARGE;
+                input.neg_contactor_states == CLOSED &&
+                input.pos_contactor_states == OPEN) {
+                return STARTUP_HOLD_CLOSE_PRECHARGE;
             }
             break;
 
-        case PRECHARGE:
-            if (input.precharge_contactor_states == CLOSED &&
-                input.hv_neg_contactor_states == CLOSED &&
-                input.hv_pos_contactor_states == CLOSED) {
-                return PRECHARGE_DONE;
+        case STARTUP_HOLD_CLOSE_PRECHARGE:
+            if (elapsed >= 10000) {
+                return STARTUP_CLOSE_POS;
             }
-
             break;
 
-        case PRECHARGE_DONE:
-            if (input.precharge_contactor_states == OPEN &&
-                input.hv_neg_contactor_states == CLOSED &&
-                input.hv_pos_contactor_states == CLOSED) {
+        case STARTUP_CLOSE_POS:
+            if (input.precharge_contactor_states == CLOSED ||
+                input.neg_contactor_states == CLOSED ||
+                input.pos_contactor_states == CLOSED) {
+                return STARTUP_HOLD_CLOSE_POS;
+            }
+            break;
+
+        case STARTUP_HOLD_CLOSE_POS:
+            if (elapsed >= 100) {
+                return STARTUP_OPEN_PRECHARGE;
+            }
+            break;
+
+        case STARTUP_OPEN_PRECHARGE:
+            if (input.precharge_contactor_states == OPEN ||
+                input.neg_contactor_states == CLOSED ||
+                input.pos_contactor_states == CLOSED) {
                 return RUNNING;
             }
-
             break;
 
         case RUNNING:
-            if (input.precharge_contactor_states == CLOSED ||
-                input.hv_neg_contactor_states == OPEN ||
-                input.hv_pos_contactor_states == OPEN) {
-                return INIT;
-            }
             break;
 
         case LOW_SOC:
@@ -105,97 +107,60 @@ std::optional<BmSts> BatteryMonitor::TransitionStatus(const Input& input,
     return std::nullopt;
 }
 
-std::optional<ControlStatus> BatteryMonitor::TransitionControl(BmSts status,
-                                                               int time_ms) {
+ContactorCMD BatteryMonitor::SelectContactorCmd(BmSts status) {
     using enum ContactorState;
     using enum BmSts;
 
-    if (!bm_control_status_.has_value()) {
-        return ControlStatus::STARTUP_CMD;
-    }
-
-    if (status == LOW_SOC) {
-        return ControlStatus::STARTUP_CMD;
-    }
-
-    int elapsed = time_ms - control_snapshot_time_ms_;
-
-    switch (bm_control_status_.value()) {
-        case ControlStatus::STARTUP_CMD:
-            if (status == IDLE) {
-                return ControlStatus::CLOSE_HV_NEG;
-            }
-            break;
-
-        case ControlStatus::CLOSE_HV_NEG:
-
-            if (elapsed >= 500 && status == STARTUP) {
-                return ControlStatus::CLOSE_PRECHARGE;
-            }
-            break;
-
-        case ControlStatus::CLOSE_PRECHARGE:
-            if (elapsed >= 10000 && status == PRECHARGE) {
-                return ControlStatus::CLOSE_HV_POS;
-            }
-            break;
-
-        case ControlStatus::CLOSE_HV_POS:
-            if (elapsed >= 500 && status == PRECHARGE_DONE) {
-                return ControlStatus::OPEN_PRECHARGE;
-            }
-
-            break;
-
-        case ControlStatus::OPEN_PRECHARGE:
-            if (elapsed > 500 && status != RUNNING) {
-                return ControlStatus::STARTUP_CMD;  // should this affect bm
-                                                    // status?
-            }
-            break;
-    }
-
-    return std::nullopt;
-}
-
-ContactorCMD BatteryMonitor::SelectContactorCmd(
-    ControlStatus bm_control_status_) {
-    using enum ContactorState;
-
-    switch (bm_control_status_) {
-        case ControlStatus::STARTUP_CMD:
+    switch (status) {
+        case INIT:
             return ContactorCMD{
                 .precharge = OPEN,
-                .hv_positive = OPEN,
-                .hv_negative = OPEN,
+                .positive = OPEN,
+                .negative = OPEN,
             };
 
-        case ControlStatus::CLOSE_HV_NEG:
+        case STARTUP_CLOSE_NEG:
+        case STARTUP_HOLD_CLOSE_NEG:
             return ContactorCMD{
                 .precharge = OPEN,
-                .hv_positive = OPEN,
-                .hv_negative = CLOSED,
+                .positive = OPEN,
+                .negative = CLOSED,
             };
 
-        case ControlStatus::CLOSE_PRECHARGE:
+        case STARTUP_CLOSE_PRECHARGE:
+        case STARTUP_HOLD_CLOSE_PRECHARGE:
             return ContactorCMD{
                 .precharge = CLOSED,
-                .hv_positive = OPEN,
-                .hv_negative = CLOSED,
+                .positive = OPEN,
+                .negative = CLOSED,
             };
 
-        case ControlStatus::CLOSE_HV_POS:
+        case STARTUP_CLOSE_POS:
+        case STARTUP_HOLD_CLOSE_POS:
             return ContactorCMD{
                 .precharge = CLOSED,
-                .hv_positive = CLOSED,
-                .hv_negative = CLOSED,
+                .positive = CLOSED,
+                .negative = CLOSED,
             };
 
-        case ControlStatus::OPEN_PRECHARGE:
+        case STARTUP_OPEN_PRECHARGE:
+        case RUNNING:
             return ContactorCMD{
                 .precharge = OPEN,
-                .hv_positive = CLOSED,
-                .hv_negative = CLOSED,
+                .positive = CLOSED,
+                .negative = CLOSED,
+            };
+        case BmSts::LOW_SOC:
+            return ContactorCMD{
+                .precharge = OPEN,
+                .positive = OPEN,
+                .negative = OPEN,
+            };
+        case BmSts::ERR_RUNNING:
+            return ContactorCMD{
+                .precharge = OPEN,
+                .positive = OPEN,
+                .negative = OPEN,
             };
     }
 

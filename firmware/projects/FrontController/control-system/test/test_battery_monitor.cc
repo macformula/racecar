@@ -1,13 +1,9 @@
-// To run these tests, cd into this directory and run:
-// make
-// this will compile it to bm_test.exe. Run the test by executing ./bm_test.exe
-#include <cassert>
-#include <iostream>
-#include <vector>
-
 #include "control-system/battery_monitor.h"
 #include "control-system/enums.hpp"
+#include "gtest/gtest.h"
 
+// this is not a test itself, rather it produces a BatteryMonitor object in a
+// specific state to make it easier to run other tests
 BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
     using enum ContactorState;
 
@@ -15,23 +11,24 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
     time_ms = 0;
 
     // Initialize the BatteryMonitor
-    bm.Update(
+    auto output1 = bm.Update(
         {
             .cmd = BmCmd::INIT,
             .precharge_contactor_states = OPEN,
-            .hv_pos_contactor_states = OPEN,
-            .hv_neg_contactor_states = OPEN,
+            .pos_contactor_states = OPEN,
+            .neg_contactor_states = OPEN,
             .pack_soc = 50.0,
         },
         time_ms);
 
+    assert(output1.status == BmSts::INIT);
     if (desired_state == BmSts::INIT) {
         return bm;
     }
 
     if (bm.Update(
               {
-                  .cmd = BmCmd::HV_STARTUP,
+                  .cmd = BmCmd::STARTUP,
                   .pack_soc = 20.0,
               },
               time_ms)
@@ -39,94 +36,151 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
         return bm;
     }
 
-    // Transition to IDLE
+    // Transition to CLOSE_NEG
     time_ms += 10;
-    bm.Update(
+    auto output2 = bm.Update(
         {
-            .cmd = BmCmd::HV_STARTUP,
+            .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = OPEN,
-            .hv_pos_contactor_states = OPEN,
-            .hv_neg_contactor_states = OPEN,
+            .pos_contactor_states = OPEN,
+            .neg_contactor_states = OPEN,
             .pack_soc = 50.0,
         },
         time_ms);
 
-    if (desired_state == BmSts::IDLE) {
+    assert(output2.status == BmSts::STARTUP_CLOSE_NEG);
+    if (desired_state == BmSts::STARTUP_CLOSE_NEG) {
         return bm;
     }
 
-    // Transition to STARTUP
-    time_ms += 100;
-    bm.Update(
+    // Transition to HOLD_STARTUP_CLOSE_NEG
+    time_ms += 10;
+    auto output3 = bm.Update(
         {
-            .cmd = BmCmd::HV_STARTUP,
+            .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = OPEN,
-            .hv_pos_contactor_states = OPEN,
-            .hv_neg_contactor_states = CLOSED,
+            .pos_contactor_states = OPEN,
+            .neg_contactor_states = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
 
-    if (desired_state == BmSts::STARTUP) {
+    assert(output3.status == BmSts::STARTUP_HOLD_CLOSE_NEG);
+    if (desired_state == BmSts::STARTUP_HOLD_CLOSE_NEG) {
         return bm;
     }
 
-    // Transition to PRECHARGE
-    time_ms += 6500;
-    bm.Update(
-        {
-            .cmd = BmCmd::HV_STARTUP,
-            .precharge_contactor_states = CLOSED,
-            .hv_pos_contactor_states = OPEN,
-            .hv_neg_contactor_states = CLOSED,
-            .pack_soc = 50.0,
-        },
-        time_ms);
-
-    if (desired_state == BmSts::PRECHARGE) {
-        return bm;
-    }
-
-    // Transition to PRECHARGE_DONE
+    // Transition to STARTUP_CLOSE_PRECHARGE
     time_ms += 100;
-    bm.Update(
+    auto output4 = bm.Update(
         {
-            .cmd = BmCmd::HV_STARTUP,
+            .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = CLOSED,
-            .hv_pos_contactor_states = CLOSED,
-            .hv_neg_contactor_states = CLOSED,
+            .pos_contactor_states = OPEN,
+            .neg_contactor_states = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
 
-    if (desired_state == BmSts::PRECHARGE_DONE) {
+    assert(output4.status == BmSts::STARTUP_CLOSE_PRECHARGE);
+    if (desired_state == BmSts::STARTUP_CLOSE_PRECHARGE) {
+        return bm;
+    }
+
+    // Transition to HOLD_STARTUP_CLOSE_PRECHARGE
+    time_ms += 10;
+    auto output5 = bm.Update(
+        {
+            .cmd = BmCmd::STARTUP,
+            .precharge_contactor_states = CLOSED,
+            .pos_contactor_states = OPEN,
+            .neg_contactor_states = CLOSED,
+            .pack_soc = 50.0,
+        },
+        time_ms);
+
+    assert(output5.status == BmSts::STARTUP_HOLD_CLOSE_PRECHARGE);
+    if (desired_state == BmSts::STARTUP_HOLD_CLOSE_PRECHARGE) {
+        return bm;
+    }
+
+    // Transition to STARTUP_CLOSE_POS
+    time_ms += 10000;
+    auto output6 = bm.Update(
+        {
+            .cmd = BmCmd::STARTUP,
+            .precharge_contactor_states = CLOSED,
+            .pos_contactor_states = CLOSED,
+            .neg_contactor_states = CLOSED,
+            .pack_soc = 50.0,
+        },
+        time_ms);
+
+    assert(output6.status == BmSts::STARTUP_CLOSE_POS);
+    if (desired_state == BmSts::STARTUP_CLOSE_POS) {
+        return bm;
+    }
+
+    // Transition to HOLD_STARTUP_CLOSE_POS
+    time_ms += 10;
+    auto output7 = bm.Update(
+        {
+            .cmd = BmCmd::STARTUP,
+            .precharge_contactor_states = CLOSED,
+            .pos_contactor_states = CLOSED,
+            .neg_contactor_states = CLOSED,
+            .pack_soc = 50.0,
+        },
+        time_ms);
+
+    assert(output7.status == BmSts::STARTUP_HOLD_CLOSE_POS);
+    if (desired_state == BmSts::STARTUP_HOLD_CLOSE_POS) {
+        return bm;
+    }
+
+    // Transition to STARTUP_OPEN_PRECHARGE
+    time_ms += 100;
+    auto output8 = bm.Update(
+        {
+            .cmd = BmCmd::STARTUP,
+            .precharge_contactor_states = OPEN,
+            .pos_contactor_states = CLOSED,
+            .neg_contactor_states = CLOSED,
+            .pack_soc = 50.0,
+        },
+        time_ms);
+
+    assert(output8.status == BmSts::STARTUP_OPEN_PRECHARGE);
+    if (desired_state == BmSts::STARTUP_OPEN_PRECHARGE) {
         return bm;
     }
 
     // Transition to RUNNING
     time_ms += 10;
-    bm.Update(
+    auto output9 = bm.Update(
         {
-            .cmd = BmCmd::HV_STARTUP,
+            .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = OPEN,
-            .hv_pos_contactor_states = CLOSED,
-            .hv_neg_contactor_states = CLOSED,
+            .pos_contactor_states = CLOSED,
+            .neg_contactor_states = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
 
+    assert(output9.status == BmSts::RUNNING);
     if (desired_state == BmSts::RUNNING) {
         return bm;
     }
 
     // Transition to LOW_SOC
-    bm.Update(
+    auto output10 = bm.Update(
         {
-            .cmd = BmCmd::HV_STARTUP,
+            .cmd = BmCmd::STARTUP,
             .pack_soc = 20.0,
         },
         time_ms);
 
+    assert(output10.status == BmSts::LOW_SOC);
     return bm;
 }
 
@@ -134,14 +188,14 @@ std::string BmStatusToString(BmSts status) {
     switch (status) {
         case BmSts::INIT:
             return "INIT";
-        case BmSts::IDLE:
-            return "IDLE";
-        case BmSts::STARTUP:
-            return "STARTUP";
-        case BmSts::PRECHARGE:
-            return "PRECHARGE";
-        case BmSts::PRECHARGE_DONE:
-            return "PRECHARGE_DONE";
+        case BmSts::STARTUP_CLOSE_NEG:
+            return "STARTUP_CLOSE_NEG";
+        case BmSts::STARTUP_CLOSE_PRECHARGE:
+            return "STARTUP_CLOSE_PRECHARGE";
+        case BmSts::STARTUP_CLOSE_POS:
+            return "STARTUP_CLOSE_POS";
+        case BmSts::STARTUP_OPEN_PRECHARGE:
+            return "STARTUP_OPEN_PRECHARGE";
         case BmSts::RUNNING:
             return "RUNNING";
         case BmSts::LOW_SOC:
@@ -151,179 +205,147 @@ std::string BmStatusToString(BmSts status) {
     }
 }
 
-void test_low_soc_transitions() {
+TEST(BatteryMonitor, LowSocTransitions) {
     using enum ContactorState;
-    std::vector<BmSts> states = {BmSts::IDLE, BmSts::STARTUP, BmSts::PRECHARGE,
-                                 BmSts::PRECHARGE_DONE, BmSts::RUNNING};
+    std::vector<BmSts> states = {
+        BmSts::STARTUP_CLOSE_NEG, BmSts::STARTUP_CLOSE_PRECHARGE,
+        BmSts::STARTUP_CLOSE_POS, BmSts::STARTUP_OPEN_PRECHARGE};
     int time_ms;
 
     for (BmSts state : states) {
         BatteryMonitor bm = CycleToState(state, time_ms);
 
-        std::cout << "Testing transition from " << BmStatusToString(state)
-                  << " to LOW_SOC\n";
         time_ms += 10;
         auto output = bm.Update(
             {
-                .cmd = BmCmd::HV_STARTUP,
+                .cmd = BmCmd::STARTUP,
                 .pack_soc = 20.0,
             },
             time_ms);
 
-        assert(output.status == BmSts::LOW_SOC);
-        assert(output.contactor.precharge == OPEN);
-        assert(output.contactor.hv_negative == OPEN);
-        assert(output.contactor.hv_positive == OPEN);
-
-        std::cout << "Transition from " << BmStatusToString(state)
-                  << " to LOW_SOC passed!\n";
+        ASSERT_EQ(output.status, BmSts::LOW_SOC)
+            << "Failed transition from" << BmStatusToString(state)
+            << " to LOW_SOC.";
     }
 }
 
-void test_hvil_interrupt_transitions() {
+TEST(BatteryMonitor, StateTransitions) {
     using enum ContactorState;
-    std::vector<BmSts> states = {BmSts::IDLE, BmSts::STARTUP, BmSts::PRECHARGE,
-                                 BmSts::PRECHARGE_DONE, BmSts::RUNNING};
-    int time_ms;
-
-    for (BmSts state : states) {
-        BatteryMonitor bm = CycleToState(state, time_ms);
-
-        std::cout << "Testing transition from " << BmStatusToString(state)
-                  << " to HVIL_INTERRUPT\n";
-        time_ms += 10;
-        auto output = bm.Update(
-            {
-                .cmd = BmCmd::HV_STARTUP,
-                .pack_soc = 50.0,
-            },
-            time_ms);
-
-        // assert(output.status == BmSts::HVIL_INTERRUPT);
-        assert(output.contactor.precharge == OPEN);
-        assert(output.contactor.hv_negative == OPEN);
-        assert(output.contactor.hv_positive == OPEN);
-
-        std::cout << "Transition from " << BmStatusToString(state)
-                  << " to HVIL_INTERRUPT passed!\n";
-    }
-}
-
-void test_state_transitions() {
-    using enum ContactorState;
+    using enum BmSts;
 
     BatteryMonitor bm{};
     int time_ms = 0;
 
-    std::cout << "Running Test 1: initialized\n";
     auto output1 = bm.Update(
         {
             .cmd = BmCmd::INIT,
             .precharge_contactor_states = OPEN,
-            .hv_pos_contactor_states = OPEN,
-            .hv_neg_contactor_states = OPEN,
+            .pos_contactor_states = OPEN,
+            .neg_contactor_states = OPEN,
             .pack_soc = 50.0,
         },
         time_ms);
+    ASSERT_EQ(output1.status, INIT) << "Should start in Initialized state";
 
-    assert(output1.status == BmSts::INIT);
-    assert(output1.control_status == ControlStatus::STARTUP_CMD);
-
-    // Test: Transition from INIT to IDLE
     time_ms += 10;
-    std::cout << "Running Test 2: init to idle\n";
     auto output2 = bm.Update(
         {
-            .cmd = BmCmd::HV_STARTUP,
+            .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = OPEN,
-            .hv_pos_contactor_states = OPEN,
-            .hv_neg_contactor_states = OPEN,
+            .pos_contactor_states = OPEN,
+            .neg_contactor_states = OPEN,
             .pack_soc = 50.0,
         },
         time_ms);
+    ASSERT_EQ(output2.status, STARTUP_CLOSE_NEG) << "Failed INIT to CLOSE_NEG";
 
-    assert(output2.status == BmSts::IDLE);
-    assert(output2.control_status == ControlStatus::CLOSE_HV_NEG);
-
-    // Test: Transition from IDLE to STARTUP
-    std::cout << "Running Test 3: idle to startup\n";
-    time_ms += 500;
+    time_ms += 10;
     auto output3 = bm.Update(
         {
-            .cmd = BmCmd::HV_STARTUP,
+            .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = OPEN,
-            .hv_pos_contactor_states = OPEN,
-            .hv_neg_contactor_states = CLOSED,
+            .pos_contactor_states = OPEN,
+            .neg_contactor_states = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
+    ASSERT_EQ(output3.status, STARTUP_HOLD_CLOSE_NEG)
+        << "Failed CLOSE_NEG to HOLD_CLOSE_NEG";
 
-    assert(output3.status == BmSts::STARTUP);
-    assert(output3.control_status == ControlStatus::CLOSE_PRECHARGE);
-
-    // Test: Transition from STARTUP to PRECHARGE
-    std::cout << "Running Test 4: startup to init PRECHARGE_DONE\n";
-    time_ms += 10000;
+    time_ms += 100;
     auto output4 = bm.Update(
         {
-            .cmd = BmCmd::HV_STARTUP,
-            .precharge_contactor_states = CLOSED,  // PRECHARGE_DONE active
-            .hv_pos_contactor_states = OPEN,
-            .hv_neg_contactor_states = CLOSED,
+            .cmd = BmCmd::STARTUP,
+            .precharge_contactor_states = CLOSED,
+            .pos_contactor_states = OPEN,
+            .neg_contactor_states = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
+    ASSERT_EQ(output4.status, STARTUP_CLOSE_PRECHARGE)
+        << "Failed HOLD_CLOSE_NEG to CLOSE_PRECHARGE";
 
-    assert(output4.status == BmSts::PRECHARGE);
-    assert(output4.control_status == ControlStatus::CLOSE_HV_POS);
-
-    // Test: Transition from PRECHARGE to PRECHARGE_DONE
-    std::cout << "Running Test 5: init PRECHARGE_DONE to PRECHARGE_DONE\n";
-    time_ms += 500;
+    time_ms += 10;
     auto output5 = bm.Update(
         {
-            .cmd = BmCmd::HV_STARTUP,
+            .cmd = BmCmd::STARTUP,
             .precharge_contactor_states = CLOSED,
-            .hv_pos_contactor_states = CLOSED,  // HV_POS active
-            .hv_neg_contactor_states = CLOSED,
+            .pos_contactor_states = OPEN,
+            .neg_contactor_states = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
+    ASSERT_EQ(output5.status, STARTUP_HOLD_CLOSE_PRECHARGE)
+        << "Failed CLOSE_PRECHARGE to HOLD_CLOSE_PRECHARGE";
 
-    assert(output5.status == BmSts::PRECHARGE_DONE);
-    assert(output5.control_status == ControlStatus::OPEN_PRECHARGE);
-
-    // Test: Transition from PRECHARGE_DONE to RUNNING
-    std::cout << "Running Test 6: PRECHARGE_DONE to running\n";
-    time_ms += 10;
+    time_ms += 10000;
     auto output6 = bm.Update(
         {
-            .cmd = BmCmd::HV_STARTUP,
-            .precharge_contactor_states = OPEN,  // PRECHARGE_DONE inactive
-            .hv_pos_contactor_states = CLOSED,
-            .hv_neg_contactor_states = CLOSED,
+            .cmd = BmCmd::STARTUP,
+            .precharge_contactor_states = CLOSED,
+            .pos_contactor_states = CLOSED,
+            .neg_contactor_states = CLOSED,
             .pack_soc = 50.0,
         },
         time_ms);
+    ASSERT_EQ(output6.status, STARTUP_CLOSE_POS)
+        << "Failed HOLD_CLOSE_PRECHARGE to CLOSE_POS";
 
-    assert(output6.status == BmSts::RUNNING);
-    assert(output6.control_status == ControlStatus::OPEN_PRECHARGE);
+    time_ms += 10;
+    auto output7 = bm.Update(
+        {
+            .cmd = BmCmd::STARTUP,
+            .precharge_contactor_states = CLOSED,
+            .pos_contactor_states = CLOSED,
+            .neg_contactor_states = CLOSED,
+            .pack_soc = 50.0,
+        },
+        time_ms);
+    ASSERT_EQ(output7.status, STARTUP_HOLD_CLOSE_POS)
+        << "Failed CLOSE_POS to HOLD_CLOSE_POS";
 
-    std::cout << "Test sequence passed!" << std::endl;
-}
+    time_ms += 100;
+    auto output8 = bm.Update(
+        {
+            .cmd = BmCmd::STARTUP,
+            .precharge_contactor_states = OPEN,
+            .pos_contactor_states = CLOSED,
+            .neg_contactor_states = CLOSED,
+            .pack_soc = 50.0,
+        },
+        time_ms);
+    ASSERT_EQ(output8.status, STARTUP_OPEN_PRECHARGE)
+        << "Failed HOLD_CLOSE_POS to OPEN_PRECHARGE";
 
-void BmTest() {
-    std::cout << "TEST CASES FOR LOW_SOC TRANSITIONS" << std::endl;
-    test_low_soc_transitions();
-    std::cout << std::endl << std::endl;
-
-    std::cout << "TEST CASES FOR HVIL_INTERRUPT TRANSITIONS" << std::endl;
-    test_hvil_interrupt_transitions();
-    std::cout << std::endl << std::endl;
-
-    std::cout << "TEST CASES FOR STATE TRANSITIONS" << std::endl;
-    test_state_transitions();
-    std::cout << std::endl << std::endl;
-
-    std::cout << "All BM tests passed!" << std::endl;
+    time_ms += 10;
+    auto output9 = bm.Update(
+        {
+            .cmd = BmCmd::STARTUP,
+            .precharge_contactor_states = OPEN,
+            .pos_contactor_states = CLOSED,
+            .neg_contactor_states = CLOSED,
+            .pack_soc = 50.0,
+        },
+        time_ms);
+    ASSERT_EQ(output9.status, RUNNING) << "Failed OPEN_PRECHARGE to RUNNING";
 }
