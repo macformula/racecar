@@ -192,6 +192,14 @@ int main(void) {
         bindings::debug_led.Set(state);
         state = !state;
 
+        auto msg = veh_can_bus.GetRxInitiateCanFlash();
+
+        // _ecu is a boolean value, our enum is defined as 0 :
+        // FrontController, 1 : LVController
+        // In this case _ecu must be 0
+        if (msg.has_value() && !msg->ECU()) {
+            bindings::SoftwareReset();
+        }
         bindings::DelayMs(10);
     }
 

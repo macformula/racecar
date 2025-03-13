@@ -343,6 +343,15 @@ int main(void) {
         };
         veh_can.Send(suspension_msg);
 
+        auto msg = veh_can.GetRxInitiateCanFlash();
+
+        // _ecu is a boolean value, our enum is defined as 0 :
+        // FrontController, 1 : LVController
+        // In this case _ecu must be 1
+        if (msg.has_value() && msg->ECU()) {
+            bindings::SoftwareReset();
+        }
+
         bindings::DelayMS(kUpdatePeriodMs);
     }
 
