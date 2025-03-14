@@ -17,8 +17,9 @@ class CanFlashApp:
         self.flash_button.enable()
 
     def handle_flash(self):
-        try:
-            flash_file(self.selected_ecu, self.uploaded_file_path)
+        exception = flash_file(self.selected_ecu, self.uploaded_file_path)
+
+        if not exception:
             uploaded_file_name = os.path.split(self.uploaded_file_path)[-1]
             ui.notify(
                 f"Successfully flashed {uploaded_file_name} to {self.selected_ecu}",
@@ -29,11 +30,11 @@ class CanFlashApp:
             self.upload_box.reset()
             self.flash_button.disable()
 
-            # Reset ECU selection after a short delay (or else select box won't reset)
+            # Reset ECU selection after a short delay (or else the select box won't reset)
             ui.timer(0.1, lambda: self.ecu_select.set_value(self.starting_ecu), once=True)
+        else:
+            ui.notify(str(exception), type="negative")
 
-        except ValueError as e:
-            ui.notify(str(e), type="negative")
 
     def build_ui(self):
         ui.colors(primary="#AA1F26")
