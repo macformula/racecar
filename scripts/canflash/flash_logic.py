@@ -1,17 +1,13 @@
 import os
 import time
+import subprocess
 from datetime import datetime
-
-# Constants
-ECUS = ["FrontController", "LVController", "TMS"]
-UPLOAD_DIR = "uploads"
-
-# Ensure the upload directory exists
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+from constants import ECU_CONFIG, UPLOAD_DIR
 
 
 def generate_ecu_directory(ecu: str) -> str:
-    timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    # timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     ecu_dir = f"{ecu.lower()}-{timestamp}"
     full_path = os.path.join(UPLOAD_DIR, ecu_dir)
 
@@ -33,6 +29,8 @@ def flash_file(ecu: str, file_path: str):
     if not ecu or not file_path:
         raise ValueError("ECU and file must be selected.")
 
-    print(f"[INFO] Flashing {file_path} to {ecu}...")
-    time.sleep(2)  # Simulate flashing delay
-    print("[INFO] Flashing complete.")
+    gpio_pin = ECU_CONFIG[ecu]["gpio_pin"]
+    can_message_id = ECU_CONFIG[ecu]["can_message_id"]
+
+    # Flash the file
+    subprocess.run(["bash", "./canflash.sh", file_path, str(gpio_pin), str(can_message_id)], check=True)

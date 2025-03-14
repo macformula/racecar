@@ -34,7 +34,7 @@ sudo iw dev wlan0 interface add ap0 type __ap
 sudo pkexec --user root create_ap ap0 wlan0 "$ssid" "$password" --mkconfig /etc/create_ap.conf --freq-band 2.4
 
 # Create a service to initialize access point and network on boot
-sudo tee /lib/systemd/system/create_ap.service > /dev/null <<EOF
+sudo tee /etc/systemd/system/create_ap.service > /dev/null <<EOF
 [Unit]
 Description=Create AP Service
 After=network.target
@@ -51,9 +51,27 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
+# Create a service to run the server on boot
+sudo tee /etc/systemd/system/canflash.service > /dev/null <<EOF
+[Unit]
+Description=CanFlash Service
+After=network.target
+
+[Service]
+Type=sim
+ExecStart=/bin/bash -c 'cd /home/your_username/canflash && python3 -m venv .venv && source .venv/bin/activate && python3 main.py'
+KillSignal=SIGINT
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 # Create and enable the service
 sudo systemctl daemon-reload
 sudo systemctl enable create_ap
+sudo systemctl enable canflash
 
 # Reboot the system for changes to take effect
 sudo reboot

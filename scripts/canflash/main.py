@@ -1,6 +1,7 @@
 from nicegui import ui
 from nicegui.events import UploadEventArguments
-from flash_logic import ECUS, save_uploaded_file, flash_file
+from flash_logic import save_uploaded_file, flash_file
+from constants import ECU_CONFIG
 import os
 
 
@@ -39,7 +40,7 @@ class CanFlashApp:
         ui.markdown("Welcome to CAN Flash! Select an ECU and upload a file to flash. See [docs](https://macformula.github.io/racecar/) for more information.")
 
         # ECU Selection
-        self.ecu_select = ui.select([self.starting_ecu] + ECUS)
+        self.ecu_select = ui.select([self.starting_ecu] + list(ECU_CONFIG.keys()))
         self.ecu_select.bind_value(self, "selected_ecu")
 
         # File Upload
@@ -59,7 +60,6 @@ class CanFlashApp:
 
 @ui.page("/")
 def main_page():
-    """Each client gets its own instance of CanFlashApp."""
     CanFlashApp()
 
 
