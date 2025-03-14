@@ -6,30 +6,42 @@
 # Usage: bash ./canflash.sh 'file_path' 'gpio_pin'
 
 # Check arguments
-if [ "$#" -ne 2 ]; then
-    echo "Usage: bash ./canflash.sh 'file_path' 'gpio_pin'"
+if [ "$#" -ne 3 ]; then
+    echo "Usage: bash ./canflash.sh 'file_path' 'gpio_pin' 'ecu'"
+    exit 1
+fi
+
+# Check if the ecu is a validinteger between 0 and 2
+if ! [[ $3 =~ ^[0-2]$ ]]; then
+    echo "Error: ECU must be an integer between 0 and 2"
     exit 1
 fi
 
 # Extract arguments
 file_path=$1
 gpio_pin=$2
+ecu=$3
 
 # Turn the GPIO pin high
 sudo raspi-gpio set $gpio_pin op dh
+sleep 1
 
 # Enable the can0 interface at 500kbps message rate
 sudo ip link set can0 down
 sudo ip link set can0 up type can bitrate 500000
+sleep 1
 
-# TODO: Send reset CAN message
+# Send reset CAN message
+canprog -n can0 send 0x6D "$(printf "%02X" "$ecu")"
+sleep 1
 
 # Enable the can0 interface at 125kbps flash rate
 sudo ip link set can0 down
 sudo ip link set can0 up type can bitrate 125000
+sleep 1
 
 # Flash the file to the ECU
-canprog -n can0 -f bin stm32 write "$BINARY_FILE" -a 0x08000000 -ve
+canprog -n can0 -f bin stm32 write "$file_path" -a 0x08000000 -ve
 
 # Turn off the can0 interface
 sudo ip link set can0 down
