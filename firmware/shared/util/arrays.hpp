@@ -3,9 +3,8 @@
 
 #pragma once
 
-#include <algorithm>
-#include <concepts>
 #include <limits>
+#include <type_traits>
 
 namespace shared::util {
 

@@ -42,40 +42,43 @@ extra_javascript:
 copyright: Copyright &copy; McMaster Formula Electric
 
 plugins:
-- search
-- gen-files:
-    scripts:
-      - docs/tutorials/index_gen.py
-      - includes/gen_glossary.py
-- spellcheck:
-    backends:  # the backends you want to use
-    - symspellpy  # as strings
-    - codespell:  # or nested configs
-        dictionaries: [clear]
+  - search
+  - gen-files:
+      scripts:
+          - docs/tutorials/index_gen.py
+          - includes/gen_glossary.py
+  - spellcheck:
+      backends:  # the backends you want to use
+      - symspellpy  # as strings
+      - codespell:  # or nested configs
+          dictionaries: [clear]
 
-    # known_words can also be a list of words
-    known_words: ../includes/known_words.txt
+      # known_words can also be a list of words
+      known_words: ../includes/known_words.txt
 
-    # ignore words in <code> tags
-    ignore_code: yes
+      # ignore words in <code> tags
+      ignore_code: yes
 
-    # minimum length of words to consider
-    min_length: 2
+      # minimum length of words to consider
+      min_length: 2
 
-    # maximum number of capital letters in a word
-    max_capital: 1
+      # maximum number of capital letters in a word
+      max_capital: 1
 
-    # keep unicode characters
-    allow_unicode: no
+      # keep unicode characters
+      allow_unicode: no
 
-    # skip files entirely (supports Unix shell-style wildcards)
-    skip_files:
-    - credits.md
-    - coverage.md
-    - reference/* 
+      # skip files entirely (supports Unix shell-style wildcards)
+      skip_files:
+      - credits.md
+      - coverage.md
+      - reference/* 
 
-    # whether to only check in strict mode
-    strict_only: yes
+      # whether to only check in strict mode
+      strict_only: yes
+  - glightbox:
+      effect: none
+      slide_effect: none
 
 markdown_extensions:
   - admonition

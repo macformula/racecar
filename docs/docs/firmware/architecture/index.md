@@ -187,7 +187,7 @@ The peripheral implementations are in the MCAL (Microcontroller Abstraction Laye
 
     With this structure, the developer can write platform-agnostic app level code using the shared `DigitalInput` interface, knowing that both platforms have a matching implementation.
 
-Both the peripheral interface and implementations can be used by multiple projects. To see how they are used in project-specific code, continue to [Project Structure](project-structure/index.md).
+Both the peripheral interface and implementations can be used by multiple projects. To see how they are used in project-specific code, continue to [Project Structure](../project-structure/index.md).
 
 ## Example: TMS Layers
 
