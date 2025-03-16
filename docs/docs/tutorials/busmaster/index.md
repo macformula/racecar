@@ -2,9 +2,11 @@
 
 ## You will need
 
-- Busmaster software v3.2.2.
+- Busmaster software v3.2.2 <https://rbei-etas.github.io/busmaster/>
 
-    > Install from <https://rbei-etas.github.io/busmaster/>
+- Kvaser Drivers <https://kvaser.com/download/>
+
+    > Kvaser drivers are only available for Windows and Linux, so you cannot follow this tutorial on MacOS.
 
 - The Kvaser USB CAN adapter (which should be kept in the bay).
 
