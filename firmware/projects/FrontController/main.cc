@@ -89,13 +89,14 @@ void UpdateControls() {
 
     // latch these values once the state is achieved
     // todo: move this to a better spot
-    if (gov_out.di_cmd == DiCmd::HV_ON) {
+    // TODO: Remove true statements later
+    if (true || gov_out.di_cmd == DiCmd::HV_ON) {
         fc_to_dash.hv_started = true;
     }
-    if (gov_out.di_cmd == DiCmd::READY_TO_DRIVE) {
+    if (true || gov_out.di_cmd == DiCmd::READY_TO_DRIVE) {
         fc_to_dash.motor_started = true;
     }
-    if (gov_in.di_sts == DiSts::RUNNING) {
+    if (true || gov_in.di_sts == DiSts::RUNNING) {
         fc_to_dash.drive_started = true;
     }
 

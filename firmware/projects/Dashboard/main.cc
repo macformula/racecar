@@ -72,10 +72,6 @@ int main(void) {
     // CAN initialization --------------------------------------------
     // ---------------------------------------------------------------
 
-    // temp
-    int current_time = -1;
-    bool happened = false;
-
     // ---------------------------------------------------------------
     // Main Loop ------------------- ---------------------------------
     // ---------------------------------------------------------------
@@ -102,21 +98,8 @@ int main(void) {
 
         // get message from FC
         auto msg = veh_can.GetRxFCDashboardStatus();
-        if (current_time == -1) {
-            current_time = lv_tick_get();
-        }
 
-        if (lv_tick_get() > current_time + 10000 && !happened) {
-            dashboard_menu.dashboard_state = STATE_DASHBOARD;
-            happened = true;
-            // dashboard_menu.dashboard_state = STATE_HV;
-            // confirm_menu.initiate_start = 1;
-        }
-
-        if (lv_tick_get() > current_time + 20000) {
-            // dashboard_menu.dashboard_state = STATE_WAITING;
-            // start_hv_indicator = true;
-        }
+        veh_can.Send(TxdashboardTest{.dash_state = msg.has_value()});
 
         // ---------------------------------------------------------------
         // State Machine -------------------------------------------------
