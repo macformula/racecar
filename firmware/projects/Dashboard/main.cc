@@ -14,6 +14,7 @@
 #include "inc/StartHV.hpp"
 #include "inc/StartMotors.hpp"
 #include "inc/WaitingScreen.hpp"
+#include "inc/LogoScreen.hpp"
 
 extern "C" {
 extern lv_disp_drv_t lv_display_driver;
@@ -51,6 +52,7 @@ int main(void) {
     lv_obj_t* dashboard_frame = lv_obj_create(lv_scr_act());
     lv_obj_set_size(dashboard_frame, LV_HOR_RES, LV_VER_RES);
 
+    LogoScreen logo_screen;
     DashboardMenu dashboard_menu;
     DriveModeMenu drive_menu;
     DriverSelect driver_select;
@@ -61,9 +63,10 @@ int main(void) {
     StartMotors start_motors;
     StartDriving start_driving;
 
-    dashboard_menu.dashboard_state = STATE_DRIVER;
-    driver_select.create_menu();
-    dashboardStates previous_state = STATE_DRIVER;
+    dashboard_menu.dashboard_state = STATE_LOGO_WAITING;
+    //driver_select.create_menu();
+    logo_screen.create_menu();
+    dashboardStates previous_state = STATE_LOGO_WAITING;
 
     bindings::DelayMS(5000);
 
@@ -78,7 +81,9 @@ int main(void) {
     bool start_hv_indicator = false;
     bool start_motor_indicator = false;
 
-    int current_time = lv_tick_get();
+    // temp
+    int current_time = -1;
+    bool happened = false;
 
     // ---------------------------------------------------------------
     // Main Loop ------------------- ---------------------------------
@@ -106,14 +111,20 @@ int main(void) {
         lv_timer_handler();
         bindings::DelayMS(5);
 
-        if(lv_tick_get() > current_time + 10000){
-            dashboard_menu.dashboard_state = STATE_HV;
-            confirm_menu.initiate_start = 1;
+        if (current_time == -1) {
+            current_time = lv_tick_get();
+        }
+
+        if(lv_tick_get() > current_time + 10000 && !happened){
+            dashboard_menu.dashboard_state = STATE_DASHBOARD;
+            happened = true;
+            //dashboard_menu.dashboard_state = STATE_HV;
+            //confirm_menu.initiate_start = 1;
         }
 
         if(lv_tick_get() > current_time + 20000){
-            dashboard_menu.dashboard_state = STATE_WAITING;
-            start_hv_indicator = true;
+            //dashboard_menu.dashboard_state = STATE_WAITING;
+            //start_hv_indicator = true;
         }
 
 
@@ -132,6 +143,7 @@ int main(void) {
 
             // clang-format off
             switch (dashboard_menu.dashboard_state) {
+                case STATE_LOGO_WAITING: logo_screen.create_menu(); break;
                 case STATE_DASHBOARD:    dashboard_menu.create_menu(); break;
                 case STATE_DRIVER:       driver_select.create_menu(); break;
                 case STATE_MODE:         modes_select.create_menu(); break;
@@ -154,7 +166,6 @@ int main(void) {
         // ---------------------------------------------------------------
 
         switch (dashboard_menu.dashboard_state) {
-
             case STATE_WAITING:
                 if (confirm_menu.initiate_start == 1) {
                     dashboard_menu.dashboard_state = STATE_HV;
