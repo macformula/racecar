@@ -3,6 +3,7 @@
 
 // Define the enum for the state machine
 typedef enum {
+    STATE_LOGO_WAITING,
     STATE_DASHBOARD,   //Dashboard state
     STATE_DRIVE_MODE,  //Drive mode state
     STATE_DEBUG,       //Debug mode state
