@@ -66,6 +66,9 @@ VehicleDynamics vd{pedal_to_torque};
 // Global Governer input defined
 Governor::Input gov_in{};
 
+// todo: make this local
+TxFCDashboardStatus fc_to_dash{false, false, false, false};
+
 void UpdateControls() {
     // NOTE #1: For defining inputs, I commented out inputs where I didn't know
     // what to set it to NOTE #2: Some binding values like brake_pedal_front and
@@ -84,6 +87,18 @@ void UpdateControls() {
     // do I set some value?
     Governor::Output gov_out = gov.Update(gov_in, time_ms);
 
+    // latch these values once the state is achieved
+    // todo: move this to a better spot
+    if (gov_out.di_cmd == DiCmd::HV_ON) {
+        fc_to_dash.hv_started = true;
+    }
+    if (gov_out.di_cmd == DiCmd::READY_TO_DRIVE) {
+        fc_to_dash.motor_started = true;
+    }
+    if (gov_in.di_sts == DiSts::RUNNING) {
+        fc_to_dash.drive_started = true;
+    }
+
     veh_can_bus.Send(TxFC_Status{
         .gov_status = static_cast<uint8_t>(gov_out.gov_sts),
         .di_status = static_cast<uint8_t>(gov_in.di_sts),
@@ -92,24 +107,25 @@ void UpdateControls() {
         .user_flag = false,  // bindings::start_button.Read(),
     });
 
+    auto dash_msg = veh_can_bus.GetRxDashboardIndicatorStatus();
+    if (!dash_msg.has_value()) return;
+
     // Driver Interface update
     DriverInterface::Input di_in = {
         .di_cmd = gov_out.di_cmd,
         .brake_pedal_pos = brake_pedal_front.Update(),
-        .driver_button = 0,  // bindings::start_button.Read(),
+        .driver_state = static_cast<dashState>(dash_msg->dashState()),
         .accel_pedal_pos1 = accel_pedal_1.Update(),
         .accel_pedal_pos2 = accel_pedal_2.Update(),
         .steering_angle = steering_wheel.Update()};
     DriverInterface::Output di_out = di.Update(di_in, time_ms);
     gov_in.di_sts = di_out.di_sts;
 
-    // bindings::rtds_en.Set(di_out.driver_speaker);
-    // bindings::brake_light_en.Set(di_out.brake_light_en);
+    bindings::ready_to_drive_sig_en.Set(di_out.driver_speaker);
+    veh_can_bus.Send(TxBrakeLight{.enable = di_out.brake_light_en});
 
     auto contactor_states = veh_can_bus.GetRxContactor_Feedback();
-    if (!contactor_states.has_value()) {
-        return;
-    }
+    if (!contactor_states.has_value()) return;
 
     BatteryMonitor::Input bm_in = {
         .cmd = gov_out.bm_cmd,
@@ -183,166 +199,6 @@ void UpdateControls() {
 }
 
 /***************************************************************
-    Dashboard FSM
-***************************************************************/
-
-enum class State {
-    WAIT_FOR_DASHBOARD_ON,
-    WAIT_FOR_HV_DATA,
-    TURN_ON_HV,
-    WAIT_FOR_MOTOR_DATA,
-    TURN_ON_MOTOR,
-    WAIT_FOR_BRAKES_PRESSED,
-    TURN_ON_BRAKES,
-    DRIVING
-};
-
-class StateMachine {
-public:
-    // Constructor w/ initial state and initial time
-    StateMachine(int start_time)
-        : state_(State::WAIT_FOR_DASHBOARD_ON),
-          state_enter_time_(start_time),
-          on_enter_(true) {}
-
-    void Update(int time_ms) {
-        std::optional<State> transition = std::nullopt;
-        int elapsed = time_ms - state_enter_time_;
-
-        auto msg = veh_can_bus.GetRxDashboardIndicatorStatus();
-
-        // continously send message
-        veh_can_bus.Send(TxFCDashboardStatus{
-            .hv_started = hv_started,
-            .motor_started = motor_started,
-            .drive_started = drive_started,
-        });
-
-        // State machine logic
-        switch (state_) {
-            case State::WAIT_FOR_DASHBOARD_ON:
-                // doesn't do anything specific in this state
-                if (on_enter_) {
-                }
-
-                if (msg->dashStatus() == 0b1) {
-                    transition = State::WAIT_FOR_HV_DATA;
-                }
-                break;
-
-            case State::WAIT_FOR_HV_DATA:
-                // wait for Dash to send indicator to start HV
-                // at the same time update driver and event data with whatever
-                // dash sends
-                if (on_enter_) {
-                }
-
-                driver_number = msg->driverNumber();
-                event_number = msg->eventNumber();
-
-                // once we recieve indication to turn on HV, go to that state
-                if (msg->startHvIndicator() == 0b1) {
-                    transition = State::TURN_ON_HV;
-                }
-                break;
-
-            case State::TURN_ON_HV:
-                // Here we turn on the HV system and wait till that is finished.
-                // Once it is finished, we tell Dash that it has finished
-                if (on_enter_) {
-                    //*START HV HERE*
-                }
-
-                //*CHANGE CONDITION TO CHECK IF HV HAS FINISHED STARTING*
-                if (true) {
-                    hv_started = true;
-                    transition = State::WAIT_FOR_MOTOR_DATA;
-                    break;
-                }
-                break;
-
-            case State::WAIT_FOR_MOTOR_DATA:
-                // waits for dash to indicator motor starting
-                if (on_enter_) {
-                }
-
-                // once we recieve indication, transition to turn it on
-                if (msg->startMotorIndicator() == 0b1) {
-                    transition = State::TURN_ON_MOTOR;
-                }
-                break;
-
-            case State::TURN_ON_MOTOR:
-                // Here again, we start motor and wait for it to be turned on
-                // Then we send message to dash that it has been turned on
-                if (on_enter_) {
-                    //*START MOTOR HERE*
-                }
-
-                //*CHANGE CONDITION TO CHECK IF MOTOR HAS STARTED*
-                if (true) {
-                    motor_started = true;
-                    transition = State::WAIT_FOR_BRAKES_PRESSED;
-                    break;
-                }
-                break;
-
-            case State::WAIT_FOR_BRAKES_PRESSED:
-                // Here we check if breaks are pressed, if so transition to turn
-                // on the vehicle
-                if (on_enter_) {
-                }
-
-                //*CHANGE THIS TO CHECK IF BREAKS WERE PRESSED*
-                if (true) {
-                    transition = State::TURN_ON_BRAKES;
-                }
-                break;
-
-            case State::TURN_ON_BRAKES:
-                // We start the vehicle, wait for it to fully turn on, once it
-                // is tell dashboard that it is turned on
-                if (on_enter_) {
-                    //*TURN ON VEHICLE HERE*
-                }
-
-                // CHANGE TO CHECK IF VEHICLE IS ON
-                if (true) {
-                    drive_started = true;
-                    transition = State::DRIVING;
-                    break;
-                }
-                break;
-
-            case State::DRIVING:
-                if (on_enter_) {
-                }
-
-                break;
-        }
-
-        // Handle transition
-        on_enter_ = transition.has_value();
-        if (on_enter_) {
-            state_enter_time_ = time_ms;
-            state_ = transition.value();
-        }
-    }
-
-private:
-    State state_;
-    int state_enter_time_;
-    bool on_enter_;
-
-    bool hv_started = false;
-    bool motor_started = false;
-    bool drive_started = false;
-
-    uint8_t driver_number = 0;
-    uint8_t event_number = 0;
-};
-
-/***************************************************************
     Main Function
 ***************************************************************/
 
@@ -351,32 +207,57 @@ int main(void) {
 
     // Turn on dashboard and corresponding FSM
     bindings::dashboard_power_en.SetHigh();
-    StateMachine dash_fsm(bindings::GetTickMs());
 
-    bool state = true;
+    /***************************************************************
+        Dashboard start sequence
+    ***************************************************************/
+    // todo: use these values to construct the controls model
+    driverNumber driver;
+    eventNumber event;
 
+    std::optional<RxDashboardIndicatorStatus> dash_msg;
     while (true) {
-        // dash_fsm.Update(bindings::GetTickMs());
+        dash_msg = veh_can_bus.GetRxDashboardIndicatorStatus();
+        if (!dash_msg.has_value()) continue;
 
-        // UpdateControls();
+        veh_can_bus.Send(TxFC_Status{});  // tell LV we are ready to go
+        veh_can_bus.Send(fc_to_dash);
 
-        // bindings::debug_led.Set(state);
-        // state = !state;
+        auto state = static_cast<dashState>(dash_msg->dashState());
+        if (state == dashState::RequestedHV) {
+            driver = static_cast<driverNumber>(dash_msg->driverNumber());
+            event = static_cast<eventNumber>(dash_msg->eventNumber());
+            fc_to_dash.receive_config = true;
+            break;
+        }
+        bindings::DelayMs(50);
+    }
 
-        // auto msg = veh_can_bus.GetRxInitiateCanFlash();
+    /***************************************************************
+    Main sequence
+    ***************************************************************/
+    bool debug_led_state = true;
+    while (true) {
+        // update and send dash a message
+        veh_can_bus.Send(fc_to_dash);
+        UpdateControls();
 
-        // if (msg.has_value() &&
-        //     static_cast<ECU>(msg->ECU()) == ECU::FrontController) {
-        //     bindings::SoftwareReset();
-        // }
+        bindings::debug_led.SetHigh();
+        // debug_led_state = !debug_led_state;
 
+        // Check for CAN flash
+        auto msg = veh_can_bus.GetRxInitiateCanFlash();
+        if (msg.has_value() &&
+            static_cast<ECU>(msg->ECU()) == ECU::FrontController) {
+            bindings::SoftwareReset();
+        }
+
+        // todo: remove
         auto dashboard_leds = veh_can_bus.GetRxDashboardIndicatorStatus();
 
         if (dashboard_leds.has_value()) {
             bindings::imd_fault_led_en.Set(!dashboard_leds->IMDLed());
             bindings::bms_fault_led_en.Set(!dashboard_leds->BMSLed());
-            // bindings::imd_fault_led_en.SetLow();
-            // bindings::bms_fault_led_en.SetHigh();
         } else {
             static bool tog = false;
             bindings::imd_fault_led_en.Set(tog);
@@ -384,7 +265,7 @@ int main(void) {
             tog = !tog;
         }
 
-        bindings::DelayMs(100);
+        bindings::DelayMs(10);
     }
 
     return 0;

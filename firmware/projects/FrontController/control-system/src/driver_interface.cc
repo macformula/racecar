@@ -59,7 +59,7 @@ DriverInterface::Output DriverInterface::Update(const Input input,
     DiFsm::Output fsm_output = di_fsm.Update(
         {
             .command = input.di_cmd,
-            .driver_button = input.driver_button,
+            .driver_state = input.driver_state,
             .brake_pedal_pos = input.brake_pedal_pos,
             .di_error = di_error,
         },

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../generated/can/veh_messages.hpp"
 #include "driver_interface_fsm.hpp"
 #include "enums.hpp"
 
@@ -8,7 +9,7 @@ public:
     struct Input {
         DiCmd di_cmd;
         float brake_pedal_pos;
-        bool driver_button;
+        generated::can::dashState driver_state;
         float accel_pedal_pos1;
         float accel_pedal_pos2;
         float steering_angle;

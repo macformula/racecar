@@ -1,9 +1,12 @@
 #include <cassert>
 #include <iostream>
 
+#include "../../generated/can/veh_messages.hpp"
 #include "control-system/driver_interface.hpp"
 #include "control-system/enums.hpp"
 #include "testing.h"
+
+using generated::can::dashState;
 
 DriverInterface CycleToRunning() {
     DriverInterface di;
@@ -11,13 +14,13 @@ DriverInterface CycleToRunning() {
     auto out = di.Update({.di_cmd = DiCmd::INIT}, 0);
     ASSERT_EQ(out.di_sts, DiSts::WAITING_FOR_DRVR);
 
-    out = di.Update({.driver_button = true}, 1);
+    out = di.Update({.driver_state = dashState::RequestedHV}, 1);
     ASSERT_EQ(out.di_sts, DiSts::HV_START_REQ);
 
     out = di.Update(
         {
             .di_cmd = DiCmd::HV_ON,
-            .driver_button = true,
+            .driver_state = dashState::RequestedMotor,
         },
         2);
     ASSERT_EQ(out.di_sts, DiSts::MOTOR_START_REQ);

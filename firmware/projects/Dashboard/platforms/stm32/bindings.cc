@@ -29,8 +29,9 @@ namespace mcal {
 using namespace stm32f4::periph;
 
 CanBase veh_can_base{&hcan1};
-DigitalInput button_scroll{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
-DigitalInput button_select{BUTTON_SELECT_GPIO_Port, BUTTON_SELECT_Pin};
+// TODO swap these labels in CubeMX instead of here
+DigitalInput button_scroll{BUTTON_SELECT_GPIO_Port, BUTTON_SELECT_Pin};
+DigitalInput button_select{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
 
 }  // namespace mcal
 

@@ -66,17 +66,11 @@ int main(void) {
     // driver_select.create_menu();
     logo_screen.create_menu();
     dashboardStates previous_state = STATE_LOGO_WAITING;
+    logo_screen.create_menu();
 
     // ---------------------------------------------------------------
     // CAN initialization --------------------------------------------
     // ---------------------------------------------------------------
-
-    auto msg = veh_can.GetRxFCDashboardStatus();
-    bool dash_status = false;
-    uint8_t driver_number = 0;
-    uint8_t event_number = 0;
-    bool start_hv_indicator = false;
-    bool start_motor_indicator = false;
 
     // temp
     int current_time = -1;
@@ -86,24 +80,20 @@ int main(void) {
     // Main Loop ------------------- ---------------------------------
     // ---------------------------------------------------------------
 
+    dashState dash_state_to_fc = dashState::On;
+
     while (1) {
-        veh_can.Send(TxDashStatus{.status = 1});
-
-        dash_status = true;
-        driver_number = static_cast<uint8_t>(dashboard_menu.selected_driver);
-        event_number = static_cast<uint8_t>(dashboard_menu.selected_mode);
-
-        bool IMD = bindings::button_scroll.Read();
-        bool BMS = bindings::button_select.Read();
+        bool scroll = !bindings::button_scroll.Read();
+        bool select_pressed = !bindings::button_select.Read();
 
         veh_can.Send(TxDashboardIndicatorStatus{
-            .dash_status = dash_status,
-            .driver_number = driver_number,
-            .event_number = event_number,
-            .start_hv_indicator = start_hv_indicator,
-            .start_motor_indicator = start_motor_indicator,
-            .imd_led = IMD,
-            .bms_led = BMS,
+            .dash_state = static_cast<uint8_t>(dash_state_to_fc),
+            .driver_number =
+                static_cast<uint8_t>(dashboard_menu.selected_driver),
+            .event_number = static_cast<uint8_t>(dashboard_menu.selected_mode),
+            .dash_screen = static_cast<uint8_t>(dashboard_menu.dashboard_state),
+            .imd_led = scroll,
+            .bms_led = select_pressed,
         });
 
         // LVGL specific delay
@@ -111,7 +101,7 @@ int main(void) {
         bindings::DelayMS(5);
 
         // get message from FC
-        msg = veh_can.GetRxFCDashboardStatus();
+        auto msg = veh_can.GetRxFCDashboardStatus();
         if (!msg.has_value()) continue;
         if (current_time == -1) {
             current_time = lv_tick_get();
@@ -168,7 +158,7 @@ int main(void) {
                 }
 
                 if (start_hv.start_HV_toggle == 1) {
-                    start_hv_indicator = true;
+                    dash_state_to_fc = dashState::RequestedHV;
 
                     if (msg->hvStarted()) {
                         dashboard_menu.dashboard_state = STATE_MOTORS;
@@ -177,7 +167,7 @@ int main(void) {
                 }
 
                 if (start_motors.start_motors_toggle == 1) {
-                    start_motor_indicator = true;
+                    dash_state_to_fc = dashState::RequestedMotor;
 
                     if (msg->motorStarted()) {
                         dashboard_menu.dashboard_state = STATE_START_DRIVING;

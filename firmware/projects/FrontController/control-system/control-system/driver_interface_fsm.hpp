@@ -1,12 +1,13 @@
 #pragma once
 
+#include "../../generated/can/veh_messages.hpp"
 #include "enums.hpp"
 
 class DiFsm {
 public:
     struct Input {
         DiCmd command;
-        bool driver_button;
+        generated::can::dashState driver_state;
         float brake_pedal_pos;
         bool di_error;
     };

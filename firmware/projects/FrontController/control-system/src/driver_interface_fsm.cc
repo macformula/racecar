@@ -1,5 +1,6 @@
 #include "control-system/driver_interface_fsm.hpp"
 
+#include "../../generated/can/veh_messages.hpp"
 #include "control-system/enums.hpp"
 
 DiFsm::DiFsm(DiSts initial_state) : status_(initial_state) {}
@@ -25,6 +26,7 @@ DiFsm::Output DiFsm::Update(const DiFsm::Input input, const int time_ms) {
 }
 
 DiSts DiFsm::Transition(const DiFsm::Input input, const int time_ms) {
+    using generated::can::dashState;
     // Superstate transitions
     if (status_ == DiSts::WAITING_FOR_DRVR || status_ == DiSts::HV_START_REQ ||
         status_ == DiSts::MOTOR_START_REQ || status_ == DiSts::RUNNING) {
@@ -44,13 +46,14 @@ DiSts DiFsm::Transition(const DiFsm::Input input, const int time_ms) {
             break;
 
         case DiSts::WAITING_FOR_DRVR:
-            if (input.driver_button) {
+            if (input.driver_state == dashState::RequestedHV) {
                 return DiSts::HV_START_REQ;
             }
             break;
 
         case DiSts::HV_START_REQ:
-            if (input.command == DiCmd::HV_ON && input.driver_button) {
+            if (input.command == DiCmd::HV_ON &&
+                input.driver_state == dashState::RequestedMotor) {
                 return DiSts::MOTOR_START_REQ;
             }
             break;

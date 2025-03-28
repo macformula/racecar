@@ -1,0 +1,378 @@
+//******************************BUSMASTER Messages and signals Database ******************************//
+
+[DATABASE_VERSION] 1.3
+
+[PROTOCOL] CAN
+
+[BUSMASTER_VERSION] [3.2.2]
+[NUMBER_OF_MESSAGES] 27
+
+[START_MSG] InitiateCanFlash,109,1,1,1,S,RPI
+[START_SIGNALS] ECU,8,1,0,U,2,0,1,0,1,,,FC,LVC,TMS
+[VALUE_DESCRIPTION] "FrontController",0
+[VALUE_DESCRIPTION] "LvController",1
+[VALUE_DESCRIPTION] "TMS",2
+[END_MSG]
+
+[START_MSG] LvSwitch,110,6,1,1,S,PC_SG
+[START_SIGNALS] SwitchClose,8,1,0,U,1,0,1,0,1,,,LVC
+[END_MSG]
+
+[START_MSG] LvControllerStatus,111,6,3,1,S,LVC
+[START_SIGNALS] LvState,8,1,0,U,1,0,1,0,1,,,RPI
+[VALUE_DESCRIPTION] "PWRUP_START",0
+[VALUE_DESCRIPTION] "PWRUP_TSSI_ON",1
+[VALUE_DESCRIPTION] "PWRUP_PERIPHERALS_ON",2
+[VALUE_DESCRIPTION] "PWRUP_ACCUMULATOR_ON",3
+[VALUE_DESCRIPTION] "PWRUP_MOTOR_PRECHARGE_ON",4
+[VALUE_DESCRIPTION] "PWRUP_MOTOR_LV",5
+[VALUE_DESCRIPTION] "PWRUP_MOTOR_PRECHARGE_OFF",6
+[VALUE_DESCRIPTION] "PWRUP_SHUTDOWN_ON",7
+[VALUE_DESCRIPTION] "MOTOR_CONTROLLER_SWITCH_SEQ",8
+[VALUE_DESCRIPTION] "DCDC_ON",9
+[VALUE_DESCRIPTION] "POWERTRAIN_PUMP_ON",10
+[VALUE_DESCRIPTION] "POWERTRAIN_FAN_ON",11
+[VALUE_DESCRIPTION] "POWERTRAIN_FAN_SWEEP",12
+[VALUE_DESCRIPTION] "READY_TO_DRIVE",13
+[VALUE_DESCRIPTION] "SHUTDOWN_DRIVER_WARNING",14
+[VALUE_DESCRIPTION] "SHUTDOWN_PUMP_OFF",15
+[VALUE_DESCRIPTION] "SHUTDOWN_FAN_OFF",16
+[VALUE_DESCRIPTION] "SHUTDOWN_COMPLETE",17
+[START_SIGNALS] Elapsed,32,2,0,I,1,0,1,0,1,,,RPI
+[START_SIGNALS] Flag,1,6,0,B,1,0,1,0,1,,,RPI
+[END_MSG]
+
+[START_MSG] BrakeLight,114,1,1,1,S,FC
+[START_SIGNALS] Enable,1,1,0,B,1,0,1,0,1,,,LVC
+[END_MSG]
+
+[START_MSG] SuspensionTravel34,113,2,2,1,S,LVC
+[START_SIGNALS] STP3,8,1,0,U,255,0,1,0,1,,,FC,RPI
+[START_SIGNALS] STP4,8,2,0,U,255,0,1,0,1,,,FC,RPI
+[END_MSG]
+
+[START_MSG] FC_Status,255,5,5,1,S,FC
+[START_SIGNALS] GovStatus,8,1,0,U,255,0,1,0,1,,,LVC,PC_SG
+[START_SIGNALS] DiStatus,8,2,0,U,255,0,1,0,1,,,LVC,PC_SG
+[START_SIGNALS] MiStatus,8,3,0,U,255,0,1,0,1,,,LVC,PC_SG
+[START_SIGNALS] BmStatus,8,4,0,U,255,0,1,0,1,,,LVC,PC_SG
+[START_SIGNALS] UserFlag,8,5,0,U,255,0,1,0,1,,,LVC,PC_SG
+[END_MSG]
+
+[START_MSG] FC_msg,511,8,6,1,S,FC
+[START_SIGNALS] FC_hvilSts,1,8,4,B,1,0,1,0,1,,,PC_SG
+[START_SIGNALS] FC_steeringAngle,12,7,0,U,4095,0,1,0,1,,,PC_SG
+[START_SIGNALS] FC_bpps,12,5,0,U,4095,0,1,0,1,,,PC_SG
+[START_SIGNALS] FC_apps2,12,3,0,U,4095,0,1,0,1,,,PC_SG
+[START_SIGNALS] FC_apps1,12,1,0,U,4095,0,1,0,1,,,PC_SG
+[START_SIGNALS] FC_readyToDriveBtn_n,1,8,5,B,1,0,1,0,1,,,PC_SG
+[END_MSG]
+
+[START_MSG] FC_cmd,256,1,2,1,S,PC_SG
+[START_SIGNALS] FC_readyToDriveSpeaker,1,1,1,B,1,0,1,0,1,,,FC
+[START_SIGNALS] FC_brakeLight,1,1,0,B,1,0,1,0,1,,,FC
+[END_MSG]
+
+[START_MSG] ContactorCommand,1570,3,3,1,S,FC
+[START_SIGNALS] PackPositive,8,1,0,U,255,0,1,0,1,,,BMS,LVC
+[START_SIGNALS] PackPrecharge,8,2,0,U,255,0,1,0,1,,,BMS,LVC
+[START_SIGNALS] PackNegative,8,3,0,U,255,0,1,0,1,,,BMS,LVC
+[END_MSG]
+
+[START_MSG] Pack_State,1572,7,4,1,S,BMS
+[START_SIGNALS] Pack_Current,16,1,0,U,65535,0,1,0,0.1,Amps,,FC
+[START_SIGNALS] Pack_Inst_Voltage,16,3,0,U,65535,0,1,0,0.1,Volts,,FC
+[START_SIGNALS] Avg_Cell_Voltage,16,5,0,U,65535,0,1,0,0.0001,Volts,,FC
+[START_SIGNALS] Populated_Cells,8,7,0,U,255,0,1,0,1,Num,,FC
+[END_MSG]
+
+[START_MSG] Pack_Current_Limits,1571,4,2,1,S,BMS
+[START_SIGNALS] Pack_CCL,16,1,0,U,65535,0,1,0,1,Amps,,FC
+[START_SIGNALS] Pack_DCL,16,3,0,U,65535,0,1,0,1,Amps,,FC
+[END_MSG]
+
+[START_MSG] Pack_SOC,1573,3,2,1,S,BMS
+[START_SIGNALS] Pack_SOC,8,1,0,U,255,0,1,0,0.5,Percent,,FC
+[START_SIGNALS] Maximum_Pack_Voltage,16,2,0,U,65535,0,1,0,0.1,Volts,,FC
+[END_MSG]
+
+[START_MSG] Contactor_Feedback,1574,3,3,1,S,BMS
+[START_SIGNALS] Pack_Positive_Feedback,1,1,0,B,1,0,1,0,1,,,FC
+[START_SIGNALS] Pack_Negative_Feedback,1,2,0,B,1,0,1,0,1,,,FC
+[START_SIGNALS] Pack_Precharge_Feedback,1,3,0,B,1,0,1,0,1,,,FC
+[END_MSG]
+
+[START_MSG] BmsBroadcast,406451072,8,8,1,X,TMS
+[START_SIGNALS] ThermModuleNum,8,1,0,U,255,0,1,0,1,,,BMS
+[START_SIGNALS] LowThermValue,8,2,0,I,127,-128,1,0,1, C,,BMS
+[START_SIGNALS] HighThermValue,8,3,0,I,127,-128,1,0,1, C,,BMS
+[START_SIGNALS] AvgThermValue,8,4,0,I,127,-128,1,0,1, C,,BMS
+[START_SIGNALS] NumThermEn,8,5,0,U,255,0,1,0,1,,,BMS
+[START_SIGNALS] HighThermID,8,6,0,U,255,0,1,0,1,,,BMS
+[START_SIGNALS] LowThermID,8,7,0,U,255,0,1,0,1,,,BMS
+[START_SIGNALS] Checksum,8,8,0,U,255,0,1,0,1,,,BMS
+[END_MSG]
+
+[START_MSG] ThermistorBroadcast,419361278,8,7,1,X,TMS
+[START_SIGNALS] RelThermID,16,1,0,U,65535,0,1,0,1,,,BMS
+[START_SIGNALS] ThermValue,8,3,0,I,127,-128,1,0,1, C,,BMS
+[START_SIGNALS] NumEnTherm,8,4,0,I,127,-128,1,0,1,,,BMS
+[START_SIGNALS] LowThermValue,8,5,0,I,127,-128,1,0,1, C,,BMS
+[START_SIGNALS] HighThermValue,8,6,0,I,127,-128,1,0,1, C,,BMS
+[START_SIGNALS] HighThermID,8,7,0,U,255,0,1,0,1,,,BMS
+[START_SIGNALS] LowThermID,8,8,0,U,255,0,1,0,1,,,BMS
+[END_MSG]
+
+[START_MSG] GnssStatus,769,1,2,1,S,CANmod
+[START_SIGNALS] FixType,3,1,0,U,5,0,1,0,1,,,FC
+[START_SIGNALS] Satellites,5,1,3,U,31,0,1,0,1,,,FC
+[END_MSG]
+
+[START_MSG] GnssTime,770,6,3,1,S,CANmod
+[START_SIGNALS] TimeValid,1,1,0,B,1,0,1,0,1,,,FC
+[START_SIGNALS] TimeConfirmed,1,1,1,B,1,0,1,0,1,,,FC
+[START_SIGNALS] Epoch,40,2,0,U,549755813887,0,1,1.57784e+009,0.001,sec,,FC
+[END_MSG]
+
+[START_MSG] GnssPosition,771,8,4,1,S,CANmod
+[START_SIGNALS] PositionValid,1,1,0,B,1,0,1,0,1,,,FC
+[START_SIGNALS] Latitude,28,1,1,U,268435455,0,1,-90,1e-006,deg,,FC
+[START_SIGNALS] Longitude,29,4,5,U,536870911,0,1,-180,1e-006,deg,,FC
+[START_SIGNALS] PositionAccuracy,6,8,2,U,63,0,1,0,1,m,,FC
+[END_MSG]
+
+[START_MSG] GnssAltitude,772,4,3,1,S,CANmod
+[START_SIGNALS] AltitudeValid,1,1,0,B,1,0,1,0,1,,,FC
+[START_SIGNALS] Altitude,18,1,1,U,260000,0,1,-6000,0.1,m,,FC
+[START_SIGNALS] AltitudeAccuracy,13,3,3,U,8000,0,1,0,1,m,,FC
+[END_MSG]
+
+[START_MSG] GnssAttitude,773,8,7,1,S,CANmod
+[START_SIGNALS] AttitudeValid,1,1,0,B,1,0,1,0,1,,,FC
+[START_SIGNALS] Roll,12,1,1,U,3600,0,1,-180,0.1,deg,,FC
+[START_SIGNALS] RollAccuracy,9,2,5,U,500,0,1,0,0.1,deg,,FC
+[START_SIGNALS] Pitch,12,3,6,U,1800,0,1,-90,0.1,deg,,FC
+[START_SIGNALS] PitchAccuracy,9,5,2,U,500,0,1,0,0.1,deg,,FC
+[START_SIGNALS] Heading,12,6,3,U,3600,0,1,0,0.1,deg,,FC
+[START_SIGNALS] HeadingAccuracy,9,7,7,U,500,0,1,0,0.1,deg,,FC
+[END_MSG]
+
+[START_MSG] GnssOdo,774,8,4,1,S,CANmod
+[START_SIGNALS] DistanceValid,1,1,0,B,1,0,1,0,1,,,FC
+[START_SIGNALS] DistanceTrip,22,1,1,U,4194303,0,1,0,1,m,,FC
+[START_SIGNALS] DistanceAccuracy,19,3,7,U,524287,0,1,0,1,m,,FC
+[START_SIGNALS] DistanceTotal,22,6,2,U,4194303,0,1,0,1,km,,FC
+[END_MSG]
+
+[START_MSG] GnssSpeed,775,5,3,1,S,CANmod
+[START_SIGNALS] SpeedValid,1,1,0,B,1,0,1,0,1,,,FC
+[START_SIGNALS] Speed,20,1,1,U,1048575,0,1,0,0.001,m/s,,FC
+[START_SIGNALS] SpeedAccuracy,19,3,5,U,524287,0,1,0,0.001,m/s,,FC
+[END_MSG]
+
+[START_MSG] GnssGeofence,776,2,6,1,S,CANmod
+[START_SIGNALS] FenceValid,1,1,0,B,1,0,1,0,1,,,FC
+[START_SIGNALS] FenceCombined,2,1,1,U,1,0,1,0,1,,,FC
+[START_SIGNALS] Fence1,2,2,0,U,1,0,1,0,1,,,FC
+[START_SIGNALS] Fence2,2,2,2,U,1,0,1,0,1,,,FC
+[START_SIGNALS] Fence3,2,2,4,U,1,0,1,0,1,,,FC
+[START_SIGNALS] Fence4,2,2,6,U,1,0,1,0,1,,,FC
+[END_MSG]
+
+[START_MSG] GnssImu,777,8,7,1,S,CANmod
+[START_SIGNALS] ImuValid,1,1,0,B,1,0,1,0,1,,,FC
+[START_SIGNALS] AccelerationX,10,1,1,U,1023,0,1,-64,0.125,m/s^2,,FC
+[START_SIGNALS] AccelerationY,10,2,3,U,1023,0,1,-64,0.125,m/s^2,,FC
+[START_SIGNALS] AccelerationZ,10,3,5,U,1023,0,1,-64,0.125,m/s^2,,FC
+[START_SIGNALS] AngularRateX,11,4,7,U,2047,0,1,-256,0.25,deg/s,,FC
+[START_SIGNALS] AngularRateY,11,6,2,U,2047,0,1,-256,0.25,deg/s,,FC
+[START_SIGNALS] AngularRateZ,11,7,5,U,2047,0,1,-256,0.25,deg/s,,FC
+[END_MSG]
+
+[START_MSG] FCDashboardStatus,258,4,4,1,S,FC
+[START_SIGNALS] receiveConfig,1,1,0,B,1,0,1,0,1,,,Dash
+[START_SIGNALS] hvStarted,1,2,0,B,1,0,1,0,1,,,Dash
+[START_SIGNALS] motorStarted,1,3,0,B,1,0,1,0,1,,,Dash
+[START_SIGNALS] driveStarted,1,4,0,B,1,0,1,0,1,,,Dash
+[END_MSG]
+
+[START_MSG] DashboardIndicatorStatus,259,7,6,1,S,Dash
+[START_SIGNALS] dashState,8,1,0,U,1,0,1,0,1,,,FC
+[VALUE_DESCRIPTION] "WaitBrakeStart",5
+[VALUE_DESCRIPTION] "RequestedMotor",4
+[VALUE_DESCRIPTION] "WaitRequestMotor",3
+[VALUE_DESCRIPTION] "RequestedHV",2
+[VALUE_DESCRIPTION] "WaitRequestHV",1
+[VALUE_DESCRIPTION] "On",0
+[START_SIGNALS] driverNumber,8,2,0,U,15,0,1,0,1,,,FC
+[VALUE_DESCRIPTION] "Tyler",6
+[VALUE_DESCRIPTION] "Nathan",5
+[VALUE_DESCRIPTION] "Mubashir",4
+[VALUE_DESCRIPTION] "Luca",3
+[VALUE_DESCRIPTION] "Logan",2
+[VALUE_DESCRIPTION] "Lin",1
+[VALUE_DESCRIPTION] "Ada",0
+[START_SIGNALS] eventNumber,8,3,0,U,15,0,1,0,1,,,FC
+[VALUE_DESCRIPTION] "Endurance",2
+[VALUE_DESCRIPTION] "Skidpad",1
+[VALUE_DESCRIPTION] "Launch",0
+[START_SIGNALS] dashScreen,8,4,0,U,255,0,1,0,1,,,FC
+[START_SIGNALS] IMDLed			,1,6,0,B,1,0,1,0,1,,,FC
+[START_SIGNALS] BMSLed,1,7,0,B,1,0,1,0,1,,,FC
+[END_MSG]
+
+[START_MSG] RpiSpeed,260,1,1,1,S,RPI
+[START_SIGNALS] speed,8,1,0,U,100,0,1,0,1,,,DASH
+[END_MSG]
+
+[START_SIG_LIST]
+[START_SIGNALS] FC_userBtnL,1,1,0,B,1,0,1,0,1,,,
+[START_SIGNALS] FC_userBtnR,1,1,0,B,1,0,1,0,1,,,
+[END_SIG_LIST]
+
+[START_VALUE_TABLE]
+[END_VALUE_TABLE]
+
+[NODE] PC_SG,BMS,FC,TMS,CANmod,LVC,RPI
+
+[START_DESC]
+[START_DESC_NET]
+[END_DESC_NET]
+
+[START_DESC_NODE]
+[END_DESC_NODE]
+
+[START_DESC_MSG]
+1073741824 X "This is a message for not used signals, created by Vector CANdb++ DBC OLE DB Provider.";
+1572 S "This ID Transmits at 8 ms.";
+1571 S "This ID Transmits at 8 ms.";
+1573 S "This ID Transmits at 8 ms.";
+1574 S "This ID Transmits at 8 ms.";
+406451072 X "Thermistor Module - BMS Broadcast";
+419361278 X "Thermistor General Broadcast";
+769 S "GNSS information";
+770 S "GNSS time";
+771 S "GNSS position";
+772 S "GNSS altitude";
+773 S "GNSS attitude";
+774 S "GNSS odometer";
+775 S "GNSS speed";
+776 S "GNSS geofence(s)";
+777 S "GNSS IMU";
+[END_DESC_MSG]
+
+[START_DESC_SIG]
+406451072 X ThermModuleNum "Thermistor Module Number";
+419361278 X RelThermID "Thermistor ID relative to all configured Thermistor Modules";
+769 S FixType "Fix type";
+769 S Satellites "Number of satellites used";
+770 S TimeValid "Time validity";
+770 S TimeConfirmed "Time confirmed";
+770 S Epoch "Epoch time";
+771 S PositionValid "Position validity";
+771 S Latitude "Latitude";
+771 S Longitude "Longitude";
+771 S PositionAccuracy "Accuracy of position";
+772 S AltitudeValid "Altitude validity";
+772 S Altitude "Altitude";
+772 S AltitudeAccuracy "Accuracy of altitude";
+773 S AttitudeValid "Attitude validity";
+773 S Roll "Vehicle roll";
+773 S RollAccuracy "Vehicle roll accuracy";
+773 S Pitch "Vehicle pitch";
+773 S PitchAccuracy "Vehicle pitch accuracy";
+773 S Heading "Vehicle heading";
+773 S HeadingAccuracy "Vehicle heading accuracy";
+774 S DistanceTrip "Distance traveled since last reset";
+774 S DistanceAccuracy "Distance accuracy (1-sigma)";
+774 S DistanceTotal "Distance traveled in total";
+775 S SpeedValid "Speed valid";
+775 S Speed "Speed m/s";
+775 S SpeedAccuracy "Speed accuracy";
+776 S FenceValid "Geofencing status";
+776 S FenceCombined "Combined (logical OR) state of all geofences";
+776 S Fence1 "Geofence 1 state";
+776 S Fence2 "Geofence 2 state";
+776 S Fence3 "Geofence 3 state";
+776 S Fence4 "Geofence 4 state";
+777 S AccelerationX "X acceleration with a resolution of 0.125 m/s^2";
+777 S AccelerationY "Y acceleration with a resolution of 0.125 m/s^2";
+777 S AccelerationZ "Z acceleration with a resolution of 0.125 m/s^2";
+777 S AngularRateX "X angular rate with a resolution of 0.25 deg/s";
+777 S AngularRateY "Y angular rate with a resolution of 0.25 deg/s";
+777 S AngularRateZ "Z angular rate with a resolution of 0.25 deg/s";
+[END_DESC_SIG]
+[END_DESC]
+
+[START_PARAM]
+[START_PARAM_NET]
+"BusType",STRING,"CAN"
+"MultiplexExtEnabled",ENUM,"No","No","Yes"
+[END_PARAM_NET]
+
+[START_PARAM_NODE]
+[END_PARAM_NODE]
+
+[START_PARAM_MSG]
+[END_PARAM_MSG]
+
+[START_PARAM_SIG]
+[END_PARAM_SIG]
+
+[START_PARAM_NODE_RX_SIG]
+[END_PARAM_NODE_RX_SIG]
+
+[START_PARAM_NODE_TX_MSG]
+[END_PARAM_NODE_TX_MSG]
+[END_PARAM]
+
+[START_PARAM_VAL]
+[START_PARAM_NET_VAL]
+[END_PARAM_NET_VAL]
+
+[START_PARAM_NODE_VAL]
+[END_PARAM_NODE_VAL]
+
+[START_PARAM_MSG_VAL]
+[END_PARAM_MSG_VAL]
+
+[START_PARAM_SIG_VAL]
+[END_PARAM_SIG_VAL]
+
+[END_PARAM_VAL]
+
+
+[START_NOT_SUPPORTED]
+[END_NOT_SUPPORTED]
+
+[START_NOT_PROCESSED]
+	PZ_
+	ON_QRS_
+	ON_
+	INY_
+	PNG_QRS_
+	PNG_
+	SVYGRE
+	ON_QRS_QRS_
+	RI_QNGN_
+	RAIINE_QNGN_
+	FTGLCR_
+	FTGLCR_INY_
+	ON_QRS_FTGLCR_
+	ON_FTGLCR_
+	FVT_GLCR_ERS_
+	INY_GNOYR_
+	FVT_TEBHC_
+	FVT_INYGLCR_
+	FVTGLCR_INYGLCR_
+	OB_GK_OH_
+	ON_QRS_ERY_
+	ON_ERY_
+	ON_QRS_QRS_ERY_
+	OH_FT_ERY_
+	OH_RI_ERY_
+	OH_OB_ERY_
+	FT_ZHY_INY_
+OF_:
+
+[END_NOT_PROCESSED]
