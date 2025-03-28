@@ -102,7 +102,6 @@ int main(void) {
 
         // get message from FC
         auto msg = veh_can.GetRxFCDashboardStatus();
-        if (!msg.has_value()) continue;
         if (current_time == -1) {
             current_time = lv_tick_get();
         }
@@ -160,7 +159,7 @@ int main(void) {
                 if (start_hv.start_HV_toggle == 1) {
                     dash_state_to_fc = dashState::RequestedHV;
 
-                    if (msg->hvStarted()) {
+                    if (msg.has_value() && msg->hvStarted()) {
                         dashboard_menu.dashboard_state = STATE_MOTORS;
                         start_hv.start_HV_toggle = 2;
                     }
@@ -169,7 +168,7 @@ int main(void) {
                 if (start_motors.start_motors_toggle == 1) {
                     dash_state_to_fc = dashState::RequestedMotor;
 
-                    if (msg->motorStarted()) {
+                    if (msg.has_value() && msg->motorStarted()) {
                         dashboard_menu.dashboard_state = STATE_START_DRIVING;
                         start_motors.start_motors_toggle = 2;
                     }
@@ -178,7 +177,7 @@ int main(void) {
                 break;
 
             case STATE_START_DRIVING:
-                if (msg->driveStarted()) {
+                if (msg.has_value() && msg->driveStarted()) {
                     dashboard_menu.dashboard_state = STATE_DRIVE_MODE;
                 }
 
