@@ -184,12 +184,14 @@ BO_ 258 FCDashboardStatus: 1 FC
  SG_ motorStarted       : 1|1@1+ (1,0) [0|1] ""  Dash
  SG_ driveStarted       : 2|1@1+ (1,0) [0|1] ""  Dash
 
-BO_ 259 DashboardIndicatorStatus: 2 Dash
+BO_ 259 DashboardIndicatorStatus: 4 Dash
  SG_ dashStatus          : 0|1@1+ (1,0) [0|1] "" FC
  SG_ driverNumber        : 1|4@1+ (1,0) [0|15] "" FC
  SG_ eventNumber         : 5|4@1+ (1,0) [0|15] "" FC
  SG_ startHvIndicator    : 9|1@1+ (1,0) [0|1] "" FC
  SG_ startMotorIndicator : 10|1@1+ (1,0) [0|1] "" FC
+ SG_ IMDLed			     : 16|1@1+ (1,0) [0|1] "" FC
+ SG_ BMSLed  			 : 24|1@1+ (1,0) [0|1] "" FC
 
 CM_ BO_ 3221225472 "This is a message for not used signals, created by Vector CANdb++ DBC OLE DB Provider.";
 CM_ BO_ 1572 "This ID Transmits at 8 ms.";

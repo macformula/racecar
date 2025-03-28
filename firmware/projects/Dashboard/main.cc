@@ -1,20 +1,19 @@
 #include "bindings.hpp"
-#include "lvgl.h"
-#include "inc/ButtonHandler.hpp"
-
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "inc/ButtonHandler.hpp"
 #include "inc/ConfirmMenu.hpp"
 #include "inc/DashboardFSM.hpp"
 #include "inc/DashboardMenu.hpp"
 #include "inc/DriveModeMenu.hpp"
 #include "inc/DriverSelect.hpp"
+#include "inc/LogoScreen.hpp"
 #include "inc/ModeSelect.hpp"
 #include "inc/StartDriving.hpp"
 #include "inc/StartHV.hpp"
 #include "inc/StartMotors.hpp"
 #include "inc/WaitingScreen.hpp"
-#include "inc/LogoScreen.hpp"
+#include "lvgl.h"
 
 extern "C" {
 extern lv_disp_drv_t lv_display_driver;
@@ -64,11 +63,9 @@ int main(void) {
     StartDriving start_driving;
 
     dashboard_menu.dashboard_state = STATE_LOGO_WAITING;
-    //driver_select.create_menu();
+    // driver_select.create_menu();
     logo_screen.create_menu();
     dashboardStates previous_state = STATE_LOGO_WAITING;
-
-    bindings::DelayMS(5000);
 
     // ---------------------------------------------------------------
     // CAN initialization --------------------------------------------
@@ -96,48 +93,47 @@ int main(void) {
         driver_number = static_cast<uint8_t>(dashboard_menu.selected_driver);
         event_number = static_cast<uint8_t>(dashboard_menu.selected_mode);
 
-        //get message from FC
-        msg = veh_can.GetRxFCDashboardStatus();
+        bool IMD = bindings::button_scroll.Read();
+        bool BMS = bindings::button_select.Read();
 
         veh_can.Send(TxDashboardIndicatorStatus{
             .dash_status = dash_status,
             .driver_number = driver_number,
             .event_number = event_number,
-            .start_hv_indicator = start_hv_indicator, 
+            .start_hv_indicator = start_hv_indicator,
             .start_motor_indicator = start_motor_indicator,
+            .imd_led = IMD,
+            .bms_led = BMS,
         });
 
-        //LVGL specific delay
+        // LVGL specific delay
         lv_timer_handler();
         bindings::DelayMS(5);
 
+        // get message from FC
+        msg = veh_can.GetRxFCDashboardStatus();
+        if (!msg.has_value()) continue;
         if (current_time == -1) {
             current_time = lv_tick_get();
         }
 
-        if(lv_tick_get() > current_time + 10000 && !happened){
+        if (lv_tick_get() > current_time + 10000 && !happened) {
             dashboard_menu.dashboard_state = STATE_DASHBOARD;
             happened = true;
-            //dashboard_menu.dashboard_state = STATE_HV;
-            //confirm_menu.initiate_start = 1;
+            // dashboard_menu.dashboard_state = STATE_HV;
+            // confirm_menu.initiate_start = 1;
         }
 
-        if(lv_tick_get() > current_time + 20000){
-            //dashboard_menu.dashboard_state = STATE_WAITING;
-            //start_hv_indicator = true;
+        if (lv_tick_get() > current_time + 20000) {
+            // dashboard_menu.dashboard_state = STATE_WAITING;
+            // start_hv_indicator = true;
         }
-
-
-
-
-
 
         // ---------------------------------------------------------------
         // State Machine -------------------------------------------------
         // ---------------------------------------------------------------
 
         if (dashboard_menu.dashboard_state != previous_state) {
-
             lv_obj_t* delete_screen = lv_scr_act();
             previous_state = dashboard_menu.dashboard_state;
 
@@ -157,7 +153,6 @@ int main(void) {
             }
             // clang-format on
 
-
             lv_obj_del(delete_screen);
         }
 
@@ -169,41 +164,40 @@ int main(void) {
             case STATE_WAITING:
                 if (confirm_menu.initiate_start == 1) {
                     dashboard_menu.dashboard_state = STATE_HV;
-                    confirm_menu.initiate_start = 2; 
+                    confirm_menu.initiate_start = 2;
                 }
-        
+
                 if (start_hv.start_HV_toggle == 1) {
                     start_hv_indicator = true;
-        
+
                     if (msg->hvStarted()) {
                         dashboard_menu.dashboard_state = STATE_MOTORS;
-                        start_hv.start_HV_toggle = 2; 
+                        start_hv.start_HV_toggle = 2;
                     }
                 }
-        
+
                 if (start_motors.start_motors_toggle == 1) {
                     start_motor_indicator = true;
-        
+
                     if (msg->motorStarted()) {
                         dashboard_menu.dashboard_state = STATE_START_DRIVING;
                         start_motors.start_motors_toggle = 2;
                     }
                 }
-        
+
                 break;
-        
+
             case STATE_START_DRIVING:
                 if (msg->driveStarted()) {
                     dashboard_menu.dashboard_state = STATE_DRIVE_MODE;
                 }
 
                 break;
-        
+
             default:
 
-            break;
+                break;
         }
-
     }
 
     return 0;
