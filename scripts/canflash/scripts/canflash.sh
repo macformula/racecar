@@ -23,7 +23,7 @@ gpio_pin=$2
 ecu=$3
 
 # Turn the GPIO pin high
-sudo raspi-gpio set $gpio_pin op dh
+sudo pinctrl set $gpio_pin op dh
 sleep 1
 
 # Enable the can0 interface at 500kbps message rate
@@ -47,4 +47,4 @@ canprog -n can0 -f bin stm32 write "$file_path" -a 0x08000000 -ve
 sudo ip link set can0 down
 
 # Turn the GPIO pin low
-sudo raspi-gpio set $gpio_pin op dl
+sudo pinctrl set $gpio_pin op dl
