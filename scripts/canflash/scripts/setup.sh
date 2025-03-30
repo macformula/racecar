@@ -97,6 +97,7 @@ sudo reboot
 # i.e. ssh macformula@192.168.12.1
 
 # Website to access the server should be: http://192.168.12.1:8000/
-# If not working, check the status of the service on the Raspberry Pi
-# journalctl -u canflash.service --no-pager
+# If not working, check the status of the service on the Raspberry Pi using the following commands:
 # systemctl status canflash.service
+# or
+# journalctl -u canflash.service --no-pager
