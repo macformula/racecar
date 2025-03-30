@@ -59,7 +59,8 @@ After=network.target
 
 [Service]
 Type=sim
-ExecStart=/bin/bash -c 'cd /home/your_username/canflash && python3 -m venv .venv && source .venv/bin/activate && python3 main.py'
+ExecStartPre=/bin/bash -c 'cd /home/macformula/racecar/scripts/canflash && python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt'
+ExecStart=/bin/bash -c 'cd /home/macformula/racecar/scripts/canflash && python3 main.py'
 KillSignal=SIGINT
 Restart=on-failure
 RestartSec=5
