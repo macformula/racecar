@@ -69,10 +69,14 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
-# Create and enable the service
+# Create and enable the services
 sudo systemctl daemon-reload
 sudo systemctl enable create_ap
 sudo systemctl enable canflash
+
+# Restart the services
+sudo systemctl restart create_ap
+sudo systemctl restart canflash
 
 # Reboot the system for changes to take effect
 sudo reboot
