@@ -14,7 +14,7 @@ ssid=$1
 password=$2
 
 # Create Python virtual environment
-cd /home/macformula/racecar/scripts/canflash
+cd ~/racecar/scripts/canflash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -26,7 +26,7 @@ sudo apt update
 sudo apt install -y libgtk-3-dev build-essential gcc g++ pkg-config make hostapd libqrencode-dev libpng-dev iptables
 
 # Clone repo
-cd /home/macformula
+cd
 git clone https://github.com/lakinduakash/linux-wifi-hotspot
 cd linux-wifi-hotspot
 
