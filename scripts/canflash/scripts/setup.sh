@@ -12,7 +12,7 @@ ssid=$1
 password=$2
 
 # Create Python virtual environment
-cd ~/racecar/scripts/canflash
+cd /home/macformula/racecar/scripts/canflash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
