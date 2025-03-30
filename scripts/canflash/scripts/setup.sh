@@ -66,7 +66,8 @@ After=network.target
 
 [Service]
 Type=sim
-ExecStart=/home/macformula/racecar/scripts/canflash/.venv/bin/python3 main.py
+WorkingDirectory=/home/macformula/racecar/scripts/canflash
+ExecStart=.venv/bin/python3 main.py
 KillSignal=SIGINT
 Restart=on-failure
 RestartSec=5
