@@ -94,7 +94,7 @@ sudo reboot
 # You should now see the new network ssid emmitted from the Raspberry Pi
 # It will still connect to known internet networks while emitting this new one
 # Connect using the default IP address 192.168.12.1 
-# i.e. ssh macfe@192.168.12.1
+# i.e. ssh macformula@192.168.12.1
 
 # Website to access the server should be: http://192.168.12.1:8000/
 # If not working, check the status of the service on the Raspberry Pi
