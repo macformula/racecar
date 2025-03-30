@@ -11,6 +11,12 @@ fi
 ssid=$1
 password=$2
 
+# Create Python virtual environment
+cd ~/racecar/scripts/canflash
+python3 -m venv .venv
+source .venv/bin/activate
+pip instal -r requirements.txt
+
 # Get latest dependencies
 sudo apt update
 
@@ -18,6 +24,7 @@ sudo apt update
 sudo apt install -y libgtk-3-dev build-essential gcc g++ pkg-config make hostapd libqrencode-dev libpng-dev iptables
 
 # Clone repo
+cd ~
 git clone https://github.com/lakinduakash/linux-wifi-hotspot
 cd linux-wifi-hotspot
 
@@ -59,8 +66,8 @@ After=network.target
 
 [Service]
 Type=sim
-ExecStartPre=/bin/bash -c 'cd /home/macformula/racecar/scripts/canflash && python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt'
-ExecStart=/bin/bash -c 'cd /home/macformula/racecar/scripts/canflash && source .venv/bin/activate && python3 main.py'
+WorkingDirectory=/home/macformula/racecar/scripts/canflash
+ExecStart=.venv/bin/python3 main.py
 KillSignal=SIGINT
 Restart=on-failure
 RestartSec=5
@@ -75,8 +82,8 @@ sudo systemctl enable create_ap
 sudo systemctl enable canflash
 
 # Restart the services
-# sudo systemctl restart create_ap
-# sudo systemctl restart canflash
+sudo systemctl restart create_ap
+sudo systemctl restart canflash
 
 # Reboot the system for changes to take effect
 sudo reboot
