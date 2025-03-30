@@ -15,7 +15,7 @@ password=$2
 cd ~/racecar/scripts/canflash
 python3 -m venv .venv
 source .venv/bin/activate
-pip instal -r requirements.txt
+pip install -r requirements.txt
 
 # Get latest dependencies
 sudo apt update
