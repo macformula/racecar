@@ -1,5 +1,4 @@
 import os
-import time
 import subprocess
 from datetime import datetime
 from constants import ECU_CONFIG, UPLOAD_DIR
