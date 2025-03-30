@@ -2,14 +2,17 @@
 # Teardown Access Point and Local Wifi Network on Raspberry Pi
 
 # Stop and disable the service
-echo "Stopping and disabling create_ap service..."
+echo "Stopping and disabling services..."
 sudo systemctl stop create_ap
+sudo systemctl stop canflash
 sudo systemctl disable create_ap
+sudo systemctl disable canflash
 sudo systemctl daemon-reload
 
 # Remove the service file
-echo "Removing create_ap service file..."
+echo "Removing service files..."
 sudo rm -f /lib/systemd/system/create_ap.service
+sudo rm -f /lib/systemd/system/canflash.service
 
 # Remove installed packages
 echo "Removing installed packages..."
