@@ -60,7 +60,7 @@ After=network.target
 [Service]
 Type=sim
 ExecStartPre=/bin/bash -c 'cd /home/macformula/racecar/scripts/canflash && python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt'
-ExecStart=/bin/bash -c 'cd /home/macformula/racecar/scripts/canflash && python3 main.py'
+ExecStart=/bin/bash -c 'cd /home/macformula/racecar/scripts/canflash && source .venv/bin/activate && python3 main.py'
 KillSignal=SIGINT
 Restart=on-failure
 RestartSec=5
@@ -75,8 +75,8 @@ sudo systemctl enable create_ap
 sudo systemctl enable canflash
 
 # Restart the services
-sudo systemctl restart create_ap
-sudo systemctl restart canflash
+# sudo systemctl restart create_ap
+# sudo systemctl restart canflash
 
 # Reboot the system for changes to take effect
 sudo reboot
