@@ -1,5 +1,7 @@
 #!/bin/bash
-# Create Access Point and Local Wifi Network on Raspberry Pi
+# On Raspberry Pi
+# Create access point and local wifi network
+# Install python virtual environment and start flashing server on boot
 
 # Check for 2 inputs
 if [ "$#" -ne 2 ]; then
@@ -24,7 +26,7 @@ sudo apt update
 sudo apt install -y libgtk-3-dev build-essential gcc g++ pkg-config make hostapd libqrencode-dev libpng-dev iptables
 
 # Clone repo
-cd ~
+cd /home/macformula
 git clone https://github.com/lakinduakash/linux-wifi-hotspot
 cd linux-wifi-hotspot
 
@@ -58,7 +60,7 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
-# Create a service to run the server on boot
+# Create a service to run the canflash server on boot
 sudo tee /etc/systemd/system/canflash.service > /dev/null <<EOF
 [Unit]
 Description=CanFlash Service
@@ -89,7 +91,12 @@ sudo systemctl restart canflash
 # Reboot the system for changes to take effect
 sudo reboot
 
-# You should now see the new network emmitted from the Raspberry Pi
-# It will still connect to known internet networks while still emitting this new one
+# You should now see the new network ssid emmitted from the Raspberry Pi
+# It will still connect to known internet networks while emitting this new one
 # Connect using the default IP address 192.168.12.1 
 # i.e. ssh macfe@192.168.12.1
+
+# Website to access the server should be: http://192.168.12.1:8000/
+# If not working, check the status of the service on the Raspberry Pi
+# journalctl -u canflash.service --no-pager
+# systemctl status canflash.service
