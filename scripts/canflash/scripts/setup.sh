@@ -98,6 +98,5 @@ sudo reboot
 
 # Website to access the server should be: http://192.168.12.1:8000/
 # If not working, check the status of the service on the Raspberry Pi using the following commands:
-# systemctl status canflash.service
-# or
+# systemctl status canflash.service --no-pager
 # journalctl -u canflash.service --no-pager
