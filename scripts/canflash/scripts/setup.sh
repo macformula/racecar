@@ -1,7 +1,7 @@
 #!/bin/bash
 # On Raspberry Pi
 # Create access point and local wifi network
-# Install python virtual environment and start flashing server on boot
+# Create Python virtual environment and start flashing server on boot
 
 # Check for 2 inputs
 if [ "$#" -ne 2 ]; then
