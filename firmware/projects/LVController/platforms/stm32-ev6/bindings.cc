@@ -65,7 +65,6 @@ DigitalOutput accumulator_en{ACCUMULATOR_EN_GPIO_Port, ACCUMULATOR_EN_Pin};
 DigitalOutput front_controller_en{FRONT_CONTROLLER_EN_GPIO_Port,
                                   FRONT_CONTROLLER_EN_Pin};
 DigitalOutput imu_gps_en{IMU_GPS_EN_GPIO_Port, IMU_GPS_EN_Pin};
-DigitalOutput raspberry_pi_en{RASPI_EN_GPIO_Port, RASPI_EN_Pin};
 DigitalOutput shutdown_circuit_en{SHUTDOWN_CIRCUIT_EN_GPIO_Port,
                                   SHUTDOWN_CIRCUIT_EN_Pin};
 
@@ -108,7 +107,6 @@ DigitalOutput& motor_ctrl_switch_en = mcal::motor_ctrl_switch_en;
 DigitalOutput& accumulator_en = mcal::accumulator_en;
 DigitalOutput& front_controller_en = mcal::front_controller_en;
 DigitalOutput& imu_gps_en = mcal::imu_gps_en;
-DigitalOutput& raspberry_pi_en = mcal::raspberry_pi_en;
 DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 
 // DCDC System & Measurement

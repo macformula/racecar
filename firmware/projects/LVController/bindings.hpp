@@ -35,7 +35,6 @@ extern shared::periph::DigitalOutput& motor_ctrl_switch_en;
 extern shared::periph::DigitalOutput& accumulator_en;
 extern shared::periph::DigitalOutput& front_controller_en;
 extern shared::periph::DigitalOutput& imu_gps_en;
-extern shared::periph::DigitalOutput& raspberry_pi_en;
 extern shared::periph::DigitalOutput& shutdown_circuit_en;
 
 // DCDC System & Measurement

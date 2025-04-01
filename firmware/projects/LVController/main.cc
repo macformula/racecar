@@ -77,7 +77,6 @@ public:
                     dcdc.Disable();
                     powertrain_fans.Disable();
 
-                    bindings::raspberry_pi_en.SetLow();
                     bindings::front_controller_en.SetLow();
                     bindings::accumulator_en.SetLow();
                     bindings::motor_ctrl_precharge_en.SetLow();
@@ -98,7 +97,6 @@ public:
 
             case PWRUP_PERIPHERALS_ON:
                 if (on_enter_) {
-                    bindings::raspberry_pi_en.SetHigh();
                     bindings::front_controller_en.SetHigh();
                     bindings::imu_gps_en.SetHigh();
                 }
