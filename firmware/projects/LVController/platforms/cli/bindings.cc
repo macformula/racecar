@@ -45,7 +45,6 @@ DigitalOutput motor_ctrl_switch_en{"MOTOR_CTRL_SWITCH_EN"};
 DigitalOutput accumulator_en{"ACCUMULATOR_EN"};
 DigitalOutput front_controller_en{"FRONT_CONTROLLER_EN"};
 DigitalOutput imu_gps_en{"IMU_GPS_EN"};
-DigitalOutput raspberry_pi_en{"RASPBERRY_PI_EN"};
 DigitalOutput shutdown_circuit_en{"SHUTDOWN_CIRCUIT_EN"};
 
 // DCDC System  Measurement;
@@ -87,7 +86,6 @@ DigitalOutput& motor_ctrl_switch_en = mcal::motor_ctrl_switch_en;
 DigitalOutput& accumulator_en = mcal::accumulator_en;
 DigitalOutput& front_controller_en = mcal::front_controller_en;
 DigitalOutput& imu_gps_en = mcal::imu_gps_en;
-DigitalOutput& raspberry_pi_en = mcal::raspberry_pi_en;
 DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 
 // DCDC System & Measurement = mcal::Measurement
