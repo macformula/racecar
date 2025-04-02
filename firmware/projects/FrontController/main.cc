@@ -213,6 +213,18 @@ int main(void) {
         UpdateControls();
         veh_can_bus.Send(fc_status);
 
+        // test pedals
+        veh_can_bus.Send(TxFC_msg{
+            .fc_apps1 = static_cast<uint16_t>(
+                100 * bindings::accel_pedal_sensor1.ReadVoltage()),
+            .fc_apps2 = static_cast<uint16_t>(
+                100 * bindings::accel_pedal_sensor2.ReadVoltage()),
+            .fc_bpps = static_cast<uint16_t>(
+                100 * bindings::brake_pressure_sensor.ReadVoltage()),
+            .fc_steering_angle = static_cast<uint16_t>(
+                100 * bindings::steering_angle_sensor.ReadVoltage()),
+        });
+
         bindings::debug_led.Set(state);
         state = !state;
 
