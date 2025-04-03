@@ -1,9 +1,7 @@
-#include <iostream>
-
 #include "control-system/driver_interface_fsm.hpp"
-#include "testing.h"
+#include "gtest/gtest.h"
 
-void test_sequence() {
+TEST(DriverInterfaceFsm, Sequence) {
     DiFsm fsm{};
     DiFsm::Output out;
 
@@ -18,15 +16,15 @@ void test_sequence() {
     {  // stay in INIT until governor commands INIT
         out = fsm.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::INIT);
-        ASSERT_FALSE(out.ready_to_drive);
-        ASSERT_FALSE(out.speaker_enable);
+        EXPECT_FALSE(out.ready_to_drive);
+        EXPECT_FALSE(out.speaker_enable);
 
         in.command = DiCmd::INIT;
 
         out = fsm.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::WAITING_FOR_DRVR);
-        ASSERT_FALSE(out.ready_to_drive);
-        ASSERT_FALSE(out.speaker_enable);
+        EXPECT_FALSE(out.ready_to_drive);
+        EXPECT_FALSE(out.speaker_enable);
     }
 
     {  // Nothing should happen if button isn't pressed
@@ -40,8 +38,8 @@ void test_sequence() {
         in.driver_button = true;
         out = fsm.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::HV_START_REQ);
-        ASSERT_FALSE(out.ready_to_drive);
-        ASSERT_FALSE(out.speaker_enable);
+        EXPECT_FALSE(out.ready_to_drive);
+        EXPECT_FALSE(out.speaker_enable);
 
         out = fsm.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::HV_START_REQ);
@@ -57,8 +55,8 @@ void test_sequence() {
 
         out = fsm.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::MOTOR_START_REQ);
-        ASSERT_FALSE(out.ready_to_drive);
-        ASSERT_FALSE(out.speaker_enable);
+        EXPECT_FALSE(out.ready_to_drive);
+        EXPECT_FALSE(out.speaker_enable);
     }
 
     {  // Only enter RUNNING when both command and pedal are valid
@@ -81,22 +79,22 @@ void test_sequence() {
         in.brake_pedal_pos = 0.5;
         out = fsm.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::RUNNING);
-        ASSERT_TRUE(out.ready_to_drive);
-        ASSERT_TRUE(out.speaker_enable);
+        EXPECT_TRUE(out.ready_to_drive);
+        EXPECT_TRUE(out.speaker_enable);
     }
 
     {  // roughly test speaker (see test_start_running() for more detail)
         time_ms += 1900;
 
         out = fsm.Update(in, time_ms);
-        ASSERT_TRUE(out.speaker_enable);
-        ASSERT_TRUE(out.ready_to_drive);
+        EXPECT_TRUE(out.speaker_enable);
+        EXPECT_TRUE(out.ready_to_drive);
 
         time_ms += 200;  // 2.1s since RUNNING
 
         out = fsm.Update(in, time_ms);
-        ASSERT_FALSE(out.speaker_enable);
-        ASSERT_TRUE(out.ready_to_drive);
+        EXPECT_FALSE(out.speaker_enable);
+        EXPECT_TRUE(out.ready_to_drive);
     }
 
     {  // shutdown
@@ -104,11 +102,9 @@ void test_sequence() {
         out = fsm.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::INIT);
     }
-
-    std::cout << "Passed test_sequence" << std::endl;
 }
 
-void test_start_running() {
+TEST(DriverInterfaceFsm, StartRunning) {
     DiFsm fsm{DiSts::MOTOR_START_REQ};
 
     DiFsm::Input in{
@@ -122,28 +118,26 @@ void test_start_running() {
     int time_ms = 0;
     for (; time_ms < 10; time_ms++) {
         out = fsm.Update(in, time_ms);
-        ASSERT_FALSE(out.ready_to_drive);
-        ASSERT_FALSE(out.speaker_enable);
+        EXPECT_FALSE(out.ready_to_drive);
+        EXPECT_FALSE(out.speaker_enable);
     }
 
     // Governor replies RTD
     in.command = DiCmd::READY_TO_DRIVE;
     for (; time_ms < 5000; time_ms++) {
         out = fsm.Update(in, time_ms);
-        ASSERT_TRUE(out.ready_to_drive);
+        EXPECT_TRUE(out.ready_to_drive);
 
         // Speaker should buzz for 2 seconds (note 10 ms elapsed earlier)
         if (time_ms <= 2010) {
-            ASSERT_TRUE(out.speaker_enable);
+            EXPECT_TRUE(out.speaker_enable);
         } else {
-            ASSERT_FALSE(out.speaker_enable);
+            EXPECT_FALSE(out.speaker_enable);
         }
     }
-
-    std::cout << "Passed test_start_running" << std::endl;
 }
 
-void test_general_error() {
+TEST(DriverInterfaceFsm, GeneralError) {
     for (auto should_err : {
              DiSts::WAITING_FOR_DRVR, DiSts::HV_START_REQ,
              DiSts::MOTOR_START_REQ, DiSts::RUNNING,
@@ -157,13 +151,11 @@ void test_general_error() {
     for (auto shouldnt_err : {DiSts::INIT, DiSts::ERR_COASTING}) {
         DiFsm fsm{shouldnt_err};
         auto out = fsm.Update({.di_error = true}, 0);
-        ASSERT_NEQ(out.status, DiSts::ERR);
+        ASSERT_NE(out.status, DiSts::ERR);
     }
-
-    std::cout << "Passed test_general_error" << std::endl;
 }
 
-void test_running_error() {
+TEST(DriverInterfaceFsm, RunningError) {
     DiFsm running{DiSts::RUNNING};
     auto out = running.Update({.command = DiCmd::RUN_ERROR}, 0);
     ASSERT_EQ(out.status, DiSts::ERR_COASTING);
@@ -178,13 +170,11 @@ void test_running_error() {
          }) {
         DiFsm not_running{state};
         auto out = not_running.Update({.command = DiCmd::RUN_ERROR}, 0);
-        ASSERT_NEQ(out.status, DiSts::ERR_COASTING);
+        ASSERT_NE(out.status, DiSts::ERR_COASTING);
     }
-
-    std::cout << "Passed test_running_error" << std::endl;
 }
 
-void test_shutdown() {
+TEST(DriverInterfaceFsm, Shutdown) {
     // Should shutdown from the running states but not the error
     for (auto state : {DiSts::WAITING_FOR_DRVR, DiSts::HV_START_REQ,
                        DiSts::MOTOR_START_REQ, DiSts::RUNNING}) {
@@ -196,18 +186,6 @@ void test_shutdown() {
     for (auto state : {DiSts::ERR, DiSts::ERR_COASTING}) {
         DiFsm fsm{state};
         auto out = fsm.Update({.command = DiCmd::SHUTDOWN}, 0);
-        ASSERT_NEQ(out.status, DiSts::INIT);
+        ASSERT_NE(out.status, DiSts::INIT);
     }
-
-    std::cout << "Passed test_shutdown" << std::endl;
-}
-
-void DiFsmTest() {
-    test_sequence();
-    test_start_running();
-    test_running_error();
-    test_general_error();
-    test_shutdown();
-
-    std::cout << "All DiFsm tests passed!" << std::endl;
 }

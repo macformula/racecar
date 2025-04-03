@@ -56,8 +56,7 @@ DiSts DiFsm::Transition(const DiFsm::Input input, const int time_ms) {
             break;
 
         case DiSts::MOTOR_START_REQ:
-            if (true ||  // temporary ignore for bay debugging. pedals aren't in
-                (input.command == DiCmd::READY_TO_DRIVE &&
+            if ((input.command == DiCmd::READY_TO_DRIVE &&
                  input.brake_pedal_pos > 0.1)) {
                 speaker_start_time_ = time_ms;
                 return DiSts::RUNNING;
