@@ -13,9 +13,7 @@ using VdOutput = VehicleDynamics::Output;
 
 void test_1(VehicleDynamics* simp_vd_int) {
     std::cout << "Test 1 loading" << std::endl;
-
     int time_ms = 0;
-
     VdOutput output_1 =
         simp_vd_int->Update(VdInput{.driver_torque_request = 0.0f,
                                     .brake_pedal_postion = 0.0f,
