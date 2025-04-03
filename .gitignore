@@ -6,3 +6,6 @@ venv/
 .env/
 .venv/
 __pycache__/
+
+# Busmaster dbf files. If you need one, convert it from a dbc
+*.dbf
