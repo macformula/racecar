@@ -1,9 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <iostream>
-
 #include "control-system/vehicle_dynamics_calc.hpp"
-#include "testing.h"
 
 using namespace ctrl;
 
@@ -20,6 +17,7 @@ TEST(TorqueRequest, StopTorque) {
         0.0);  // Only the driver_torque_request < static_cast<T>(5) condition
                // is met here, so it should stay in State::Stop and return 0.0
 }
+
 TEST(TorqueRequest, RunTorque) {
     EXPECT_FLOAT_EQ(
         tr.Update(3.0, 0.0),
@@ -74,6 +72,7 @@ TEST(TorqueRequest, AdjustTorqueVectoring) {
         EXPECT_FLOAT_EQ(tv.right, 1);
     }
 }
+
 TEST(TorqueRequest, TestMultistageTC) {
     int time_ms = 0;
     TractionControl tc;
@@ -96,6 +95,7 @@ TEST(TorqueRequest, TestMultistageTC) {
                         (float)(time_ms - 300) / 100.);
     }
 }
+
 TEST(TorqueRequest, TestActualSlip) {
     // Should return 0 because right-rear wheel speed is greater than idle wheel
     // speed, forcing the bound to 0.
