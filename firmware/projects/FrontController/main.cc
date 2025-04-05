@@ -27,10 +27,20 @@ generated::can::PtBus pt_can_bus{bindings::pt_can_base};
 ***************************************************************/
 using shared::util::LinearMap;
 
-// See fc_docs/pedal_function and
-auto accel_pedal_map = LinearMap<float>{0.5, -0.25};
-AnalogInput accel_pedal_1{bindings::accel_pedal_sensor1, &accel_pedal_map};
-AnalogInput accel_pedal_2{bindings::accel_pedal_sensor2, &accel_pedal_map};
+// voltages measured at the STM ADC (post buffer circuit)
+const float apps1_vol_pos_0 = 2.781;  // aim for 2.8V
+const float apps1_vol_pos_100 = 1.809;
+const float m1 = 100 / (apps1_vol_pos_100 - apps1_vol_pos_0);
+const float b1 = -m1 * apps1_vol_pos_0;
+auto accel_pedal1_map = LinearMap<float>{m1, b1};
+AnalogInput accel_pedal_1{bindings::accel_pedal_sensor1, &accel_pedal1_map};
+
+const float apps2_vol_pos_0 = 0.536;  // aim for 0.55V
+const float apps2_vol_pos_100 = 1.480;
+const float m2 = 100 / (apps2_vol_pos_100 - apps2_vol_pos_0);
+const float b2 = -m2 * apps2_vol_pos_0;
+auto accel_pedal2_map = LinearMap<float>{m2, b2};
+AnalogInput accel_pedal_2{bindings::accel_pedal_sensor2, &accel_pedal2_map};
 
 const float kPressureRange = 2000;
 
@@ -214,11 +224,13 @@ int main(void) {
         veh_can_bus.Send(fc_status);
 
         // test pedals
-        veh_can_bus.Send(TxFC_msg{
-            .fc_apps1 = static_cast<uint16_t>(
-                100 * bindings::accel_pedal_sensor1.ReadVoltage()),
-            .fc_apps2 = static_cast<uint16_t>(
-                100 * bindings::accel_pedal_sensor2.ReadVoltage()),
+        veh_can_bus.Send(TxFC_apps_debug{
+            .apps1_raw_volt = bindings::accel_pedal_sensor1.ReadVoltage(),
+            .apps2_raw_volt = bindings::accel_pedal_sensor2.ReadVoltage(),
+            .apps1_pos = accel_pedal_1.Update(),
+            .apps2_pos = accel_pedal_2.Update(),
+        });
+        veh_can_bus.Send(TxFC_debug{
             .fc_bpps = static_cast<uint16_t>(
                 100 * bindings::brake_pressure_sensor.ReadVoltage()),
             .fc_steering_angle = static_cast<uint16_t>(

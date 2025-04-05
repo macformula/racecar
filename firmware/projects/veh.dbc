@@ -67,13 +67,15 @@ BO_ 255 FC_Status: 6 FC
  SG_ BmStatus : 24|8@1+ (1,0) [0|255] "" LVC, PC_SG
  SG_ DbcHashStatus : 40|8@1+ (1,0) [0|255] "" LVC, PC_SG
 
-BO_ 511 FC_msg: 8 FC
- SG_ FC_hvilSts : 60|1@1+ (1,0) [0|1] ""  PC_SG
- SG_ FC_steeringAngle : 48|12@1+ (1,0) [0|4095] ""  PC_SG
+BO_ 511 FC_apps_debug: 8 FC
+ SG_ apps1_raw_volt : 0|16@1+ (0.001,0) [0|0] "volt"  PC_SG
+ SG_ apps2_raw_volt : 16|16@1+ (0.001,0) [0|0] "volt"  PC_SG
+ SG_ apps1_pos : 32|16@1+ (0.1,0) [0|0] "percent" PC_SG
+ SG_ apps2_pos : 48|16@1+ (0.1,0) [0|0] "percent" PC_SG
+
+BO_ 512 FC_debug: 8 FC
  SG_ FC_bpps : 32|12@1+ (1,0) [0|4095] ""  PC_SG
- SG_ FC_apps2 : 16|12@1+ (1,0) [0|4095] ""  PC_SG
- SG_ FC_apps1 : 0|12@1+ (1,0) [0|4095] ""  PC_SG
- SG_ FC_readyToDriveBtn_n : 61|1@1+ (1,0) [0|1] ""  PC_SG
+ SG_ FC_steeringAngle : 48|12@1+ (1,0) [0|4095] ""  PC_SG
 
 BO_ 256 FC_cmd: 1 PC_SG
  SG_ FC_readyToDriveSpeaker : 1|1@1+ (1,0) [0|1] ""  FC
