@@ -3,9 +3,11 @@
 
 #pragma once
 
+
 #include <iostream>
 #include <memory>
 #include <string>
+
 
 namespace val::sil {
 
@@ -26,6 +28,7 @@ public:
 
 private:
     std::string addr_;
+    std::unique_ptr<signals::Signals::Stub> stub_;
 };
 
 }  // namespace val::sil

@@ -1,12 +1,11 @@
 /// @author Samuel Parent
 /// @date 2024-05-01
 
-#include "mcal/raspi/gpio.hpp"
 #include "shared/periph/gpio.hpp"
 #include "validation/sil/sil_client.h"
 
 const std::string ecu_name = "DemoProject";
-const std::string server_addr = "localhost:31522";
+const std::string server_addr = "localhost:12345";
 
 namespace val {
 using namespace sil;
@@ -17,8 +16,8 @@ SilClient sil_client(server_addr);
 namespace mcal {
 using namespace raspi;
 
-DigitalInput button_di{ecu_name, "IndicatorButton", val::sil_client};
-DigitalOutput indicator_do{ecu_name, "IndicatorLed", val::sil_client};
+DigitalInput& button_di{ecu_name, "IndicatorButton", val::sil_client};
+DigitalInput& indicator_do{ecu_name, "IndicatorLed", val::sil_client};
 }  // namespace mcal
 
 namespace bindings {
