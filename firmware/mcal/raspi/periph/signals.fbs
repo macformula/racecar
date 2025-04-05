@@ -1,0 +1,59 @@
+namespace signals;
+
+enum SIGNAL_TYPE: byte { DIGITAL = 0, ANALOG = 1 }
+enum SIGNAL_DIRECTION: byte { INPUT = 0, OUTPUT = 1 }
+
+union SignalValue { Digital, Analog }
+
+table Digital {
+  value:bool;
+}
+table Analog {
+  voltage:double;
+}
+
+union RequestType { ReadRequest, SetRequest, RegisterRequest }
+
+table Request {
+  request:RequestType;
+}
+
+table ReadRequest {
+  ecu_name:string;
+  signal_name:string;
+  signal_type:SIGNAL_TYPE;
+  signal_direction:SIGNAL_DIRECTION;
+}
+table SetRequest {
+  ecu_name:string;
+  signal_name:string;
+  signal_type:SIGNAL_TYPE;
+  signal_value:SignalValue;
+  signal_direction:SIGNAL_DIRECTION;
+}
+table RegisterRequest {
+  ecu_name:string;
+  signal_name:string;
+  signal_type:SIGNAL_TYPE;
+  signal_direction:SIGNAL_DIRECTION;
+}
+
+union ResponseType { ReadResponse, SetResponse }
+
+table Response {
+  response:ResponseType;
+}
+
+table ReadResponse {
+  signal_value:SignalValue;
+  ok:bool = true;
+  error:string;
+}
+table SetResponse {
+  ok:bool = true;
+  error:string;
+}
+table RegisterResponse {
+  ok:bool = true;
+  error:string;
+}

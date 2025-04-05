@@ -3,200 +3,151 @@
 
 #include "sil_client.h"
 
-#include <google/protobuf/stubs/port.h>
-#include <grpcpp/grpcpp.h>
-#include <grpcpp/support/time.h>
-
 #include <format>
 #include <iostream>
 #include <string>
 
-#include "signals.grpc.pb.h"
-#include "signals.pb.h"
+#include "signals_generated.h" 
+#include "flatbuffers/flatbuffers.h"
+
+using namespace signals;
 
 namespace val::sil {
 
 SilClient::SilClient(std::string addr) : addr_(addr) {}
 
 void SilClient::Connect() {
-    stub_ = signals::Signals::NewStub(
-        grpc::CreateChannel(addr_, grpc::InsecureChannelCredentials()));
+    // socket driver
 }
 
 void SilClient::RegisterDigitalInput(std::string ecu_name,
                                      std::string sig_name) {
-    grpc::Status status;
-    grpc::ClientContext context;
-    signals::RegisterSignalRequest register_request;
-    signals::RegisterSignalResponse register_response;
+    flatbuffers::FlatBufferBuilder builder(1024);
 
-    register_request.set_ecu_name(ecu_name);
-    register_request.set_signal_name(sig_name);
-    register_request.set_signal_direction(
-        signals::SignalDirection::SIGNAL_DIRECTION_INPUT);
-    register_request.set_signal_type(signals::SignalType::SIGNAL_TYPE_DIGITAL);
+    auto ecu_name = builder.CreateString(ecu_name);
+    auto signal_name = builder.CreateString(sig_name);
 
-    status =
-        stub_->RegisterSignal(&context, register_request, &register_response);
-    if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(),
-                                 status.error_message())
-                  << std::endl;
-    }
-    if (!register_response.status()) {
-        std::cout << std::format("register signal error: {}",
-                                 register_response.error())
-                  << std::endl;
-    }
+    auto register_request = CreateRegisterRequest(builder, ecu_name, signal_name, SIGNAL_TYPE::DIGITAL, SIGNAL_DIRECTION::INPUT);
+    auto request = CreateRequest(builder, RequestType::RegisterRequest, register_request.Union());
+    builder.Finish(request);
+
+    uint8_t* buf = builder.GetBufferPointer();
+    size_t size = builder.GetSize();
+
+    //send the buffer across tcp, check for response
 }
 
-void SilClient::RegisterDigitalOutput(std::string ecu_name,
-                                      std::string sig_name) {
-    grpc::Status status;
-    grpc::ClientContext context;
-    signals::RegisterSignalRequest register_request;
-    signals::RegisterSignalResponse register_response;
+void SilClient::RegisterDigitalOutput(std::string ecu_name, std::string sig_name) {
+    flatbuffers::FlatBufferBuilder builder(1024);
 
-    register_request.set_ecu_name(ecu_name);
-    register_request.set_signal_name(sig_name);
-    register_request.set_signal_direction(
-        signals::SignalDirection::SIGNAL_DIRECTION_OUTPUT);
-    register_request.set_signal_type(signals::SignalType::SIGNAL_TYPE_DIGITAL);
+    auto ecu_name = builder.CreateString(ecu_name);
+    auto signal_name = builder.CreateString(sig_name);
 
-    status =
-        stub_->RegisterSignal(&context, register_request, &register_response);
-    if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(),
-                                 status.error_message())
-                  << std::endl;
-    }
+    auto register_request = CreateRegisterRequest(builder, ecu_name, signal_name, SIGNAL_TYPE::DIGITAL, SIGNAL_DIRECTION::OUTPUT);
+    auto request = CreateRequest(builder, RequestType::RegisterRequest, register_request.Union());
+    builder.Finish(request);
 
-    if (!register_response.status()) {
-        std::cout << std::format("register signal error: {}",
-                                 register_response.error())
-                  << std::endl;
-    }
+    uint8_t* buf = builder.GetBufferPointer();
+    size_t size = builder.GetSize();
+
+    // send the buffer across tcp, check for response
 }
 
 void SilClient::RegisterAnalogInput(std::string ecu_name,
                                     std::string sig_name) {
-    grpc::Status status;
-    grpc::ClientContext context;
-    signals::RegisterSignalRequest register_request;
-    signals::RegisterSignalResponse register_response;
+    flatbuffers::FlatBufferBuilder builder(1024);
 
-    register_request.set_ecu_name(ecu_name);
-    register_request.set_signal_name(sig_name);
-    register_request.set_signal_direction(
-        signals::SignalDirection::SIGNAL_DIRECTION_INPUT);
-    register_request.set_signal_type(signals::SignalType::SIGNAL_TYPE_ANALOG);
+    auto ecu_name = builder.CreateString(ecu_name);
+    auto signal_name = builder.CreateString(sig_name);
 
-    status =
-        stub_->RegisterSignal(&context, register_request, &register_response);
-    if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(),
-                                 status.error_message())
-                  << std::endl;
-    }
+    auto register_request =
+        CreateRegisterRequest(builder, ecu_name, signal_name,
+                              SIGNAL_TYPE::ANALOG, SIGNAL_DIRECTION::OUTPUT);
+    auto request = CreateRequest(builder, RequestType::RegisterRequest,
+                                 register_request.Union());
+    builder.Finish(request);
 
-    if (!register_response.status()) {
-        std::cout << std::format("register signal error: {}",
-                                 register_response.error())
-                  << std::endl;
-    }
+    uint8_t* buf = builder.GetBufferPointer();
+    size_t size = builder.GetSize();
 }
 
 void SilClient::SetDigitalLevel(std::string ecu_name, std::string sig_name,
                                 bool level) {
-    grpc::Status status;
-    grpc::ClientContext context;
-    signals::WriteSignalRequest write_request;
-    signals::WriteSignalResponse write_response;
+    flatbuffers::FlatBufferBuilder builder;
 
-    write_request.set_ecu_name(ecu_name);
-    write_request.set_signal_name(sig_name);
-    write_request.mutable_value_digital()->set_level(level);
+    // Create string fields
+    auto ecu_name = builder.CreateString(ecu_name);
+    auto signal_name = builder.CreateString(sig_name);
 
-    status = stub_->WriteSignal(&context, write_request, &write_response);
-    if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(),
-                                 status.error_message())
-                  << std::endl;
-        return;
-    }
+    // Create Digital signal value
+    auto digital_value =
+        CreateDigital(builder, level);  // Setting output pin to HIGH (true)
 
-    if (!write_response.status()) {
-        std::cout << std::format("write response error: {}",
-                                 write_response.error())
-                  << std::endl;
-        return;
+    // Create SignalValue union
+    auto signal_value =
+        CreateSignalValue(builder, SignalValue::Digital, digital_value.Union());
+
+    // Create SetRequest object
+    auto set_request =
+        CreateSetRequest(builder, ecu_name, signal_name, SIGNAL_TYPE::DIGITAL, signal_value, SIGNAL_DIRECTION::OUTPUT);
+
+    // Create Request union
+    auto request =
+        CreateRequest(builder, RequestType::SetRequest, set_request.Union());
+
+    builder.Finish(request);
+
+    // Get the serialized buffer pointer
+    uint8_t* buf = builder.GetBufferPointer();
+    size_t size = builder.GetSize();
+
+    // send over tcp
     }
 }
 
 bool SilClient::ReadDigitalLevel(std::string ecu_name, std::string sig_name) {
-    grpc::Status status;
-    grpc::ClientContext context;
-    signals::ReadSignalRequest read_request;
-    signals::ReadSignalResponse read_response;
+    flatbuffers::FlatBufferBuilder builder;
 
-    read_request.set_ecu_name(ecu_name);
-    read_request.set_signal_name(sig_name);
-    read_request.set_signal_type(signals::SignalType::SIGNAL_TYPE_DIGITAL);
-    read_request.set_signal_direction(
-        signals::SignalDirection::SIGNAL_DIRECTION_INPUT);
+    // Create string fields
+    auto ecu_name = builder.CreateString(ecu_name);
+    auto signal_name = builder.CreateString(sig_name);
 
-    status = stub_->ReadSignal(&context, read_request, &read_response);
-    if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(),
-                                 status.error_message())
-                  << std::endl;
-        return false;
-    }
+    // Create ReadRequest object
+    auto read_request = CreateReadRequest(builder, ecu_name, signal_name, SIGNAL_TYPE::DIGITAL, SIGNAL_DIRECTION::OUTPUT);
 
-    if (!read_response.status()) {
-        std::cout << std::format("write reponse error: {}",
-                                 read_response.error())
-                  << std::endl;
-        return false;
-    }
+    // Create Request union
+    auto request = CreateRequest(builder, RequestType::ReadRequest, read_request.Union());
 
-    return read_response.value_digital().level();
+    builder.Finish(request);
+
+    // Get the serialized buffer pointer
+    uint8_t* buf = builder.GetBufferPointer();
+    size_t size = builder.GetSize();
+
+    // set over tcp and return bool response
 }
 
 double SilClient::ReadAdcVoltage(std::string ecu_name, std::string sig_name) {
-    grpc::Status status;
-    grpc::ClientContext context;
-    signals::ReadSignalRequest read_request;
-    signals::ReadSignalResponse read_response;
+    flatbuffers::FlatBufferBuilder builder;
 
-    read_request.set_ecu_name(ecu_name);
-    read_request.set_signal_name(sig_name);
-    read_request.set_signal_type(signals::SignalType::SIGNAL_TYPE_ANALOG);
-    read_request.set_signal_direction(
-        signals::SignalDirection::SIGNAL_DIRECTION_INPUT);
+    // Create string fields
+    auto ecu_name = builder.CreateString(ecu_name);
+    auto signal_name = builder.CreateString(sig_name);
 
-    status = stub_->ReadSignal(&context, read_request, &read_response);
-    if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(),
-                                 status.error_message())
-                  << std::endl;
-        return 0.0;
-    }
+    // Create ReadRequest object
+    auto read_request =
+        CreateReadRequest(builder, ecu_name, signal_name, SIGNAL_TYPE::ANALOG,
+                          SIGNAL_DIRECTION::OUTPUT);
 
-    if (!read_response.status()) {
-        std::cout << std::format("write response error: {}",
-                                 read_response.error())
-                  << std::endl;
-        return 0.0;
-    }
+    // Create Request union
+    auto request =
+        CreateRequest(builder, RequestType::ReadRequest, read_request.Union());
 
-    if (!read_response.has_value_analog()) {
-        std::cout << std::format("expected adc value got: {}",
-                                 read_response.value_case())
-                  << std::endl;
-    }
+    builder.Finish(request);
 
-    return read_response.value_analog().voltage();
+    // Get the serialized buffer pointer
+    uint8_t* buf = builder.GetBufferPointer();
+    size_t size = builder.GetSize();
 }
 
-}  // namespace val::sil
+// namespace val::sil
