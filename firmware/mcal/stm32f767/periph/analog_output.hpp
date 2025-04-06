@@ -7,7 +7,12 @@
 
 #include "shared/periph/analog_output.hpp"
 #include "shared/util/mappers/clamper.hpp"
-#include "stm32f7xx_hal.h"
+
+#ifdef STM32F7
+    #include "stm32f7xx_hal.h"
+#elif defined(STM32F4)
+    #include "stm32f4xx_hal.h"
+#endif
 
 namespace mcal::stm32f767::periph {
 
