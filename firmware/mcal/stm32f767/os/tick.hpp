@@ -8,7 +8,12 @@
 #include "cmsis_os2.h"
 #include "shared/os/os.hpp"
 #include "shared/os/tick.hpp"
-#include "stm32f7xx_hal.h"
+
+#ifdef STM32F7
+    #include "stm32f7xx_hal.h"
+#elif defined(STM32F4)
+    #include "stm32f4xx_hal.h"
+#endif
 
 // TODO: Add comments and handle errors more robustly
 namespace os {

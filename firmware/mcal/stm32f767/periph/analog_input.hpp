@@ -5,8 +5,14 @@
 #include <cstdint>
 
 #include "shared/periph/analog_input.hpp"
-#include "stm32f7xx_hal.h"
-#include "stm32f7xx_hal_adc.h"
+
+#ifdef STM32F7
+    #include "stm32f7xx_hal.h"
+    #include "stm32f7xx_hal_adc.h"
+#elif defined(STM32F4)
+    #include "stm32f4xx_hal.h"
+    #include "stm32f4xx_hal_adc.h"
+#endif
 
 namespace mcal::stm32f767::periph {
 
