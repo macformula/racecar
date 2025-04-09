@@ -1,5 +1,5 @@
 canGen:
   busses:
     - name: test
-      node: FC
+      node: RX
       dbcFile: "test.dbc"

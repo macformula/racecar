@@ -2,12 +2,31 @@ VERSION ""
 
 BS_:
 
-BU_: FC LVC RPI TMS DASH
+BU_: RX TX
 
-BO_ 258 StatusNonAligned: 4 DASH
- SG_ IMDLed : 11|1@1+ (1,0) [0|1] "" FC
- SG_ BMSLed : 12|1@1+ (1,0) [0|1] "" FC
+BO_ 258 StatusNonAligned: 2 TX
+ SG_ IMDLed : 11|1@1+ (1,0) [0|1] "" TEST
+ SG_ BMSLed : 12|1@1+ (1,0) [0|1] "" RX
 
-BO_ 259 StatusAligned: 4 DASH
- SG_ IMDLed : 16|1@1+ (1,0) [0|1] "" FC
- SG_ BMSLed : 24|1@1+ (1,0) [0|1] "" FC
+BO_ 259 StatusAligned: 4 TX
+ SG_ IMDLed : 16|1@1+ (1,0) [0|1] "" RX
+ SG_ BMSLed : 24|1@1+ (1,0) [0|1] "" RX
+
+BO_ 260 LongFields: 7 TX
+ SG_ byte : 0|8@1+ (1,0) [0|1] "" RX
+ SG_ halfword : 8|16@1+ (1,0) [0|1] "" RX
+ SG_ word : 24|32@1+ (1,0) [0|1] "" RX
+ 
+BO_ 261 LongFieldsBigEndian: 7 TX
+ SG_ byte : 7|8@0+ (1,0) [0|1] "" RX
+ SG_ halfword : 15|16@0+ (1,0) [0|0] "" RX
+ SG_ word : 31|32@0+ (1,0) [0|0] "" RX
+
+BO_ 262 NonAligned: 6 TX
+ SG_ sig1 : 0|14@1+ (1,0) [0|1] "" RX
+ SG_ sig2 : 14|7@1+ (1,0) [0|1] "" RX
+ SG_ sig3 : 21|23@1+ (1,0) [0|1] "" RX
+ SG_ sig4 : 44|1@1+ (1,0) [0|1] "" RX
+ SG_ sig5 : 45|3@1+ (0.1,5) [0|1] "" RX
+
+
