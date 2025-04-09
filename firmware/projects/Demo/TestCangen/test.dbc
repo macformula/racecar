@@ -1,0 +1,13 @@
+VERSION ""
+
+BS_:
+
+BU_: FC LVC RPI TMS DASH
+
+BO_ 258 StatusNonAligned: 4 DASH
+ SG_ IMDLed : 11|1@1+ (1,0) [0|1] "" FC
+ SG_ BMSLed : 12|1@1+ (1,0) [0|1] "" FC
+
+BO_ 259 StatusAligned: 4 DASH
+ SG_ IMDLed : 16|1@1+ (1,0) [0|1] "" FC
+ SG_ BMSLed : 24|1@1+ (1,0) [0|1] "" FC
