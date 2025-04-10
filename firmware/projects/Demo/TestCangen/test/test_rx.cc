@@ -128,7 +128,7 @@ TEST_P(RxNonAlignedSignalTest, HandleCases) {
     EXPECT_EQ(msg->sig5(), p.exp5);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     RxNonAlignedSignalCases, RxNonAlignedSignalTest,
     testing::Values(NonAlignedCase{{0xf3, 0x25 | 0x80, 0x16 | 0x50, 0xa3, 0x94,
                                     0x0e | 0x10 | 0xA0},
