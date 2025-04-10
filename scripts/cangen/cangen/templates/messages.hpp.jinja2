@@ -106,7 +106,11 @@ public:
 
         // temporary signal variables
         {% for sig in msg.signals %}
-        {{ sig.type }} temp_{{ sig.name | camel_to_snake }} = static_cast<{{ sig.type }}>(static_cast<double>({{ sig.name }} - {{ sig.s.offset }} ) / {{ sig.s.scale }});
+        {% if sig.s.offset == 0 and sig.s.scale == 1 %}
+        {{ sig.type }} temp_{{ sig.name }} = {{ sig.name }};
+            {% else %}
+        {{ sig.type }} temp_{{ sig.name }} = static_cast<{{ sig.type }}>(static_cast<double>({{ sig.name }} - {{ sig.s.offset }} ) / {{ sig.s.scale }});
+            {% endif %}
         {% endfor %}
 
         {% for sig in msg.signals %}
@@ -115,9 +119,9 @@ public:
             {% set shift = sig.shifts[i] %}
             {% if mask != 0 %}
                 {% if shift >= 0 %}
-        data[{{ i }}] |= shared::can::pack_right_shift(temp_{{ sig.name }}, {{ shift }}U, {{ mask | hex }}U);
+        data[{{ i }}] |= (temp_{{ sig.name }} >> {{ shift }}) & {{ mask | hex }};
                 {% else %}
-        data[{{ i }}] |= shared::can::pack_left_shift(temp_{{ sig.name }}, {{ -(shift) }}U, {{ mask | hex }}U);
+        data[{{ i }}] |= (temp_{{ sig.name }} << {{ -shift }}) & {{ mask | hex }};
                 {% endif %}
             {% endif %}
         {% endfor %}
