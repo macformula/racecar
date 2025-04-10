@@ -27,6 +27,7 @@ jobs:
           - FrontController
           - LVController
           - TMS
+          - Demo/TestCangen
         platform:
           - cli
     steps:
