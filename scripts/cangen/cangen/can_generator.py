@@ -3,13 +3,16 @@ Author: Samuel Parent
 Date: 2024-04-13
 """
 
+from __future__ import annotations
+
 import logging
 import math
 import os
 import re
 import shutil
 import time
-from typing import Dict, List, Tuple
+from dataclasses import dataclass
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 from cantools.database import Database, Message, Signal
@@ -24,6 +27,16 @@ EIGHT_BYTES = 8
 TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
 
 TEMPLATE_FILE_NAMES = ["messages.hpp.jinja2", "bus.hpp.jinja2"]
+
+
+@dataclass
+class CppSignal:
+    name: str  # should be normalized
+    type: str
+    temp_type: str
+    scale: float
+    offset: float
+    choices: Any
 
 
 def _parse_dbc_files(dbc_file: str) -> Database:
@@ -103,8 +116,8 @@ def _get_mask_shift_little(
 def _get_masks_shifts(
     msgs: List[Message],
 ) -> Dict[str, Dict[str, Tuple[List[int], List[int]]]]:
-    # Create a dictionary of empty dictionaries, indexed by message names
-    masks_shifts_dict = {msg.name: {} for msg in msgs}
+    # Create a dictionary of empty dictionaries, indexed by message object
+    masks_shifts_dict = {msg: {} for msg in msgs}
 
     for msg in msgs:
         for sig in msg.signals:
@@ -118,7 +131,7 @@ def _get_masks_shifts(
                 raise ValueError(f"Invalid byteorder {sig.byte_order}.")
 
             # Evaluate that function on the signal start and length
-            masks_shifts_dict[msg.name][sig.name] = mask, shift
+            masks_shifts_dict[msg][sig] = mask, shift
 
     return masks_shifts_dict
 
@@ -146,11 +159,11 @@ def _get_signal_datatype(signal: Signal, allow_floating_point: bool = True) -> s
 
 
 def _get_signal_types(can_db: Database, allow_floating_point=True):
-    # Create a dictionary (indexed by message name) of dictionaries (indexed by signal
-    # name) corresponding to the datatype of each signal within each message.
+    # Create a dictionary (indexed by message) of dictionaries (indexed by signal)
+    # corresponding to the datatype of each signal within each message.
     sig_types = {
-        message.name: {
-            signal.name: _get_signal_datatype(signal, allow_floating_point)
+        message: {
+            signal: _get_signal_datatype(signal, allow_floating_point)
             for signal in message.signals
         }
         for message in can_db.messages
@@ -195,7 +208,6 @@ def _generate_code(bus: Bus, output_dir: str):
         "date": time.strftime("%Y-%m-%d"),
         "rx_msgs": rx_msgs,
         "tx_msgs": tx_msgs,
-        "all_msgs": rx_msgs + tx_msgs,
         "signal_types": _get_signal_types(can_db),
         "temp_signal_types": _get_signal_types(can_db, allow_floating_point=False),
         "unpack_info": _get_masks_shifts(rx_msgs),
