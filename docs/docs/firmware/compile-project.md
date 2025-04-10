@@ -4,7 +4,7 @@ We have a CMake build system and Makefile front end. The Makefile expects 2 vari
 
 !!! note "Virtual Environment"
 
-    These instructions assume that your [`cangen` virtual environment is active](dev-setup.md/#install-cangen).
+    These instructions assume that your [`cangen` virtual environment is active](dev-setup/index.md/#install-cangen).
 
 ## Makefile Variables
 
