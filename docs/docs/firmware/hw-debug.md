@@ -25,7 +25,7 @@ For debugging our boards, we use OpenOCD and GDB.
     brew install openocd
     ```
 
-The ARM GNU Toolchain containing GDB is already installed if you followed the [Firmware Development Setup](../firmware/dev-setup.md) guide. Refer to that if it is not installed.
+The ARM GNU Toolchain containing GDB is already installed if you followed the [Firmware Development Setup](../firmware/dev-setup/index.md) guide. Refer to that if it is not installed.
 
 ### Verify Installation
 

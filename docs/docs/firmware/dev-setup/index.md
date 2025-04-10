@@ -113,7 +113,7 @@ CubeMX is a program which generates configuration code for our microcontrollers.
     === "Linux"
 
             jre/bin/java -jar STM32CubeMX -i
-    === "MacOs (Terminal)" 
+    === "MacOs (Terminal)"
             jre/Contents/Home/bin/java -jar STM32CubeMX -i
 
 4. Wait for the program to stop printing to your terminal. Press ++question+enter++ to display the `MX>` prompt. Login with your `username` and `password`.
@@ -132,15 +132,20 @@ CubeMX is a program which generates configuration code for our microcontrollers.
 
     You can close CubeMX now by typing `exit`.
 
-### STM32CubeProgrammer
-
-Download and install version 2.16 or newer from <https://www.st.com/en/development-tools/stm32cubeprog.html>.
-
 ## Clone the Repository
 
 Navigate to a directory where you would like to hold the `racecar` repo (I used `C:\Formula\repos`). Run
 
     git clone --recurse-submodules https://github.com/macformula/racecar.git
+
+## Pre-Commit Setup
+
+We use [pre-commit](https://pre-commit.com/) to run formatting and code checks before the code is pushed.
+
+```bash
+pip install pre-commit
+pre-commit install
+```
 
 ## Install CANgen
 
@@ -170,81 +175,8 @@ pip install -e scripts/cangen
 
 > The `-e` flag is _very_ important. It installs CANgen as an editable package which means you won't have to reinstall when the package is changed.
 
-You can now start developing in `racecar`! However, I recommend you configure your IDE with `clangd`, so continue to the next section.
+---
 
-## IDE Integration
+You can now start developing in `racecar`! However, you should configure your IDE, so check out
 
-_This section is optional but highly recommended._
-
-### clangd
-
-??? info "What is `clangd`?"
-
-    [`clangd`](https://clangd.llvm.org/) is a C++ language server that provides intelligent code completion and errors by analyzing compiler commands C/C++ language server. We have configured CMake to export your most recent compilation's build commands meaning you don't need to manually configure include paths or compiler flags for each project.
-
-    Whenever you build a project with the Makefile, `clangd` will see the new `build/compile_commands.json` and immediately update your IDE's include paths. When you switch which project or platform you are developing for, simply rebuild the project and your development environment will be automatically prepared.
-
-Download and unzip `clangd-{OS}-16.0.2.zip` from <https://github.com/clangd/clangd/releases?q=16.0.2> under "Assets."
-
-Place the executable somewhere on your PATH. Follow [these instructions](https://clangd.llvm.org/installation#editor-plugins) to connect it to your IDE.
-
-__Important:__ Create an empty file named `.clangd` in the `firmware/` directory. This file indicates the "root" directory of the project, so it will look for `compile_commands.json` in `firmware/build`.
-
-!!! note "`clangd` Configuration"
-
-    You may optionally configure `clangd` with the `firmware/.clangd` file. See <https://clangd.llvm.org/config>.
-    
-    === ":material-microsoft-windows: Windows"
-    
-        Use this configuration to help `clangd` find system header files.
-
-        ```yaml
-        CompileFlags:
-            Add: --target=x86_64-w64-mingw64
-        ```
-
-    === ":material-apple: Mac M-Series"
-
-        On Mac M series chips, this configuration should be used.
-
-        ```yaml
-        CompileFlags:
-            Add: --target=arm64-apple-darwin22.6.0
-        ```
-
-        
-## Additional Dependencies
-
-### gRPC
-
-!!! warning "Optional Dependency"
-
-    _You probably don't need this._
-
-    Within the racecar repo, gRPC is only used by the SIL Client under `firmware/validation/sil/`. The client is used by the Raspberry Pi MCAL to interact with the [HIL / SIL](https://github.com/macformula/hil).
-
-    You only need gRPC if you will be working on the HIL. Otherwise, do not worry about installing it.
-
-You will need a Unix development environment (Unix machine, WSL, or remote into the Raspberry Pi).
-
-Go through the [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/). Build the example project.
-
-## Pre-Commit Setup
-
-We use `pre-commit` hooks to run formatting and code checks before the code is pushed.
-
-### Installing Pre-Commit
-
-1. Install `pre-commit` via pip:
-
-    ```bash
-    pip install pre-commit
-    ```
-
-2. Install the git hooks by running this command in the `racecar` directory:
-
-    ```bash
-    pre-commit install
-    ```
-
-    This will install the hooks so they run automatically when you use `git commit`.
+- [VS Code Setup](vscode.md)
