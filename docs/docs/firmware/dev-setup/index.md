@@ -208,23 +208,6 @@ __Important:__ Create an empty file named `.clangd` in the `firmware/` directory
             Add: --target=arm64-apple-darwin22.6.0
         ```
 
-        
-## Additional Dependencies
-
-### gRPC
-
-!!! warning "Optional Dependency"
-
-    _You probably don't need this._
-
-    Within the racecar repo, gRPC is only used by the SIL Client under `firmware/validation/sil/`. The client is used by the Raspberry Pi MCAL to interact with the [HIL / SIL](https://github.com/macformula/hil).
-
-    You only need gRPC if you will be working on the HIL. Otherwise, do not worry about installing it.
-
-You will need a Unix development environment (Unix machine, WSL, or remote into the Raspberry Pi).
-
-Go through the [gRPC C++ Quickstart Guide](https://grpc.io/docs/languages/cpp/quickstart/). Build the example project.
-
 ## Pre-Commit Setup
 
 We use `pre-commit` hooks to run formatting and code checks before the code is pushed.
