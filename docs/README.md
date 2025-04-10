@@ -10,18 +10,18 @@ Instructions are available at <https://macformula.github.io/racecar/tutorials/si
 
 In case the internet or website is down, you can still view the documentation locally.
 
-With internet access, install the dependencies.
+With internet access, install the dependencies:
 
 ```bash
 pip install uv
 uv pip install -r requirements.txt
 ```
 
-Then you can view the docs at any time with
+Then, you can view the docs at any time with:
 
 ```bash
 $ uv run mkdocs serve
 Serving on http://127.0.0.1:8000
 ```
 
-Enter the printed address in your browser to see the docs.
+Enter that address in your browser to view the docs.

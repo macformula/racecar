@@ -14,7 +14,7 @@ Where `<PROJECT NAME>` is the name of a folder under `firmware/projects` and `<P
 - `clean` deletes the build folder.
 - `deepclean` removes the generated CubeMX files (forces CubeMX regeneration), as well as performing `clean`.
 
-The output is placed in `build/<PROJECT NAME>/<PLATFORM NAME>`. When compiled for STM32, the binary is named `PROJECT NAME.bin`, while for other platforms it is just `main` or `main.exe`.
+The output is placed in `build/<PROJECT NAME>/<PLATFORM NAME>/`. When compiled for STM32, the binary is named `PROJECT NAME.bin`, while for other platforms it is just `main` or `main.exe`.
 
 _For more detail, see <https://macformula.github.io/racecar/firmware/compile-project/>_
 
