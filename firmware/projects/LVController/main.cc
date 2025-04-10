@@ -313,9 +313,9 @@ void UpdateBrakeLight() {
 }
 
 int main(void) {
-    veh_can.Send(TxSyncHashVersion(generated::can::VEH_DBC_HASH_VERSION));
-
     bindings::Initialize();
+
+    veh_can.Send(TxSyncHashVersion(generated::can::kVehDbcHashVersion));
 
     StateMachine fsm(bindings::GetTick());
 

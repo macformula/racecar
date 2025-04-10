@@ -186,7 +186,7 @@ int main(void) {
     while (!hash_version.has_value()) {
         hash_version = veh_can_bus.GetRxSyncHashVersion();
     }
-    if (hash_version->HashVersion() != generated::can::VEH_DBC_HASH_VERSION) {
+    if (hash_version->HashVersion() != generated::can::kVehDbcHashVersion) {
         // Handle error
         return -1;
     }
