@@ -133,7 +133,9 @@ nav:
     - tutorials/busmaster/index.md
   - Firmware:
     - firmware/index.md
-    - firmware/dev-setup.md
+    - Development Environment Setup:
+      - firmware/dev-setup/index.md
+      - firmware/dev-setup/vscode.md
     - firmware/architecture/index.md
     - firmware/project-structure/index.md
     - STM32 Platform:

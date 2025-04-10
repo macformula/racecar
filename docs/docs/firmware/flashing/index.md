@@ -1,6 +1,10 @@
 # :material-download: Flashing Firmware
 
-After [compiling a project](../compile-project.md) for the `stm32f767` platform, you need to flash the firmware to the board. This article describes how to connect to a board and flash using [STM32CubeProgrammer](../dev-setup.md/#stm32cubeprogrammer).
+After [compiling a project](../compile-project.md) for the `stm32f767` platform, you need to flash the firmware to the board. This article describes how to connect to a board and flash using STM32CubeProgrammer.
+
+## Install STM32CubeProgrammer
+
+Go to <https://www.st.com/en/development-tools/stm32cubeprog.html> and install v2.16 or newer.
 
 ## Connect to the Board
 
@@ -52,9 +56,9 @@ Full setup:
 
 ![](img/setup_labelled.jpg)
 
-## Open CubeProgrammer
+## Open STM32CubeProgrammer
 
-You installed Cube Programmer when [Setting up your Development Environment](../dev-setup.md). Run the program. It will open to a screen like this:
+Run the program. It will open to a screen like this:
 
 <figure markdown="span">
 ![](img/cubeprog_firstscreen.png){ width="100%" }
