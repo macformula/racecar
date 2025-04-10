@@ -4,6 +4,7 @@ Author: Samuel Parent, Andrew Iammancini, Blake Freer
 
 from __future__ import annotations
 
+import hashlib
 import logging
 import os
 import re
@@ -164,6 +165,14 @@ def _parse_dbc_files(dbc_file: str) -> Database:
     return can_db
 
 
+def _extract_dbc_hash_version(dbc_file: str) -> int:
+    """Generates a 64 bit integer hash of the dbc file"""
+    with open(dbc_file, "r") as f:
+        dbc_file_string = f.read()
+        hash_hexadecimal = hashlib.sha256(dbc_file_string.encode()).hexdigest()[:16]
+        return int(hash_hexadecimal, 16)
+
+
 def _normalize_node_name(node_name: str) -> str:
     return node_name.upper()
 
@@ -231,6 +240,7 @@ def _generate_code(bus: Bus, output_dir: str):
         "tx_msgs": tx_msgs,
         "bus_name": bus.bus_name,
         "node_name": bus.node,
+        "hash_version": _extract_dbc_hash_version(bus.dbc_file_path),
     }
 
     logger.debug("Generating code for can messages and msg registry.")

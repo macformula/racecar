@@ -45,6 +45,9 @@ BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
  SG_ FC_userBtnL : 0|1@1+ (1,0) [0|1] "" Vector__XXX
  SG_ FC_userBtnR : 0|1@1+ (1,0) [0|1] "" Vector__XXX
 
+BO_ 123 SyncHashVersion: 8 LVC
+ SG_ HashVersion : 0|64@1+ (1,0) [0|1] "" FC
+
 BO_ 111 LvControllerStatus: 6 LVC
  SG_ LvState : 0|8@1+ (1,0) [0|1] ""  RPI
  SG_ Elapsed : 8|32@1- (1,0) [0|1] ""  RPI
