@@ -1,5 +1,8 @@
 canGen:
   busses:
-    - name: test
+    - name: test_rx
       node: RX
+      dbcFile: "test.dbc"
+    - name: test_tx
+      node: TX
       dbcFile: "test.dbc"

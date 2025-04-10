@@ -1,7 +1,7 @@
 #include <stdexcept>
 
-#include "../generated/can/test_bus.hpp"
-#include "../generated/can/test_messages.hpp"
+#include "../generated/can/test_rx_bus.hpp"
+#include "../generated/can/test_rx_messages.hpp"
 #include "gtest/gtest.h"
 #include "shared/comms/can/msg.hpp"
 #include "shared/periph/can.hpp"
@@ -27,7 +27,7 @@ protected:
     Bus() : base(), bus(base) {}
 
     DummyCanBase base;
-    TestBus bus;
+    Test_rxBus bus;
 };
 
 struct StatusTestCase {
