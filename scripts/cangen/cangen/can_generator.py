@@ -11,7 +11,7 @@ import re
 import shutil
 import time
 from dataclasses import dataclass
-from typing import Any, Dict, List, Tuple
+from typing import List, Tuple
 
 import numpy as np
 from cantools.database import Database, Message, Signal
@@ -43,18 +43,38 @@ class CppSignal:
     temp_type: str
     masks: List[int]
     shifts: List[int]
+    is_enum: bool
 
     def __init__(self, sig: Signal):
         logger.debug(f"Processing (sig: {sig.name})")
 
         self.s = sig
-
         self.name = _camel_to_snake(self.s.name)
-        self.type = self._get_signal_datatype(allow_floating_point=True)
-        self.temp_type = self._get_signal_datatype(allow_floating_point=False)
+        self.is_enum = self.s.choices is not None
+
         self.masks, self.shifts = self.choose_masks_shifts()
 
-    def _get_signal_datatype(self, allow_floating_point: bool = True) -> str:
+        if self.is_enum:
+            # need suffix to avoid clash between enum type name and signal name
+            self.type = self.s.name + "_t"
+            self.validate_enum()
+        else:
+            self.type = self._get_signal_datatype(allow_floating_point=True)
+
+        # even enums use the regular integer datatype for temp
+        self.temp_type = self._get_signal_datatype(allow_floating_point=False)
+
+    def validate_enum(self):
+        if self.s.offset != 0:
+            raise ValueError(
+                f"Enum field {self.s.name} must have offset=0 (has {self.s.offset})."
+            )
+        if self.s.scale != 1:
+            raise ValueError(
+                f"Enum field {self.s.name} must have scale=1 (has {self.s.scale})."
+            )
+
+    def _get_signal_datatype(self, allow_floating_point: bool) -> str:
         """Get the datatype of a signal."""
         num_bits = self.s.length
         if self.s.scale > 1:

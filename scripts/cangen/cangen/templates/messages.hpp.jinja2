@@ -18,25 +18,20 @@ namespace generated::can {
 {% set bus = bus_name+"Bus" %}
 class {{ bus }};
 
-/* -------------------- ENUMS -------------------- */
-{% for msg in tx_msgs + rx_msgs %}
-    {% for sig in msg.signals %}
-        {% if sig.s.choices %}  
-enum class {{ sig.s.name }} {
-            {% for value, name in sig.s.choices.items() | reverse %}
-    {{ name }} = {{ value }},
-            {% endfor %}
-};
-        {% endif %}
-    {% endfor %}
-{% endfor %}
-
 /* -------------------- RX MESSAGES -------------------- */
 
 {% for msg in rx_msgs %}
 {% set class_name = "Rx"+msg.m.name %}
 class {{ class_name }} {
 public:
+    {% for sig in msg.signals | selectattr("is_enum") %}
+    enum class {{ sig.type }} {
+        {% for value, name in sig.s.choices.items() %}
+        {{ name }} = {{ value }},
+        {% endfor %}
+    };
+    {% endfor %}
+
     {% for sig in msg.signals %}
     inline {{ sig.type }} {{ sig.s.name }}() const { return {{ sig.name }}_; }
     {% endfor %}
@@ -76,7 +71,7 @@ private:
             {% endif %}
         {% endfor %}
         {% if sig.s.scale == 1 and sig.s.offset == 0 %}
-        {{ sig.name }}_ = temp_{{ sig.name }};
+        {{ sig.name }}_ = static_cast<{{ sig.type }}>(temp_{{ sig.name }});
         {% else %}
         {{ sig.name }}_ = static_cast<{{ T }}>(static_cast<double>(temp_{{ sig.name }}) * {{ sig.s.scale }} + {{ sig.s.offset }});
         {% endif %}
@@ -95,6 +90,14 @@ private:
 {% set class_name = "Tx"+msg.m.name %}
 class {{ class_name }} {
 public:
+    {% for sig in msg.signals | selectattr("is_enum") %}
+    enum class {{ sig.type }} {
+        {% for value, name in sig.s.choices.items() %}
+        {{ name }} = {{ value }},
+        {% endfor %}
+    };
+    {% endfor %}
+
     {% for sig in msg.signals %}
     {{ sig.type }} {{ sig.name }};
     {% endfor %}
@@ -106,24 +109,24 @@ public:
 
         // temporary signal variables
         {% for sig in msg.signals %}
-        {% if sig.s.offset == 0 and sig.s.scale == 1 %}
-        {{ sig.type }} temp_{{ sig.name }} = {{ sig.name }};
+            {% if sig.s.offset == 0 and sig.s.scale == 1 %}
+        {{ sig.temp_type }} temp_{{ sig.name }} = static_cast<{{ sig.temp_type }}>({{ sig.name }});
             {% else %}
-        {{ sig.type }} temp_{{ sig.name }} = static_cast<{{ sig.type }}>(static_cast<double>({{ sig.name }} - {{ sig.s.offset }} ) / {{ sig.s.scale }});
+        {{ sig.temp_type }} temp_{{ sig.name }} = static_cast<{{ sig.temp_type }}>(static_cast<double>({{ sig.name }} - {{ sig.s.offset }} ) / {{ sig.s.scale }});
             {% endif %}
         {% endfor %}
 
         {% for sig in msg.signals %}
         {% for mask in sig.masks %}
+        {% if mask != 0 %}
             {% set i = loop.index0 %}
             {% set shift = sig.shifts[i] %}
-            {% if mask != 0 %}
                 {% if shift >= 0 %}
         data[{{ i }}] |= (temp_{{ sig.name }} >> {{ shift }}) & {{ mask | hex }};
                 {% else %}
         data[{{ i }}] |= (temp_{{ sig.name }} << {{ -shift }}) & {{ mask | hex }};
                 {% endif %}
-            {% endif %}
+        {% endif %}
         {% endfor %}
         {% endfor %}
 
