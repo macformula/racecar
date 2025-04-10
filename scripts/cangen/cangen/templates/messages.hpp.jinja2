@@ -66,12 +66,12 @@ private:
             {% set shift = shifts[i] %}
             {% if mask != 0 %}
                 {% if T == "bool" %}
-        temp_{{ sig.name | camel_to_snake }} = raw_msg.data[{{ i }}] & {{mask | decimal_to_hex}};
+        temp_{{ sig.name | camel_to_snake }} = raw_msg.data[{{ i }}] & {{mask | hex}};
                 {% else %}
                     {% if shift >= 0 %}
-        temp_{{ sig.name | camel_to_snake }} |= static_cast<{{T}}>(raw_msg.data[{{ i }}] & {{mask | decimal_to_hex}}) << {{ shift }};
+        temp_{{ sig.name | camel_to_snake }} |= static_cast<{{T}}>(raw_msg.data[{{ i }}] & {{mask | hex}}) << {{ shift }};
                     {% else %}
-        temp_{{ sig.name | camel_to_snake }} |= static_cast<{{T}}>(raw_msg.data[{{ i }}] & {{ mask | decimal_to_hex }}) >> {{ -shift }};
+        temp_{{ sig.name | camel_to_snake }} |= static_cast<{{T}}>(raw_msg.data[{{ i }}] & {{ mask | hex }}) >> {{ -shift }};
                     {% endif %}
                 {% endif %}
             {% endif %}
@@ -121,9 +121,9 @@ public:
             {% set shift = shifts[i] %}
             {% if mask != 0 %}
                 {% if shift >= 0 %}
-        data[{{ i }}] |= shared::can::pack_right_shift(temp_{{ sig_var }}, {{ shift }}U, {{ mask | decimal_to_hex }}U);
+        data[{{ i }}] |= shared::can::pack_right_shift(temp_{{ sig_var }}, {{ shift }}U, {{ mask | hex }}U);
                 {% else %}
-        data[{{ i }}] |= shared::can::pack_left_shift(temp_{{ sig_var }}, {{ -(shift) }}U, {{ mask | decimal_to_hex }}U);
+        data[{{ i }}] |= shared::can::pack_left_shift(temp_{{ sig_var }}, {{ -(shift) }}U, {{ mask | hex }}U);
                 {% endif %}
             {% endif %}
         {% endfor %}

@@ -22,9 +22,6 @@ from .config import Bus, Config
 
 logger = logging.getLogger(__name__)
 
-EIGHT_BITS = 8
-EIGHT_BYTES = 8
-TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
 
 TEMPLATE_FILE_NAMES = ["messages.hpp.jinja2", "bus.hpp.jinja2"]
 
@@ -81,6 +78,10 @@ def _filter_messages_by_node(
 def _get_mask_shift_big(
     length: int, start: int
 ) -> Tuple[np.ndarray[int], np.ndarray[int]]:
+    EIGHT_BITS = 8
+    EIGHT_BYTES = 8
+    TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
+
     q, r = divmod(start, EIGHT_BITS)
     start_flipped = q * EIGHT_BITS + EIGHT_BITS - r - 1
     end = start_flipped + length
@@ -221,7 +222,7 @@ def _generate_code(bus: Bus, output_dir: str):
     env = Environment(
         loader=PackageLoader(__package__), trim_blocks=True, lstrip_blocks=True
     )
-    env.filters["decimal_to_hex"] = hex
+    env.filters["hex"] = hex
     env.filters["camel_to_snake"] = _camel_to_snake
 
     for template_file_name in TEMPLATE_FILE_NAMES:
