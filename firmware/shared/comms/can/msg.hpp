@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <concepts>
 #include <cstdint>
 #include <format>
@@ -10,6 +11,8 @@ struct RawMessage {
     RawMessage() = default;
     RawMessage(uint32_t id_, bool is_extended_frame_, uint8_t data_length_,
                const uint8_t data_[8]);
+    RawMessage(uint32_t id_, bool is_extended_frame_, uint8_t data_length_,
+               const std::array<uint8_t, 8> data_);
 
     uint32_t id;
     bool is_extended_frame;
