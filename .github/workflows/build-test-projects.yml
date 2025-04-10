@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - firmware/**
+      - scripts/cangen/**
   workflow_dispatch:
 jobs:
   setup-python:
