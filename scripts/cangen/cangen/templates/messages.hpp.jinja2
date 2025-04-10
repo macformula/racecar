@@ -18,7 +18,11 @@ namespace generated::can {
 {% set bus = bus_name+"Bus" %}
 class {{ bus }};
 
-/* -------------------- ENUMS -------------------- */
+/* --------------------- CONSTANTS --------------------- */
+
+const uint64_t k{{ bus_name|capitalize }}DbcHashVersion = {{ hash_version }}U;
+
+/* ----------------------- ENUMS ----------------------- */
 {% for msg in all_msgs %}
     {% for sig in msg.signals %}
         {% if sig.choices %}  
