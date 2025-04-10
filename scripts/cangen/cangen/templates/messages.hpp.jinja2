@@ -20,7 +20,7 @@ class {{ bus }};
 
 /* --------------------- CONSTANTS --------------------- */
 
-const uint64_t {{ bus_name|upper }}_DBC_HASH_VERSION = {{ hash_version }}U;
+const uint64_t k{{ bus_name|capitalize }}DbcHashVersion = {{ hash_version }}U;
 
 /* ----------------------- ENUMS ----------------------- */
 {% for msg in all_msgs %}
