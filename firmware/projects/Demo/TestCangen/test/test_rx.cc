@@ -143,3 +143,35 @@ INSTANTIATE_TEST_SUITE_P(
                                    0x7fffff,
                                    true,
                                    0x7}));
+
+struct EnumTestCase {
+    uint8_t data[2];
+    RxEnum::ecu_t expected_ecu;
+    RxEnum::state_t expected_state;
+};
+
+class RxEnumTest : public Bus,
+                   public testing::WithParamInterface<EnumTestCase> {};
+
+TEST_P(RxEnumTest, HandleCases) {
+    auto p = GetParam();
+
+    base.AddToBus(RawMessage{263, false, 2, p.data});
+    auto msg = bus.GetRxEnum();
+
+    ASSERT_TRUE(msg.has_value());
+    EXPECT_EQ(msg->ecu(), p.expected_ecu);
+    EXPECT_EQ(msg->state(), p.expected_state);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    RxEnumTestCases, RxEnumTest,
+    testing::Values(EnumTestCase{{0x00, 0x00},
+                                 RxEnum::ecu_t::FrontController,
+                                 RxEnum::state_t::Waiting},
+                    EnumTestCase{{0x01, 0x02},
+                                 RxEnum::ecu_t::LVController,
+                                 RxEnum::state_t::Invalid},
+                    EnumTestCase{{0x02, 0x01},
+                                 RxEnum::ecu_t::TMS,
+                                 RxEnum::state_t::Valid}));

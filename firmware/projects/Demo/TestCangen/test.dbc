@@ -29,4 +29,9 @@ BO_ 262 NonAligned: 6 TX
  SG_ sig4 : 44|1@1+ (1,0) [0|1] "" RX
  SG_ sig5 : 45|3@1+ (1,0) [0|1] "" RX
 
+BO_ 263 Enum: 2 TX
+ SG_ ecu : 0|2@1+ (1,0) [0|1] "" RX
+ SG_ state : 8|4@1+ (1,0) [0|1] "" RX
 
+VAL_ 263 ecu 0 "FrontController" 1 "LVController" 2 "TMS";
+VAL_ 263 state 0 "Waiting" 1 "Valid" 2 "Invalid";
