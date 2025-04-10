@@ -1,6 +1,5 @@
 """
-Author: Samuel Parent
-Date: 2024-04-13
+Author: Samuel Parent, Andrew Iammancini, Blake Freer
 """
 
 from __future__ import annotations
@@ -27,13 +26,102 @@ TEMPLATE_FILE_NAMES = ["messages.hpp.jinja2", "bus.hpp.jinja2"]
 
 
 @dataclass
+class CppMessage:
+    m: Message
+    signals: List[CppSignal]
+
+    def __init__(self, msg: Message):
+        self.m = msg
+        self.signals = [CppSignal(s) for s in self.m.signals]
+
+
+@dataclass
 class CppSignal:
-    name: str  # should be normalized
+    s: Signal  # for accessing most fields
+    name: str
     type: str
     temp_type: str
-    scale: float
-    offset: float
-    choices: Any
+    masks: List[int]
+    shifts: List[int]
+
+    def __init__(self, sig: Signal):
+        logger.debug(f"Processing (sig: {sig.name})")
+
+        self.s = sig
+
+        self.name = _camel_to_snake(self.s.name)
+        self.type = self._get_signal_datatype(allow_floating_point=True)
+        self.temp_type = self._get_signal_datatype(allow_floating_point=False)
+        self.masks, self.shifts = self.choose_masks_shifts()
+
+    def _get_signal_datatype(self, allow_floating_point: bool = True) -> str:
+        """Get the datatype of a signal."""
+        num_bits = self.s.length
+        if self.s.scale > 1:
+            num_bits += math.ceil(math.log2(self.s.scale))
+
+        is_float = self.s.is_float or isinstance(self.s.scale, float)
+        if is_float and allow_floating_point:
+            return "float" if num_bits <= 32 else "double"
+
+        if num_bits == 1:
+            return "bool"
+
+        sign = "" if self.s.is_signed else "u"
+        # Check all possible integer sizes
+        for size in [8, 16, 32, 64]:
+            if num_bits <= size:
+                return "{}int{}_t".format(sign, size)
+
+        raise ValueError("Signal does not have a valid datatype.")
+
+    def choose_masks_shifts(self):
+        match self.s.byte_order:
+            case "little_endian":
+                return CppSignal.get_mask_shift_little(self.s.length, self.s.start)
+            case "big_endian":
+                return CppSignal.get_mask_shift_big(self.s.length, self.s.start)
+            case _:
+                raise ValueError(f"Invalid byteorder {self.s.byte_order}.")
+
+    @staticmethod
+    def get_mask_shift_little(
+        length: int, start: int
+    ) -> Tuple[np.ndarray[int], np.ndarray[int]]:
+        idx = np.arange(64)
+        mask_bool = (idx >= start) & (idx < start + length)
+        mask_bytes = np.packbits(mask_bool, bitorder="little")
+        logger.debug("Little endian mask generated.")
+
+        num_zeros = start
+        shift_amounts = np.arange(0, 64, 8, dtype=int) - num_zeros
+        logger.debug("Little endian shift amounts calculated.")
+
+        return mask_bytes, shift_amounts
+
+    @staticmethod
+    def get_mask_shift_big(
+        length: int, start: int
+    ) -> Tuple[np.ndarray[int], np.ndarray[int]]:
+        EIGHT_BITS = 8
+        EIGHT_BYTES = 8
+        TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
+
+        q, r = divmod(start, EIGHT_BITS)
+        start_flipped = q * EIGHT_BITS + EIGHT_BITS - r - 1
+        end = start_flipped + length
+
+        idx = np.arange(64)
+        mask_bool = (idx >= start_flipped) & (idx < end)
+        mask_bytes = np.packbits(mask_bool, bitorder="big")
+        logger.debug("Big endian mask generated.")
+
+        num_zeros = TOTAL_BITS - end
+        shift_amounts = np.arange(0, 64, 8, dtype=int)[::-1] - num_zeros
+
+        logger.debug("Big endian shift amounts calculated.")
+
+        return mask_bytes, shift_amounts
 
 
 def _parse_dbc_files(dbc_file: str) -> Database:
@@ -75,106 +163,6 @@ def _filter_messages_by_node(
     return rx_msgs, tx_msgs
 
 
-def _get_mask_shift_big(
-    length: int, start: int
-) -> Tuple[np.ndarray[int], np.ndarray[int]]:
-    EIGHT_BITS = 8
-    EIGHT_BYTES = 8
-    TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
-
-    q, r = divmod(start, EIGHT_BITS)
-    start_flipped = q * EIGHT_BITS + EIGHT_BITS - r - 1
-    end = start_flipped + length
-
-    idx = np.arange(64)
-    mask_bool = (idx >= start_flipped) & (idx < end)
-    mask_bytes = np.packbits(mask_bool, bitorder="big")
-    logger.debug("Big endian mask generated.")
-
-    num_zeros = TOTAL_BITS - end
-    shift_amounts = np.arange(0, 64, 8, dtype=int)[::-1] - num_zeros
-
-    logger.debug("Big endian shift amounts calculated.")
-
-    return mask_bytes, shift_amounts
-
-
-def _get_mask_shift_little(
-    length: int, start: int
-) -> Tuple[np.ndarray[int], np.ndarray[int]]:
-    idx = np.arange(64)
-    mask_bool = (idx >= start) & (idx < start + length)
-    mask_bytes = np.packbits(mask_bool, bitorder="little")
-    logger.debug("Little endian mask generated.")
-
-    num_zeros = start
-    shift_amounts = np.arange(0, 64, 8, dtype=int) - num_zeros
-    logger.debug("Little endian shift amounts calculated.")
-
-    return mask_bytes, shift_amounts
-
-
-def _get_masks_shifts(
-    msgs: List[Message],
-) -> Dict[str, Dict[str, Tuple[List[int], List[int]]]]:
-    # Create a dictionary of empty dictionaries, indexed by message object
-    masks_shifts_dict = {msg: {} for msg in msgs}
-
-    for msg in msgs:
-        for sig in msg.signals:
-            logger.debug(f"Processing (msg: {msg.name}, sig: {sig.name})")
-
-            if sig.byte_order == "little_endian":
-                mask, shift = _get_mask_shift_little(sig.length, sig.start)
-            elif sig.byte_order == "big_endian":
-                mask, shift = _get_mask_shift_big(sig.length, sig.start)
-            else:
-                raise ValueError(f"Invalid byteorder {sig.byte_order}.")
-
-            # Evaluate that function on the signal start and length
-            masks_shifts_dict[msg][sig] = mask, shift
-
-    return masks_shifts_dict
-
-
-def _get_signal_datatype(signal: Signal, allow_floating_point: bool = True) -> str:
-    """Get the datatype of a signal."""
-    num_bits = signal.length
-    if signal.scale > 1:
-        num_bits += math.ceil(math.log2(signal.scale))
-
-    is_float = signal.is_float or isinstance(signal.scale, float)
-    if is_float and allow_floating_point:
-        return "float" if num_bits <= 32 else "double"
-
-    if num_bits == 1:
-        return "bool"
-
-    sign = "" if signal.is_signed else "u"
-    # Check all possible integer sizes
-    for size in [8, 16, 32, 64]:
-        if num_bits <= size:
-            return "{}int{}_t".format(sign, size)
-
-    raise ValueError("Signal does not have a valid datatype.")
-
-
-def _get_signal_types(can_db: Database, allow_floating_point=True):
-    # Create a dictionary (indexed by message) of dictionaries (indexed by signal)
-    # corresponding to the datatype of each signal within each message.
-    sig_types = {
-        message: {
-            signal: _get_signal_datatype(signal, allow_floating_point)
-            for signal in message.signals
-        }
-        for message in can_db.messages
-    }
-
-    logger.debug("Signal types retrieved")
-
-    return sig_types
-
-
 def _camel_to_snake(text):
     """Converts UpperCamelCase to snake_case."""
 
@@ -203,16 +191,15 @@ def _generate_code(bus: Bus, output_dir: str):
     logger.info("Generating code")
 
     can_db = _parse_dbc_files(bus.dbc_file_path)
-    rx_msgs, tx_msgs = _filter_messages_by_node(can_db.messages, bus.node)
+    raw_rx_msgs, raw_tx_msgs = _filter_messages_by_node(can_db.messages, bus.node)
+
+    rx_msgs = [CppMessage(m) for m in raw_rx_msgs]
+    tx_msgs = [CppMessage(m) for m in raw_tx_msgs]
 
     context = {
         "date": time.strftime("%Y-%m-%d"),
         "rx_msgs": rx_msgs,
         "tx_msgs": tx_msgs,
-        "signal_types": _get_signal_types(can_db),
-        "temp_signal_types": _get_signal_types(can_db, allow_floating_point=False),
-        "unpack_info": _get_masks_shifts(rx_msgs),
-        "pack_info": _get_masks_shifts(tx_msgs),
         "bus_name": bus.bus_name,
         "node_name": bus.node,
     }
@@ -255,7 +242,8 @@ def _prepare_output_directory(output_dir: str):
 
 def generate_can_for_project(project_folder_name: str):
     """Generates C code for a given project.
-    Ensure the project folder contains a config.yaml file which specifies the relative path to its corresponding dbc file.
+    Ensure the project folder contains a config.yaml file which specifies the relative
+    path to its corresponding dbc file.
     """
     os.chdir(project_folder_name)
     config = Config.from_yaml("config.yaml")

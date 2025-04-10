@@ -21,9 +21,9 @@ class {{ bus }};
 /* -------------------- ENUMS -------------------- */
 {% for msg in tx_msgs + rx_msgs %}
     {% for sig in msg.signals %}
-        {% if sig.choices %}  
-enum class {{ sig.name }} {
-            {% for value, name in sig.choices.items() | reverse %}
+        {% if sig.s.choices %}  
+enum class {{ sig.s.name }} {
+            {% for value, name in sig.s.choices.items() | reverse %}
     {{ name }} = {{ value }},
             {% endfor %}
 };
@@ -34,23 +34,23 @@ enum class {{ sig.name }} {
 /* -------------------- RX MESSAGES -------------------- */
 
 {% for msg in rx_msgs %}
-{% set class_name = "Rx"+msg.name %}
+{% set class_name = "Rx"+msg.m.name %}
 class {{ class_name }} {
 public:
     {% for sig in msg.signals %}
-    inline {{ signal_types[msg][sig] }} {{ sig.name }}() const { return {{ sig.name | camel_to_snake }}_; }
+    inline {{ sig.type }} {{ sig.s.name }}() const { return {{ sig.name }}_; }
     {% endfor %}
 
 private:
     {% for sig in msg.signals %}
-    {{ signal_types[msg][sig] }} {{ sig.name | camel_to_snake }}_;
+    {{ sig.type }} {{ sig.name }}_;
     {% endfor %}
 
     // Timestamp is platform dependent. See mcal/PLATFORM/periph/can
     uint32_t timestamp_;
 
-    constexpr static uint32_t id = {{ msg.frame_id }};
-    constexpr static uint8_t data_length = {{ msg.length }};
+    constexpr static uint32_t id = {{ msg.m.frame_id }};
+    constexpr static uint8_t data_length = {{ msg.m.length }};
 
 
     friend class {{ bus }};
@@ -58,28 +58,27 @@ private:
     // Only {{ bus }} can construct this class which guarantees the data came from the CAN line.
     {{ class_name }}(shared::can::RawMessage raw_msg, uint32_t timestamp) : timestamp_(timestamp) {
         {% for sig in msg.signals %}
-        {% set T = temp_signal_types[msg][sig] %}
-        {{ T }} temp_{{ sig.name | camel_to_snake }} = 0;
-        {% set masks, shifts = unpack_info[msg][sig] %}
-        {% for mask in masks %}
+        {% set T = sig.temp_type %}
+        {{ T }} temp_{{ sig.name }} = 0;
+        {% for mask in sig.masks %}
             {% set i = loop.index0 %}
-            {% set shift = shifts[i] %}
+            {% set shift = sig.shifts[i] %}
             {% if mask != 0 %}
                 {% if T == "bool" %}
-        temp_{{ sig.name | camel_to_snake }} = raw_msg.data[{{ i }}] & {{mask | hex}};
+        temp_{{ sig.name }} = raw_msg.data[{{ i }}] & {{mask | hex}};
                 {% else %}
                     {% if shift >= 0 %}
-        temp_{{ sig.name | camel_to_snake }} |= static_cast<{{T}}>(raw_msg.data[{{ i }}] & {{mask | hex}}) << {{ shift }};
+        temp_{{ sig.name }} |= static_cast<{{T}}>(raw_msg.data[{{ i }}] & {{mask | hex}}) << {{ shift }};
                     {% else %}
-        temp_{{ sig.name | camel_to_snake }} |= static_cast<{{T}}>(raw_msg.data[{{ i }}] & {{ mask | hex }}) >> {{ -shift }};
+        temp_{{ sig.name }} |= static_cast<{{T}}>(raw_msg.data[{{ i }}] & {{ mask | hex }}) >> {{ -shift }};
                     {% endif %}
                 {% endif %}
             {% endif %}
         {% endfor %}
-        {% if sig.scale == 1 and sig.offset == 0 %}
-        {{ sig.name | camel_to_snake }}_ = temp_{{ sig.name | camel_to_snake }};
+        {% if sig.s.scale == 1 and sig.s.offset == 0 %}
+        {{ sig.name }}_ = temp_{{ sig.name }};
         {% else %}
-        {{ sig.name | camel_to_snake }}_ = static_cast<{{ T }}>(static_cast<double>(temp_{{ sig.name | camel_to_snake }}) * {{ sig.scale }} + {{ sig.offset }});
+        {{ sig.name }}_ = static_cast<{{ T }}>(static_cast<double>(temp_{{ sig.name }}) * {{ sig.s.scale }} + {{ sig.s.offset }});
         {% endif %}
         
         {% endfor %}
@@ -93,37 +92,32 @@ private:
 /* -------------------- TX MESSAGES -------------------- */
 
 {% for msg in tx_msgs %}
-{% set class_name = "Tx"+msg.name %}
+{% set class_name = "Tx"+msg.m.name %}
 class {{ class_name }} {
 public:
     {% for sig in msg.signals %}
-    {{ signal_types[msg][sig] }} {{ sig.name | camel_to_snake }};
+    {{ sig.type }} {{ sig.name }};
     {% endfor %}
 
     shared::can::RawMessage pack() const {
-        uint8_t data[{{msg.length}}] = {};
+        uint8_t data[{{msg.m.length}}] = {};
 
         // @todo clamp data
 
         // temporary signal variables
         {% for sig in msg.signals %}
-        {% set sig_var = sig.name | camel_to_snake %}
-        {% set type = temp_signal_types[msg][sig] %}
-        {{ type }} temp_{{ sig.name | camel_to_snake }} = static_cast<{{ type }}>(static_cast<double>({{ sig_var }} - k{{sig.name}}Offset ) / k{{sig.name}}Scale);
+        {{ sig.type }} temp_{{ sig.name | camel_to_snake }} = static_cast<{{ sig.type }}>(static_cast<double>({{ sig.name }} - {{ sig.s.offset }} ) / {{ sig.s.scale }});
         {% endfor %}
 
         {% for sig in msg.signals %}
-        {% set masks, shifts = pack_info[msg][sig] %}
-        {% set sig_var = sig.name | camel_to_snake %}
-        {% set sig_var_type = signal_types[msg][sig] %}
-        {% for mask in masks %}
+        {% for mask in sig.masks %}
             {% set i = loop.index0 %}
-            {% set shift = shifts[i] %}
+            {% set shift = sig.shifts[i] %}
             {% if mask != 0 %}
                 {% if shift >= 0 %}
-        data[{{ i }}] |= shared::can::pack_right_shift(temp_{{ sig_var }}, {{ shift }}U, {{ mask | hex }}U);
+        data[{{ i }}] |= shared::can::pack_right_shift(temp_{{ sig.name }}, {{ shift }}U, {{ mask | hex }}U);
                 {% else %}
-        data[{{ i }}] |= shared::can::pack_left_shift(temp_{{ sig_var }}, {{ -(shift) }}U, {{ mask | hex }}U);
+        data[{{ i }}] |= shared::can::pack_left_shift(temp_{{ sig.name }}, {{ -(shift) }}U, {{ mask | hex }}U);
                 {% endif %}
             {% endif %}
         {% endfor %}
@@ -133,17 +127,9 @@ public:
     }
 
 private:
-    static constexpr uint32_t id = {{ msg.frame_id }};
-    static constexpr uint8_t data_length = {{ msg.length }};
-    constexpr static uint8_t extended_frame = {{ msg.is_extended_frame | lower }};
-
-    // Signal properties
-    {% for sig in msg.signals %}
-    {% set sig_var = sig.name | camel_to_snake %}
-    {% set sig_var_type = signal_types[msg][sig] %}
-    static constexpr double k{{ sig.name }}Scale = {{ sig.scale }};
-    static constexpr double k{{ sig.name }}Offset = {{ sig.offset }};
-    {% endfor %}
+    static constexpr uint32_t id = {{ msg.m.frame_id }};
+    static constexpr uint8_t data_length = {{ msg.m.length }};
+    constexpr static uint8_t extended_frame = {{ msg.m.is_extended_frame | lower }};
 };
 
 
