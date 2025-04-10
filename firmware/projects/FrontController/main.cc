@@ -180,14 +180,16 @@ void UpdateControls() {
 }
 
 int main(void) {
+    bindings::Initialize();
+
     auto hash_version = veh_can_bus.GetRxSyncHashVersion();
-    if (hash_version.has_value() &&
-        hash_version->HashVersion() != generated::can::VEH_DBC_HASH_VERSION) {
-        // Add error throwing here
+    while (!hash_version.has_value()) {
+        hash_version = veh_can_bus.GetRxSyncHashVersion();
+    }
+    if (hash_version->HashVersion() != generated::can::VEH_DBC_HASH_VERSION) {
+        // Handle error
         return -1;
     }
-
-    bindings::Initialize();
 
     bindings::dashboard_power_en.SetHigh();
 
