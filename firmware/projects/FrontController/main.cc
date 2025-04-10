@@ -63,7 +63,7 @@ VehicleDynamics vd{pedal_to_torque};
 // Global Governer input defined
 Governor::Input gov_in{};
 
-TxFC_Status fc_status{0,0,0,0,0,static_cast<uint8_t>(HashStatus::WAITING)};
+TxFC_Status fc_status{0, 0, 0, 0, 0, static_cast<uint8_t>(HashStatus::WAITING)};
 
 void UpdateControls() {
     // NOTE #1: For defining inputs, I commented out inputs where I didn't know

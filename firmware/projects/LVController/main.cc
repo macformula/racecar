@@ -110,12 +110,15 @@ public:
                     }
                 }
                 break;
-            
+
             case PWRUP_CHECK_HASH_STATUS: {
-                veh_can.Send(TxSyncHashVersion(generated::can::kVehDbcHashVersion));
+                veh_can.Send(
+                    TxSyncHashVersion(generated::can::kVehDbcHashVersion));
                 auto msg = veh_can.GetRxFC_Status();
 
-                if (msg.has_value() && msg->HashStatus() == static_cast<uint8_t>(HashStatus::VALID)) {
+                if (msg.has_value() &&
+                    msg->HashStatus() ==
+                        static_cast<uint8_t>(HashStatus::VALID)) {
                     transition = PWRUP_ACCUMULATOR_ON;
                 }
             } break;
