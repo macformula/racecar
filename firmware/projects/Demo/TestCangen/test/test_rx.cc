@@ -1,8 +1,10 @@
 #include <stdexcept>
+#include <tuple>
 
 #include "../generated/can/test_rx_bus.hpp"
 #include "../generated/can/test_rx_messages.hpp"
 #include "gtest/gtest.h"
+#include "projects/Demo/TestCangen/generated/can/test_rx_messages.hpp"
 #include "shared/comms/can/msg.hpp"
 #include "shared/periph/can.hpp"
 
@@ -30,148 +32,342 @@ protected:
     Test_rxBus bus;
 };
 
-struct StatusTestCase {
-    uint8_t data[8];
-    bool expected_imd;
-    bool expected_bms;
+template <typename T>
+class RxTest : public Bus,
+               public testing::WithParamInterface<std::tuple<RawMessage, T>> {};
+
+/***************************************************************
+    Booleans
+***************************************************************/
+struct ExpectedBool {
+    bool imd;
+    bool bms;
 };
 
-class RxNonAlignedStatus : public Bus,
-                           public testing::WithParamInterface<StatusTestCase> {
-};
+using BoolNonAligned = RxTest<ExpectedBool>;
+TEST_P(BoolNonAligned, HandlesCases) {
+    auto [raw, expected] = GetParam();
 
-TEST_P(RxNonAlignedStatus, HandlesCases) {
-    auto [data, expected_imd, expected_bms] = GetParam();
-
-    base.AddToBus(RawMessage{258, false, 2, data});
-    auto msg = bus.PopRxStatusNonAligned();
+    base.AddToBus(raw);
+    auto msg = bus.PopRxBoolNonAligned();
 
     ASSERT_TRUE(msg.has_value());
-    EXPECT_EQ(msg->IMDLed(), expected_imd);
-    EXPECT_EQ(msg->BMSLed(), expected_bms);
+    EXPECT_EQ(msg->IMDLed(), expected.imd);
+    EXPECT_EQ(msg->BMSLed(), expected.bms);
+}
+
+using BoolAligned = RxTest<ExpectedBool>;
+TEST_P(BoolAligned, HandleCases) {
+    auto [raw, expected] = GetParam();
+
+    base.AddToBus(raw);
+    auto msg = bus.PopRxBoolAligned();
+
+    ASSERT_TRUE(msg.has_value());
+    EXPECT_EQ(msg->IMDLed(), expected.imd);
+    EXPECT_EQ(msg->BMSLed(), expected.bms);
 }
 
 INSTANTIATE_TEST_SUITE_P(
-    RxNonAlignedCases, RxNonAlignedStatus,
-    testing::Values(StatusTestCase{{0, 0x00}, false, false},
-                    StatusTestCase{{0, 0x10}, false, true},
-                    StatusTestCase{{0, 0x08}, true, false},
-                    StatusTestCase{{0, 0x18}, true, true}));
+    RxNonAlignedCases, BoolNonAligned,
+    // clang-format off
+    testing::Values(
+    std::tuple{RawMessage{258, false, 2, {0, 0x00}}, ExpectedBool{false, false}},
+    std::tuple{RawMessage{258, false, 2, {0, 0x10}}, ExpectedBool{false, true}},
+    std::tuple{RawMessage{258, false, 2, {0, 0x08}}, ExpectedBool{true, false}},
+    std::tuple{RawMessage{258, false, 2, {0, 0x18}}, ExpectedBool{true, true}}
+));
+// clang-format on
 
-class RxAlignedTest : public Bus,
-                      public testing::WithParamInterface<StatusTestCase> {};
+INSTANTIATE_TEST_SUITE_P(
+    RxAlignedCases, BoolAligned,
+    // clang-format off
+    testing::Values(
+    std::tuple{RawMessage{259, false, 4, {0, 0, 0, 0}}, ExpectedBool{false, false}},
+    std::tuple{RawMessage{259, false, 4, {0, 0, 1, 0}}, ExpectedBool{true, false}},
+    std::tuple{RawMessage{259, false, 4, {0, 0, 0, 1}}, ExpectedBool{false, true}},
+    std::tuple{RawMessage{259, false, 4, {0, 0, 1, 1}}, ExpectedBool{true, true}}
+));
+// clang-format on
 
-TEST_P(RxAlignedTest, HandleCases) {
-    auto [data, expected_imd, expected_bms] = GetParam();
+/***************************************************************
+    Long Fields
+***************************************************************/
+struct ExpectedLongField {
+    uint8_t byte;
+    uint16_t halfword;
+    uint32_t word;
+};
 
-    base.AddToBus(RawMessage{259, false, 4, data});
-    auto msg = bus.PopRxStatusAligned();
+using LongField = RxTest<ExpectedLongField>;
+TEST_P(LongField, LongField) {
+    auto [raw, expected] = GetParam();
+
+    base.AddToBus(raw);
+    auto msg = bus.PopRxLongFields();
 
     ASSERT_TRUE(msg.has_value());
-    ASSERT_EQ(msg->IMDLed(), expected_imd);
-    ASSERT_EQ(msg->BMSLed(), expected_bms);
+    EXPECT_EQ(msg->byte(), expected.byte);
+    EXPECT_EQ(msg->halfword(), expected.halfword);
+    EXPECT_EQ(msg->word(), expected.word);
+}
+
+using LongFieldBigEndian = RxTest<ExpectedLongField>;
+TEST_P(LongFieldBigEndian, LongField) {
+    auto [raw, expected] = GetParam();
+
+    base.AddToBus(raw);
+    auto msg = bus.PopRxLongFieldsBigEndian();
+
+    ASSERT_TRUE(msg.has_value());
+    EXPECT_EQ(msg->byte(), expected.byte);
+    EXPECT_EQ(msg->halfword(), expected.halfword);
+    EXPECT_EQ(msg->word(), expected.word);
 }
 
 INSTANTIATE_TEST_SUITE_P(
-    RxAlignedCases, RxAlignedTest,
-    testing::Values(StatusTestCase{{0, 0, 0, 0}, false, false},
-                    StatusTestCase{{0, 0, 1, 0}, true, false},
-                    StatusTestCase{{0, 0, 0, 1}, false, true},
-                    StatusTestCase{{0, 0, 1, 1}, true, true}));
+    LongFieldCases, LongField,
+    ::testing::Values(std::tuple{
+        RawMessage{260, false, 7, {0x08, 0xA2, 0xB3, 0x11, 0x02, 0x03, 0x44}},
+        ExpectedLongField{0x08, 0xb3a2, 0x44030211},
+    }));
 
-TEST_F(Bus, LongField) {
-    uint8_t data[8] = {0x08, 0xA2, 0xB3, 0x11, 0x02, 0x03, 0x44};
-    {  // Little Endian
-        base.AddToBus(RawMessage{260, false, 7, data});
-        auto msg = bus.PopRxLongFields();
+INSTANTIATE_TEST_SUITE_P(
+    LongFieldBigEndianCases, LongFieldBigEndian,
+    ::testing::Values(std::tuple{
+        RawMessage{261, false, 7, {0x08, 0xA2, 0xB3, 0x11, 0x02, 0x03, 0x44}},
+        ExpectedLongField{0x08, 0xa2b3, 0x11020344},
+    }));
 
-        ASSERT_TRUE(msg.has_value());
-        EXPECT_EQ(msg->byte(), 0x08);
-        EXPECT_EQ(msg->halfword(), 0xB3A2);
-        EXPECT_EQ(msg->word(), 0x44030211);
-    }
-    {  // Big Endian
-        base.AddToBus(RawMessage{261, false, 7, data});
-        auto msg = bus.PopRxLongFieldsBigEndian();
-
-        ASSERT_TRUE(msg.has_value());
-        EXPECT_EQ(msg->byte(), 0x08);
-        EXPECT_EQ(msg->halfword(), 0xA2B3);
-        EXPECT_EQ(msg->word(), 0x11020344);
-    }
-}
-
-struct NonAlignedCase {
-    uint8_t data[6];
-    uint16_t exp1;
-    uint8_t exp2;
-    uint32_t exp3;
-    bool exp4;
-    uint8_t exp5;
+/***************************************************************
+    Non-Aligned Signals
+***************************************************************/
+struct ExpectedNonAligned {
+    uint16_t sig1;
+    uint8_t sig2;
+    uint32_t sig3;
+    bool sig4;
+    uint8_t sig5;
 };
 
-class RxNonAlignedSignalTest
-    : public Bus,
-      public testing::WithParamInterface<NonAlignedCase> {};
+using NonAlignedSignal = RxTest<ExpectedNonAligned>;
+TEST_P(NonAlignedSignal, HandleCases) {
+    auto [raw, expected] = GetParam();
 
-TEST_P(RxNonAlignedSignalTest, HandleCases) {
-    auto p = GetParam();
-
-    base.AddToBus(RawMessage{262, false, 6, p.data});
+    base.AddToBus(raw);
     auto msg = bus.PopRxNonAligned();
 
     ASSERT_TRUE(msg.has_value());
-    EXPECT_EQ(msg->sig1(), p.exp1);
-    EXPECT_EQ(msg->sig2(), p.exp2);
-    EXPECT_EQ(msg->sig3(), p.exp3);
-    EXPECT_EQ(msg->sig4(), p.exp4);
-    EXPECT_EQ(msg->sig5(), p.exp5);
+    EXPECT_EQ(msg->sig1(), expected.sig1);
+    EXPECT_EQ(msg->sig2(), expected.sig2);
+    EXPECT_EQ(msg->sig3(), expected.sig3);
+    EXPECT_EQ(msg->sig4(), expected.sig4);
+    EXPECT_EQ(msg->sig5(), expected.sig5);
 }
 
 INSTANTIATE_TEST_SUITE_P(
-    RxNonAlignedSignalCases, RxNonAlignedSignalTest,
-    testing::Values(NonAlignedCase{{0xf3, 0x25 | 0x80, 0x16 | 0x50, 0xa3, 0x94,
-                                    0x0e | 0x10 | 0xA0},
-                                   0x25f3,
-                                   0x1680 >> 6,
-                                   0xe94a350 >> 5,
-                                   true,
-                                   5},
-                    NonAlignedCase{{0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
-                                   0x3fff,
-                                   0x7f,
-                                   0x7fffff,
-                                   true,
-                                   0x7}));
+    NonAlignedSignalCases, NonAlignedSignal,
+    // clang-format off
+    testing::Values(
+    std::tuple{
+        RawMessage{262, false, 6, {0xf3, 0x25 | 0x80, 0x16 | 0x50, 0xa3, 0x94, 0x0e | 0x10 | 0xA0}},
+        ExpectedNonAligned{0x25f3, 0x1680 >> 6, 0xe94a350 >> 5, true, 5},
+    },
+    std::tuple{
+        RawMessage{262, false, 6, {0xff, 0xff, 0xff, 0xff, 0xff, 0xff}},
+        ExpectedNonAligned{0x3fff, 0x7f, 0x7fffff, true, 0x7},
+    }
+));
+// clang-format on
 
-struct EnumTestCase {
-    uint8_t data[2];
-    RxEnum::ecu_t expected_ecu;
-    RxEnum::state_t expected_state;
+/***************************************************************
+    Enumerations
+***************************************************************/
+struct ExpectedEnum {
+    RxEnum::ecu_t ecu;
+    RxEnum::state_t state;
 };
 
-class RxEnumTest : public Bus,
-                   public testing::WithParamInterface<EnumTestCase> {};
+using Enum = RxTest<ExpectedEnum>;
+TEST_P(Enum, HandleCases) {
+    auto [raw, expected] = GetParam();
 
-TEST_P(RxEnumTest, HandleCases) {
-    auto p = GetParam();
-
-    base.AddToBus(RawMessage{263, false, 2, p.data});
+    base.AddToBus(raw);
     auto msg = bus.GetRxEnum();
 
     ASSERT_TRUE(msg.has_value());
-    EXPECT_EQ(msg->ecu(), p.expected_ecu);
-    EXPECT_EQ(msg->state(), p.expected_state);
+    EXPECT_EQ(msg->ecu(), expected.ecu);
+    EXPECT_EQ(msg->state(), expected.state);
 }
 
 INSTANTIATE_TEST_SUITE_P(
-    RxEnumTestCases, RxEnumTest,
-    testing::Values(EnumTestCase{{0x00, 0x00},
-                                 RxEnum::ecu_t::FrontController,
-                                 RxEnum::state_t::Waiting},
-                    EnumTestCase{{0x01, 0x02},
-                                 RxEnum::ecu_t::LVController,
-                                 RxEnum::state_t::Invalid},
-                    EnumTestCase{{0x02, 0x01},
-                                 RxEnum::ecu_t::TMS,
-                                 RxEnum::state_t::Valid}));
+    EnumCases, Enum,
+    // clang-format off
+    testing::Values(
+    std::tuple{
+        RawMessage{263, false, 2, {0x00, 0x00}},
+        ExpectedEnum{RxEnum::ecu_t::FrontController, RxEnum::state_t::Waiting},
+    },
+    std::tuple{
+        RawMessage{263, false, 2, {0x01, 0x02}},
+        ExpectedEnum{RxEnum::ecu_t::LVController, RxEnum::state_t::Invalid},
+    },
+    std::tuple{
+        RawMessage{263, false, 2, {0x02, 0x01}},
+        ExpectedEnum{RxEnum::ecu_t::TMS, RxEnum::state_t::Valid},
+    }
+));
+// clang-format on
+
+/***************************************************************
+    Signed Signals
+***************************************************************/
+struct ExpectedSigned {
+    int8_t sig1;
+    int16_t sig2;
+    int32_t sig3;
+};
+
+using SignedLittle = RxTest<ExpectedSigned>;
+TEST_P(SignedLittle, HandleCases) {
+    auto [raw, expected] = GetParam();
+
+    base.AddToBus(raw);
+    auto msg = bus.GetRxSignedLittle();
+
+    ASSERT_TRUE(msg.has_value());
+    EXPECT_EQ(msg->sig1(), expected.sig1);
+    EXPECT_EQ(msg->sig2(), expected.sig2);
+    EXPECT_EQ(msg->sig3(), expected.sig3);
+}
+
+using SignedBig = RxTest<ExpectedSigned>;
+TEST_P(SignedBig, HandleCases) {
+    auto [raw, expected] = GetParam();
+
+    base.AddToBus(raw);
+    auto msg = bus.GetRxSignedBig();
+
+    ASSERT_TRUE(msg.has_value());
+    EXPECT_EQ(msg->sig1(), expected.sig1);
+    EXPECT_EQ(msg->sig2(), expected.sig2);
+    EXPECT_EQ(msg->sig3(), expected.sig3);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    SignedLittleCases, SignedLittle,
+    ::testing::Values(
+        std::tuple{
+            RawMessage{265, false, 5, {0x20 | 0xc0, 0xff, 0x03, 0x00, 0x80}},
+            ExpectedSigned{-32, 0x0FFF, -0x100000},
+        },
+        std::tuple{
+            RawMessage{265, false, 5, {0x1f, 0x00, 0xf8, 0xff, 0x7f}},
+            ExpectedSigned{31, 0, 0xFFFFF},
+        },
+        std::tuple{
+            RawMessage{265, false, 5, {0x3c | 0x00, 0xff, 0xa5, 0xff, 0xff}},
+            ExpectedSigned{-4, -2052, -12},
+        },
+        std::tuple{
+            RawMessage{265, false, 5, {0x1c | 0x00, 0xff, 0xa3, 0xff, 0x5f}},
+            ExpectedSigned{28, 4092, 786420},
+        }));
+
+INSTANTIATE_TEST_SUITE_P(
+    SignedBigCases, SignedBig,
+    ::testing::Values(
+        std::tuple{
+            RawMessage{266, false, 5, {0x80, 0x00, 0x10, 0x00, 0x00}},
+            ExpectedSigned{-32, 0, -0x100000},
+        },
+        std::tuple{
+            RawMessage{266, false, 5, {0x7c, 0x00, 0x0f, 0xff, 0xff}},
+            ExpectedSigned{31, 0, 0xFFFFF},
+        },
+        std::tuple{
+            RawMessage{266, false, 5, {0xf0 | 0x02, 0xff, 0x9f, 0xff, 0xf4}},
+            ExpectedSigned{-4, -2052, -12},
+        },
+        std::tuple{
+            RawMessage{266, false, 5, {0x70 | 0x01, 0xff, 0x8B, 0xff, 0xf4}},
+            ExpectedSigned{28, 4092, 786420},
+        }));
+
+/***************************************************************
+    Floats
+***************************************************************/
+
+struct ExpectedFloat {
+    float f1;
+    float f2;
+};
+
+using FloatUnsigned = RxTest<ExpectedFloat>;
+TEST_P(FloatUnsigned, HandleCases) {
+    auto [raw, expected] = GetParam();
+
+    base.AddToBus(raw);
+    auto msg = bus.GetRxFloatUnsigned();
+
+    ASSERT_TRUE(msg.has_value());
+    EXPECT_FLOAT_EQ(msg->f1(), expected.f1);
+    EXPECT_FLOAT_EQ(msg->f2(), expected.f2);
+}
+
+INSTANTIATE_TEST_SUITE_P(FloatUnsignedCases, FloatUnsigned,
+                         // clang-format off
+    ::testing::Values(
+        std::tuple{
+            RawMessage{267, false, 3, {0x00, 0xFF, 0xFF}},
+            ExpectedFloat{-10, 50 + 65.535},
+        },
+        std::tuple{
+            RawMessage{267, false, 3, {0x01, 0xd2, 0x04}},
+            ExpectedFloat{6, 51.234},
+        },
+        std::tuple{
+            RawMessage{267, false, 3, {0xFF, 0x01, 0x00}},
+            ExpectedFloat{0xfe6, 50.001},
+        },
+        std::tuple{
+            RawMessage{267, false, 3, {0x0A, 0xA0, 0xB0}},
+            ExpectedFloat{150, 50 + 45.216},
+        }
+    )
+);
+
+using FloatSigned = RxTest<ExpectedFloat>;
+TEST_P(FloatSigned, HandleCases) {
+    auto [raw, expected] = GetParam();
+
+    base.AddToBus(raw);
+    auto msg = bus.GetRxFloatSigned();
+
+    ASSERT_TRUE(msg.has_value());
+    EXPECT_FLOAT_EQ(msg->f1(), expected.f1);
+    EXPECT_FLOAT_EQ(msg->f2(), expected.f2);
+}
+
+INSTANTIATE_TEST_SUITE_P(FloatSignedCases, FloatSigned,
+    // clang-format off
+    ::testing::Values(
+        std::tuple{
+            RawMessage{268, false, 3, {0x00, 0xFF, 0xFF}},
+            ExpectedFloat{-10, 49.999},
+        },
+        std::tuple{
+            RawMessage{268, false, 3, {0x80, 0xd2, 0x04}},
+            ExpectedFloat{-2058, 51.234},
+        },
+        std::tuple{
+            RawMessage{268, false, 3, {0x07, 0x01, 0x00}},
+            ExpectedFloat{102, 50.001},
+        },
+        std::tuple{
+            RawMessage{268, false, 3, {0x0A, 0x00, 0x80}},
+            ExpectedFloat{150, 50 - 32.768},
+        }
+    )
+);
+// clang-format on

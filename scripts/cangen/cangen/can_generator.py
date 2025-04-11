@@ -5,7 +5,6 @@ Author: Samuel Parent, Andrew Iammancini, Blake Freer
 from __future__ import annotations
 
 import logging
-import math
 import os
 import re
 import shutil
@@ -40,9 +39,9 @@ class CppSignal:
     s: Signal  # for accessing most fields
     name: str
     type: str
-    temp_type: str
-    masks: List[int]
-    shifts: List[int]
+    raw_type: str
+    raw_type_bits: str
+    masks_shifts: List[MaskShift]
     is_enum: bool
 
     def __init__(self, sig: Signal):
@@ -52,17 +51,38 @@ class CppSignal:
         self.name = _camel_to_snake(self.s.name)
         self.is_enum = self.s.choices is not None
 
-        self.masks, self.shifts = self.choose_masks_shifts()
+        self.choose_datatypes()
+        self.masks_shifts = self.choose_masks_shifts()
 
+    def choose_datatypes(self) -> None:
+        # Raw datatype is based on CAN layout
+        self.raw_type_bits, self.raw_type = self.get_raw_type()
+        # Actual datatype depends on more information
+        self.type = self.get_datatype()
+
+    def get_raw_type(self) -> Tuple[int, str]:
+        for size in [8, 16, 32, 64]:
+            if self.s.length <= size:
+                sign_prefix = "" if self.s.is_signed else "u"
+                return size, "{}int{}_t".format(sign_prefix, size)
+
+        raise ValueError(f"Invalid number of bits ({self.s.length}).")
+
+    def get_datatype(self) -> str:
+        """Get the datatype of the physical signal value."""
         if self.is_enum:
             # need suffix to avoid clash between enum type name and signal name
-            self.type = self.s.name + "_t"
             self.validate_enum()
-        else:
-            self.type = self._get_signal_datatype(allow_floating_point=True)
+            return self.s.name + "_t"
 
-        # even enums use the regular integer datatype for temp
-        self.temp_type = self._get_signal_datatype(allow_floating_point=False)
+        elif self.s.length == 1:
+            return "bool"
+
+        elif self.s.is_float or self.s.scale != 1 or self.s.offset != 0:
+            return "float"
+
+        else:
+            return self.raw_type
 
     def validate_enum(self):
         if self.s.offset != 0:
@@ -74,27 +94,6 @@ class CppSignal:
                 f"Enum field {self.s.name} must have scale=1 (has {self.s.scale})."
             )
 
-    def _get_signal_datatype(self, allow_floating_point: bool) -> str:
-        """Get the datatype of a signal."""
-        num_bits = self.s.length
-        if self.s.scale > 1:
-            num_bits += math.ceil(math.log2(self.s.scale))
-
-        is_float = self.s.is_float or isinstance(self.s.scale, float)
-        if is_float and allow_floating_point:
-            return "float" if num_bits <= 32 else "double"
-
-        if num_bits == 1:
-            return "bool"
-
-        sign = "" if self.s.is_signed else "u"
-        # Check all possible integer sizes
-        for size in [8, 16, 32, 64]:
-            if num_bits <= size:
-                return "{}int{}_t".format(sign, size)
-
-        raise ValueError("Signal does not have a valid datatype.")
-
     def choose_masks_shifts(self):
         match self.s.byte_order:
             case "little_endian":
@@ -105,9 +104,7 @@ class CppSignal:
                 raise ValueError(f"Invalid byteorder {self.s.byte_order}.")
 
     @staticmethod
-    def get_mask_shift_little(
-        length: int, start: int
-    ) -> Tuple[np.ndarray[int], np.ndarray[int]]:
+    def get_mask_shift_little(length: int, start: int) -> List[MaskShift]:
         idx = np.arange(64)
         mask_bool = (idx >= start) & (idx < start + length)
         mask_bytes = np.packbits(mask_bool, bitorder="little")
@@ -117,12 +114,14 @@ class CppSignal:
         shift_amounts = np.arange(0, 64, 8, dtype=int) - num_zeros
         logger.debug("Little endian shift amounts calculated.")
 
-        return mask_bytes, shift_amounts
+        return [
+            MaskShift(mask=m, shift=s, byte=i)
+            for i, (m, s) in enumerate(zip(mask_bytes, shift_amounts))
+            if m > 0
+        ]
 
     @staticmethod
-    def get_mask_shift_big(
-        length: int, start: int
-    ) -> Tuple[np.ndarray[int], np.ndarray[int]]:
+    def get_mask_shift_big(length: int, start: int) -> List[MaskShift]:
         EIGHT_BITS = 8
         EIGHT_BYTES = 8
         TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
@@ -138,10 +137,20 @@ class CppSignal:
 
         num_zeros = TOTAL_BITS - end
         shift_amounts = np.arange(0, 64, 8, dtype=int)[::-1] - num_zeros
-
         logger.debug("Big endian shift amounts calculated.")
 
-        return mask_bytes, shift_amounts
+        return [
+            MaskShift(mask=m, shift=s, byte=i)
+            for i, (m, s) in enumerate(zip(mask_bytes, shift_amounts))
+            if m > 0
+        ]
+
+
+@dataclass
+class MaskShift:
+    mask: int
+    shift: int
+    byte: int
 
 
 def _parse_dbc_files(dbc_file: str) -> Database:

@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <cmath>
 #include <cstdint>
 #include "shared/comms/can/msg.hpp"
 
@@ -53,27 +54,22 @@ private:
     // Only {{ bus }} can construct this class which guarantees the data came from the CAN line.
     {{ class_name }}(shared::can::RawMessage raw_msg, uint32_t timestamp) : timestamp_(timestamp) {
         {% for sig in msg.signals %}
-        {% set T = sig.temp_type %}
+        {% set T = sig.raw_type %}
         {{ T }} temp_{{ sig.name }} = 0;
-        {% for mask in sig.masks %}
-            {% set i = loop.index0 %}
-            {% set shift = sig.shifts[i] %}
-            {% if mask != 0 %}
-                {% if T == "bool" %}
-        temp_{{ sig.name }} = raw_msg.data[{{ i }}] & {{mask | hex}};
-                {% else %}
-                    {% if shift >= 0 %}
-        temp_{{ sig.name }} |= static_cast<{{T}}>(raw_msg.data[{{ i }}] & {{mask | hex}}) << {{ shift }};
-                    {% else %}
-        temp_{{ sig.name }} |= static_cast<{{T}}>(raw_msg.data[{{ i }}] & {{ mask | hex }}) >> {{ -shift }};
-                    {% endif %}
-                {% endif %}
-            {% endif %}
-        {% endfor %}
+            {% for ms in sig.masks_shifts %}
+        temp_{{ sig.name }} |= static_cast<{{ T }}>(raw_msg.data[{{ ms.byte }}] & {{ ms.mask | hex}})
+                {%- if ms.shift > 0 %} << {{ ms.shift }}
+                {%- elif ms.shift < 0 %} >> {{ -ms.shift }}
+                {%- endif %};
+            {% endfor %}
+        {% set missing_bits = sig.raw_type_bits - sig.s.length %}
+        {% if sig.s.is_signed and missing_bits > 0 %}
+        temp_{{ sig.name }} = static_cast<{{ T }}>(temp_{{ sig.name }} << {{ missing_bits }}) >> {{ missing_bits }}; // sign extend
+        {% endif %}
         {% if sig.s.scale == 1 and sig.s.offset == 0 %}
         {{ sig.name }}_ = static_cast<{{ sig.type }}>(temp_{{ sig.name }});
         {% else %}
-        {{ sig.name }}_ = static_cast<{{ T }}>(static_cast<double>(temp_{{ sig.name }}) * {{ sig.s.scale }} + {{ sig.s.offset }});
+        {{ sig.name }}_ = static_cast<{{ sig.type }}>(static_cast<double>(temp_{{ sig.name }}) * {{ sig.s.scale }} + {{ sig.s.offset }});
         {% endif %}
         
         {% endfor %}
@@ -107,27 +103,21 @@ public:
 
         // @todo clamp data
 
-        // temporary signal variables
         {% for sig in msg.signals %}
+            {% set T = sig.raw_type %}
             {% if sig.s.offset == 0 and sig.s.scale == 1 %}
-        {{ sig.temp_type }} temp_{{ sig.name }} = static_cast<{{ sig.temp_type }}>({{ sig.name }});
+        {{ T }} temp_{{ sig.name }} = static_cast<{{ T }}>({{ sig.name }});
             {% else %}
-        {{ sig.temp_type }} temp_{{ sig.name }} = static_cast<{{ sig.temp_type }}>(static_cast<double>({{ sig.name }} - {{ sig.s.offset }} ) / {{ sig.s.scale }});
+        {{ T }} temp_{{ sig.name }} = static_cast<{{ T }}>(std::round(({{ sig.name }} - {{ sig.s.offset }} ) / {{ sig.s.scale }}));
             {% endif %}
-        {% endfor %}
-
-        {% for sig in msg.signals %}
-        {% for mask in sig.masks %}
-        {% if mask != 0 %}
-            {% set i = loop.index0 %}
-            {% set shift = sig.shifts[i] %}
-                {% if shift >= 0 %}
-        data[{{ i }}] |= (temp_{{ sig.name }} >> {{ shift }}) & {{ mask | hex }};
+            {% for ms in sig.masks_shifts %}
+                {% if ms.shift >= 0 %}
+        data[{{ ms.byte }}] |= (temp_{{ sig.name }} >> {{ ms.shift }}) & {{ ms.mask | hex }};
                 {% else %}
-        data[{{ i }}] |= (temp_{{ sig.name }} << {{ -shift }}) & {{ mask | hex }};
+        data[{{ ms.byte }}] |= (temp_{{ sig.name }} << {{ -ms.shift }}) & {{ ms.mask | hex }};
                 {% endif %}
-        {% endif %}
-        {% endfor %}
+            {% endfor %}
+
         {% endfor %}
 
         return shared::can::RawMessage(id, extended_frame, data_length, data);
