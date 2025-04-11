@@ -1,15 +1,16 @@
 """
-Author: Samuel Parent
-Date: 2024-04-13
+Author: Samuel Parent, Andrew Iammancini, Blake Freer
 """
 
+from __future__ import annotations
+
 import logging
-import math
 import os
 import re
 import shutil
 import time
-from typing import Dict, List, Tuple
+from dataclasses import dataclass
+from typing import List, Tuple
 
 import numpy as np
 from cantools.database import Database, Message, Signal
@@ -19,11 +20,137 @@ from .config import Bus, Config
 
 logger = logging.getLogger(__name__)
 
-EIGHT_BITS = 8
-EIGHT_BYTES = 8
-TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
 
 TEMPLATE_FILE_NAMES = ["messages.hpp.jinja2", "bus.hpp.jinja2"]
+
+
+@dataclass
+class CppMessage:
+    m: Message
+    signals: List[CppSignal]
+
+    def __init__(self, msg: Message):
+        self.m = msg
+        self.signals = [CppSignal(s) for s in self.m.signals]
+
+
+@dataclass
+class CppSignal:
+    s: Signal  # for accessing most fields
+    name: str
+    type: str
+    raw_type: str
+    raw_type_bits: str
+    masks_shifts: List[MaskShift]
+    is_enum: bool
+
+    def __init__(self, sig: Signal):
+        logger.debug(f"Processing (sig: {sig.name})")
+
+        self.s = sig
+        self.name = _camel_to_snake(self.s.name)
+        self.is_enum = self.s.choices is not None
+
+        self.choose_datatypes()
+        self.masks_shifts = self.choose_masks_shifts()
+
+    def choose_datatypes(self) -> None:
+        # Raw datatype is based on CAN layout
+        self.raw_type_bits, self.raw_type = self.get_raw_type()
+        # Actual datatype depends on more information
+        self.type = self.get_datatype()
+
+    def get_raw_type(self) -> Tuple[int, str]:
+        for size in [8, 16, 32, 64]:
+            if self.s.length <= size:
+                sign_prefix = "" if self.s.is_signed else "u"
+                return size, "{}int{}_t".format(sign_prefix, size)
+
+        raise ValueError(f"Invalid number of bits ({self.s.length}).")
+
+    def get_datatype(self) -> str:
+        """Get the datatype of the physical signal value."""
+        if self.is_enum:
+            # need suffix to avoid clash between enum type name and signal name
+            self.validate_enum()
+            return self.s.name + "_t"
+
+        elif self.s.length == 1:
+            return "bool"
+
+        elif self.s.is_float or self.s.scale != 1 or self.s.offset != 0:
+            return "float"
+
+        else:
+            return self.raw_type
+
+    def validate_enum(self):
+        if self.s.offset != 0:
+            raise ValueError(
+                f"Enum field {self.s.name} must have offset=0 (has {self.s.offset})."
+            )
+        if self.s.scale != 1:
+            raise ValueError(
+                f"Enum field {self.s.name} must have scale=1 (has {self.s.scale})."
+            )
+
+    def choose_masks_shifts(self):
+        match self.s.byte_order:
+            case "little_endian":
+                return CppSignal.get_mask_shift_little(self.s.length, self.s.start)
+            case "big_endian":
+                return CppSignal.get_mask_shift_big(self.s.length, self.s.start)
+            case _:
+                raise ValueError(f"Invalid byteorder {self.s.byte_order}.")
+
+    @staticmethod
+    def get_mask_shift_little(length: int, start: int) -> List[MaskShift]:
+        idx = np.arange(64)
+        mask_bool = (idx >= start) & (idx < start + length)
+        mask_bytes = np.packbits(mask_bool, bitorder="little")
+        logger.debug("Little endian mask generated.")
+
+        num_zeros = start
+        shift_amounts = np.arange(0, 64, 8, dtype=int) - num_zeros
+        logger.debug("Little endian shift amounts calculated.")
+
+        return [
+            MaskShift(mask=m, shift=s, byte=i)
+            for i, (m, s) in enumerate(zip(mask_bytes, shift_amounts))
+            if m > 0
+        ]
+
+    @staticmethod
+    def get_mask_shift_big(length: int, start: int) -> List[MaskShift]:
+        EIGHT_BITS = 8
+        EIGHT_BYTES = 8
+        TOTAL_BITS = EIGHT_BITS * EIGHT_BYTES
+
+        q, r = divmod(start, EIGHT_BITS)
+        start_flipped = q * EIGHT_BITS + EIGHT_BITS - r - 1
+        end = start_flipped + length
+
+        idx = np.arange(64)
+        mask_bool = (idx >= start_flipped) & (idx < end)
+        mask_bytes = np.packbits(mask_bool, bitorder="big")
+        logger.debug("Big endian mask generated.")
+
+        num_zeros = TOTAL_BITS - end
+        shift_amounts = np.arange(0, 64, 8, dtype=int)[::-1] - num_zeros
+        logger.debug("Big endian shift amounts calculated.")
+
+        return [
+            MaskShift(mask=m, shift=s, byte=i)
+            for i, (m, s) in enumerate(zip(mask_bytes, shift_amounts))
+            if m > 0
+        ]
+
+
+@dataclass
+class MaskShift:
+    mask: int
+    shift: int
+    byte: int
 
 
 def _parse_dbc_files(dbc_file: str) -> Database:
@@ -65,102 +192,6 @@ def _filter_messages_by_node(
     return rx_msgs, tx_msgs
 
 
-def _get_mask_shift_big(
-    length: int, start: int
-) -> Tuple[np.ndarray[int], np.ndarray[int]]:
-    q, r = divmod(start, EIGHT_BITS)
-    start_flipped = q * EIGHT_BITS + EIGHT_BITS - r - 1
-    end = start_flipped + length
-
-    idx = np.arange(64)
-    mask_bool = (idx >= start_flipped) & (idx < end)
-    mask_bytes = np.packbits(mask_bool, bitorder="big")
-    logger.debug("Big endian mask generated.")
-
-    num_zeros = TOTAL_BITS - end
-    shift_amounts = np.arange(0, 64, 8, dtype=int)[::-1] - num_zeros
-
-    logger.debug("Big endian shift amounts calculated.")
-
-    return mask_bytes, shift_amounts
-
-
-def _get_mask_shift_little(
-    length: int, start: int
-) -> Tuple[np.ndarray[int], np.ndarray[int]]:
-    idx = np.arange(64)
-    mask_bool = (idx >= start) & (idx < start + length)
-    mask_bytes = np.packbits(mask_bool, bitorder="little")
-    logger.debug("Little endian mask generated.")
-
-    num_zeros = start
-    shift_amounts = np.arange(0, 64, 8, dtype=int) - num_zeros
-    logger.debug("Little endian shift amounts calculated.")
-
-    return mask_bytes, shift_amounts
-
-
-def _get_masks_shifts(
-    msgs: List[Message],
-) -> Dict[str, Dict[str, Tuple[List[int], List[int]]]]:
-    # Create a dictionary of empty dictionaries, indexed by message names
-    masks_shifts_dict = {msg.name: {} for msg in msgs}
-
-    for msg in msgs:
-        for sig in msg.signals:
-            logger.debug(f"Processing (msg: {msg.name}, sig: {sig.name})")
-
-            if sig.byte_order == "little_endian":
-                mask, shift = _get_mask_shift_little(sig.length, sig.start)
-            elif sig.byte_order == "big_endian":
-                mask, shift = _get_mask_shift_big(sig.length, sig.start)
-            else:
-                raise ValueError(f"Invalid byteorder {sig.byte_order}.")
-
-            # Evaluate that function on the signal start and length
-            masks_shifts_dict[msg.name][sig.name] = mask, shift
-
-    return masks_shifts_dict
-
-
-def _get_signal_datatype(signal: Signal, allow_floating_point: bool = True) -> str:
-    """Get the datatype of a signal."""
-    num_bits = signal.length
-    if signal.scale > 1:
-        num_bits += math.ceil(math.log2(signal.scale))
-
-    is_float = signal.is_float or isinstance(signal.scale, float)
-    if is_float and allow_floating_point:
-        return "float" if num_bits <= 32 else "double"
-
-    if num_bits == 1:
-        return "bool"
-
-    sign = "" if signal.is_signed else "u"
-    # Check all possible integer sizes
-    for size in [8, 16, 32, 64]:
-        if num_bits <= size:
-            return "{}int{}_t".format(sign, size)
-
-    raise ValueError("Signal does not have a valid datatype.")
-
-
-def _get_signal_types(can_db: Database, allow_floating_point=True):
-    # Create a dictionary (indexed by message name) of dictionaries (indexed by signal
-    # name) corresponding to the datatype of each signal within each message.
-    sig_types = {
-        message.name: {
-            signal.name: _get_signal_datatype(signal, allow_floating_point)
-            for signal in message.signals
-        }
-        for message in can_db.messages
-    }
-
-    logger.debug("Signal types retrieved")
-
-    return sig_types
-
-
 def _camel_to_snake(text):
     """Converts UpperCamelCase to snake_case."""
 
@@ -189,17 +220,15 @@ def _generate_code(bus: Bus, output_dir: str):
     logger.info("Generating code")
 
     can_db = _parse_dbc_files(bus.dbc_file_path)
-    rx_msgs, tx_msgs = _filter_messages_by_node(can_db.messages, bus.node)
+    raw_rx_msgs, raw_tx_msgs = _filter_messages_by_node(can_db.messages, bus.node)
+
+    rx_msgs = [CppMessage(m) for m in raw_rx_msgs]
+    tx_msgs = [CppMessage(m) for m in raw_tx_msgs]
 
     context = {
         "date": time.strftime("%Y-%m-%d"),
         "rx_msgs": rx_msgs,
         "tx_msgs": tx_msgs,
-        "all_msgs": rx_msgs + tx_msgs,
-        "signal_types": _get_signal_types(can_db),
-        "temp_signal_types": _get_signal_types(can_db, allow_floating_point=False),
-        "unpack_info": _get_masks_shifts(rx_msgs),
-        "pack_info": _get_masks_shifts(tx_msgs),
         "bus_name": bus.bus_name,
         "node_name": bus.node,
     }
@@ -209,7 +238,7 @@ def _generate_code(bus: Bus, output_dir: str):
     env = Environment(
         loader=PackageLoader(__package__), trim_blocks=True, lstrip_blocks=True
     )
-    env.filters["decimal_to_hex"] = hex
+    env.filters["hex"] = hex
     env.filters["camel_to_snake"] = _camel_to_snake
 
     for template_file_name in TEMPLATE_FILE_NAMES:
@@ -242,7 +271,8 @@ def _prepare_output_directory(output_dir: str):
 
 def generate_can_for_project(project_folder_name: str):
     """Generates C code for a given project.
-    Ensure the project folder contains a config.yaml file which specifies the relative path to its corresponding dbc file.
+    Ensure the project folder contains a config.yaml file which specifies the relative
+    path to its corresponding dbc file.
     """
     os.chdir(project_folder_name)
     config = Config.from_yaml("config.yaml")

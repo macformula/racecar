@@ -56,6 +56,8 @@ class StateMachine {
     // shorter and clearer code of the first implementation is justified.
 
 public:
+    using LvState = TxLvControllerStatus::LvState_t;
+
     StateMachine(int start_time)
         : state_(LvState::PWRUP_START), state_enter_time_(start_time) {}
 
@@ -65,10 +67,8 @@ public:
         std::optional<LvState> transition = std::nullopt;
         int elapsed = time_ms - state_enter_time_;
 
-        veh_can.Send(
-            TxLvControllerStatus{.lv_state = static_cast<uint8_t>(state_),
-                                 .elapsed = elapsed,
-                                 .flag = flag});
+        veh_can.Send(TxLvControllerStatus{
+            .lv_state = state_, .elapsed = elapsed, .flag = flag});
 
         switch (state_) {
             case PWRUP_START:
@@ -344,7 +344,7 @@ int main(void) {
         auto msg = veh_can.GetRxInitiateCanFlash();
 
         if (msg.has_value() &&
-            static_cast<ECU>(msg->ECU()) == ECU::LvController) {
+            msg->ECU() == RxInitiateCanFlash::ECU_t::LvController) {
             bindings::SoftwareReset();
         }
 

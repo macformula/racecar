@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cangen"
-version = "0.2.0"
+version = "0.3.0"
 description = "Converts .dbc files into C++ files for a CAN bus system."
 authors = ["Andrew Iammancini"]
 readme = "README.md"

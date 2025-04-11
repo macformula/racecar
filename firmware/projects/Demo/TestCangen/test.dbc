@@ -4,11 +4,11 @@ BS_:
 
 BU_: RX TX
 
-BO_ 258 StatusNonAligned: 2 TX
+BO_ 258 BoolNonAligned: 2 TX
  SG_ IMDLed : 11|1@1+ (1,0) [0|1] "" TEST
  SG_ BMSLed : 12|1@1+ (1,0) [0|1] "" RX
 
-BO_ 259 StatusAligned: 4 TX
+BO_ 259 BoolAligned: 4 TX
  SG_ IMDLed : 16|1@1+ (1,0) [0|1] "" RX
  SG_ BMSLed : 24|1@1+ (1,0) [0|1] "" RX
 
@@ -29,4 +29,34 @@ BO_ 262 NonAligned: 6 TX
  SG_ sig4 : 44|1@1+ (1,0) [0|1] "" RX
  SG_ sig5 : 45|3@1+ (1,0) [0|1] "" RX
 
+BO_ 263 Enum: 2 TX
+ SG_ ecu : 0|2@1+ (1,0) [0|1] "" RX
+ SG_ state : 8|4@1+ (1,0) [0|1] "" RX
 
+VAL_ 263 ecu 0 "FrontController" 1 "LVController" 2 "TMS";
+VAL_ 263 state 0 "Waiting" 1 "Valid" 2 "Invalid";
+
+BO_ 264 NonAlignedBigEndian: 6 TX
+ SG_ sig1 : 7|14@0+ (1,0) [0|0] "" RX
+ SG_ sig2 : 9|7@0+ (1,0) [0|0] "" RX
+ SG_ sig3 : 18|23@0+ (1,0) [0|0] "" RX
+ SG_ sig4 : 43|1@0+ (1,0) [0|0] "" RX
+ SG_ sig5 : 42|3@0+ (1,0) [0|0] "" RX
+ 
+BO_ 265 SignedLittle: 5 TX
+ SG_ sig1 : 0|6@1- (1,0) [0|0] "" RX
+ SG_ sig2 : 6|13@1- (1,0) [0|0] "" RX
+ SG_ sig3 : 19|21@1- (1,0) [0|0] "" RX
+
+BO_ 266 SignedBig: 5 TX
+ SG_ sig1 : 7|6@0- (1,0) [0|0] "" RX
+ SG_ sig2 : 1|13@0- (1,0) [0|0] "" RX
+ SG_ sig3 : 20|21@0- (1,0) [0|0] "" RX
+
+BO_ 267 FloatUnsigned: 3 TX
+ SG_ f1 : 0|8@1+ (16,-10) [0|0] "" RX
+ SG_ f2 : 8|16@1+ (0.001,50) [0|0] "" RX
+
+BO_ 268 FloatSigned: 3 TX
+ SG_ f1 : 0|8@1- (16,-10) [0|0] "" RX
+ SG_ f2 : 8|16@1- (0.001,50) [0|0] "" RX
