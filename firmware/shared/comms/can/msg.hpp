@@ -23,17 +23,6 @@ concept TxMessage = requires(const T msg) {
     { msg.pack() } -> std::same_as<RawMessage>;
 };
 
-// Used in the generated code to unpack from / pack into a RawMessage
-template <typename T>
-inline T unpack_right_shift(uint8_t value, uint8_t shift, uint8_t mask) {
-    return static_cast<T>(static_cast<T>(value & mask) >> shift);
-}
-
-template <typename T>
-inline T unpack_left_shift(uint8_t value, uint8_t shift, uint8_t mask) {
-    return static_cast<T>(static_cast<T>(value & mask) << shift);
-}
-
 template <typename T>
 inline uint8_t pack_left_shift(T value, uint8_t shift, uint8_t mask) {
     return static_cast<uint8_t>(static_cast<uint8_t>(value << shift) & mask);

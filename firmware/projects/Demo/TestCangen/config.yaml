@@ -1,0 +1,5 @@
+canGen:
+  busses:
+    - name: test
+      node: RX
+      dbcFile: "test.dbc"

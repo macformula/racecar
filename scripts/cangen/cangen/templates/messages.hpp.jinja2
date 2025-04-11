@@ -52,42 +52,36 @@ private:
     constexpr static uint32_t id = {{ msg.frame_id }};
     constexpr static uint8_t data_length = {{ msg.length }};
 
-    {% for sig in msg.signals %}
-    {% set sig_var = sig.name | camel_to_snake %}
-    {% set sig_var_type = signal_types[msg.name][sig.name] %}
-    static constexpr double k{{ sig.name }}Scale = {{ sig.scale }};
-    static constexpr double k{{ sig.name }}Offset = {{ sig.offset }};
-    {% endfor %}
 
     friend class {{ bus }};
     
     // Only {{ bus }} can construct this class which guarantees the data came from the CAN line.
-    {{ class_name }}(shared::can::RawMessage raw_msg, uint32_t timestamp) {
-        timestamp_ = timestamp;
+    {{ class_name }}(shared::can::RawMessage raw_msg, uint32_t timestamp) : timestamp_(timestamp) {
         {% for sig in msg.signals %}
-        {{ temp_signal_types[msg.name][sig.name] }} temp_{{ sig.name | camel_to_snake }} = 0;
-        {% endfor %}
-
-        {% for sig in msg.signals %}
+        {% set T = temp_signal_types[msg.name][sig.name] %}
+        {{ T }} temp_{{ sig.name | camel_to_snake }} = 0;
         {% set masks, shifts = unpack_info[msg.name][sig.name] %}
-        {% set temp_sig_var = "temp_" + sig.name | camel_to_snake %}
-        {% set temp_sig_var_type = temp_signal_types[msg.name][sig.name] %}
-        {% set sig_var = sig.name | camel_to_snake %}
-        {% set sig_var_type = signal_types[msg.name][sig.name] %}
-        {% set sig_var_scale = "k" + sig.name + "Scale" %}
-        {% set sig_var_offset = "k" + sig.name + "Offset" %}
         {% for mask in masks %}
             {% set i = loop.index0 %}
             {% set shift = shifts[i] %}
             {% if mask != 0 %}
-                {% if shift >= 0 %}
-        {{ temp_sig_var }} |= shared::can::unpack_left_shift<{{ temp_sig_var_type }}>(raw_msg.data[{{ i }}], {{ shift }}U, {{ mask | decimal_to_hex }}U);
+                {% if T == "bool" %}
+        temp_{{ sig.name | camel_to_snake }} = raw_msg.data[{{ i }}] & {{mask | decimal_to_hex}};
                 {% else %}
-        {{ temp_sig_var }} |= shared::can::unpack_right_shift<{{ temp_sig_var_type }}>(raw_msg.data[{{ i }}], {{ -shift }}U, {{ mask | decimal_to_hex }}U);
+                    {% if shift >= 0 %}
+        temp_{{ sig.name | camel_to_snake }} |= static_cast<{{T}}>(raw_msg.data[{{ i }}] & {{mask | decimal_to_hex}}) << {{ shift }};
+                    {% else %}
+        temp_{{ sig.name | camel_to_snake }} |= static_cast<{{T}}>(raw_msg.data[{{ i }}] & {{ mask | decimal_to_hex }}) >> {{ -shift }};
+                    {% endif %}
                 {% endif %}
             {% endif %}
         {% endfor %}
-        {{ sig_var }}_ = static_cast<{{ sig_var_type }}>(static_cast<double>({{ temp_sig_var }}) * {{ sig_var_scale }} + {{ sig_var_offset }});
+        {% if sig.scale == 1 and sig.offset == 0 %}
+        {{ sig.name | camel_to_snake }}_ = temp_{{ sig.name | camel_to_snake }};
+        {% else %}
+        {{ sig.name | camel_to_snake }}_ = static_cast<{{ T }}>(static_cast<double>(temp_{{ sig.name | camel_to_snake }}) * {{ sig.scale }} + {{ sig.offset }});
+        {% endif %}
+        
         {% endfor %}
     }
     {{ class_name }}() = delete;
