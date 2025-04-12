@@ -57,7 +57,7 @@ class StateMachine {
 
 public:
     using LvState = TxLvControllerStatus::LvState_t;
-    using HashStatus = RxFC_Status::HashStatus_t;
+    using DbcHashStatus = RxFC_Status::DbcHashStatus_t;
 
     StateMachine(int start_time)
         : state_(LvState::PWRUP_START), state_enter_time_(start_time) {}
@@ -113,12 +113,11 @@ public:
                 break;
 
             case PWRUP_CHECK_HASH_STATUS: {
-                veh_can.Send(
-                    TxSyncHashVersion(generated::can::kVehDbcHashVersion));
+                veh_can.Send(TxSyncDbcHash(generated::can::kVehDbcHash));
                 auto msg = veh_can.GetRxFC_Status();
 
                 if (msg.has_value() &&
-                    msg->HashStatus() == HashStatus::VALID) {
+                    msg->DbcHashStatus() == DbcHashStatus::VALID) {
                     transition = PWRUP_ACCUMULATOR_ON;
                 }
             } break;

@@ -63,8 +63,8 @@ VehicleDynamics vd{pedal_to_torque};
 // Global Governer input defined
 Governor::Input gov_in{};
 
-using HashStatus = TxFC_Status::HashStatus_t;
-TxFC_Status fc_status{0, 0, 0, 0, HashStatus::WAITING};
+using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
+TxFC_Status fc_status{0, 0, 0, 0, DbcHashStatus::WAITING};
 
 void UpdateControls() {
     // NOTE #1: For defining inputs, I commented out inputs where I didn't know
@@ -182,24 +182,28 @@ void UpdateControls() {
 int main(void) {
     bindings::Initialize();
 
-    auto hash_version = veh_can_bus.GetRxSyncHashVersion();
-    while (!hash_version.has_value()) {
-        fc_status.hash_status = HashStatus::WAITING;
+    // Constantly check for hash to compare dbc version's between boards
+    auto dbc_hash = veh_can_bus.GetRxSyncDbcHash();
+    while (!dbc_hash.has_value()) {
+        fc_status.dbc_hash_status = DbcHashStatus::WAITING;
         veh_can_bus.Send(fc_status);
 
         bindings::DelayMs(100);
 
-        hash_version = veh_can_bus.GetRxSyncHashVersion();
+        dbc_hash = veh_can_bus.GetRxSyncDbcHash();
     }
-    if (hash_version->HashVersion() != generated::can::kVehDbcHashVersion) {
+
+    // Error state. If hash of LVController doesn't match, constantly send
+    // invalid messages back, not exiting
+    if (dbc_hash->DbcHash() != generated::can::kVehDbcHash) {
         while (true) {
-            fc_status.hash_status = HashStatus::INVALID;
+            fc_status.dbc_hash_status = DbcHashStatus::INVALID;
             veh_can_bus.Send(fc_status);
 
             bindings::DelayMs(100);
         }
     }
-    fc_status.hash_status = HashStatus::VALID;
+    fc_status.dbc_hash_status = DbcHashStatus::VALID;
 
     bindings::dashboard_power_en.SetHigh();
 
