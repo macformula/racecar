@@ -65,7 +65,6 @@ BO_ 255 FC_Status: 6 FC
  SG_ DiStatus : 8|8@1+ (1,0) [0|255] "" LVC, PC_SG
  SG_ MiStatus : 16|8@1+ (1,0) [0|255] "" LVC, PC_SG
  SG_ BmStatus : 24|8@1+ (1,0) [0|255] "" LVC, PC_SG
- SG_ UserFlag : 32|8@1+ (1,0) [0|255] "" LVC, PC_SG
  SG_ HashStatus : 40|8@1+ (1,0) [0|255] "" LVC, PC_SG
 
 BO_ 511 FC_msg: 8 FC

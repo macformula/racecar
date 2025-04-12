@@ -57,6 +57,7 @@ class StateMachine {
 
 public:
     using LvState = TxLvControllerStatus::LvState_t;
+    using HashStatus = RxFC_Status::HashStatus_t;
 
     StateMachine(int start_time)
         : state_(LvState::PWRUP_START), state_enter_time_(start_time) {}
@@ -117,8 +118,7 @@ public:
                 auto msg = veh_can.GetRxFC_Status();
 
                 if (msg.has_value() &&
-                    msg->HashStatus() ==
-                        static_cast<uint8_t>(HashStatus::VALID)) {
+                    msg->HashStatus() == HashStatus::VALID) {
                     transition = PWRUP_ACCUMULATOR_ON;
                 }
             } break;

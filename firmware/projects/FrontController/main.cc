@@ -63,7 +63,8 @@ VehicleDynamics vd{pedal_to_torque};
 // Global Governer input defined
 Governor::Input gov_in{};
 
-TxFC_Status fc_status{0, 0, 0, 0, 0, static_cast<uint8_t>(HashStatus::WAITING)};
+using HashStatus = TxFC_Status::HashStatus_t;
+TxFC_Status fc_status{0, 0, 0, 0, HashStatus::WAITING};
 
 void UpdateControls() {
     // NOTE #1: For defining inputs, I commented out inputs where I didn't know
@@ -87,7 +88,6 @@ void UpdateControls() {
     fc_status.di_status = static_cast<uint8_t>(gov_in.di_sts);
     fc_status.mi_status = static_cast<uint8_t>(gov_in.mi_sts);
     fc_status.bm_status = static_cast<uint8_t>(gov_in.bm_sts);
-    fc_status.user_flag = false;  // bindings::start_button.Read(),
 
     // Driver Interface update
     DriverInterface::Input di_in = {
@@ -184,7 +184,7 @@ int main(void) {
 
     auto hash_version = veh_can_bus.GetRxSyncHashVersion();
     while (!hash_version.has_value()) {
-        fc_status.hash_status = static_cast<uint8_t>(HashStatus::WAITING);
+        fc_status.hash_status = HashStatus::WAITING;
         veh_can_bus.Send(fc_status);
 
         bindings::DelayMs(100);
@@ -193,13 +193,13 @@ int main(void) {
     }
     if (hash_version->HashVersion() != generated::can::kVehDbcHashVersion) {
         while (true) {
-            fc_status.hash_status = static_cast<uint8_t>(HashStatus::INVALID);
+            fc_status.hash_status = HashStatus::INVALID;
             veh_can_bus.Send(fc_status);
 
             bindings::DelayMs(100);
         }
     }
-    fc_status.hash_status = static_cast<uint8_t>(HashStatus::VALID);
+    fc_status.hash_status = HashStatus::VALID;
 
     bindings::dashboard_power_en.SetHigh();
 
