@@ -8,7 +8,7 @@ repos:
       # Prevent committing directly to the main branch
       - id: no-commit-to-branch
         args: [--branch, main]
-        stages: [commit]
+        stages: [pre-commit]
     
   - repo: local
     hooks:
@@ -17,6 +17,6 @@ repos:
         entry: git clang-format --style=file --staged
         language: python
         require_serial: true
-        stages: [commit]
+        stages: [pre-commit]
         additional_dependencies:
           - clang-format~=19.0
