@@ -13,6 +13,7 @@
 #include "generated/can/veh_messages.hpp"
 #include "inc/app.hpp"
 #include "shared/util/mappers/linear_map.hpp"
+#include "tuning.hpp"
 
 /***************************************************************
     CAN
@@ -27,24 +28,20 @@ generated::can::PtBus pt_can_bus{bindings::pt_can_base};
 ***************************************************************/
 using shared::util::LinearMap;
 
-// voltages measured at the STM ADC (post buffer circuit)
-const float apps1_vol_pos_0 = 2.781;  // aim for 2.8V
-const float apps1_vol_pos_100 = 1.809;
-const float m1 = 100 / (apps1_vol_pos_100 - apps1_vol_pos_0);
-const float b1 = -m1 * apps1_vol_pos_0;
-auto accel_pedal1_map = LinearMap<float>{m1, b1};
+const float apps1_m =
+    100 / (tuning::apps1_volt_pos_100 - tuning::apps1_volt_pos_0);
+const float apps1_b = -apps1_m * tuning::apps1_volt_pos_0;
+auto accel_pedal1_map = LinearMap<float>{apps1_m, apps1_b};
 AnalogInput accel_pedal_1{bindings::accel_pedal_sensor1, &accel_pedal1_map};
 
-const float apps2_vol_pos_0 = 0.536;  // aim for 0.55V
-const float apps2_vol_pos_100 = 1.480;
-const float m2 = 100 / (apps2_vol_pos_100 - apps2_vol_pos_0);
-const float b2 = -m2 * apps2_vol_pos_0;
-auto accel_pedal2_map = LinearMap<float>{m2, b2};
+const float apps2_m =
+    100 / (tuning::apps2_volt_pos_100 - tuning::apps2_volt_pos_0);
+const float apps2_b = -apps2_m * tuning::apps2_volt_pos_0;
+auto accel_pedal2_map = LinearMap<float>{apps2_m, apps2_b};
 AnalogInput accel_pedal_2{bindings::accel_pedal_sensor2, &accel_pedal2_map};
 
-const float kPressureRange = 2000;
-
 // See datasheets/race_grade/RG_SPEC-0030_M_APT_G2_DTM.pdf
+const float kPressureRange = 2000;
 auto brake_pedal_front_map =
     LinearMap<float>{0.378788f * kPressureRange, -0.125f * kPressureRange};
 AnalogInput brake_pedal_front{bindings::brake_pressure_sensor,
