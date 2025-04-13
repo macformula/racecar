@@ -4,6 +4,7 @@ target_sources(mcal-linux
     can.cc
     digital_input.cc
     digital_output.cc
+    pwm_output.cc
 )
 
 add_subdirectory(vcan)

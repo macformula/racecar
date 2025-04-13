@@ -21,7 +21,8 @@ static can_frame to_can_frame(const shared::can::RawMessage& msg) {
 
 namespace mcal::lnx::periph {
 
-CanBase::CanBase(std::string iface) : socket_(iface) {}
+CanBase::CanBase(std::string iface, bool log_rx)
+    : socket_(iface), log_rx_(log_rx) {}
 
 void CanBase::Setup() {
     socket_.Open();
@@ -52,9 +53,13 @@ void CanBase::StartReading() {
 
         shared::can::RawMessage raw_msg(frame.can_id, true, frame.can_dlc,
                                         frame.data);
-        std::cout << std::format("CanBase {}: Received\n| {}",
-                                 socket_.GetIface(), raw_msg)
-                  << std::endl;
+
+        if (log_rx_) {
+            // this can get noisy, so set `log_rx=false` to disable it
+            std::cout << std::format("CanBase {}: Received\n| {}",
+                                     socket_.GetIface(), raw_msg)
+                      << std::endl;
+        }
 
         AddToBus(raw_msg);
     }
