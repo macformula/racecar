@@ -25,17 +25,17 @@ public:
     // Use a span so that LookupTable can be instantiated with different sized
     // arrays. Directly using an array would force LookupTable<N> to have fixed
     // size.
-    using LUTData = const std::span<const Entry>;
+    using LUTData = std::span<const Entry>;
 
     /// @warning The table's first columns (keys) must be sorted in increasing
     /// order.
-    LookupTable(LUTData table) : table_(table) {}
+    LookupTable(const LUTData table) : table_(table) {}
 
     inline T Evaluate(T key) const override {
         return LookupTable::Evaluate(table_, key);
     }
 
-    static T Evaluate(LUTData table, T key) {
+    static T Evaluate(const LUTData table, T key) {
         int least_greater_idx = 0;
 
         // Find next greatest element in keys_, assumes keys_ is sorted
