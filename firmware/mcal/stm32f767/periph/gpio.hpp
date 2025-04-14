@@ -6,8 +6,7 @@
 #include <cstdint>
 
 #include "shared/periph/gpio.hpp"
-// #include "stm32f7xx_hal.h"
-#include "stm32f4xx_hal.h"  // using this for testing
+#include "stm32f7xx_hal.h"
 
 namespace mcal::stm32f767::periph {
 
