@@ -75,4 +75,9 @@ uint32_t GetCurrentTimeMs() {
     return HAL_GetTick();
 }
 
+void SoftwareReset() {
+    NVIC_SystemReset();
+    Error_Handler();
+}
+
 }  // namespace bindings
