@@ -22,30 +22,38 @@ public:
         T key;
         T value;
     };
+    // Use a span so that LookupTable can be instantiated with different sized
+    // arrays. Directly using an array would force LookupTable<N> to have fixed
+    // size.
+    using LUTData = const std::span<const Entry>;
 
     /// @warning The table's first columns (keys) must be sorted in increasing
     /// order.
-    explicit LookupTable(std::span<Entry> table) : table_(table) {}
+    LookupTable(LUTData table) : table_(table) {}
 
     inline T Evaluate(T key) const override {
+        return LookupTable::Evaluate(table_, key);
+    }
+
+    static T Evaluate(LUTData table, T key) {
         int least_greater_idx = 0;
 
         // Find next greatest element in keys_, assumes keys_ is sorted
-        while (table_[least_greater_idx].key < key &&
-               least_greater_idx < table_.size()) {
+        while (table[least_greater_idx].key < key &&
+               least_greater_idx < table.size()) {
             least_greater_idx += 1;
         }
 
         // If key is outside of range, return edge value
         if (least_greater_idx == 0) {
-            return table_.front().value;
+            return table.front().value;
         }
-        if (least_greater_idx == table_.size()) {
-            return table_.back().value;
+        if (least_greater_idx == table.size()) {
+            return table.back().value;
         }
 
-        auto prev = table_[least_greater_idx - 1];
-        auto next = table_[least_greater_idx];
+        auto prev = table[least_greater_idx - 1];
+        auto next = table[least_greater_idx];
 
         T fraction = (key - prev.key) / (next.key - prev.key);
 
@@ -53,7 +61,7 @@ public:
     }
 
 private:
-    const std::span<Entry> table_;
+    const LUTData table_;
 };
 
 }  // namespace shared::util
