@@ -8,7 +8,7 @@ namespace tempsensor {
 
 /// This table is directly copied from Table 4 of the temperature sensor
 /// datasheet. `datasheets/energus/Datasheet_with_VTC6_rev_A(2021-10-26).pdf`
-const float ts_table[][2] = {
+auto ts_table = std::to_array<shared::util::LookupTable<float>::Entry>({
     // clang-format off
     {1.30f, 120.0f},
     {1.31f, 115.0f},
@@ -42,11 +42,10 @@ const float ts_table[][2] = {
     {2.38f, -25.0f},
     {2.40f, -30.0f},
     {2.42f, -35.0f},
-    {2.44f, -40.0f}
+    {2.44f, -40.0f},
     // clang-format on
-};
-constexpr int lut_length = (sizeof(ts_table)) / (sizeof(ts_table[0]));
-const shared::util::LookupTable<lut_length> volt_ts_to_degC{ts_table};
+});
+const shared::util::LookupTable volt_ts_to_degC{ts_table};
 
 /// Calculate the voltage at the temperature sensor from the voltage at the STM.
 /// They are not equal because there is a non-unity gain buffer between them.

@@ -12,23 +12,19 @@ bool isInRange(T fractionIn) {
 
 DriverInterface::Output DriverInterface::Update(const Input input,
                                                 const int time_ms) {
-    const double accel_lut_data[][2] = {
-        {0., 0.},
-        {1., 1},
-    };
-    static constexpr int lut_length =
-        sizeof(accel_lut_data) / sizeof(accel_lut_data[0]);
-    const shared::util::LookupTable<lut_length, double> accel_pedal_map{
-        accel_lut_data};
+    using shared::util::LookupTable;
 
-    const double brake_lut_data[][2] = {
-        {0., 0.},
-        {1., 1},
-    };
-    static constexpr int brake_lut_length =
-        sizeof(brake_lut_data) / sizeof(brake_lut_data[0]);
-    const shared::util::LookupTable<brake_lut_length, double> brake_pedal_map{
-        brake_lut_data};
+    auto apps_pedal_map = std::to_array<LookupTable<float>::Entry>({
+        {0, 0},
+        {1, 1},
+    });
+    LookupTable accel_pedal_map{apps_pedal_map};
+
+    auto bpps_pedal_map = std::to_array<LookupTable<float>::Entry>({
+        {0, 0},
+        {1, 1},
+    });
+    LookupTable brake_pedal_map{bpps_pedal_map};
 
     Output out;
 

@@ -6,18 +6,14 @@
 
 namespace shared::util {
 
-// clang-format off
-const float data[][2] = {
-	{-11.f, 5.f},
-	{ -1.f, 0.f},
-	{  0.f, 3.f},
-	{  5.f, 2.f}
-};
-// clang-format on
+auto data = std::to_array<LookupTable<float>::Entry>({
+    {-11.f, 5.f},
+    {-1.f, 0.f},
+    {0.f, 3.f},
+    {5.f, 2.f},
+});
 
-constexpr size_t data_rows = sizeof(data) / sizeof(data[0]);
-
-LookupTable<data_rows> lut{data};
+LookupTable<float> lut{data};
 
 TEST(LookupTableTest, LowSideClamp) {
     EXPECT_FLOAT_EQ(lut.Evaluate(-12.f), 5.f);
@@ -29,8 +25,8 @@ TEST(LookupTableTest, HighSideClamp) {
 
 TEST(LookupTableTest, KeyPoints) {
     // Lookup table should return exact value at specified points
-    for (size_t i = 0; i < data_rows; i++) {
-        EXPECT_FLOAT_EQ(lut.Evaluate(data[i][0]), data[i][1]);
+    for (const auto& entry : data) {
+        EXPECT_FLOAT_EQ(lut.Evaluate(entry.key), entry.value);
     }
 }
 
