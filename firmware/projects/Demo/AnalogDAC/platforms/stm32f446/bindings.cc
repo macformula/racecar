@@ -3,8 +3,6 @@
 
 // cubemx files
 #include "dac.h"
-#include "gpio.h"
-#include "main.h"
 #include "stm32f4xx_hal.h"
 
 // fw includes
@@ -25,14 +23,12 @@ namespace mcal {
 using namespace stm32f767::periph;
 
 AnalogOutputDAC analog_out_dac{&hdac, DAC_CHANNEL_1};  // using PA4
-DigitalOutput indicator{LD2_GPIO_Port, LD2_Pin};
 
 }  // namespace mcal
 
 namespace bindings {
 
 shared::periph::AnalogOutput& analog_out_dac = mcal::analog_out_dac;
-shared::periph::DigitalOutput& indicator = mcal::indicator;
 
 void DelayMS(unsigned int ms) {
     HAL_Delay(ms);
@@ -42,7 +38,6 @@ void Initialize() {
     SystemClock_Config();
     HAL_Init();
     MX_DAC_Init();
-    MX_GPIO_Init();
 }
 
 }  // namespace bindings
