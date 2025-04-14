@@ -4,11 +4,12 @@
 #include "control-system/vehicle_dynamics.hpp"
 
 #include "control-system/vehicle_dynamics_calc.hpp"
+#include "shared/util/mappers/lookup_table.hpp"
 
 using namespace ctrl;
 
-VehicleDynamics::VehicleDynamics(
-    const shared::util::Mapper<float>& pedal_to_torque, float target_slip)
+VehicleDynamics::VehicleDynamics(LUT::LUTData pedal_to_torque,
+                                 float target_slip)
     : pedal_to_torque(pedal_to_torque), target_slip(target_slip) {}
 
 void VehicleDynamics::Init(int time_ms) {
@@ -43,7 +44,7 @@ VehicleDynamics::Output VehicleDynamics::Update(const Input& input,
         input.driver_torque_request, input.brake_pedal_postion);
 
     motor_torque_req_running_avg.LoadValue(
-        pedal_to_torque.Evaluate(motor_torque_request * tc_scale_factor));
+        LUT::Evaluate(pedal_to_torque, motor_torque_request * tc_scale_factor));
     float smoothed_torque_request = motor_torque_req_running_avg.GetValue();
 
     output.lm_torque_limit_positive =

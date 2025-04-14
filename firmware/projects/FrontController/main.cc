@@ -12,7 +12,7 @@
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "inc/app.hpp"
-#include "shared/util/mappers/linear_map.hpp"
+#include "physical.hpp"
 #include "tuning.hpp"
 
 /***************************************************************
@@ -20,44 +20,40 @@
 ***************************************************************/
 using namespace generated::can;
 
-generated::can::VehBus veh_can_bus{bindings::veh_can_base};
-generated::can::PtBus pt_can_bus{bindings::pt_can_base};
+VehBus veh_can_bus{bindings::veh_can_base};
+PtBus pt_can_bus{bindings::pt_can_base};
 
 /***************************************************************
     Objects
 ***************************************************************/
-using shared::util::LinearMap;
 
-const float apps1_m =
-    100 / (tuning::apps1_volt_pos_100 - tuning::apps1_volt_pos_0);
-const float apps1_b = -apps1_m * tuning::apps1_volt_pos_0;
-auto accel_pedal1_map = LinearMap<float>{apps1_m, apps1_b};
-AnalogInput accel_pedal_1{bindings::accel_pedal_sensor1, &accel_pedal1_map};
+Pedal apps1{
+    bindings::accel_pedal_sensor1,
+    tuning::apps1_volt_pos_0,
+    tuning::apps1_volt_pos_100,
+};
 
-const float apps2_m =
-    100 / (tuning::apps2_volt_pos_100 - tuning::apps2_volt_pos_0);
-const float apps2_b = -apps2_m * tuning::apps2_volt_pos_0;
-auto accel_pedal2_map = LinearMap<float>{apps2_m, apps2_b};
-AnalogInput accel_pedal_2{bindings::accel_pedal_sensor2, &accel_pedal2_map};
+Pedal apps2{
+    bindings::accel_pedal_sensor2,
+    tuning::apps2_volt_pos_0,
+    tuning::apps2_volt_pos_100,
+};
 
-// See datasheets/race_grade/RG_SPEC-0030_M_APT_G2_DTM.pdf
-const float kPressureRange = 2000;
-auto brake_pedal_front_map =
-    LinearMap<float>{0.378788f * kPressureRange, -0.125f * kPressureRange};
-AnalogInput brake_pedal_front{bindings::brake_pressure_sensor,
-                              &brake_pedal_front_map};
+Pedal brake{
+    bindings::brake_pressure_sensor,
+    tuning::bpps_volt_pos_0,
+    tuning::bpps_volt_pos_100,
+};
 
-// Full Left (0V) -> -1. Full right (3.3V) -> +1 --> convert
-// testing: Full Left -> 0, Full Right -> +1
-auto steering_wheel_map = LinearMap<float>{1.0 / 3.3, 0};
-AnalogInput steering_wheel{bindings::steering_angle_sensor,
-                           &steering_wheel_map};
+SteeringWheel steering_wheel{
+    bindings::steering_angle_sensor,
+    tuning::steer_volt_straight,
+    tuning::steer_volt_full_right,
+};
 
 /***************************************************************
     Control System
 ***************************************************************/
-
-auto pedal_to_torque = LinearMap<float>{1.f, 0.f};
 
 using MotorIface = MotorInterface<RxAMK0_ActualValues1, RxAMK1_ActualValues1,
                                   TxAMK0_SetPoints1, TxAMK0_SetPoints1>;
@@ -65,7 +61,7 @@ MotorIface mi;
 BatteryMonitor bm;
 Governor gov;
 DriverInterface di;
-VehicleDynamics vd{pedal_to_torque};
+VehicleDynamics vd{tuning::pedal_to_torque};
 
 // Global Governer input defined
 Governor::Input gov_in{};
@@ -99,11 +95,12 @@ void UpdateControls() {
     // Driver Interface update
     DriverInterface::Input di_in = {
         .di_cmd = gov_out.di_cmd,
-        .brake_pedal_pos = brake_pedal_front.Update(),
+        .brake_pedal_pos = brake.ReadPosition(),
         .driver_button = 0,  // bindings::start_button.Read(),
-        .accel_pedal_pos1 = accel_pedal_1.Update(),
-        .accel_pedal_pos2 = accel_pedal_2.Update(),
-        .steering_angle = steering_wheel.Update()};
+        .accel_pedal_pos1 = apps1.ReadPosition(),
+        .accel_pedal_pos2 = apps2.ReadPosition(),
+        .steering_angle = steering_wheel.ReadPosition(),
+    };
     DriverInterface::Output di_out = di.Update(di_in, time_ms);
     gov_in.di_sts = di_out.di_sts;
 
@@ -224,8 +221,8 @@ int main(void) {
         veh_can_bus.Send(TxFC_apps_debug{
             .apps1_raw_volt = bindings::accel_pedal_sensor1.ReadVoltage(),
             .apps2_raw_volt = bindings::accel_pedal_sensor2.ReadVoltage(),
-            .apps1_pos = accel_pedal_1.Update(),
-            .apps2_pos = accel_pedal_2.Update(),
+            .apps1_pos = apps1.ReadPosition(),
+            .apps2_pos = apps2.ReadPosition(),
         });
         veh_can_bus.Send(TxFC_debug{
             .fc_bpps = static_cast<uint16_t>(
