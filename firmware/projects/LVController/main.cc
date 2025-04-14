@@ -11,7 +11,6 @@
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "shared/periph/gpio.hpp"
-#include "shared/util/mappers/identity.hpp"
 
 using namespace generated::can;
 
@@ -22,12 +21,10 @@ TSSI tssi{bindings::tssi_en, bindings::tssi_green_signal,
 
 DCDC dcdc{bindings::dcdc_en, bindings::dcdc_sense_select, bindings::dcdc_sense};
 
-auto powertrain_fan_power_to_duty = shared::util::IdentityMap<float>();
 Fans powertrain_fans{
     bindings::powertrain_fan1_en,
     bindings::powertrain_fan2_en,
     bindings::powertrain_fan_pwm,
-    powertrain_fan_power_to_duty,
 };
 
 class StateMachine {

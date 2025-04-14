@@ -2,7 +2,6 @@
 
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
-#include "shared/util/mappers/mapper.hpp"
 
 class Fans {
 public:
@@ -19,8 +18,7 @@ public:
 
     Fans(shared::periph::DigitalOutput& enable_output1,
          shared::periph::DigitalOutput& enable_output2,
-         shared::periph::PWMOutput& pwm_output,
-         shared::util::Mapper<float>& power_to_duty);
+         shared::periph::PWMOutput& pwm_output);
 
     void Enable();
     void Disable();
@@ -39,7 +37,6 @@ private:
     shared::periph::DigitalOutput& enable_output1_;
     shared::periph::DigitalOutput& enable_output2_;
     shared::periph::PWMOutput& pwm_output_;
-    shared::util::Mapper<float>& power_to_duty_;
 
     Sweep sweep_;
     bool sweep_complete_ = false;
