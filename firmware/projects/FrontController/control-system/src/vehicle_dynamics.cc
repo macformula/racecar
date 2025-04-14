@@ -4,12 +4,11 @@
 #include "control-system/vehicle_dynamics.hpp"
 
 #include "control-system/vehicle_dynamics_calc.hpp"
-#include "shared/util/mappers/lookup_table.hpp"
+#include "shared/util/lookup_table.hpp"
 
 using namespace ctrl;
 
-VehicleDynamics::VehicleDynamics(LUT::LUTData pedal_to_torque,
-                                 float target_slip)
+VehicleDynamics::VehicleDynamics(LUT::Data pedal_to_torque, float target_slip)
     : pedal_to_torque(pedal_to_torque), target_slip(target_slip) {}
 
 void VehicleDynamics::Init(int time_ms) {

@@ -16,7 +16,6 @@
 #include "shared/periph/analog_input.hpp"
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
-#include "shared/util/mappers/identity.hpp"
 
 // clang-format off
 namespace mcal {

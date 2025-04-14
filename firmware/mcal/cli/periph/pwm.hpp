@@ -7,8 +7,8 @@
 #include <iostream>
 #include <string>
 
+#include "etl/algorithm.h"
 #include "shared/periph/pwm.hpp"
-#include "shared/util/mappers/clamper.hpp"
 
 namespace mcal::cli::periph {
 
@@ -25,8 +25,7 @@ public:
     }
 
     void SetDutyCycle(float duty_cycle) override {
-        duty_cycle_ =
-            shared::util::Clamper<float>::Evaluate(duty_cycle, 0, 100);
+        duty_cycle_ = etl::clamp<float>(duty_cycle, 0, 100);
 
         std::cout << std::format("Setting PWM {} duty cycle to {:.3g}%", name_,
                                  duty_cycle_)

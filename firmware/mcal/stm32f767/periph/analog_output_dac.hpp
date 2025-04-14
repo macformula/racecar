@@ -5,8 +5,8 @@
 
 #include <cstdint>
 
+#include "etl/algorithm.h"
 #include "shared/periph/analog_output.hpp"
-#include "shared/util/mappers/clamper.hpp"
 #include "stm32f7xx_hal.h"
 
 namespace mcal::stm32f767::periph {
@@ -19,8 +19,7 @@ public:
     void SetVoltage(float voltage) override {
         HAL_DAC_Start(hdac_, channel_);
 
-        uint32_t dacValue = shared::util::Clamper<float>::Evaluate(
-            (voltage / 3.3f) * 4095, 0, 4095);
+        uint32_t dacValue = etl::clamp<float>((voltage / 3.3f) * 4095, 0, 4095);
 
         HAL_DAC_SetValue(hdac_, channel_, DAC_ALIGN_12B_R, dacValue);
     }

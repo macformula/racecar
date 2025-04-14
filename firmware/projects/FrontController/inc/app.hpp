@@ -1,11 +1,7 @@
 #pragma once
 
-#include <cstddef>
-
+#include "etl/algorithm.h"
 #include "shared/periph/analog_input.hpp"
-#include "shared/util/mappers/clamper.hpp"
-#include "shared/util/mappers/mapper.hpp"
-#include "shared/util/moving_average.hpp"
 
 class Pedal {
 public:
@@ -18,7 +14,8 @@ public:
         float voltage = sensor_.ReadVoltage();
         float raw_pos = 100.f * (voltage - volt_released) /
                         (volt_compressed - volt_released);
-        return shared::util::Clamper<float>::Evaluate(raw_pos, 0, 100);
+
+        return etl::clamp<float>(raw_pos, 0, 100);
     }
 };
 
@@ -34,6 +31,6 @@ public:
         float raw_pos =
             (voltage - volt_straight) / (volt_full_right - volt_straight);
 
-        return shared::util::Clamper<float>::Evaluate(raw_pos, -1, 1);
+        return etl::clamp<float>(raw_pos, -1, 1);
     }
 };

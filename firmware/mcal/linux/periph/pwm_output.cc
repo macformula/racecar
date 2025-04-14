@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "shared/util/mappers/clamper.hpp"
+#include "etl/algorithm.h"
 
 namespace mcal::lnx::periph {
 
@@ -19,7 +19,7 @@ void PWMOutput::Stop() {
 }
 
 void PWMOutput::SetDutyCycle(float duty_cycle) {
-    duty_cycle = shared::util::Clamper<float>::Evaluate(duty_cycle, 0, 100);
+    duty_cycle = etl::clamp<float>(duty_cycle, 0, 100);
 
     std::cout << std::format("Setting PWM {} duty cycle to {:.3g}%", name_,
                              duty_cycle)

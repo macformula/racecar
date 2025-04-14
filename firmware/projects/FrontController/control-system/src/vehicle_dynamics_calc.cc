@@ -2,8 +2,8 @@
 
 #include <algorithm>
 
-#include "shared/util/mappers/clamper.hpp"
-#include "shared/util/mappers/lookup_table.hpp"
+#include "etl/algorithm.h"
+#include "shared/util/lookup_table.hpp"
 
 namespace ctrl {
 
@@ -36,10 +36,10 @@ float TorqueRequest::Update(float driver_torque_request,
 }
 
 float CreateTorqueVectoringFactor(float steering_angle) {
-    using shared::util::LookupTable;
+    using LUT = shared::util::LookupTable<float>;
     float absolute_steering_angle = std::abs(steering_angle);
 
-    auto tv_lut = std::to_array<LookupTable<float>::Entry>({
+    auto tv_lut = std::to_array<LUT::Entry>({
         {0.0, 1.0f},
         {5.0, 0.934f},
         {10.0, 0.87f},
@@ -47,9 +47,8 @@ float CreateTorqueVectoringFactor(float steering_angle) {
         {20.0, 0.747f},
         {25.0, 0.683f},
     });
-    LookupTable tv{tv_lut};
 
-    return tv.Evaluate(absolute_steering_angle);
+    return LUT::Evaluate(tv_lut, absolute_steering_angle);
 }
 
 TorqueVector AdjustTorqueVectoring(float steering_angle) {
@@ -100,8 +99,7 @@ float TractionControl::UpdateScaleFactor(float actual_slip, float target_slip,
     } else {
         // Ramp up to full torque
         scale_factor = static_cast<float>(time_ms - reset_time_) / kRampTimeMs;
-        scale_factor =
-            shared::util::Clamper<float>::Evaluate(scale_factor, 0, 1);
+        scale_factor = etl::clamp<float>(scale_factor, 0, 1);
     }
     // This method still isn't float ideal. It will continue ramping for up to
     // 49 msec of slipping. We should probably have a smarter algorithm that

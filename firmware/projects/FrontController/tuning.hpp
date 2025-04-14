@@ -1,6 +1,6 @@
 #include <array>
 
-#include "shared/util/mappers/lookup_table.hpp"
+#include "shared/util/lookup_table.hpp"
 
 namespace tuning {
 

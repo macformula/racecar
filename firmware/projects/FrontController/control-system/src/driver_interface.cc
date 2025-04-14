@@ -3,7 +3,7 @@
 #include <cmath>
 
 #include "control-system/driver_interface_fsm.hpp"
-#include "shared/util/mappers/lookup_table.hpp"
+#include "shared/util/lookup_table.hpp"
 
 template <typename T>
 bool isInRange(T fractionIn) {
@@ -12,19 +12,18 @@ bool isInRange(T fractionIn) {
 
 DriverInterface::Output DriverInterface::Update(const Input input,
                                                 const int time_ms) {
-    using shared::util::LookupTable;
+    using LUT = shared::util::LookupTable<float>;
 
-    auto apps_pedal_map = std::to_array<LookupTable<float>::Entry>({
+    // do we even need these? don't think so
+    auto apps_pedal_map = std::to_array<LUT::Entry>({
         {0, 0},
         {1, 1},
     });
-    LookupTable accel_pedal_map{apps_pedal_map};
 
-    auto bpps_pedal_map = std::to_array<LookupTable<float>::Entry>({
+    auto bpps_pedal_map = std::to_array<LUT::Entry>({
         {0, 0},
         {1, 1},
     });
-    LookupTable brake_pedal_map{bpps_pedal_map};
 
     Output out;
 
@@ -46,7 +45,7 @@ DriverInterface::Output DriverInterface::Update(const Input input,
         out.brake_pedal_position = 0;
     } else {
         out.brake_pedal_position =
-            brake_pedal_map.Evaluate(input.brake_pedal_pos);
+            LUT::Evaluate(bpps_pedal_map, input.brake_pedal_pos);
     }
 
     out.steering_angle = steering_angle_error ? 0.5 : input.steering_angle;
@@ -64,7 +63,7 @@ DriverInterface::Output DriverInterface::Update(const Input input,
 
     if (fsm_output.ready_to_drive && !di_error) {
         out.driver_torque_req =
-            accel_pedal_map.Evaluate(input.accel_pedal_pos1);
+            LUT::Evaluate(apps_pedal_map, input.accel_pedal_pos1);
     } else {
         out.driver_torque_req = 0;
     }

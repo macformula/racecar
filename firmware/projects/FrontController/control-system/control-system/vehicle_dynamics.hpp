@@ -5,7 +5,7 @@
 
 #include <cstdint>
 
-#include "shared/util/mappers/lookup_table.hpp"
+#include "shared/util/lookup_table.hpp"
 #include "shared/util/moving_average.hpp"
 #include "vehicle_dynamics_calc.hpp"
 
@@ -34,13 +34,13 @@ public:
     };
 
     VehicleDynamics(
-        LUT::LUTData pedal_to_torque,
+        LUT::Data pedal_to_torque,
         float target_slip = 0.2f);  // default target slip is float 0.2
     void Init(int time_ms);
     Output Update(const Input& input, int time_ms);
 
 private:
-    LUT::LUTData pedal_to_torque;
+    LUT::Data pedal_to_torque;
     // "Raw torque running avg" in Simulink
     shared::util::MovingAverage<10> motor_torque_req_running_avg;
 

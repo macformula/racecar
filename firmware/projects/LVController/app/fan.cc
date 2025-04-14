@@ -2,8 +2,8 @@
 
 #include <cmath>
 
+#include "etl/algorithm.h"
 #include "shared/periph/gpio.hpp"
-#include "shared/util/mappers/clamper.hpp"
 
 Fans::Fans(shared::periph::DigitalOutput& enable_output1,
            shared::periph::DigitalOutput& enable_output2,
@@ -36,8 +36,8 @@ void Fans::Dangerous_SetPowerNow(float power) {
 }
 
 float Fans::Sweep::Interpolate(float time_ms) {
-    float lerp_fraction = shared::util::Clamper<float>::Evaluate(
-        (time_ms - start_time_ms) / duration_ms, 0.f, 1.f);
+    float lerp_fraction =
+        etl::clamp<float>((time_ms - start_time_ms) / duration_ms, 0.f, 1.f);
     return start_power + lerp_fraction * (end_power - start_power);
 }
 

@@ -5,8 +5,8 @@
 
 #include <cstdint>
 
+#include "etl/algorithm.h"
 #include "shared/periph/analog_output.hpp"
-#include "shared/util/mappers/clamper.hpp"
 #include "stm32f7xx_hal.h"
 
 namespace mcal::stm32f767::periph {
@@ -18,8 +18,8 @@ public:
 
     void SetVoltage(float voltage) override {
         uint32_t maxPulse = __HAL_TIM_GetAutoreload(htim_);
-        uint32_t pulse = shared::util::Clamper<float>::Evaluate(
-            (voltage * maxPulse) / 3.3f, 0, maxPulse);
+        uint32_t pulse =
+            etl::clamp<float>((voltage * maxPulse) / 3.3f, 0, maxPulse);
 
         __HAL_TIM_SetCompare(htim_, channel_, pulse);
     }
