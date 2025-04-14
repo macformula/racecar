@@ -6,8 +6,8 @@
 #include <algorithm>
 #include <cstdint>
 
+#include "etl/algorithm.h"
 #include "shared/periph/pwm.hpp"
-#include "shared/util/mappers/clamper.hpp"
 #include "stm32f7xx_hal.h"
 
 namespace mcal::stm32f767::periph {
@@ -26,8 +26,7 @@ public:
 
     void SetDutyCycle(float duty_cycle) override {
         // notice this sets the instance variable based on the argument
-        duty_cycle_ =
-            shared::util::Clamper<float>::Evaluate(duty_cycle, 0, 100);
+        duty_cycle_ = etl::clamp<float>(duty_cycle, 0, 100);
 
         uint32_t pulse = uint32_t(duty_cycle_ / 100.0f *
                                   float(__HAL_TIM_GetAutoreload(htim_)));

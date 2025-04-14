@@ -2,17 +2,15 @@
 
 #include <cmath>
 
+#include "etl/algorithm.h"
 #include "shared/periph/gpio.hpp"
-#include "shared/util/mappers/clamper.hpp"
 
 Fans::Fans(shared::periph::DigitalOutput& enable_output1,
            shared::periph::DigitalOutput& enable_output2,
-           shared::periph::PWMOutput& pwm_output,
-           shared::util::Mapper<float>& power_to_duty)
+           shared::periph::PWMOutput& pwm_output)
     : enable_output1_(enable_output1),
       enable_output2_(enable_output2),
-      pwm_output_(pwm_output),
-      power_to_duty_(power_to_duty) {}
+      pwm_output_(pwm_output) {}
 
 void Fans::Enable() {
     enable_output1_.SetHigh();
@@ -29,7 +27,8 @@ void Fans::Disable() {
 }
 
 void Fans::SetPower(float power) {
-    pwm_output_.SetDutyCycle(power_to_duty_.Evaluate(power));
+    // Should pwm = power or do we need some conversion (eg. inverted logic)
+    pwm_output_.SetDutyCycle(power);
 }
 
 void Fans::Dangerous_SetPowerNow(float power) {
@@ -37,8 +36,8 @@ void Fans::Dangerous_SetPowerNow(float power) {
 }
 
 float Fans::Sweep::Interpolate(float time_ms) {
-    float lerp_fraction = shared::util::Clamper<float>::Evaluate(
-        (time_ms - start_time_ms) / duration_ms, 0.f, 1.f);
+    float lerp_fraction =
+        etl::clamp<float>((time_ms - start_time_ms) / duration_ms, 0.f, 1.f);
     return start_power + lerp_fraction * (end_power - start_power);
 }
 
