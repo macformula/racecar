@@ -63,6 +63,9 @@ VehicleDynamics vd{pedal_to_torque};
 // Global Governer input defined
 Governor::Input gov_in{};
 
+using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
+TxFC_Status fc_status{0, 0, 0, 0, DbcHashStatus::WAITING};
+
 void UpdateControls() {
     // NOTE #1: For defining inputs, I commented out inputs where I didn't know
     // what to set it to NOTE #2: Some binding values like brake_pedal_front and
@@ -81,13 +84,10 @@ void UpdateControls() {
     // do I set some value?
     Governor::Output gov_out = gov.Update(gov_in, time_ms);
 
-    veh_can_bus.Send(TxFC_Status{
-        .gov_status = static_cast<uint8_t>(gov_out.gov_sts),
-        .di_status = static_cast<uint8_t>(gov_in.di_sts),
-        .mi_status = static_cast<uint8_t>(gov_in.mi_sts),
-        .bm_status = static_cast<uint8_t>(gov_in.bm_sts),
-        .user_flag = false,  // bindings::start_button.Read(),
-    });
+    fc_status.gov_status = static_cast<uint8_t>(gov_out.gov_sts);
+    fc_status.di_status = static_cast<uint8_t>(gov_in.di_sts);
+    fc_status.mi_status = static_cast<uint8_t>(gov_in.mi_sts);
+    fc_status.bm_status = static_cast<uint8_t>(gov_in.bm_sts);
 
     // Driver Interface update
     DriverInterface::Input di_in = {
@@ -182,12 +182,36 @@ void UpdateControls() {
 int main(void) {
     bindings::Initialize();
 
+    // Constantly check for hash to compare dbc version's between boards
+    auto dbc_hash = veh_can_bus.GetRxSyncDbcHash();
+    while (!dbc_hash.has_value()) {
+        fc_status.dbc_hash_status = DbcHashStatus::WAITING;
+        veh_can_bus.Send(fc_status);
+
+        bindings::DelayMs(100);
+
+        dbc_hash = veh_can_bus.GetRxSyncDbcHash();
+    }
+
+    // Error state. If hash of LVController doesn't match, constantly send
+    // invalid messages back, not exiting
+    if (dbc_hash->DbcHash() != generated::can::kVehDbcHash) {
+        while (true) {
+            fc_status.dbc_hash_status = DbcHashStatus::INVALID;
+            veh_can_bus.Send(fc_status);
+
+            bindings::DelayMs(100);
+        }
+    }
+    fc_status.dbc_hash_status = DbcHashStatus::VALID;
+
     bindings::dashboard_power_en.SetHigh();
 
     bool state = true;
 
     while (true) {
         UpdateControls();
+        veh_can_bus.Send(fc_status);
 
         bindings::debug_led.Set(state);
         state = !state;

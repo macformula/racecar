@@ -57,6 +57,7 @@ class StateMachine {
 
 public:
     using LvState = TxLvControllerStatus::LvState_t;
+    using DbcHashStatus = RxFC_Status::DbcHashStatus_t;
 
     StateMachine(int start_time)
         : state_(LvState::PWRUP_START), state_enter_time_(start_time) {}
@@ -106,10 +107,20 @@ public:
                     if (msg.has_value()) {
                         // don't actually care about the status, just that FC
                         // has come online
-                        transition = PWRUP_ACCUMULATOR_ON;
+                        transition = PWRUP_CHECK_HASH_STATUS;
                     }
                 }
                 break;
+
+            case PWRUP_CHECK_HASH_STATUS: {
+                veh_can.Send(TxSyncDbcHash(generated::can::kVehDbcHash));
+                auto msg = veh_can.GetRxFC_Status();
+
+                if (msg.has_value() &&
+                    msg->DbcHashStatus() == DbcHashStatus::VALID) {
+                    transition = PWRUP_ACCUMULATOR_ON;
+                }
+            } break;
 
             case PWRUP_ACCUMULATOR_ON: {
                 if (on_enter_) bindings::accumulator_en.SetHigh();

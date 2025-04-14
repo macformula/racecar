@@ -19,6 +19,10 @@ namespace generated::can {
 {% set bus = bus_name+"Bus" %}
 class {{ bus }};
 
+/* --------------------- CONSTANTS --------------------- */
+
+const uint64_t k{{ bus_name|capitalize }}DbcHash = {{ dbc_hash | hex }}U;
+
 /* -------------------- RX MESSAGES -------------------- */
 
 {% for msg in rx_msgs %}
