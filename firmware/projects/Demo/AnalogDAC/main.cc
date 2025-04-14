@@ -1,116 +1,84 @@
-#include "bindings.hpp"
 #include <math.h>
-#include "../../../shared/util/mappers/clamper.hpp"
 
-#define STEP_SIZE 0.1f
-#define MAX_VOLTAGE 2.5f
-#define MIN_VOLTAGE 1.0f
-#define DELAY 50
-#define OSCILLATIONS 5
+#include "bindings.hpp"
+
+const float STEP_SIZE = 0.1f;
+const float MAX_VOLTAGE = 3.0f;
+const float MIN_VOLTAGE = 0.0f;
+const int DELAY_MS = 50;
+const int OSCILLATIONS = 5;
 
 using namespace bindings;
 
-/**
-* @brief Tests the AnalogOutputDAC class using a square wave.
-*/
-void DemoSquareWave(float minVoltage, float maxVoltage) {
-    analog_out_dac.SetVoltage(minVoltage);
-    DelayMS(DELAY * 10);
-    analog_out_dac.SetVoltage(maxVoltage);
-    DelayMS(DELAY * 10);
+void DemoSquareWave() {
+    analog_out_dac.SetVoltage(MIN_VOLTAGE);
+    DelayMS(DELAY_MS * 10);
+    analog_out_dac.SetVoltage(MAX_VOLTAGE);
+    DelayMS(DELAY_MS * 10);
 }
 
-
-/**
-* @brief Tests the AnalogOutputDAC class using a ramp.
-*/
-void DemoRamp(float minVoltage, float maxVoltage) {
-    for (float v = minVoltage; v <= maxVoltage; v += STEP_SIZE) {
+void DemoRamp() {
+    for (float v = MIN_VOLTAGE; v <= MAX_VOLTAGE; v += STEP_SIZE) {
         analog_out_dac.SetVoltage(v);
-        DelayMS(DELAY);
+        DelayMS(DELAY_MS);
     }
 }
 
-
-/**
-* @brief Tests the AnalogOutputDAC class using a sine wave.
-*/
-void DemoSineWave(float minVoltage, float maxVoltage) {
+void DemoSineWave() {
     float degreeStepSize = STEP_SIZE * 100;
-    float amplitude = (maxVoltage - minVoltage) / 2;
-    float offset = (maxVoltage + minVoltage) / 2;
+    float amplitude = (MAX_VOLTAGE - MIN_VOLTAGE) / 2;
+    float offset = (MAX_VOLTAGE + MIN_VOLTAGE) / 2;
 
     for (int i = 0; i < 360; i += degreeStepSize) {
         float voltage = (amplitude * sin(i * M_PI / 180.0f)) + offset;
         analog_out_dac.SetVoltage(voltage);
-        DelayMS(DELAY);
+        DelayMS(DELAY_MS);
     }
 }
 
-
-/**
-* @brief Tests the AnalogOutputDAC class using a triangle wave.
-*/
-void DemoTriangleWave(float minVoltage, float maxVoltage) {
-    for (float v = minVoltage; v <= maxVoltage; v += STEP_SIZE) {
+void DemoTriangleWave() {
+    for (float v = MIN_VOLTAGE; v <= MAX_VOLTAGE; v += STEP_SIZE) {
         analog_out_dac.SetVoltage(v);
-        DelayMS(DELAY);
+        DelayMS(DELAY_MS);
     }
-    for (float v = maxVoltage; v >= minVoltage; v -= STEP_SIZE) {
+    for (float v = MAX_VOLTAGE; v >= MIN_VOLTAGE; v -= STEP_SIZE) {
         analog_out_dac.SetVoltage(v);
-        DelayMS(DELAY);
+        DelayMS(DELAY_MS);
     }
 }
 
-
-/**
- * @brief Tests the AnalogOutputDAC class for the stm32 implementation
- */
 int main(void) {
     Initialize();
 
+    // Cycle through each pattern
     while (true) {
-
-        // Clamp voltage
-        float maxVoltage = shared::util::Clamper<float>::Evaluate(
-            MAX_VOLTAGE, 0, 3.3);
-        
-        float minVoltage = shared::util::Clamper<float>::Evaluate(
-            MIN_VOLTAGE, 0, maxVoltage);
-        
-        
-        for (int i = 0; i < OSCILLATIONS; i++)
-        {
-            DemoSquareWave(minVoltage, maxVoltage);
+        for (int i = 0; i < OSCILLATIONS; i++) {
+            DemoSquareWave();
         }
 
         analog_out_dac.SetVoltage(0.0f);
         DelayMS(1000);
 
-        for (int i = 0; i < OSCILLATIONS; i++)
-        {
-            DemoRamp(minVoltage, maxVoltage);
+        for (int i = 0; i < OSCILLATIONS; i++) {
+            DemoRamp();
         }
 
         analog_out_dac.SetVoltage(0.0f);
         DelayMS(1000);
 
-        for (int i = 0; i < OSCILLATIONS; i++)
-        {
-            DemoSineWave(minVoltage, maxVoltage);
+        for (int i = 0; i < OSCILLATIONS; i++) {
+            DemoSineWave();
         }
 
         analog_out_dac.SetVoltage(0.0f);
         DelayMS(1000);
 
-        for (int i = 0; i < OSCILLATIONS; i++)
-        {
-            DemoTriangleWave(minVoltage, maxVoltage);
+        for (int i = 0; i < OSCILLATIONS; i++) {
+            DemoTriangleWave();
         }
 
         analog_out_dac.SetVoltage(0.0f);
         DelayMS(1000);
-
     }
 
     return 0;
