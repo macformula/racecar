@@ -4,37 +4,28 @@
 #include <cstdint>
 
 #include "bindings.hpp"
+#include "etl/array.h"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
-#include "inc/app.hpp"
-#include "inc/tempsensor.hpp"
+#include "inc/fan_controller.hpp"
+#include "inc/temp_sensor.hpp"
 #include "shared/os/tick.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/util/arrays.hpp"
-#include "shared/util/mappers/lookup_table.hpp"
 
 using namespace generated::can;
 
-TempSensor temp_sensors[] = {
-    TempSensor{bindings::temp_sensor_adc_1, tempsensor::volt_stm_to_degC},
-    TempSensor{bindings::temp_sensor_adc_2, tempsensor::volt_stm_to_degC},
-    TempSensor{bindings::temp_sensor_adc_3, tempsensor::volt_stm_to_degC},
-    TempSensor{bindings::temp_sensor_adc_4, tempsensor::volt_stm_to_degC},
-    TempSensor{bindings::temp_sensor_adc_5, tempsensor::volt_stm_to_degC},
-    TempSensor{bindings::temp_sensor_adc_6, tempsensor::volt_stm_to_degC},
+etl::array temp_sensors{
+    TempSensor{bindings::temp_sensor_adc_1},
+    TempSensor{bindings::temp_sensor_adc_2},
+    TempSensor{bindings::temp_sensor_adc_3},
+    TempSensor{bindings::temp_sensor_adc_4},
+    TempSensor{bindings::temp_sensor_adc_5},
+    TempSensor{bindings::temp_sensor_adc_6},
 };
-constexpr int kSensorCount = sizeof(temp_sensors) / sizeof(temp_sensors[0]);
+constexpr int kSensorCount = temp_sensors.size();
 
-/// Spin the fan faster when the acculumator is hotter.
-using shared::util::LookupTable;
-auto fan_lut_data = std::to_array<LookupTable<float>::Entry>({
-    {19, 0},
-    {20, 30},
-    {50, 100},
-});
-LookupTable fan_temp_lut{fan_lut_data};
-
-FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut};
+FanContoller fan_controller{bindings::fan_controller_pwm};
 
 VehBus veh_can_bus{bindings::veh_can_base};
 
