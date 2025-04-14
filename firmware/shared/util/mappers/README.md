@@ -21,21 +21,6 @@ shared::util::LinearMap<double> f{10., 3.};
 expect_eq(f.Evaluate(7), 73);
 ```
 
-## `QuadraticMap`
-
-$f(x)=ax^2+bx+c$
-
-Parameterized by `(a, b, c)`.
-
-```c++
-#include "shared/util/mappers/quadratic_map.hpp"
-
-shared::util::QuadraticMap<double> f{1., 0., 5.};
-expect_eq(f.Evaluate(0.), 5);
-expect_eq(f.Evaluate(1.), 6);
-expect_eq(f.Evaluate(2.), 9);
-```
-
 ## `Clamper`
 
 Restrict a value between a lower and upper bound.
@@ -93,20 +78,6 @@ No parameters. This class is needed when another class/function expects a `Mappe
 
 shared::util::IdentityMap<double> f;
 expect_eq(f.Evaluate(6.), 6);
-```
-
-## `ConstantMap`
-
-$f(x)=c$
-
-Parameterized by `(c)`. Useful as a placeholder.
-
-```c++
-#include "shared/util/mappers/constant.hpp"
-
-shared::util::ConstantMap<double> f{42.};
-expect_eq(f.Evaluate(0.5), 42);
-expect_eq(f.Evaluate(10.), 42);
 ```
 
 ## `CompositeMap`

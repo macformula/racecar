@@ -5,12 +5,10 @@
 #include <iostream>  // for demo only, will not work on other platforms
 
 #include "shared/util/mappers/clamper.hpp"
-#include "shared/util/mappers/constant.hpp"
 #include "shared/util/mappers/identity.hpp"
 #include "shared/util/mappers/linear_map.hpp"
 #include "shared/util/mappers/lookup_table.hpp"
 #include "shared/util/mappers/mapper.hpp"
-#include "shared/util/mappers/quadratic_map.hpp"
 
 void expect_eq(double actual, double expected) {
     std::cout << std::format("Expected {:.2f}, got: {:.2f}", expected, actual);
@@ -25,14 +23,6 @@ int main(void) {
         std::cout << "Linear Map" << std::endl;
         shared::util::LinearMap<double> f{10., 3.};
         expect_eq(f.Evaluate(7), 73);
-    }
-
-    {
-        std::cout << "Quadratic Map" << std::endl;
-        shared::util::QuadraticMap<double> f{1., 0., 5.};
-        expect_eq(f.Evaluate(0.), 5);
-        expect_eq(f.Evaluate(1.), 6);
-        expect_eq(f.Evaluate(2.), 9);
     }
 
     {
@@ -69,13 +59,6 @@ int main(void) {
         std::cout << "Identity" << std::endl;
         shared::util::IdentityMap<double> f;
         expect_eq(f.Evaluate(6.), 6);
-    }
-
-    {
-        std::cout << "Constant" << std::endl;
-        shared::util::ConstantMap<double> f{42.};
-        expect_eq(f.Evaluate(0.5), 42);
-        expect_eq(f.Evaluate(10.), 42);
     }
 
     {
