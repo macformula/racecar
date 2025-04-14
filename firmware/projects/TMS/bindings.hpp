@@ -22,4 +22,7 @@ extern shared::periph::CanBase& veh_can_base;
 
 extern void Initialize();
 extern uint32_t GetCurrentTimeMs();
+
+extern void SoftwareReset();
+
 }  // namespace bindings

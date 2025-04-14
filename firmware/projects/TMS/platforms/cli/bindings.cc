@@ -51,4 +51,9 @@ uint32_t GetCurrentTimeMs() {
     return duration_cast<milliseconds>(current_time - start_time).count();
 }
 
+void SoftwareReset() {
+    std::cout << "Entering SoftwareReset. Will not proceed." << std::endl;
+    while (true) continue;
+}
+
 }  // namespace bindings
