@@ -13,6 +13,7 @@
 #include "generated/can/veh_messages.hpp"
 #include "inc/app.hpp"
 #include "shared/util/mappers/linear_map.hpp"
+#include "tuning.hpp"
 
 /***************************************************************
     CAN
@@ -27,14 +28,20 @@ generated::can::PtBus pt_can_bus{bindings::pt_can_base};
 ***************************************************************/
 using shared::util::LinearMap;
 
-// See fc_docs/pedal_function and
-auto accel_pedal_map = LinearMap<float>{0.5, -0.25};
-AnalogInput accel_pedal_1{bindings::accel_pedal_sensor1, &accel_pedal_map};
-AnalogInput accel_pedal_2{bindings::accel_pedal_sensor2, &accel_pedal_map};
+const float apps1_m =
+    100 / (tuning::apps1_volt_pos_100 - tuning::apps1_volt_pos_0);
+const float apps1_b = -apps1_m * tuning::apps1_volt_pos_0;
+auto accel_pedal1_map = LinearMap<float>{apps1_m, apps1_b};
+AnalogInput accel_pedal_1{bindings::accel_pedal_sensor1, &accel_pedal1_map};
 
-const float kPressureRange = 2000;
+const float apps2_m =
+    100 / (tuning::apps2_volt_pos_100 - tuning::apps2_volt_pos_0);
+const float apps2_b = -apps2_m * tuning::apps2_volt_pos_0;
+auto accel_pedal2_map = LinearMap<float>{apps2_m, apps2_b};
+AnalogInput accel_pedal_2{bindings::accel_pedal_sensor2, &accel_pedal2_map};
 
 // See datasheets/race_grade/RG_SPEC-0030_M_APT_G2_DTM.pdf
+const float kPressureRange = 2000;
 auto brake_pedal_front_map =
     LinearMap<float>{0.378788f * kPressureRange, -0.125f * kPressureRange};
 AnalogInput brake_pedal_front{bindings::brake_pressure_sensor,
@@ -212,6 +219,20 @@ int main(void) {
     while (true) {
         UpdateControls();
         veh_can_bus.Send(fc_status);
+
+        // test pedals
+        veh_can_bus.Send(TxFC_apps_debug{
+            .apps1_raw_volt = bindings::accel_pedal_sensor1.ReadVoltage(),
+            .apps2_raw_volt = bindings::accel_pedal_sensor2.ReadVoltage(),
+            .apps1_pos = accel_pedal_1.Update(),
+            .apps2_pos = accel_pedal_2.Update(),
+        });
+        veh_can_bus.Send(TxFC_debug{
+            .fc_bpps = static_cast<uint16_t>(
+                100 * bindings::brake_pressure_sensor.ReadVoltage()),
+            .fc_steering_angle = static_cast<uint16_t>(
+                100 * bindings::steering_angle_sensor.ReadVoltage()),
+        });
 
         bindings::debug_led.Set(state);
         state = !state;
