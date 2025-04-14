@@ -44,12 +44,19 @@ int main(void) {
     }
 
     {
-        std::cout << "Lookup Table" << std::endl;
-        const double lut_data[][2] = {{-2., 4.}, {-1., 1.}, {0., 0.},
-                                      {1., 1.},  {2., 4.},  {3., 9.}};
+        using shared::util::LookupTable;
 
-        constexpr int lut_length = (sizeof(lut_data)) / (sizeof(lut_data[0]));
-        shared::util::LookupTable<lut_length, double> f{lut_data};
+        std::cout << "Lookup Table" << std::endl;
+        auto data = std::to_array<LookupTable<float>::Entry>({
+            {-2., 4.},
+            {-1., 1.},
+            {0., 0.},
+            {1., 1.},
+            {2., 4.},
+            {3., 9.},
+        });
+
+        shared::util::LookupTable f{data};
 
         expect_eq(f.Evaluate(-1.5), 2.5);
         expect_eq(f.Evaluate(0.5), 0.5);

@@ -26,15 +26,13 @@ TempSensor temp_sensors[] = {
 constexpr int kSensorCount = sizeof(temp_sensors) / sizeof(temp_sensors[0]);
 
 /// Spin the fan faster when the acculumator is hotter.
-const float fan_lut_data[][2] = {
+using shared::util::LookupTable;
+auto fan_lut_data = std::to_array<LookupTable<float>::Entry>({
     {19, 0},
     {20, 30},
     {50, 100},
-};
-
-constexpr int fan_lut_length =
-    (sizeof(fan_lut_data) / (sizeof(fan_lut_data[0])));
-shared::util::LookupTable<fan_lut_length> fan_temp_lut{fan_lut_data};
+});
+LookupTable fan_temp_lut{fan_lut_data};
 
 FanContoller fan_controller{bindings::fan_controller_pwm, fan_temp_lut};
 

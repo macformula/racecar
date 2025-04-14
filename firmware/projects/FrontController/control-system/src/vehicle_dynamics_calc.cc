@@ -36,18 +36,20 @@ float TorqueRequest::Update(float driver_torque_request,
 }
 
 float CreateTorqueVectoringFactor(float steering_angle) {
+    using shared::util::LookupTable;
     float absolute_steering_angle = std::abs(steering_angle);
 
-    static const float table_data[][2] = {{0.0, 1.0f},    {5.0, 0.934f},
-                                          {10.0, 0.87f},  {15.0, 0.808f},
-                                          {20.0, 0.747f}, {25.0, 0.683f}};
+    auto tv_lut = std::to_array<LookupTable<float>::Entry>({
+        {0.0, 1.0f},
+        {5.0, 0.934f},
+        {10.0, 0.87f},
+        {15.0, 0.808f},
+        {20.0, 0.747f},
+        {25.0, 0.683f},
+    });
+    LookupTable tv{tv_lut};
 
-    static constexpr int table_length =
-        (sizeof(table_data)) / (sizeof(table_data[0]));
-
-    static shared::util::LookupTable<table_length> tv_lookup_table{table_data};
-
-    return tv_lookup_table.Evaluate(absolute_steering_angle);
+    return tv.Evaluate(absolute_steering_angle);
 }
 
 TorqueVector AdjustTorqueVectoring(float steering_angle) {

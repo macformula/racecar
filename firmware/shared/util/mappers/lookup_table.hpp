@@ -1,8 +1,9 @@
 /// @author Blake Freer
-/// @date 2023-12-04
+/// @date 2025-04
 
 #pragma once
 
+#include <span>
 #include <type_traits>
 
 #include "mapper.hpp"
@@ -11,45 +12,56 @@ namespace shared::util {
 
 /// @brief Linearly interpolates the input value according to a table to form a
 /// piecewise lineary approximation of a function.
-/// @tparam row_count_ The number of rows in the lookup table. Must be a compile
-/// time constant.
 /// @note If the input `key` is less than the lowest key in the table, the the
 /// value of the lowest key is returned, and similarly for the largest key.
-template <int row_count_, typename T = float>
+template <typename T = float>
     requires std::is_floating_point_v<T>
 class LookupTable : public Mapper<T> {
 public:
+    struct Entry {
+        T key;
+        T value;
+    };
+    // Use a span so that LookupTable can be instantiated with different sized
+    // arrays. Directly using an array would force LookupTable<N> to have fixed
+    // size.
+    using LUTData = const std::span<const Entry>;
+
     /// @warning The table's first columns (keys) must be sorted in increasing
     /// order.
-    LookupTable(T const (*table)[2]) : table_(table) {}
+    LookupTable(LUTData table) : table_(table) {}
 
     inline T Evaluate(T key) const override {
+        return LookupTable::Evaluate(table_, key);
+    }
+
+    static T Evaluate(LUTData table, T key) {
         int least_greater_idx = 0;
 
         // Find next greatest element in keys_, assumes keys_ is sorted
-        while (table_[least_greater_idx][0] < key &&
-               least_greater_idx < row_count_) {
+        while (table[least_greater_idx].key < key &&
+               least_greater_idx < table.size()) {
             least_greater_idx += 1;
         }
 
         // If key is outside of range, return edge value
         if (least_greater_idx == 0) {
-            return table_[0][1];
+            return table.front().value;
         }
-        if (least_greater_idx == row_count_) {
-            return table_[row_count_ - 1][1];
+        if (least_greater_idx == table.size()) {
+            return table.back().value;
         }
 
-        auto [prev_key, prev_val] = table_[least_greater_idx - 1];
-        auto [next_key, next_val] = table_[least_greater_idx];
+        auto prev = table[least_greater_idx - 1];
+        auto next = table[least_greater_idx];
 
-        T fraction = (key - prev_key) / (next_key - prev_key);
+        T fraction = (key - prev.key) / (next.key - prev.key);
 
-        return (1 - fraction) * prev_val + fraction * next_val;
+        return (1 - fraction) * prev.value + fraction * next.value;
     }
 
 private:
-    const T (*table_)[2];
+    const LUTData table_;
 };
 
 }  // namespace shared::util
