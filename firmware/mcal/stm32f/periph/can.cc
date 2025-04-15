@@ -24,7 +24,7 @@ namespace {  // InterruptHandler is private to this file
 /// of the program.
 /// This class ensures that interrupts activated and handled together.
 class InterruptHandler {
-    using CanBase = mcal::stm32f767::periph::CanBase;
+    using CanBase = mcal::stm32f::periph::CanBase;
 
 public:
     void RegisterCanBase(CAN_HandleTypeDef* hcan, CanBase* can_base) {
@@ -72,7 +72,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
 }
 }
 
-namespace mcal::stm32f767::periph {
+namespace mcal::stm32f::periph {
 
 CanBase::CanBase(CAN_HandleTypeDef* hcan) : hcan_{hcan} {}
 
@@ -145,6 +145,6 @@ void CanBase::ConfigFilters() {
     HAL_CAN_ConfigFilter(hcan_, &filter_config);
 }
 
-}  // namespace mcal::stm32f767::periph
+}  // namespace mcal::stm32f::periph
 
 #endif  // HAL_CAN_MODULE_ENABLED

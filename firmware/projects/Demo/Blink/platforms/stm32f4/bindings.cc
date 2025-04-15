@@ -5,7 +5,7 @@
 
 // project includes
 #include "../../bindings.hpp"
-#include "mcal/stm32f767/periph/gpio.hpp"
+#include "mcal/stm32f/periph/gpio.hpp"
 #include "shared/periph/gpio.hpp"
 
 extern "C" {
@@ -16,7 +16,7 @@ extern "C" {
 void SystemClock_Config();
 }
 namespace mcal {
-using namespace stm32f767::periph;
+using namespace stm32f::periph;
 
 DigitalOutput indicator{GPIOB, GPIO_PIN_7};
 

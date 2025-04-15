@@ -2,7 +2,7 @@
 
 #include "gpio.h"
 #include "main.h"
-#include "mcal/stm32f767/periph/gpio.hpp"
+#include "mcal/stm32f/periph/gpio.hpp"
 #include "shared/periph/gpio.hpp"
 #include "stm32f7xx_hal.h"
 

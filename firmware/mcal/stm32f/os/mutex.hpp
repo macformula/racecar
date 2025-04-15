@@ -7,7 +7,7 @@
 #include "shared/os/mutex.hpp"
 #include "shared/os/os.hpp"
 
-namespace mcal::stm32f767::os {
+namespace mcal::stm32f::os {
 
 // TODO: Add comments and handle errors more robustly
 class Mutex final : public shared::os::Mutex {
@@ -30,4 +30,4 @@ private:
     osMutexId_t* mutex_id_;
 };
 
-}  // namespace mcal::stm32f767::os
+}  // namespace mcal::stm32f::os

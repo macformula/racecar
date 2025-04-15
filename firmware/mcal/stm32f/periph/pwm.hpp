@@ -16,7 +16,7 @@
 #include "stm32f4xx_hal.h"
 #endif
 
-namespace mcal::stm32f767::periph {
+namespace mcal::stm32f::periph {
 
 class PWMOutput : public shared::periph::PWMOutput {
 public:
@@ -81,4 +81,4 @@ private:
     }
 };
 
-}  // namespace mcal::stm32f767::periph
+}  // namespace mcal::stm32f::periph

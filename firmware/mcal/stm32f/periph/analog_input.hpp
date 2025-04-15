@@ -15,7 +15,7 @@
                               stm32f4) */
 #endif
 
-namespace mcal::stm32f767::periph {
+namespace mcal::stm32f::periph {
 
 class AnalogInput : public shared::periph::AnalogInput {
 public:
@@ -64,4 +64,4 @@ private:
     };
 };
 
-}  // namespace mcal::stm32f767::periph
+}  // namespace mcal::stm32f::periph
