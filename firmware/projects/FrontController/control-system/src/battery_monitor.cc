@@ -37,13 +37,19 @@ std::optional<BmSts> BatteryMonitor::TransitionStatus(const Input& input,
 
     switch (current_status_.value()) {
         case INIT:
-            if (input.cmd == BmCmd::STARTUP &&
-                input.precharge_contactor_states == OPEN &&
+            if (input.cmd == BmCmd::STARTUP) {
+                return STARTUP_ENSURE_OPEN;
+            }
+            break;
+
+        case STARTUP_ENSURE_OPEN:
+            if (input.precharge_contactor_states == OPEN &&
                 input.pos_contactor_states == OPEN &&
                 input.neg_contactor_states == OPEN) {
                 return STARTUP_CLOSE_NEG;
             }
             break;
+
         case STARTUP_CLOSE_NEG:
             if (input.precharge_contactor_states == OPEN &&
                 input.pos_contactor_states == OPEN &&

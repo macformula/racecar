@@ -7,7 +7,7 @@ TEST(DriverInterfaceFsm, Sequence) {
 
     int time_ms = 0;
     DiFsm::Input in{
-        .command = DiCmd::HV_ON,  // not init
+        .command = DiCmd::HV_IS_ON,  // not init
         .driver_button = false,
         .brake_pedal_pos = 0.,
         .di_error = false,
@@ -15,14 +15,14 @@ TEST(DriverInterfaceFsm, Sequence) {
 
     {  // stay in INIT until governor commands INIT
         out = fsm.Update(in, time_ms++);
-        ASSERT_EQ(out.status, DiSts::INIT);
+        ASSERT_EQ(out.status, DiSts::IDLE);
         EXPECT_FALSE(out.ready_to_drive);
         EXPECT_FALSE(out.speaker_enable);
 
         in.command = DiCmd::INIT;
 
         out = fsm.Update(in, time_ms++);
-        ASSERT_EQ(out.status, DiSts::WAITING_FOR_DRVR);
+        ASSERT_EQ(out.status, DiSts::WAITING_FOR_DRIVER_HV);
         EXPECT_FALSE(out.ready_to_drive);
         EXPECT_FALSE(out.speaker_enable);
     }
@@ -30,50 +30,53 @@ TEST(DriverInterfaceFsm, Sequence) {
     {  // Nothing should happen if button isn't pressed
         in.driver_button = false;
         out = fsm.Update(in, time_ms++);
-        ASSERT_EQ(out.status, DiSts::WAITING_FOR_DRVR);
+        ASSERT_EQ(out.status, DiSts::WAITING_FOR_DRIVER_HV);
     }
 
     {  // Start the motor only if the high-voltage is on and the driver presses
        // the button
         in.driver_button = true;
         out = fsm.Update(in, time_ms++);
-        ASSERT_EQ(out.status, DiSts::HV_START_REQ);
+        ASSERT_EQ(out.status, DiSts::REQUESTED_HV_START);
         EXPECT_FALSE(out.ready_to_drive);
         EXPECT_FALSE(out.speaker_enable);
 
         out = fsm.Update(in, time_ms++);
-        ASSERT_EQ(out.status, DiSts::HV_START_REQ);
+        ASSERT_EQ(out.status, DiSts::REQUESTED_HV_START);
 
-        in.command = DiCmd::HV_ON;
+        in.command = DiCmd::HV_IS_ON;
         in.driver_button = false;
 
         out = fsm.Update(in, time_ms++);
-        ASSERT_EQ(out.status, DiSts::HV_START_REQ);
+        ASSERT_EQ(out.status, DiSts::WAITING_FOR_DRIVER_MOTOR);
 
-        in.command = DiCmd::HV_ON;
-        in.driver_button = true;
-
+        in.driver_button = false;
         out = fsm.Update(in, time_ms++);
-        ASSERT_EQ(out.status, DiSts::MOTOR_START_REQ);
+        ASSERT_EQ(out.status, DiSts::WAITING_FOR_DRIVER_MOTOR)
+            << "Should wait for button.";
+
+        in.driver_button = true;
+        out = fsm.Update(in, time_ms++);
+        ASSERT_EQ(out.status, DiSts::REQUESTED_MOTOR_START);
         EXPECT_FALSE(out.ready_to_drive);
         EXPECT_FALSE(out.speaker_enable);
     }
 
     {  // Only enter RUNNING when both command and pedal are valid
         in.brake_pedal_pos = 0.0;
-        in.command = DiCmd::HV_ON;
+        in.command = DiCmd::HV_IS_ON;
         out = fsm.Update(in, time_ms++);
-        ASSERT_EQ(out.status, DiSts::MOTOR_START_REQ);
+        ASSERT_EQ(out.status, DiSts::REQUESTED_MOTOR_START);
 
-        in.command = DiCmd::HV_ON;
+        in.command = DiCmd::HV_IS_ON;
         in.brake_pedal_pos = 0.5;
         out = fsm.Update(in, time_ms++);
-        ASSERT_EQ(out.status, DiSts::MOTOR_START_REQ);
+        ASSERT_EQ(out.status, DiSts::REQUESTED_MOTOR_START);
 
         in.command = DiCmd::READY_TO_DRIVE;
         in.brake_pedal_pos = 0.0;
         out = fsm.Update(in, time_ms++);
-        ASSERT_EQ(out.status, DiSts::MOTOR_START_REQ);
+        ASSERT_EQ(out.status, DiSts::REQUESTED_MOTOR_START);
 
         in.command = DiCmd::READY_TO_DRIVE;
         in.brake_pedal_pos = 0.5;
@@ -100,15 +103,15 @@ TEST(DriverInterfaceFsm, Sequence) {
     {  // shutdown
         in.command = DiCmd::SHUTDOWN;
         out = fsm.Update(in, time_ms++);
-        ASSERT_EQ(out.status, DiSts::INIT);
+        ASSERT_EQ(out.status, DiSts::IDLE);
     }
 }
 
 TEST(DriverInterfaceFsm, StartRunning) {
-    DiFsm fsm{DiSts::MOTOR_START_REQ};
+    DiFsm fsm{DiSts::REQUESTED_MOTOR_START};
 
     DiFsm::Input in{
-        .command = DiCmd::HV_ON,
+        .command = DiCmd::HV_IS_ON,
         .driver_button = false,
         .brake_pedal_pos = 0.5,  // brakes pressed
         .di_error = false,
@@ -139,8 +142,8 @@ TEST(DriverInterfaceFsm, StartRunning) {
 
 TEST(DriverInterfaceFsm, GeneralError) {
     for (auto should_err : {
-             DiSts::WAITING_FOR_DRVR, DiSts::HV_START_REQ,
-             DiSts::MOTOR_START_REQ, DiSts::RUNNING,
+             DiSts::WAITING_FOR_DRIVER_HV, DiSts::REQUESTED_HV_START,
+             DiSts::REQUESTED_MOTOR_START, DiSts::RUNNING,
              DiSts::ERR,  // we should just stay in this state
          }) {
         DiFsm fsm{should_err};
@@ -148,7 +151,7 @@ TEST(DriverInterfaceFsm, GeneralError) {
         ASSERT_EQ(out.status, DiSts::ERR);
     }
 
-    for (auto shouldnt_err : {DiSts::INIT, DiSts::ERR_COASTING}) {
+    for (auto shouldnt_err : {DiSts::IDLE, DiSts::ERR_COASTING}) {
         DiFsm fsm{shouldnt_err};
         auto out = fsm.Update({.di_error = true}, 0);
         ASSERT_NE(out.status, DiSts::ERR);
@@ -162,10 +165,10 @@ TEST(DriverInterfaceFsm, RunningError) {
 
     // Assert no other states go to ERR_COASTING
     for (auto state : {
-             DiSts::INIT,
-             DiSts::WAITING_FOR_DRVR,
-             DiSts::HV_START_REQ,
-             DiSts::MOTOR_START_REQ,
+             DiSts::IDLE,
+             DiSts::WAITING_FOR_DRIVER_HV,
+             DiSts::REQUESTED_HV_START,
+             DiSts::REQUESTED_MOTOR_START,
              DiSts::ERR,
          }) {
         DiFsm not_running{state};
@@ -176,16 +179,16 @@ TEST(DriverInterfaceFsm, RunningError) {
 
 TEST(DriverInterfaceFsm, Shutdown) {
     // Should shutdown from the running states but not the error
-    for (auto state : {DiSts::WAITING_FOR_DRVR, DiSts::HV_START_REQ,
-                       DiSts::MOTOR_START_REQ, DiSts::RUNNING}) {
+    for (auto state : {DiSts::WAITING_FOR_DRIVER_HV, DiSts::REQUESTED_HV_START,
+                       DiSts::REQUESTED_MOTOR_START, DiSts::RUNNING}) {
         DiFsm fsm{state};
         auto out = fsm.Update({.command = DiCmd::SHUTDOWN}, 0);
-        ASSERT_EQ(out.status, DiSts::INIT);
+        ASSERT_EQ(out.status, DiSts::IDLE);
     }
 
     for (auto state : {DiSts::ERR, DiSts::ERR_COASTING}) {
         DiFsm fsm{state};
         auto out = fsm.Update({.command = DiCmd::SHUTDOWN}, 0);
-        ASSERT_NE(out.status, DiSts::INIT);
+        ASSERT_NE(out.status, DiSts::IDLE);
     }
 }

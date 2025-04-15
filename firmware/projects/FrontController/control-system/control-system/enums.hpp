@@ -7,6 +7,7 @@ enum class BmCmd {
 
 enum class BmSts {
     INIT,
+    STARTUP_ENSURE_OPEN,
     STARTUP_CLOSE_NEG,
     STARTUP_HOLD_CLOSE_NEG,
     STARTUP_CLOSE_PRECHARGE,
@@ -21,7 +22,7 @@ enum class BmSts {
 
 enum class DiCmd {
     INIT,
-    HV_ON,
+    HV_IS_ON,
     READY_TO_DRIVE,
     SHUTDOWN,
     RUN_ERROR,
@@ -29,10 +30,11 @@ enum class DiCmd {
 };
 
 enum class DiSts {
-    INIT,
-    WAITING_FOR_DRVR,
-    HV_START_REQ,
-    MOTOR_START_REQ,
+    IDLE,
+    WAITING_FOR_DRIVER_HV,
+    REQUESTED_HV_START,
+    WAITING_FOR_DRIVER_MOTOR,
+    REQUESTED_MOTOR_START,
     RUNNING,
     ERR_COASTING,
     ERR,

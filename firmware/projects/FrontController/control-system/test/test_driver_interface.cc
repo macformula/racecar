@@ -7,27 +7,36 @@
 
 DriverInterface CycleToRunning() {
     DriverInterface di;
+    int time = 0;
 
-    auto out = di.Update({.di_cmd = DiCmd::INIT}, 0);
-    assert(out.di_sts == DiSts::WAITING_FOR_DRVR);
+    auto out = di.Update({.di_cmd = DiCmd::INIT}, time++);
+    assert(out.di_sts == DiSts::WAITING_FOR_DRIVER_HV);
 
-    out = di.Update({.driver_button = true}, 1);
-    assert(out.di_sts == DiSts::HV_START_REQ);
+    out = di.Update({.driver_button = true}, time++);
+    assert(out.di_sts == DiSts::REQUESTED_HV_START);
 
     out = di.Update(
         {
-            .di_cmd = DiCmd::HV_ON,
+            .di_cmd = DiCmd::HV_IS_ON,
             .driver_button = true,
         },
-        2);
-    assert(out.di_sts == DiSts::MOTOR_START_REQ);
+        time++);
+    assert(out.di_sts == DiSts::WAITING_FOR_DRIVER_MOTOR);
+
+    out = di.Update(
+        {
+            .di_cmd = DiCmd::HV_IS_ON,
+            .driver_button = true,
+        },
+        time++);
+    assert(out.di_sts == DiSts::REQUESTED_MOTOR_START);
 
     out = di.Update(
         {
             .di_cmd = DiCmd::READY_TO_DRIVE,
             .brake_pedal_pos = 0.2,
         },
-        3);
+        time++);
     assert(out.di_sts == DiSts::RUNNING);
 
     return di;

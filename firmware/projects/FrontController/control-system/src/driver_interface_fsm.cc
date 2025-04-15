@@ -26,10 +26,11 @@ DiFsm::Output DiFsm::Update(const DiFsm::Input input, const int time_ms) {
 
 DiSts DiFsm::Transition(const DiFsm::Input input, const int time_ms) {
     // Superstate transitions
-    if (status_ == DiSts::WAITING_FOR_DRVR || status_ == DiSts::HV_START_REQ ||
-        status_ == DiSts::MOTOR_START_REQ || status_ == DiSts::RUNNING) {
+    if (status_ == DiSts::WAITING_FOR_DRIVER_HV ||
+        status_ == DiSts::REQUESTED_HV_START ||
+        status_ == DiSts::REQUESTED_MOTOR_START || status_ == DiSts::RUNNING) {
         if (input.command == DiCmd::SHUTDOWN) {
-            return DiSts::INIT;
+            return DiSts::IDLE;
         } else if (input.di_error) {
             return DiSts::ERR;
         }
@@ -37,25 +38,31 @@ DiSts DiFsm::Transition(const DiFsm::Input input, const int time_ms) {
 
     // Regular transitions
     switch (status_) {
-        case DiSts::INIT:
+        case DiSts::IDLE:
             if (input.command == DiCmd::INIT) {
-                return DiSts::WAITING_FOR_DRVR;
+                return DiSts::WAITING_FOR_DRIVER_HV;
             }
             break;
 
-        case DiSts::WAITING_FOR_DRVR:
+        case DiSts::WAITING_FOR_DRIVER_HV:
             if (input.driver_button) {
-                return DiSts::HV_START_REQ;
+                return DiSts::REQUESTED_HV_START;
             }
             break;
 
-        case DiSts::HV_START_REQ:
-            if (input.command == DiCmd::HV_ON && input.driver_button) {
-                return DiSts::MOTOR_START_REQ;
+        case DiSts::REQUESTED_HV_START:
+            if (input.command == DiCmd::HV_IS_ON) {
+                return DiSts::WAITING_FOR_DRIVER_MOTOR;
             }
             break;
 
-        case DiSts::MOTOR_START_REQ:
+        case DiSts::WAITING_FOR_DRIVER_MOTOR:
+            if (input.driver_button) {
+                return DiSts::REQUESTED_MOTOR_START;
+            }
+            break;
+
+        case DiSts::REQUESTED_MOTOR_START:
             if ((input.command == DiCmd::READY_TO_DRIVE &&
                  input.brake_pedal_pos > 0.1)) {
                 speaker_start_time_ = time_ms;

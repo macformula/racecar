@@ -257,7 +257,33 @@ TEST(BatteryMonitor, StateTransitions) {
             .pack_soc = 50.0,
         },
         time_ms);
-    ASSERT_EQ(output2.status, STARTUP_CLOSE_NEG) << "Failed INIT to CLOSE_NEG";
+    ASSERT_EQ(output2.status, STARTUP_ENSURE_OPEN);
+
+    time_ms += 10;
+    auto output2b = bm.Update(
+        {
+            .cmd = BmCmd::STARTUP,
+            .precharge_contactor_states = OPEN,
+            .pos_contactor_states = OPEN,
+            .neg_contactor_states = CLOSED,
+            .pack_soc = 50.0,
+        },
+        time_ms);
+    ASSERT_EQ(output2b.status, STARTUP_ENSURE_OPEN)
+        << "Shouldn't transition until all are OPEN.";
+
+    time_ms += 10;
+    auto output2c = bm.Update(
+        {
+            .cmd = BmCmd::STARTUP,
+            .precharge_contactor_states = OPEN,
+            .pos_contactor_states = OPEN,
+            .neg_contactor_states = OPEN,
+            .pack_soc = 50.0,
+        },
+        time_ms);
+    ASSERT_EQ(output2c.status, STARTUP_CLOSE_NEG)
+        << "Should proceed once contactora are OPEN.";
 
     time_ms += 10;
     auto output3 = bm.Update(

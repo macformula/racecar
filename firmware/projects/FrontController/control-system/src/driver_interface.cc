@@ -14,17 +14,6 @@ DriverInterface::Output DriverInterface::Update(const Input input,
                                                 const int time_ms) {
     using LUT = shared::util::LookupTable<float>;
 
-    // do we even need these? don't think so
-    auto apps_pedal_map = std::to_array<LUT::Entry>({
-        {0, 0},
-        {1, 1},
-    });
-
-    auto bpps_pedal_map = std::to_array<LUT::Entry>({
-        {0, 0},
-        {1, 1},
-    });
-
     Output out;
 
     bool accel_pedal_1_error = !isInRange(input.accel_pedal_pos1);
@@ -44,8 +33,7 @@ DriverInterface::Output DriverInterface::Update(const Input input,
     if (brake_pedal_error) {
         out.brake_pedal_position = 0;
     } else {
-        out.brake_pedal_position =
-            LUT::Evaluate(bpps_pedal_map, input.brake_pedal_pos);
+        out.brake_pedal_position = input.brake_pedal_pos;
     }
 
     out.steering_angle = steering_angle_error ? 0.5 : input.steering_angle;
@@ -62,8 +50,7 @@ DriverInterface::Output DriverInterface::Update(const Input input,
     out.driver_speaker = fsm_output.speaker_enable;
 
     if (fsm_output.ready_to_drive && !di_error) {
-        out.driver_torque_req =
-            LUT::Evaluate(apps_pedal_map, input.accel_pedal_pos1);
+        out.driver_torque_req = input.accel_pedal_pos1;
     } else {
         out.driver_torque_req = 0;
     }

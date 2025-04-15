@@ -16,7 +16,7 @@ public:
         bool ready_to_drive;
     };
 
-    DiFsm(DiSts initial_state = DiSts::INIT);
+    DiFsm(DiSts initial_state = DiSts::IDLE);
     Output Update(const Input input, const int time_ms);
 
 private:
