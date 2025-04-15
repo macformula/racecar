@@ -1,6 +1,7 @@
 add_library(control-system INTERFACE)
 add_subdirectory(src)
 target_include_directories(control-system INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+add_dependencies(control-system generated_can)
 
 if(TESTING_ENABLED)
     target_link_libraries(tests PRIVATE control-system)

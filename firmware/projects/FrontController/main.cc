@@ -67,7 +67,7 @@ VehicleDynamics vd{tuning::pedal_to_torque};
 Governor::Input gov_in{};
 
 using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
-TxFC_Status fc_status{0, 0, 0, 0, DbcHashStatus::WAITING};
+TxFC_Status fc_status{0, DiSts::IDLE, 0, 0, DbcHashStatus::WAITING};
 
 void UpdateControls() {
     // NOTE #1: For defining inputs, I commented out inputs where I didn't know
@@ -88,7 +88,7 @@ void UpdateControls() {
     Governor::Output gov_out = gov.Update(gov_in, time_ms);
 
     fc_status.gov_status = static_cast<uint8_t>(gov_out.gov_sts);
-    fc_status.di_status = static_cast<uint8_t>(gov_in.di_sts);
+    fc_status.di_status = gov_in.di_sts;
     fc_status.mi_status = static_cast<uint8_t>(gov_in.mi_sts);
     fc_status.bm_status = static_cast<uint8_t>(gov_in.bm_sts);
 

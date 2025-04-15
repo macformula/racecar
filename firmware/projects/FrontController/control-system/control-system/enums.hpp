@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../generated/can/veh_messages.hpp"
+
 enum class BmCmd {
     INIT,
     STARTUP,
@@ -29,16 +31,7 @@ enum class DiCmd {
     ERR_RESET,
 };
 
-enum class DiSts {
-    IDLE,
-    WAITING_FOR_DRIVER_HV,
-    REQUESTED_HV_START,
-    WAITING_FOR_DRIVER_MOTOR,
-    REQUESTED_MOTOR_START,
-    RUNNING,
-    ERR_COASTING,
-    ERR,
-};
+using DiSts = generated::can::TxFC_Status::DiStatus_t;
 
 enum class GovSts {
     INIT,
