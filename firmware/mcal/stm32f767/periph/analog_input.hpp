@@ -1,5 +1,3 @@
-
-
 #pragma once
 
 #include <cstdint>
@@ -7,11 +5,12 @@
 #include "shared/periph/analog_input.hpp"
 
 #ifdef STM32F7
-    #include "stm32f7xx_hal.h"
-    #include "stm32f7xx_hal_adc.h"
+#include "stm32f7xx_hal.h"
+#include "stm32f7xx_hal_adc.h"
 #elif defined(STM32F4)
-    #include "stm32f4xx_hal.h"
-    #include "stm32f4xx_hal_adc.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_adc.h"
+#define ADC_REGULAR_RANK_1    ((uint32_t)0x00000001)  /*!< ADC regular conversion rank 1 (not defined in stm32f4) */
 #endif
 
 namespace mcal::stm32f767::periph {
@@ -39,7 +38,7 @@ private:
     void Start() {
         ADC_ChannelConfTypeDef adc_config = {
             .Channel = adc_channel_,
-            .Rank = ADC_REGULAR_RANK_1,
+            .Rank = ADC_REGULAR_RANK_1, 
             .SamplingTime = ADC_SAMPLETIME_28CYCLES,
             .Offset = 0};
 
