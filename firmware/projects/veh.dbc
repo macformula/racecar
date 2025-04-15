@@ -73,9 +73,11 @@ BO_ 511 FC_apps_debug: 8 FC
  SG_ apps1_pos : 32|16@1+ (0.1,0) [0|0] "percent" PC_SG
  SG_ apps2_pos : 48|16@1+ (0.1,0) [0|0] "percent" PC_SG
 
-BO_ 512 FC_debug: 8 FC
- SG_ FC_bpps : 32|12@1+ (1,0) [0|4095] ""  PC_SG
- SG_ FC_steeringAngle : 48|12@1+ (1,0) [0|4095] ""  PC_SG
+BO_ 512 FC_bpps_steer_debug: 8 FC
+ SG_ bpps_raw_volt : 0|16@1+ (0.001,0) [0|0] "volt"  PC_SG
+ SG_ steering_raw_volt : 16|16@1+ (0.001,0) [0|0] "volt"  PC_SG
+ SG_ bpps_pos : 32|16@1+ (0.1,0) [0|0] "percent" PC_SG
+ SG_ steering_pos : 48|16@1+ (0.01,-1) [0|0] "[-1,+1]" PC_SG
 
 BO_ 256 FC_cmd: 1 PC_SG
  SG_ FC_readyToDriveSpeaker : 1|1@1+ (1,0) [0|1] ""  FC

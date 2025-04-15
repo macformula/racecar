@@ -128,12 +128,11 @@ void UpdateControls() {
         .driver_torque_request = di_out.driver_torque_req,
         .brake_pedal_postion = brake_position,
         .steering_angle = steering_wheel.ReadPosition(),
-        // These are all connected to GND in simulink, assuming that means set
-        // to 0
-        .wheel_speed_lr = 0,  // set to wheel speed sensors later
-        .wheel_speed_rr = 0,
-        .wheel_speed_lf = 0,
-        .wheel_speed_rf = 0,
+        // All wheel speed inputs were fixed to 0 in the old simulink model
+        .wheel_speed_lr = 0 * bindings::wheel_speed_rear_left.ReadVoltage(),
+        .wheel_speed_rr = 0 * bindings::wheel_speed_rear_right.ReadVoltage(),
+        .wheel_speed_lf = 0 * bindings::wheel_speed_front_left.ReadVoltage(),
+        .wheel_speed_rf = 0 * bindings::wheel_speed_front_right.ReadVoltage(),
         .tv_enable = false,
     };
     VehicleDynamics::Output vd_out = vd.Update(vd_in, time_ms);
@@ -216,11 +215,11 @@ int main(void) {
             .apps1_pos = apps1.ReadPosition(),
             .apps2_pos = apps2.ReadPosition(),
         });
-        veh_can_bus.Send(TxFC_debug{
-            .fc_bpps = static_cast<uint16_t>(
-                100 * bindings::brake_pressure_sensor.ReadVoltage()),
-            .fc_steering_angle = static_cast<uint16_t>(
-                100 * bindings::steering_angle_sensor.ReadVoltage()),
+        veh_can_bus.Send(TxFC_bpps_steer_debug{
+            .bpps_raw_volt = bindings::brake_pressure_sensor.ReadVoltage(),
+            .steering_raw_volt = bindings::steering_angle_sensor.ReadVoltage(),
+            .bpps_pos = brake.ReadPosition(),
+            .steering_pos = steering_wheel.ReadPosition(),
         });
 
         bindings::debug_led.Set(state);
