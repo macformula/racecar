@@ -10,9 +10,9 @@
 #include "shared/os/tick.hpp"
 
 #ifdef STM32F7
-    #include "stm32f7xx_hal.h"
+#include "stm32f7xx_hal.h"
 #elif defined(STM32F4)
-    #include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal.h"
 #endif
 
 // TODO: Add comments and handle errors more robustly

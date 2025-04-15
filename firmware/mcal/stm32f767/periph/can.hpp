@@ -4,9 +4,9 @@
 #pragma once
 
 #ifdef STM32F7
-    #include "stm32f7xx_hal.h"
+#include "stm32f7xx_hal.h"
 #elif defined(STM32F4)
-    #include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal.h"
 #endif
 
 #ifdef HAL_CAN_MODULE_ENABLED
