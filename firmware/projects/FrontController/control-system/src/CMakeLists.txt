@@ -2,7 +2,6 @@ target_sources(control-system
     INTERFACE
     motor_interface.cc
     battery_monitor.cc
-    driver_interface_fsm.cc
     driver_interface.cc
     governor.cc
     vehicle_dynamics.cc

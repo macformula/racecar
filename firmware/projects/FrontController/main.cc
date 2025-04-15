@@ -70,21 +70,8 @@ using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
 TxFC_Status fc_status{0, DiSts::IDLE, 0, 0, DbcHashStatus::WAITING};
 
 void UpdateControls() {
-    // NOTE #1: For defining inputs, I commented out inputs where I didn't know
-    // what to set it to NOTE #2: Some binding values like brake_pedal_front and
-    // accel_pedal are defined above, I used those and used Update(), idk if
-    // thats the correct thing to do or not NOTE #3: There are some warnings for
-    // type conversions, I don't know if those are mistakes from me or some
-    // conversions from simulink to c++ were wrong NOTE #4: All outputs are
-    // created and most of them are supposed to be sent to CAN. Assuming Blake
-    // will be doing that part?
-
-    // Capture time to use in Update call for each block
     int time_ms = bindings::GetTickMs();
 
-    // Governer update
-    // Question: do I just use the default values for the gov input at first, or
-    // do I set some value?
     Governor::Output gov_out = gov.Update(gov_in, time_ms);
 
     fc_status.gov_status = static_cast<uint8_t>(gov_out.gov_sts);
@@ -92,20 +79,21 @@ void UpdateControls() {
     fc_status.mi_status = static_cast<uint8_t>(gov_in.mi_sts);
     fc_status.bm_status = static_cast<uint8_t>(gov_in.bm_sts);
 
+    float brake_position = brake.ReadPosition();
+
     // Driver Interface update
     DriverInterface::Input di_in = {
-        .di_cmd = gov_out.di_cmd,
-        .brake_pedal_pos = brake.ReadPosition(),
+        .command = gov_out.di_cmd,
+        .brake_pedal_pos = brake_position,
         .driver_button = 0,  // bindings::start_button.Read(),
         .accel_pedal_pos1 = apps1.ReadPosition(),
         .accel_pedal_pos2 = apps2.ReadPosition(),
-        .steering_angle = steering_wheel.ReadPosition(),
     };
     DriverInterface::Output di_out = di.Update(di_in, time_ms);
-    gov_in.di_sts = di_out.di_sts;
+    gov_in.di_sts = di_out.status;
 
-    // bindings::rtds_en.Set(di_out.driver_speaker);
-    // bindings::brake_light_en.Set(di_out.brake_light_en);
+    bindings::ready_to_drive_sig_en.Set(di_out.driver_speaker);
+    veh_can_bus.Send(TxBrakeLight{.enable = di_out.brake_light_en});
 
     auto contactor_states = veh_can_bus.GetRxContactor_Feedback();
     if (!contactor_states.has_value()) {
@@ -119,7 +107,7 @@ void UpdateControls() {
                 contactor_states->Pack_Precharge_Feedback()),
 
             .negative = static_cast<ContactorFeedback::State>(
-                !contactor_states->Pack_Negative_Feedback()),
+                contactor_states->Pack_Negative_Feedback()),
 
             .positive = static_cast<ContactorFeedback::State>(
                 contactor_states->Pack_Positive_Feedback()),
@@ -138,8 +126,8 @@ void UpdateControls() {
     // Vehicle Dynamics update
     VehicleDynamics::Input vd_in = {
         .driver_torque_request = di_out.driver_torque_req,
-        .brake_pedal_postion = di_out.brake_pedal_position,
-        .steering_angle = di_out.steering_angle,
+        .brake_pedal_postion = brake_position,
+        .steering_angle = steering_wheel.ReadPosition(),
         // These are all connected to GND in simulink, assuming that means set
         // to 0
         .wheel_speed_lr = 0,  // set to wheel speed sensors later
