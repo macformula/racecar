@@ -114,21 +114,25 @@ void UpdateControls() {
 
     BatteryMonitor::Input bm_in = {
         .cmd = gov_out.bm_cmd,
-        .precharge_contactor_states = static_cast<ContactorState>(
-            !contactor_states->Pack_Precharge_Feedback()),
-        .pos_contactor_states = static_cast<ContactorState>(
-            !contactor_states->Pack_Positive_Feedback()),
-        .neg_contactor_states = static_cast<ContactorState>(
-            !contactor_states->Pack_Negative_Feedback()),
+        .feedback{
+            .precharge = static_cast<ContactorFeedback::State>(
+                contactor_states->Pack_Precharge_Feedback()),
+
+            .negative = static_cast<ContactorFeedback::State>(
+                !contactor_states->Pack_Negative_Feedback()),
+
+            .positive = static_cast<ContactorFeedback::State>(
+                contactor_states->Pack_Positive_Feedback()),
+        },
         .pack_soc = 550  // temporary, should it come from sensor?
     };
     BatteryMonitor::Output bm_out = bm.Update(bm_in, time_ms);
     gov_in.bm_sts = bm_out.status;
 
     veh_can_bus.Send(TxContactorCommand{
-        .pack_positive = static_cast<bool>(bm_out.contactor.positive),
-        .pack_precharge = static_cast<bool>(bm_out.contactor.precharge),
-        .pack_negative = static_cast<bool>(bm_out.contactor.negative),
+        .pack_positive = static_cast<bool>(bm_out.command.positive),
+        .pack_precharge = static_cast<bool>(bm_out.command.precharge),
+        .pack_negative = static_cast<bool>(bm_out.command.negative),
     });
 
     // Vehicle Dynamics update

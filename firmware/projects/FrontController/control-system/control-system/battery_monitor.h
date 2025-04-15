@@ -4,29 +4,37 @@
 
 #include "enums.hpp"
 
-enum class ContactorState : bool {
-    OPEN = false,
-    CLOSED = true,
+struct ContactorFeedback {
+    enum class State : bool {
+        // WARNING: feedback is inverted relative to command
+        IS_OPEN = true,
+        IS_CLOSED = false,
+    };
+    State precharge;
+    State negative;
+    State positive;
 };
 
-struct ContactorCMD {
-    ContactorState precharge;
-    ContactorState positive;
-    ContactorState negative;
+struct ContactorCommand {
+    enum class State {
+        OPEN = false,
+        CLOSE = true,
+    };
+    State precharge;
+    State positive;
+    State negative;
 };
 
 class BatteryMonitor {
 public:
     struct Input {
         BmCmd cmd;
-        ContactorState precharge_contactor_states;
-        ContactorState pos_contactor_states;
-        ContactorState neg_contactor_states;
+        ContactorFeedback feedback;
         float pack_soc;
     };
     struct Output {
         BmSts status;
-        ContactorCMD contactor;
+        ContactorCommand command;
     };
 
     BatteryMonitor();
@@ -34,7 +42,7 @@ public:
 
 private:
     std::optional<BmSts> TransitionStatus(const Input& input, int time_ms);
-    ContactorCMD SelectContactorCmd(BmSts status);
+    ContactorCommand SelectContactorCmd(BmSts status);
 
     // State machine variables (BmUpdate)
     std::optional<BmSts> current_status_;
