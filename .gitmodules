@@ -19,3 +19,12 @@
 [submodule "firmware/projects/Dashboard/platforms/lnx/lv_drivers"]
 	path = firmware/projects/Dashboard/platforms/lnx/lv_drivers
 	url = https://github.com/lvgl/lv_drivers.git
+[submodule "firmware/projects/Dashboard/platforms/stm32/stm32-nt35510"]
+	path = firmware/projects/Dashboard/platforms/stm32/BSP/Components/nt35510
+	url = https://github.com/STMicroelectronics/stm32-nt35510.git
+[submodule "firmware/projects/Dashboard/platforms/stm32/BSP/Components/stm32-otm8009a"]
+	path = firmware/projects/Dashboard/platforms/stm32/BSP/Components/otm8009a
+	url = https://github.com/STMicroelectronics/stm32-otm8009a.git
+[submodule "firmware/projects/Dashboard/platforms/stm32/BSP/32f469idiscovery-bsp"]
+	path = firmware/projects/Dashboard/platforms/stm32/BSP/32f469idiscovery-bsp
+	url = https://github.com/STMicroelectronics/32f469idiscovery-bsp.git

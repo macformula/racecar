@@ -15,7 +15,7 @@
 #include "mcal/stm32f4/periph/gpio.hpp"
 
 extern "C" {
-#include "BSP/STM32469I-Discovery/stm32469i_discovery_sdram.h"
+#include "BSP/32f469idiscovery-bsp/stm32469i_discovery_sdram.h"
 #include "screen_driver.h"
 extern void SystemClock_Config(void);
 }

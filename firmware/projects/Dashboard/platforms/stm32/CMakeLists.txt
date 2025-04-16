@@ -9,8 +9,7 @@ add_subdirectory(BSP)
 
 target_link_libraries(main PRIVATE
     hal_lvgl
-    bspstm
-    bspcomp
+    bsp
 )
 
 target_link_libraries(lvgl PUBLIC stm32cubemx)
