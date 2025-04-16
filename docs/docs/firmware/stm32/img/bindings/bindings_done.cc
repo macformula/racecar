@@ -16,13 +16,13 @@ void SystemClock_Config();
 
 // ============================= Firmware Includes =============================
 #include "../../bindings.hpp"
-#include "mcal/stm32f767/periph/analog_input.hpp"
-#include "mcal/stm32f767/periph/can.hpp"
-#include "mcal/stm32f767/periph/gpio.hpp"
+#include "mcal/stm32f/periph/analog_input.hpp"
+#include "mcal/stm32f/periph/can.hpp"
+#include "mcal/stm32f/periph/gpio.hpp"
 
 // =============================== MCAL Namespace ==============================
 namespace mcal {
-using namespace mcal::periph::stm32f767;
+using namespace mcal::periph::stm32f;
 // --------- Define C++ peripheral objects from CubeMX generated code ----------
 
 DigitalOutput tssi_red_en{TSSI_RED_SIG_GPIO_Port, TSSI_RED_SIG_Pin};
