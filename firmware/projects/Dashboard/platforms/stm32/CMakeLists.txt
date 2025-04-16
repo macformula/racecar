@@ -6,3 +6,13 @@ target_link_libraries(main PRIVATE stm32cubemx)
 
 add_subdirectory(hal_stm_lvgl)
 add_subdirectory(BSP)
+
+target_link_libraries(main PRIVATE
+    hal_lvgl
+    bspstm
+    bspcomp
+)
+
+target_link_libraries(lvgl PUBLIC stm32cubemx)
+
+target_compile_definitions(lvgl PUBLIC LV_CONF_PATH=${CMAKE_CURRENT_SOURCE_DIR}/lv_conf.h)

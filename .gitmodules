@@ -16,3 +16,6 @@
 [submodule "firmware/projects/lv_port_stm32f469_disco/Drivers/lvgl"]
 	path = firmware/projects/Dashboard/lvgl
 	url = https://github.com/lvgl/lvgl.git
+[submodule "firmware/projects/Dashboard/platforms/lnx/lv_drivers"]
+	path = firmware/projects/Dashboard/platforms/lnx/lv_drivers
+	url = https://github.com/lvgl/lv_drivers.git
