@@ -58,14 +58,14 @@ int main(void) {
     lv_obj_set_size(dashboard_frame, LV_HOR_RES, LV_VER_RES);
 
     LogoScreen logo_screen;
-    DashboardMenu dashboard_menu;
+    DashboardMenu dashboard_menu;  // unused
     DriveModeMenu drive_menu;
     DriverSelect driver_select;
     ModeSelect modes_select;
     ConfirmMenu confirm_menu;
     WaitingScreen waiting_screen;
-    StartHV start_hv;
-    StartMotors start_motors;
+    StartHV press_for_hv;
+    StartMotors press_for_motor;
     StartDriving start_driving;
 
     dashboard_menu.dashboard_state = State::LOGO;
@@ -80,8 +80,8 @@ int main(void) {
     // Main Loop ------------------- ---------------------------------
     // ---------------------------------------------------------------
 
-    while (1) {
-        bool scroll = bindings::button_scroll.Read();
+    while (true) {
+        bool scroll_pressed = bindings::button_scroll.Read();
         bool select_pressed = bindings::button_select.Read();
 
         veh_can.Send(TxDashboardStatus{
@@ -91,13 +91,12 @@ int main(void) {
             .event = static_cast<Event>(dashboard_menu.selected_mode),
 
             .dash_screen = static_cast<uint8_t>(dashboard_menu.dashboard_state),
-            .imd_led = scroll,
+            .imd_led = scroll_pressed,
             .bms_led = select_pressed,
         });
 
         // LVGL specific delay
         lv_timer_handler();
-        bindings::DelayMS(50);
 
         // get message from FC
         auto msg = veh_can.GetRxFCDashboardStatus();
@@ -106,72 +105,115 @@ int main(void) {
         // State Machine -------------------------------------------------
         // ---------------------------------------------------------------
 
+        // Handle screen transitions
         if (dashboard_menu.dashboard_state != previous_state) {
-            lv_obj_t* delete_screen = lv_scr_act();
             previous_state = dashboard_menu.dashboard_state;
 
-            // clang-format off
-            switch (dashboard_menu.dashboard_state) {
-                case STATE_LOGO_WAITING: logo_screen.create_menu(); break;
-                case STATE_DASHBOARD:    dashboard_menu.create_menu(); break;
-                case STATE_DRIVER:       driver_select.create_menu(); break;
-                case STATE_MODE:         modes_select.create_menu(); break;
-                case STATE_CONFIRM:      confirm_menu.create_menu(); break;
-                case STATE_WAITING:      waiting_screen.create_menu(); break;
-                case STATE_HV:           start_hv.create_menu(); break;
-                case STATE_MOTORS:       start_motors.create_menu(); break;
-                case STATE_START_DRIVING: start_driving.create_menu(); break;
-                case STATE_DRIVE_MODE:   drive_menu.create_menu(); break;
-                default: break;
-            }
-            // clang-format on
+            lv_obj_t* delete_screen = lv_scr_act();
 
+            using enum State;
+            switch (dashboard_menu.dashboard_state) {
+                    // clang-format off
+                case LOGO:                  logo_screen.create_menu();      break;
+                case SELECT_DRIVER:         driver_select.create_menu();    break;
+                case SELECT_EVENT:          modes_select.create_menu();     break;
+                case CONFIRM_SELECTION:     confirm_menu.create_menu();     break;
+                case WAIT_SELECTION_ACK:    waiting_screen.create_menu();  break;
+                case PRESS_FOR_HV:          press_for_hv.create_menu();     break;
+                case STARTING_HV:           waiting_screen.create_menu();      break;
+                case PRESS_FOR_MOTOR:       press_for_motor.create_menu();  break;
+                case STARTING_MOTOR:        waiting_screen.create_menu();   break;
+                case BRAKE_TO_START:        start_driving.create_menu();    break;
+                case RUNNING:               drive_menu.create_menu();       break;
+                // clang-format on
+                default:
+                    break;
+            }
             lv_obj_del(delete_screen);
+        }
+
+        // behaviour
+        switch (dashboard_menu.dashboard_state) {
+            case State::LOGO:
+                if (select_pressed) {
+                    dashboard_menu.dashboard_state = State::SELECT_DRIVER;
+                }
+                break;
+
+            case State::SELECT_DRIVER:
+                break;
+
+            case State::SELECT_EVENT:
+                break;
+
+            case State::CONFIRM_SELECTION:
+                break;
+
+            case State::WAIT_SELECTION_ACK:
+                break;
+
+            case State::PRESS_FOR_HV:
+                break;
+
+            case State::STARTING_HV:
+                break;
+
+            case State::PRESS_FOR_MOTOR:
+                break;
+
+            case State::STARTING_MOTOR:
+                break;
+
+            case State::BRAKE_TO_START:
+                break;
+
+            case State::RUNNING:
+                break;
         }
 
         // ---------------------------------------------------------------
         // CAN receiving processing code ---------------------------------
         // ---------------------------------------------------------------
 
-        switch (dashboard_menu.dashboard_state) {
-            case STATE_WAITING:
-                if (confirm_menu.initiate_start == 1) {
-                    dashboard_menu.dashboard_state = STATE_HV;
-                    confirm_menu.initiate_start = 2;
-                }
+        //     switch (dashboard_menu.dashboard_state) {
+        //         case STATE_WAITING:
+        //             if (confirm_menu.initiate_start == 1) {
+        //                 dashboard_menu.dashboard_state = STATE_HV;
+        //                 confirm_menu.initiate_start = 2;
+        //             }
 
-                if (start_hv.start_HV_toggle == 1) {
-                    dash_state_to_fc = DashState::RequestedHV;
+        //             if (press_for_hv.start_HV_toggle == 1) {
+        //                 dash_state_to_fc = DashState::RequestedHV;
 
-                    if (msg.has_value() && msg->hvStarted()) {
-                        dashboard_menu.dashboard_state = STATE_MOTORS;
-                        start_hv.start_HV_toggle = 2;
-                    }
-                }
+        //                 if (msg.has_value() && msg->hvStarted()) {
+        //                     dashboard_menu.dashboard_state = STATE_MOTORS;
+        //                     press_for_hv.start_HV_toggle = 2;
+        //                 }
+        //             }
 
-                if (start_motors.start_motors_toggle == 1) {
-                    dash_state_to_fc = DashState::RequestedMotor;
+        //             if (press_for_motor.start_motors_toggle == 1) {
+        //                 dash_state_to_fc = DashState::RequestedMotor;
 
-                    if (msg.has_value() && msg->motorStarted()) {
-                        dashboard_menu.dashboard_state = STATE_START_DRIVING;
-                        start_motors.start_motors_toggle = 2;
-                    }
-                }
+        //                 if (msg.has_value() && msg->motorStarted()) {
+        //                     dashboard_menu.dashboard_state =
+        //                     STATE_START_DRIVING;
+        //                     press_for_motor.start_motors_toggle = 2;
+        //                 }
+        //             }
 
-                break;
+        //             break;
 
-            case STATE_START_DRIVING:
-                if (msg.has_value() && msg->driveStarted()) {
-                    dashboard_menu.dashboard_state = STATE_DRIVE_MODE;
-                }
+        //         case STATE_START_DRIVING:
+        //             if (msg.has_value() && msg->driveStarted()) {
+        //                 dashboard_menu.dashboard_state = STATE_DRIVE_MODE;
+        //             }
 
-                break;
+        //             break;
 
-            default:
+        //         default:
 
-                break;
-        }
+        //             break;
+        //     }
+        // }
     }
-
-    return 0;
 }

@@ -82,7 +82,7 @@ void DriverSelect::confirm_btn_event_handler(lv_event_t* e) {
     lv_event_code_t code = lv_event_get_code(e);
 
     if (code == LV_EVENT_CLICKED) {
-        Menu::dashboard_state = STATE_MODE;
+        Menu::dashboard_state = State::SELECT_EVENT;
 
         // Map the roller input to the driver data you want to send via CAN
         // e.g say all the driver data is stored in an array of objects called

@@ -54,7 +54,7 @@ void ConfirmMenu::confirm_btn_event_handler(lv_event_t* e) {
     lv_event_code_t code = lv_event_get_code(e);
 
     if (code == LV_EVENT_CLICKED) {
-        Menu::dashboard_state = STATE_WAITING;
+        Menu::dashboard_state = State::WAIT_SELECTION_ACK;
 
         // start initiated, implement logic in main function to detect this and
         // proceed with CAN
@@ -67,6 +67,6 @@ void ConfirmMenu::restart_btn_event_handler(lv_event_t* e) {
     lv_event_code_t code = lv_event_get_code(e);
 
     if (code == LV_EVENT_CLICKED) {
-        Menu::dashboard_state = STATE_DRIVER;
+        Menu::dashboard_state = State::SELECT_DRIVER;
     }
 }

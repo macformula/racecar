@@ -9,7 +9,7 @@ void StartDriving::create_menu() {
 
     // title label
     lv_obj_t* title_label = lv_label_create(start_driving_menu);
-    lv_label_set_text(title_label, "Press breaks to start driving!");
+    lv_label_set_text(title_label, "Press brakes to start driving!");
     lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 50);
     lv_obj_set_style_text_font(title_label, &lv_font_montserrat_38, 0);
 

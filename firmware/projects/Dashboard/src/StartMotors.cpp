@@ -53,7 +53,7 @@ void StartMotors::start_motors_btn_handler(lv_event_t* e) {
     lv_event_code_t code = lv_event_get_code(e);
 
     if (code == LV_EVENT_CLICKED) {
-        Menu::dashboard_state = STATE_WAITING;
+        Menu::dashboard_state = State::STARTING_MOTOR;
         start_motors_toggle = 1;
     }
 }
