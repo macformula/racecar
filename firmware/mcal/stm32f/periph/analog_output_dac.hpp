@@ -7,9 +7,14 @@
 
 #include "etl/algorithm.h"
 #include "shared/periph/analog_output.hpp"
-#include "stm32f7xx_hal.h"
 
-namespace mcal::stm32f767::periph {
+#ifdef STM32F7
+#include "stm32f7xx_hal.h"
+#elif defined(STM32F4)
+#include "stm32f4xx_hal.h"
+#endif
+
+namespace mcal::stm32f::periph {
 
 class AnalogOutputDAC : public shared::periph::AnalogOutput {
 public:
@@ -29,4 +34,4 @@ private:
     uint32_t channel_;
 };
 
-}  // namespace mcal::stm32f767::periph
+}  // namespace mcal::stm32f::periph

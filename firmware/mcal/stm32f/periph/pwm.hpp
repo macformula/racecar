@@ -8,9 +8,17 @@
 
 #include "etl/algorithm.h"
 #include "shared/periph/pwm.hpp"
-#include "stm32f7xx_hal.h"
+#include "shared/util/mappers/clamper.hpp"
 
-namespace mcal::stm32f767::periph {
+#ifdef STM32F7
+#include "stm32f7xx_hal.h"
+#elif defined(STM32F4)
+#include "stm32f4xx_hal.h"
+#endif
+
+#ifdef HAL_TIM_MODULE_ENABLED
+
+namespace mcal::stm32f::periph {
 
 class PWMOutput : public shared::periph::PWMOutput {
 public:
@@ -75,4 +83,6 @@ private:
     }
 };
 
-}  // namespace mcal::stm32f767::periph
+}  // namespace mcal::stm32f::periph
+
+#endif  // HAL_TIM_MODULE_ENABLED

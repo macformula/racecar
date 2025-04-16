@@ -9,8 +9,8 @@
 #include "can.h"
 #include "gpio.h"
 #include "main.h"
-#include "mcal/stm32f767/periph/analog_input.hpp"
-#include "mcal/stm32f767/periph/can.hpp"
+#include "mcal/stm32f/periph/analog_input.hpp"
+#include "mcal/stm32f/periph/can.hpp"
 #include "shared/periph/can.hpp"
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx_hal_tim.h"
@@ -18,8 +18,8 @@
 
 // Firmware
 #include "../../bindings.hpp"
-#include "mcal/stm32f767/periph/gpio.hpp"
-#include "mcal/stm32f767/periph/pwm.hpp"
+#include "mcal/stm32f/periph/gpio.hpp"
+#include "mcal/stm32f/periph/pwm.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
 
@@ -32,7 +32,7 @@ void SystemClock_Config();
 }
 
 namespace mcal {
-using namespace mcal::stm32f767::periph;
+using namespace mcal::stm32f::periph;
 
 // Tractive System Status Indicator
 DigitalOutput tssi_en{TSSI_EN_GPIO_Port, TSSI_EN_Pin};

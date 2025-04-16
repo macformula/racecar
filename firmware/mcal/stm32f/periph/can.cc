@@ -1,5 +1,11 @@
 #include "main.h"
+
+#ifdef STM32F7
 #include "stm32f7xx_hal.h"
+#elif defined(STM32F4)
+#include "stm32f4xx_hal.h"
+#endif
+
 #ifdef HAL_CAN_MODULE_ENABLED
 
 #include <cstdint>
@@ -18,7 +24,7 @@ namespace {  // InterruptHandler is private to this file
 /// of the program.
 /// This class ensures that interrupts activated and handled together.
 class InterruptHandler {
-    using CanBase = mcal::stm32f767::periph::CanBase;
+    using CanBase = mcal::stm32f::periph::CanBase;
 
 public:
     void RegisterCanBase(CAN_HandleTypeDef* hcan, CanBase* can_base) {
@@ -48,8 +54,10 @@ private:
             return 0;
         } else if (hcan->Instance == CAN2) {
             return 1;
+#ifdef STM32F7  // CAN3 is available on F7, not F4
         } else if (hcan->Instance == CAN3) {
             return 2;
+#endif
         } else {
             return -1;
         }
@@ -66,7 +74,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
 }
 }
 
-namespace mcal::stm32f767::periph {
+namespace mcal::stm32f::periph {
 
 CanBase::CanBase(CAN_HandleTypeDef* hcan) : hcan_{hcan} {}
 
@@ -139,6 +147,6 @@ void CanBase::ConfigFilters() {
     HAL_CAN_ConfigFilter(hcan_, &filter_config);
 }
 
-}  // namespace mcal::stm32f767::periph
+}  // namespace mcal::stm32f::periph
 
 #endif  // HAL_CAN_MODULE_ENABLED

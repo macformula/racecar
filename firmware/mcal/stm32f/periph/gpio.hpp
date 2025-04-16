@@ -6,9 +6,16 @@
 #include <cstdint>
 
 #include "shared/periph/gpio.hpp"
-#include "stm32f7xx_hal.h"
 
-namespace mcal::stm32f767::periph {
+#ifdef STM32F7
+#include "stm32f7xx_hal.h"
+#elif defined(STM32F4)
+#include "stm32f4xx_hal.h"
+#endif
+
+#ifdef HAL_GPIO_MODULE_ENABLED
+
+namespace mcal::stm32f::periph {
 
 class DigitalInput : public shared::periph::DigitalInput {
 private:
@@ -44,4 +51,6 @@ public:
     }
 };
 
-}  // namespace mcal::stm32f767::periph
+}  // namespace mcal::stm32f::periph
+
+#endif  // HAL_GPIO_MODULE_ENABLED

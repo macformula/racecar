@@ -3,11 +3,11 @@
 
 #include "../../bindings.hpp"
 #include "cmsis_os2.h"
-#include "mcal/stm32f767/os/fifo.hpp"
-#include "mcal/stm32f767/os/mutex.hpp"
-#include "mcal/stm32f767/os/semaphore.hpp"
-#include "mcal/stm32f767/os/tick.hpp"
-#include "mcal/stm32f767/os/timer.hpp"
+#include "mcal/stm32f/os/fifo.hpp"
+#include "mcal/stm32f/os/mutex.hpp"
+#include "mcal/stm32f/os/semaphore.hpp"
+#include "mcal/stm32f/os/tick.hpp"
+#include "mcal/stm32f/os/timer.hpp"
 
 extern "C" {
 /**
@@ -23,7 +23,7 @@ extern osTimerId_t messageTimerHandle;
 }
 
 namespace mcal {
-using namespace stm32f767::os;
+using namespace stm32f::os;
 
 Semaphore sem_test{&testBinarySemaphoreHandle};
 Mutex mutex_test{&testMutexHandle};

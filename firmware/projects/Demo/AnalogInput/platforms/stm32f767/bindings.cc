@@ -3,18 +3,18 @@
 #include "adc.h"
 #include "gpio.h"
 #include "main.h"
-#include "mcal/stm32f767/periph/analog_input.hpp"
-#include "mcal/stm32f767/periph/gpio.hpp"
+#include "mcal/stm32f/periph/analog_input.hpp"
+#include "mcal/stm32f/periph/gpio.hpp"
 #include "shared/periph/analog_input.hpp"
 #include "shared/periph/gpio.hpp"
 #include "stm32f7xx_hal.h"
 
 namespace mcal {
 
-stm32f767::periph::AnalogInput analog_input{&hadc1, ADC_CHANNEL_10};
-stm32f767::periph::DigitalOutput green_led{green_led_GPIO_Port, green_led_Pin};
-stm32f767::periph::DigitalOutput red_led{red_led_GPIO_Port, red_led_Pin};
-stm32f767::periph::DigitalOutput blue_led{blue_led_GPIO_Port, blue_led_Pin};
+stm32f::periph::AnalogInput analog_input{&hadc1, ADC_CHANNEL_10};
+stm32f::periph::DigitalOutput green_led{green_led_GPIO_Port, green_led_Pin};
+stm32f::periph::DigitalOutput red_led{red_led_GPIO_Port, red_led_Pin};
+stm32f::periph::DigitalOutput blue_led{blue_led_GPIO_Port, blue_led_Pin};
 
 }  // namespace mcal
 

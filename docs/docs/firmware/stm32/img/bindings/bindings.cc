@@ -16,7 +16,7 @@ void SystemClock_Config();
 
 // =============================== MCAL Namespace ==============================
 namespace mcal {
-using namespace mcal::periph::stm32f767;
+using namespace mcal::periph::stm32f;
 // --------- Define C++ peripheral objects from CubeMX generated code ----------
 
 }  // namespace mcal

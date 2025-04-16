@@ -1,14 +1,21 @@
-
-
 #pragma once
 
 #include <cstdint>
 
 #include "shared/periph/analog_input.hpp"
-#include "stm32f7xx_hal.h"
-#include "stm32f7xx_hal_adc.h"
 
-namespace mcal::stm32f767::periph {
+#ifdef STM32F7
+#include "stm32f7xx_hal.h"
+#elif defined(STM32F4)
+#include "stm32f4xx_hal.h"
+#define ADC_REGULAR_RANK_1                                                    \
+    ((uint32_t)0x00000001) /*!< ADC regular conversion rank 1 (not defined in \
+                              stm32f4) */
+#endif
+
+#ifdef HAL_ADC_MODULE_ENABLED
+
+namespace mcal::stm32f::periph {
 
 class AnalogInput : public shared::periph::AnalogInput {
 public:
@@ -57,4 +64,6 @@ private:
     };
 };
 
-}  // namespace mcal::stm32f767::periph
+}  // namespace mcal::stm32f::periph
+
+#endif  // HAL_ADC_MODULE_ENABLED

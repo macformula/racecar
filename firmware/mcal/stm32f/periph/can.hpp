@@ -3,7 +3,12 @@
 
 #pragma once
 
+#ifdef STM32F7
 #include "stm32f7xx_hal.h"
+#elif defined(STM32F4)
+#include "stm32f4xx_hal.h"
+#endif
+
 #ifdef HAL_CAN_MODULE_ENABLED
 
 #include <cstdint>
@@ -11,7 +16,7 @@
 #include "shared/comms/can/msg.hpp"
 #include "shared/periph/can.hpp"
 
-namespace mcal::stm32f767::periph {
+namespace mcal::stm32f::periph {
 
 class CanBase : public shared::periph::CanBase {
 public:
@@ -32,6 +37,6 @@ private:
     uint32_t tx_mailbox_addr_;
 };
 
-}  // namespace mcal::stm32f767::periph
+}  // namespace mcal::stm32f::periph
 
 #endif  // HAL_CAN_MODULE_ENABLED

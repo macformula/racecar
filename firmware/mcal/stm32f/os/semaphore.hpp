@@ -7,7 +7,7 @@
 #include "shared/os/os.hpp"
 #include "shared/os/semaphore.hpp"
 
-namespace mcal::stm32f767::os {
+namespace mcal::stm32f::os {
 
 // TODO: Add comments and handle errors more robustly
 class Semaphore final : public shared::os::Semaphore {
@@ -33,4 +33,4 @@ private:
     osSemaphoreId_t* sem_id_;
 };
 
-}  // namespace mcal::stm32f767::os
+}  // namespace mcal::stm32f::os
