@@ -7,6 +7,10 @@
 #include "mcal/linux/periph/can.hpp"
 #include "mcal/linux/periph/digital_input.hpp"
 
+// extern "C" {
+void hal_init(void);
+// }
+
 class KeyInput : public shared::periph::DigitalInput {
 public:
     explicit KeyInput(char key) : key_(key) {
@@ -59,6 +63,10 @@ shared::periph::DigitalInput& button_select = mcal::button_select;
 void Initialize() {
     std::cout << "Starting Linux Platform" << std::endl;
     mcal::veh_can_base.Setup();
+}
+
+void PostLvglInit() {
+    hal_init();
 }
 
 void DelayMS(uint32_t ms) {

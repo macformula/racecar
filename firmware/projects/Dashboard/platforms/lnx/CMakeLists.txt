@@ -1,4 +1,4 @@
-target_sources(main PRIVATE bindings.cc)
+target_sources(main PRIVATE bindings.cc lvgl_linux.cc)
 target_link_libraries(main PRIVATE mcal-linux)
 
 add_definitions(-DSIMULATOR=1 -DLV_BUILD_TEST=0)

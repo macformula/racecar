@@ -10,6 +10,7 @@ extern shared::periph::DigitalInput& button_scroll;
 extern shared::periph::DigitalInput& button_select;
 
 extern void Initialize();
+extern void PostLvglInit();
 
 extern void DelayMS(uint32_t ms);
 

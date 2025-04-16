@@ -64,6 +64,8 @@ void Initialize() {
     mcal::veh_can_base.Setup();
 }
 
+void PostLvglInit() {}  // nothing to do on this platform
+
 void DelayMS(uint32_t ms) {
     HAL_Delay(ms);
 }
