@@ -6,10 +6,8 @@
 
 #ifdef STM32F7
 #include "stm32f7xx_hal.h"
-#include "stm32f7xx_hal_adc.h"
 #elif defined(STM32F4)
 #include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_adc.h"
 #define ADC_REGULAR_RANK_1                                                    \
     ((uint32_t)0x00000001) /*!< ADC regular conversion rank 1 (not defined in \
                               stm32f4) */
