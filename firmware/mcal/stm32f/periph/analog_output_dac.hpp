@@ -14,7 +14,7 @@
 #include "stm32f4xx_hal.h"
 #endif
 
-namespace mcal::stm32f767::periph {
+namespace mcal::stm32f::periph {
 
 class AnalogOutputDAC : public shared::periph::AnalogOutput {
 public:
@@ -34,4 +34,4 @@ private:
     uint32_t channel_;
 };
 
-}  // namespace mcal::stm32f767::periph
+}  // namespace mcal::stm32f::periph
