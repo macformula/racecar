@@ -97,6 +97,7 @@ int main(void) {
 
         // LVGL specific delay
         lv_timer_handler();
+        bindings::DelayMS(50);
 
         // get message from FC
         auto msg = veh_can.GetRxFCDashboardStatus();
@@ -135,7 +136,7 @@ int main(void) {
         // behaviour
         switch (dashboard_menu.dashboard_state) {
             case State::LOGO:
-                if (select_pressed) {
+                if (select_pressed || scroll_pressed) {
                     dashboard_menu.dashboard_state = State::SELECT_DRIVER;
                 }
                 break;

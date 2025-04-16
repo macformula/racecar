@@ -1,56 +1,52 @@
-#include <fcntl.h>
-#include <termios.h>
 #include <unistd.h>
 
 #include <iostream>
+#include <unordered_map>
 
 #include "mcal/linux/periph/can.hpp"
 #include "mcal/linux/periph/digital_input.hpp"
 
-// extern "C" {
+#define SDL_MAIN_HANDLED /*To fix SDL's "undefined reference to WinMain" \
+                            issue*/
+
+#include <immintrin.h>
+extern "C" {
+#include <SDL2/SDL.h>
+}
+
 void hal_init(void);
-// }
 
-class KeyInput : public shared::periph::DigitalInput {
+class KeyboardInput : public shared::periph::DigitalInput {
 public:
-    explicit KeyInput(char key) : key_(key) {
-        // Set terminal to non-blocking mode
-        termios t;
-        tcgetattr(STDIN_FILENO, &t);
-        original_ = t;         // Save original settings
-        t.c_lflag &= ~ICANON;  // Disable canonical mode
-        t.c_lflag &= ~ECHO;    // Disable echo
-        tcsetattr(STDIN_FILENO, TCSANOW, &t);
-        fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);  // Set non-blocking mode
-    }
-
-    ~KeyInput() {
-        // Restore terminal settings
-        tcsetattr(STDIN_FILENO, TCSANOW, &original_);
-    }
+    KeyboardInput(SDL_Keycode key) : key_(key) {}
 
     bool Read() override {
-        char input_key;
-        if (read(STDIN_FILENO, &input_key, 1) > 0) {
-            if (input_key == key_) {
-                std::cout << "|" << key_ << "| is down" << std::endl;
-                return true;
+        PollEvents();
+        return keyStates_[key_];
+    }
+
+    static void PollEvents() {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_KEYDOWN) {
+                keyStates_[event.key.keysym.sym] = true;
+            } else if (event.type == SDL_KEYUP) {
+                keyStates_[event.key.keysym.sym] = false;
             }
         }
-        return false;
     }
 
 private:
-    char key_;
-    termios original_;  // Store original terminal settings
+    SDL_Keycode key_;
+    static inline std::unordered_map<SDL_Keycode, bool> keyStates_;
 };
 
 namespace mcal {
 using namespace mcal::lnx::periph;
 
 CanBase veh_can_base{"vcan0"};
-KeyInput button_scroll{'\t'};
-KeyInput button_select{'/'};
+KeyboardInput button_scroll{SDLK_TAB};
+KeyboardInput button_select{SDLK_SPACE};
 
 }  // namespace mcal
 
