@@ -1,0 +1,3 @@
+These files were copied from <https://github.com/STMicroelectronics/STM32CubeF4>.
+
+Unlike the BSP components, there is no standalone repo for them, so we chose to copy them instead of include the entire STm32CubeF4 submodule.
