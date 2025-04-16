@@ -16,6 +16,8 @@
 #include "stm32f4xx_hal.h"
 #endif
 
+#ifdef HAL_TIM_MODULE_ENABLED
+
 namespace mcal::stm32f::periph {
 
 class PWMOutput : public shared::periph::PWMOutput {
@@ -82,3 +84,5 @@ private:
 };
 
 }  // namespace mcal::stm32f::periph
+
+#endif  // HAL_TIM_MODULE_ENABLED

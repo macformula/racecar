@@ -13,6 +13,8 @@
 #include "stm32f4xx_hal.h"
 #endif
 
+#ifdef HAL_GPIO_MODULE_ENABLED
+
 namespace mcal::stm32f::periph {
 
 class DigitalInput : public shared::periph::DigitalInput {
@@ -50,3 +52,5 @@ public:
 };
 
 }  // namespace mcal::stm32f::periph
+
+#endif  // HAL_GPIO_MODULE_ENABLED
