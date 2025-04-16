@@ -1,5 +1,6 @@
-set(MCAL stm32f4)
+set(MCAL stm32f)
 include(${CMAKE_SOURCE_DIR}/cmake/build_cubemx.cmake)
+add_compile_definitions(STM32F4)
 
 # replace the generated linker file with our own
 configure_file(

@@ -78,17 +78,24 @@ int main(void) {
     // Main Loop ------------------- ---------------------------------
     // ---------------------------------------------------------------
 
-    dashState dash_state_to_fc = dashState::On;
+    using DashState = TxDashboardIndicatorStatus::dashState_t;
+    DashState dash_state_to_fc = DashState::On;
 
     while (1) {
         bool scroll = bindings::button_scroll.Read();
         bool select_pressed = bindings::button_select.Read();
 
         veh_can.Send(TxDashboardIndicatorStatus{
-            .dash_state = static_cast<uint8_t>(dash_state_to_fc),
+            .dash_state = dash_state_to_fc,
+
+            // driver and event variables should already be enums
             .driver_number =
-                static_cast<uint8_t>(dashboard_menu.selected_driver),
-            .event_number = static_cast<uint8_t>(dashboard_menu.selected_mode),
+                static_cast<TxDashboardIndicatorStatus::driverNumber_t>(
+                    dashboard_menu.selected_driver),
+            .event_number =
+                static_cast<TxDashboardIndicatorStatus::eventNumber_t>(
+                    dashboard_menu.selected_mode),
+
             .dash_screen = static_cast<uint8_t>(dashboard_menu.dashboard_state),
             .imd_led = scroll,
             .bms_led = select_pressed,
@@ -142,7 +149,7 @@ int main(void) {
                 }
 
                 if (start_hv.start_HV_toggle == 1) {
-                    dash_state_to_fc = dashState::RequestedHV;
+                    dash_state_to_fc = DashState::RequestedHV;
 
                     if (msg.has_value() && msg->hvStarted()) {
                         dashboard_menu.dashboard_state = STATE_MOTORS;
@@ -151,7 +158,7 @@ int main(void) {
                 }
 
                 if (start_motors.start_motors_toggle == 1) {
-                    dash_state_to_fc = dashState::RequestedMotor;
+                    dash_state_to_fc = DashState::RequestedMotor;
 
                     if (msg.has_value() && msg->motorStarted()) {
                         dashboard_menu.dashboard_state = STATE_START_DRIVING;

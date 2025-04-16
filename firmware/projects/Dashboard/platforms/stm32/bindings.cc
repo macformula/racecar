@@ -11,8 +11,8 @@
 #include "usart.h"
 
 // firmware includes
-#include "mcal/stm32f4/periph/can.hpp"
-#include "mcal/stm32f4/periph/gpio.hpp"
+#include "mcal/stm32f/periph/can.hpp"
+#include "mcal/stm32f/periph/gpio.hpp"
 
 extern "C" {
 #include "BSP/32f469idiscovery-bsp/stm32469i_discovery_sdram.h"
@@ -26,7 +26,7 @@ extern void SystemClock_Config(void);
 #define SDRAM_TIMEOUT ((uint32_t)0xFFFF)
 
 namespace mcal {
-using namespace stm32f4::periph;
+using namespace stm32f::periph;
 
 CanBase veh_can_base{&hcan1};
 // TODO swap these labels in CubeMX instead of here
