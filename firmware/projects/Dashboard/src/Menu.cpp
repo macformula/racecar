@@ -1,10 +1,12 @@
 ﻿#include "inc/Menu.hpp"
 
+#include "../generated/can/veh_messages.hpp"
+
 Menu::Menu() {}
 
 Menu::~Menu() {}
 
-dashboardStates Menu::dashboard_state = STATE_DASHBOARD;
+Menu::State Menu::dashboard_state = Menu::State::LOGO;
 
 int Menu::selected_driver = 0;
 int Menu::selected_mode = 0;

@@ -1,5 +1,5 @@
 /// @author Blake Freer
-/// @date 2025-02
+/// @date 2025-04
 
 #include "bindings.hpp"
 #include "control-system/battery_monitor.h"
@@ -166,7 +166,7 @@ void UpdateControls() {
     };
     MotorIface::Output mi_out = mi.Update(mi_in, time_ms);
     (void)mi_out.inverter_enable;  // unused -> inverter en signal is set in the
-                                   // setpoint message inside MI.Update()
+    // setpoint message inside MI.Update()
 
     gov_in.mi_sts = mi_out.status;
 
@@ -174,33 +174,85 @@ void UpdateControls() {
     pt_can_bus.Send(mi_out.right_setpoints);
 }
 
+class FrontController {
+public:
+    enum class State {
+        INIT,
+        START_DASHBOARD,
+        SYNC_HASH,
+        WAIT_DRIVER_SELECT,
+        RUNNING,
+        ERROR_HASH_INVALID,
+    };
+
+    FrontController(int start_time)
+        : state_(State::INIT), state_enter_time_(start_time) {}
+
+    void Update(int time_ms);
+
+private:
+    State state_;
+    int state_enter_time_;
+    bool on_enter = true;
+};
+
+// void FrontController::Update(int time_ms) {
+//     using enum State;
+//     std::optional<State> transition = std::nullopt;
+//     int elapsed = time_ms - state_enter_time_;
+
+//     switch (state_) {
+//         case INIT:
+//             // this state is trivial and can be removed unless we add more
+//             logic transition = START_DASHBOARD; break;
+
+//         case START_DASHBOARD: {
+//             bindings::dashboard_power_en.SetHigh();
+
+//             // wait until dashboard comes alive
+//             auto msg = veh_can_bus.GetRxDashboardIndicatorStatus();
+//             if (msg.has_value()) transition = SYNC_HASH;
+//         } break;
+
+//         case SYNC_HASH: {
+//             if (on_enter) {
+//                 fc_status.dbc_hash_status = DbcHashStatus::WAITING;
+//             }
+
+//             auto msg = veh_can_bus.GetRxSyncDbcHash();
+
+//             if (msg.has_value()) {
+//                 if (msg->DbcHash() == generated::can::kVehDbcHash) {
+//                     fc_status.dbc_hash_status = DbcHashStatus::VALID;
+//                     transition = WAIT_DRIVER_SELECT;
+//                 } else {
+//                     fc_status.dbc_hash_status = DbcHashStatus::INVALID;
+//                     transition = ERROR_HASH_INVALID;
+//                 }
+//             }
+//         } break;
+
+//         case WAIT_DRIVER_SELECT: {
+//             auto msg = veh_can_bus.GetRxDashboardIndicatorStatus();
+
+//             if (msg.has_value()) {
+//                 if (msg.) }
+//         } break;
+
+//         case RUNNING:
+//             break;
+
+//         case ERROR_HASH_INVALID:
+//             break;
+//     }
+// }
+
 int main(void) {
     bindings::Initialize();
 
-    // Constantly check for hash to compare dbc version's between boards
-    auto dbc_hash = veh_can_bus.GetRxSyncDbcHash();
-    while (!dbc_hash.has_value()) {
-        fc_status.dbc_hash_status = DbcHashStatus::WAITING;
-        veh_can_bus.Send(fc_status);
-
-        bindings::DelayMs(100);
-
-        dbc_hash = veh_can_bus.GetRxSyncDbcHash();
-    }
-
-    // Error state. If hash of LVController doesn't match, constantly send
-    // invalid messages back, not exiting
-    if (dbc_hash->DbcHash() != generated::can::kVehDbcHash) {
-        while (true) {
-            fc_status.dbc_hash_status = DbcHashStatus::INVALID;
-            veh_can_bus.Send(fc_status);
-
-            bindings::DelayMs(100);
-        }
-    }
-    fc_status.dbc_hash_status = DbcHashStatus::VALID;
-
-    bindings::dashboard_power_en.SetHigh();
+    bindings::imd_fault_led_en.SetHigh();
+    bindings::DelayMs(1000);
+    bindings::imd_fault_led_en.SetLow();
 
     bool state = true;
 
@@ -231,7 +283,7 @@ int main(void) {
             msg->ECU() == RxInitiateCanFlash::ECU_t::FrontController) {
             bindings::SoftwareReset();
         }
-        bindings::DelayMs(10);
+        bindings::DelayMs(50);
     }
 
     return 0;

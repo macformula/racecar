@@ -1,14 +1,16 @@
 ﻿#ifndef MENU_H
 #define MENU_H
 
+#include "../generated/can/veh_messages.hpp"
 #include "DashboardFSM.hpp"
 #include "lvgl/lvgl.h"
 
 class Menu {
 public:
+    using State = generated::can::TxDashboardStatus::DashState_t;
     Menu();
 
-    static dashboardStates dashboard_state;
+    static State dashboard_state;
 
     // holds the selected driver and mode that are updated within DriverSelect
     // and ModeSelect respectively

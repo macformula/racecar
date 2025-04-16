@@ -189,19 +189,16 @@ BO_ 258 FCDashboardStatus: 4 FC
  SG_ motorStarted       : 16|1@1+ (1,0) [0|1] ""  Dash
  SG_ driveStarted       : 24|1@1+ (1,0) [0|1] ""  Dash
 
-BO_ 259 DashboardIndicatorStatus: 7 Dash
- SG_ dashState           : 0|8@1+ (1,0) [0|1] "" FC
- SG_ driverNumber        : 8|8@1+ (1,0) [0|15] "" FC
- SG_ eventNumber         : 16|8@1+ (1,0) [0|15] "" FC
- SG_ dashScreen          : 24|8@1+ (1,0) [0|255] "" FC
- SG_ IMDLed			     : 40|1@1+ (1,0) [0|1] "" FC
- SG_ BMSLed  			 : 48|1@1+ (1,0) [0|1] "" FC
+BO_ 259 DashboardStatus: 5 Dash
+ SG_ DashState          : 0|8@1+ (1,0) [0|1] "" FC
+ SG_ Driver             : 8|8@1+ (1,0) [0|15] "" FC
+ SG_ Event              : 16|8@1+ (1,0) [0|15] "" FC
+ SG_ dashScreen         : 24|8@1+ (1,0) [0|255] "" FC
+ SG_ IMDLed             : 32|1@1+ (1,0) [0|1] "" FC
+ SG_ BMSLed             : 33|1@1+ (1,0) [0|1] "" FC
 
 BO_ 260 RpiSpeed: 1 RPI 
  SG_ speed : 0|8@1+ (1,0) [0|100] "" DASH
-
-BO_ 261 dashboardTest: 1 Dash
- SG_ dashState           : 0|8@1+ (1,0) [0|1] "" FC
 
 CM_ BO_ 3221225472 "This is a message for not used signals, created by Vector CANdb++ DBC OLE DB Provider.";
 CM_ BO_ 1572 "This ID Transmits at 8 ms.";
@@ -267,6 +264,6 @@ VAL_ 111 LvState 0 "PWRUP_START" 1 "PWRUP_TSSI_ON" 2 "PWRUP_PERIPHERALS_ON" 3 "P
 VAL_ 112 FcState 0 "PWRUP_START" 1 "HVIL_OPEN";
 VAL_ 255 DbcHashStatus 0 "WAITING" 1 "VALID" 2 "INVALID";
 VAL_ 255 DiStatus 0 "IDLE" 1 "WAITING_FOR_DRIVER_HV" 2 "REQUESTED_HV_START" 3 "WAITING_FOR_DRIVER_MOTOR" 4 "REQUESTED_MOTOR_START" 5 "RUNNING" 6 "ERR_COASTING" 7 "ERR";
-VAL_ 259 driverNumber 6 "Tyler" 5 "Nathan" 4 "Mubashir" 3 "Luca" 2 "Logan" 1 "Lin" 0 "Ada" ;
-VAL_ 259 eventNumber 2 "Endurance" 1 "Skidpad" 0 "Launch" ;
-VAL_ 259 dashState 5 "WaitBrakeStart" 4 "RequestedMotor" 3 "WaitRequestMotor" 2 "RequestedHV" 1 "WaitRequestHV" 0 "On" ;
+VAL_ 259 Driver 0 "Ada" 1 "Lin" 2 "Logan" 3 "Luca" 4 "Mubashir" 5 "Nathan" 6 "Tyler";
+VAL_ 259 Event 0 "Launch" 1 "Skidpad" 2 "Endurance";
+VAL_ 259 DashState 0 "LOGO" 1 "SELECT_DRIVER" 2 "SELECT_EVET" 3 "CONFIRM_SELECTION" 4 "WAIT_SELECTION_ACK" 5 "PRESS_FOR_HV" 6 "STARTING_HV" 7 "PRESS_FOR_MOTOR" 8 "STARTING_MOTOR" 9 "BRAKE_TO_START" 10 "RUNNING";

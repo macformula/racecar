@@ -20,6 +20,10 @@ extern lv_disp_drv_t lv_display_driver;
 }
 
 using namespace generated::can;
+using State = TxDashboardStatus::DashState_t;
+using Driver = TxDashboardStatus::Driver_t;
+using Event = TxDashboardStatus::Event_t;
+
 VehBus veh_can{bindings::veh_can_base};
 
 int main(void) {
@@ -64,10 +68,8 @@ int main(void) {
     StartMotors start_motors;
     StartDriving start_driving;
 
-    dashboard_menu.dashboard_state = STATE_LOGO_WAITING;
-    // driver_select.create_menu();
-    logo_screen.create_menu();
-    dashboardStates previous_state = STATE_LOGO_WAITING;
+    dashboard_menu.dashboard_state = State::LOGO;
+    State previous_state = dashboard_menu.dashboard_state;
     logo_screen.create_menu();
 
     // ---------------------------------------------------------------
@@ -78,23 +80,15 @@ int main(void) {
     // Main Loop ------------------- ---------------------------------
     // ---------------------------------------------------------------
 
-    using DashState = TxDashboardIndicatorStatus::dashState_t;
-    DashState dash_state_to_fc = DashState::On;
-
     while (1) {
         bool scroll = bindings::button_scroll.Read();
         bool select_pressed = bindings::button_select.Read();
 
-        veh_can.Send(TxDashboardIndicatorStatus{
-            .dash_state = dash_state_to_fc,
+        veh_can.Send(TxDashboardStatus{
+            .dash_state = dashboard_menu.dashboard_state,
 
-            // driver and event variables should already be enums
-            .driver_number =
-                static_cast<TxDashboardIndicatorStatus::driverNumber_t>(
-                    dashboard_menu.selected_driver),
-            .event_number =
-                static_cast<TxDashboardIndicatorStatus::eventNumber_t>(
-                    dashboard_menu.selected_mode),
+            .driver = static_cast<Driver>(dashboard_menu.selected_driver),
+            .event = static_cast<Event>(dashboard_menu.selected_mode),
 
             .dash_screen = static_cast<uint8_t>(dashboard_menu.dashboard_state),
             .imd_led = scroll,
@@ -107,8 +101,6 @@ int main(void) {
 
         // get message from FC
         auto msg = veh_can.GetRxFCDashboardStatus();
-
-        veh_can.Send(TxdashboardTest{.dash_state = msg.has_value()});
 
         // ---------------------------------------------------------------
         // State Machine -------------------------------------------------
