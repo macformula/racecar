@@ -20,7 +20,7 @@ COMPILE_COMMANDS_DEST := $(BUILD)/compile_commands.json
 .PHONY: build config clean deepclean st-flash debug-openocd debug-gdb
 
 build: config
-	cmake --build $(BUILD_DIR)
+	cmake --build $(BUILD_DIR) --parallel
 
 config:
 	cmake -B $(BUILD_DIR) -S. $(GENERATOR) -D PROJECT=$(PROJECT) -D PLATFORM=$(PLATFORM) -D PROJECT_NAME=$(PROJECT_NAME) --log-level $(LOG_LEVEL)
