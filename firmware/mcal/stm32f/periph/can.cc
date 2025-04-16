@@ -4,6 +4,7 @@
 #include "stm32f7xx_hal.h"
 #elif defined(STM32F4)
 #include "stm32f4xx_hal.h"
+#define CAN3 NULL  // CAN3 is not defined for stm32f4 in CubeMX
 #endif
 
 #ifdef HAL_CAN_MODULE_ENABLED
