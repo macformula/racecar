@@ -184,10 +184,10 @@ public:
         START_DASHBOARD,
         SYNC_HASH,
         WAIT_DRIVER_SELECT,
-        WAIT_HV_START,
-        STARTING_HV,
-        WAIT_MOTOR_START,
-        STARTING_MOTOR,
+        // WAIT_HV_START,
+        // STARTING_HV,
+        // WAIT_MOTOR_START,
+        // STARTING_MOTOR,
         RUNNING,
         ERROR_HASH_INVALID,
     };
@@ -256,10 +256,21 @@ void FrontController::Update(int time_ms) {
 
         case RUNNING:
             UpdateControls();
+
+            to_dash.hv_started = gov_in.bm_sts == BmSts::RUNNING;
+            to_dash.motor_started = gov_in.mi_sts == MiSts::RUNNING;
+            to_dash.drive_started = gov_in.di_sts == DiSts::RUNNING;
             break;
 
         case ERROR_HASH_INVALID:
             break;
+    }
+
+    on_enter = transition.has_value();
+    if (on_enter) {
+        on_enter = true;
+        state_enter_time_ = time_ms;
+        state_ = transition.value();
     }
 }
 
@@ -272,7 +283,11 @@ int main(void) {
 
     bool state = true;
 
+    FrontController fc{bindings::GetTickMs()};
+
     while (true) {
+        fc.Update(bindings::GetTickMs());
+
         veh_can_bus.Send(fc_status);
 
         // test pedals
