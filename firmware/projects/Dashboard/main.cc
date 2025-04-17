@@ -26,9 +26,9 @@ using Event = TxDashboardStatus::Event_t;
 VehBus veh_can{bindings::veh_can_base};
 
 int main(void) {
+    lv_init();
     bindings::Initialize();
 
-    lv_init();
     bindings::PostLvglInit();
 
     // ---------------------------------------------------------------
@@ -85,7 +85,7 @@ int main(void) {
 
         // LVGL specific delay
         lv_timer_handler();
-        bindings::DelayMS(50);
+        bindings::DelayMS(5);
 
         // Handle screen transitions
         if (dashboard_menu.dashboard_state != previous_state) {

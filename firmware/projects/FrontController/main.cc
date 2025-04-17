@@ -63,7 +63,6 @@ Governor gov;
 DriverInterface di;
 VehicleDynamics vd{tuning::pedal_to_torque};
 
-// Global Governer input defined
 Governor::Input gov_in{};
 
 using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
@@ -222,7 +221,8 @@ void FrontController::Update(int time_ms) {
 
             // wait until dashboard comes alive
             auto msg = veh_can_bus.GetRxDashboardStatus();
-            if (msg.has_value()) transition = SYNC_HASH;
+            // if (msg.has_value()) transition = SYNC_HASH;
+            if (msg.has_value()) transition = WAIT_DRIVER_SELECT;
         } break;
 
         case SYNC_HASH: {
@@ -266,6 +266,8 @@ void FrontController::Update(int time_ms) {
             break;
     }
 
+    veh_can_bus.Send(to_dash);
+
     on_enter = transition.has_value();
     if (on_enter) {
         on_enter = true;
@@ -277,16 +279,18 @@ void FrontController::Update(int time_ms) {
 int main(void) {
     bindings::Initialize();
 
-    bindings::imd_fault_led_en.SetHigh();
-    bindings::DelayMs(1000);
-    bindings::imd_fault_led_en.SetLow();
-
     bool state = true;
 
     FrontController fc{bindings::GetTickMs()};
 
     while (true) {
         fc.Update(bindings::GetTickMs());
+
+        auto error_led = veh_can_bus.GetRxFaultLEDs();
+        if (error_led.has_value()) {
+            bindings::imd_fault_led_en.Set(error_led->IMD());
+            bindings::bms_fault_led_en.Set(error_led->BMS());
+        }
 
         veh_can_bus.Send(fc_status);
 
@@ -298,7 +302,9 @@ int main(void) {
             .apps2_pos = apps2.ReadPosition(),
         });
         veh_can_bus.Send(TxFC_bpps_steer_debug{
-            .bpps_raw_volt = bindings::brake_pressure_sensor.ReadVoltage(),
+            .bpps_raw_volt =
+                bindings::precharge_monitor
+                    .ReadVoltage(),  // bindings::brake_pressure_sensor.ReadVoltage(),
             .steering_raw_volt = bindings::steering_angle_sensor.ReadVoltage(),
             .bpps_pos = brake.ReadPosition(),
             .steering_pos = steering_wheel.ReadPosition(),
