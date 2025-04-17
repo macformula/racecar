@@ -81,11 +81,14 @@ void UpdateControls() {
 
     float brake_position = brake.ReadPosition();
 
+    auto dash_msg = veh_can_bus.GetRxDashboardStatus();
+    if (!dash_msg.has_value()) return;
+
     // Driver Interface update
     DriverInterface::Input di_in = {
         .command = gov_out.di_cmd,
         .brake_pedal_pos = brake_position,
-        .driver_button = 0,  // bindings::start_button.Read(),
+        .dash_cmd = dash_msg->DashState(),  // bindings::start_button.Read(),
         .accel_pedal_pos1 = apps1.ReadPosition(),
         .accel_pedal_pos2 = apps2.ReadPosition(),
     };
@@ -181,6 +184,10 @@ public:
         START_DASHBOARD,
         SYNC_HASH,
         WAIT_DRIVER_SELECT,
+        WAIT_HV_START,
+        STARTING_HV,
+        WAIT_MOTOR_START,
+        STARTING_MOTOR,
         RUNNING,
         ERROR_HASH_INVALID,
     };
@@ -194,58 +201,67 @@ private:
     State state_;
     int state_enter_time_;
     bool on_enter = true;
+
+    TxFCDashboardStatus to_dash{0, 0, 0, 0};
 };
 
-// void FrontController::Update(int time_ms) {
-//     using enum State;
-//     std::optional<State> transition = std::nullopt;
-//     int elapsed = time_ms - state_enter_time_;
+void FrontController::Update(int time_ms) {
+    using enum State;
+    using DashState = RxDashboardStatus::DashState_t;
+    std::optional<State> transition = std::nullopt;
+    int elapsed = time_ms - state_enter_time_;
 
-//     switch (state_) {
-//         case INIT:
-//             // this state is trivial and can be removed unless we add more
-//             logic transition = START_DASHBOARD; break;
+    switch (state_) {
+        case INIT:
+            // this state is trivial and can be removed unless we add more
+            transition = START_DASHBOARD;
+            break;
 
-//         case START_DASHBOARD: {
-//             bindings::dashboard_power_en.SetHigh();
+        case START_DASHBOARD: {
+            bindings::dashboard_power_en.SetHigh();
 
-//             // wait until dashboard comes alive
-//             auto msg = veh_can_bus.GetRxDashboardIndicatorStatus();
-//             if (msg.has_value()) transition = SYNC_HASH;
-//         } break;
+            // wait until dashboard comes alive
+            auto msg = veh_can_bus.GetRxDashboardStatus();
+            if (msg.has_value()) transition = SYNC_HASH;
+        } break;
 
-//         case SYNC_HASH: {
-//             if (on_enter) {
-//                 fc_status.dbc_hash_status = DbcHashStatus::WAITING;
-//             }
+        case SYNC_HASH: {
+            if (on_enter) {
+                fc_status.dbc_hash_status = DbcHashStatus::WAITING;
+            }
 
-//             auto msg = veh_can_bus.GetRxSyncDbcHash();
+            auto msg = veh_can_bus.GetRxSyncDbcHash();
 
-//             if (msg.has_value()) {
-//                 if (msg->DbcHash() == generated::can::kVehDbcHash) {
-//                     fc_status.dbc_hash_status = DbcHashStatus::VALID;
-//                     transition = WAIT_DRIVER_SELECT;
-//                 } else {
-//                     fc_status.dbc_hash_status = DbcHashStatus::INVALID;
-//                     transition = ERROR_HASH_INVALID;
-//                 }
-//             }
-//         } break;
+            if (msg.has_value()) {
+                if (msg->DbcHash() == generated::can::kVehDbcHash) {
+                    fc_status.dbc_hash_status = DbcHashStatus::VALID;
+                    transition = WAIT_DRIVER_SELECT;
+                } else {
+                    fc_status.dbc_hash_status = DbcHashStatus::INVALID;
+                    transition = ERROR_HASH_INVALID;
+                }
+            }
+        } break;
 
-//         case WAIT_DRIVER_SELECT: {
-//             auto msg = veh_can_bus.GetRxDashboardIndicatorStatus();
+        case WAIT_DRIVER_SELECT: {
+            auto msg = veh_can_bus.GetRxDashboardStatus();
 
-//             if (msg.has_value()) {
-//                 if (msg.) }
-//         } break;
+            if (msg.has_value()) {
+                if (msg->DashState() == DashState::WAIT_SELECTION_ACK) {
+                    to_dash.receive_config = true;
+                    transition = RUNNING;
+                }
+            }
+        } break;
 
-//         case RUNNING:
-//             break;
+        case RUNNING:
+            UpdateControls();
+            break;
 
-//         case ERROR_HASH_INVALID:
-//             break;
-//     }
-// }
+        case ERROR_HASH_INVALID:
+            break;
+    }
+}
 
 int main(void) {
     bindings::Initialize();
@@ -257,7 +273,6 @@ int main(void) {
     bool state = true;
 
     while (true) {
-        UpdateControls();
         veh_can_bus.Send(fc_status);
 
         // test pedals

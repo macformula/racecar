@@ -1,13 +1,16 @@
 #pragma once
 
+#include "../../generated/can/veh_messages.hpp"
 #include "enums.hpp"
 
 class DriverInterface {
+    using DashState = generated::can::RxDashboardStatus::DashState_t;
+
 public:
     struct Input {
         DiCmd command;
         float brake_pedal_pos;
-        bool driver_button;
+        DashState dash_cmd;
         float accel_pedal_pos1;
         float accel_pedal_pos2;
     };

@@ -57,7 +57,7 @@ DiSts DriverInterface::Transition(const DriverInterface::Input input,
             break;
 
         case DiSts::WAITING_FOR_DRIVER_HV:
-            if (input.driver_button) {
+            if (input.dash_cmd == DashState::STARTING_HV) {
                 return DiSts::REQUESTED_HV_START;
             }
             break;
@@ -69,7 +69,7 @@ DiSts DriverInterface::Transition(const DriverInterface::Input input,
             break;
 
         case DiSts::WAITING_FOR_DRIVER_MOTOR:
-            if (input.driver_button) {
+            if (input.dash_cmd == DashState::STARTING_MOTOR) {
                 return DiSts::REQUESTED_MOTOR_START;
             }
             break;

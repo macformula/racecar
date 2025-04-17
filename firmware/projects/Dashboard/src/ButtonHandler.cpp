@@ -2,6 +2,30 @@
 
 #include "../bindings.hpp"
 
+Button::Button(shared::periph::DigitalInput& input) : input_(input) {
+    current_state_ = false;
+    previous_state_ = false;
+    raw_state_ = false;
+    last_change_ = 0;
+    debounce_time_ = kDebounceDelay;
+}
+
+bool Button::PosEdge() const {
+    return !previous_state_ && current_state_;
+}
+
+bool Button::NegEdge() const {
+    return previous_state_ & !current_state_;
+}
+
+bool Button::IsPressed() const {
+    return current_state_;
+}
+
+/***************************************************************
+    old
+***************************************************************/
+
 ButtonHandler::ButtonHandler(uint32_t debounce_delay) {
     // initialize scroll button
     scroll_.current_state = false;
