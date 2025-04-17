@@ -1,7 +1,5 @@
 #include "inc/StartMotors.hpp"
 
-int StartMotors::start_motors_toggle = 0;
-
 StartMotors::StartMotors() {}
 
 void StartMotors::create_menu() {
@@ -54,6 +52,5 @@ void StartMotors::start_motors_btn_handler(lv_event_t* e) {
 
     if (code == LV_EVENT_CLICKED) {
         Menu::dashboard_state = State::STARTING_MOTOR;
-        start_motors_toggle = 1;
     }
 }

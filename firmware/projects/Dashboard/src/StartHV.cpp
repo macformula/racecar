@@ -1,7 +1,5 @@
 #include "inc/StartHV.hpp"
 
-int StartHV::start_HV_toggle = 0;
-
 StartHV::StartHV() {}
 
 void StartHV::create_menu() {
@@ -54,6 +52,5 @@ void StartHV::start_hv_btn_handler(lv_event_t* e) {
 
     if (code == LV_EVENT_CLICKED) {
         Menu::dashboard_state = State::STARTING_HV;
-        start_HV_toggle = 1;
     }
 }

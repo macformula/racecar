@@ -1,4 +1,5 @@
-#include "DashboardFSM.hpp"
+#pragma once
+
 #include "Menu.hpp"
 #include "lvgl/lvgl.h"
 

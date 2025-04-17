@@ -1,7 +1,5 @@
 #include "inc/ConfirmMenu.hpp"
 
-int ConfirmMenu::initiate_start = 0;
-
 ConfirmMenu::ConfirmMenu() {}
 
 void ConfirmMenu::create_menu() {
@@ -55,10 +53,6 @@ void ConfirmMenu::confirm_btn_event_handler(lv_event_t* e) {
 
     if (code == LV_EVENT_CLICKED) {
         Menu::dashboard_state = State::WAIT_SELECTION_ACK;
-
-        // start initiated, implement logic in main function to detect this and
-        // proceed with CAN
-        initiate_start = 1;
     }
 }
 

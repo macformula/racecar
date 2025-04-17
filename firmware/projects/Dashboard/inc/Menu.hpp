@@ -1,8 +1,6 @@
-﻿#ifndef MENU_H
-#define MENU_H
+﻿#pragma once
 
 #include "../generated/can/veh_messages.hpp"
-#include "DashboardFSM.hpp"
 #include "lvgl/lvgl.h"
 
 class Menu {
@@ -23,5 +21,3 @@ public:
 
     static void init_menu(lv_obj_t* frame);
 };
-
-#endif
