@@ -15,8 +15,6 @@ public:
     static int selected_driver;
     static int selected_mode;
 
-    static int front_controller_status[3];
-
     virtual ~Menu();
 
     static void init_menu(lv_obj_t* frame);
