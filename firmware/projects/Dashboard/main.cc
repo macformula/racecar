@@ -85,7 +85,7 @@ int main(void) {
 
         // LVGL specific delay
         lv_timer_handler();
-        bindings::DelayMS(5);
+        bindings::DelayMS(50);
 
         // Handle screen transitions
         if (dashboard_menu.dashboard_state != previous_state) {
