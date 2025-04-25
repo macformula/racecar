@@ -1,5 +1,8 @@
 #include "inc/StartMotors.hpp"
 
+#include "generated/can/veh_bus.hpp"
+#include "lvgl/lvgl.h"
+
 StartMotors::StartMotors() {}
 
 void StartMotors::create_menu() {
@@ -9,19 +12,9 @@ void StartMotors::create_menu() {
 
     // title label
     lv_obj_t* title_label = lv_label_create(start_motors_menu);
-    lv_label_set_text(title_label, "Press to start motors");
+    lv_label_set_text(title_label, "Press SELECT to start motors");
     lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 50);
     lv_obj_set_style_text_font(title_label, &lv_font_montserrat_38, 0);
-
-    // back button
-    lv_obj_t* start_hv_btn = lv_btn_create(start_motors_menu);
-    lv_obj_set_size(start_hv_btn, 100, 50);
-    lv_obj_center(start_hv_btn);
-    lv_obj_t* start_hv_btn_label = lv_label_create(start_hv_btn);
-    lv_label_set_text(start_hv_btn_label, "Confirm");
-    lv_obj_center(start_hv_btn_label);
-    lv_obj_add_event_cb(start_hv_btn, start_motors_btn_handler,
-                        LV_EVENT_CLICKED, NULL);
 
     lv_obj_t* led1 = lv_obj_create(start_motors_menu);
     lv_obj_set_size(led1, 30, 30);
@@ -46,11 +39,8 @@ void StartMotors::create_menu() {
     lv_scr_load(start_motors_menu);
 }
 
-// toggles start HV to 1
-void StartMotors::start_motors_btn_handler(lv_event_t* e) {
-    lv_event_code_t code = lv_event_get_code(e);
-
-    if (code == LV_EVENT_CLICKED) {
-        Menu::dashboard_state = State::STARTING_MOTOR;
+void StartMotors::Update(Button select, Button scroll) {
+    if (select.PosEdge()) {
+        dashboard_state = State::STARTING_MOTOR;
     }
 }

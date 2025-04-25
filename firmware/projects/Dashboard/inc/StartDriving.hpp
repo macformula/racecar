@@ -1,12 +1,14 @@
 #pragma once
 
 #include "Menu.hpp"
-#include "lvgl/lvgl.h"
+#include "inc/ButtonHandler.hpp"
 
 class StartDriving : public Menu {
 public:
     StartDriving();
     static void create_menu();
+
+    void Update(Button select, Button scroll);
 
 private:
 };

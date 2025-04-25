@@ -23,6 +23,10 @@ using Driver = TxDashboardStatus::Driver_t;
 using Event = TxDashboardStatus::Event_t;
 
 VehBus veh_can{bindings::veh_can_base};
+VehBus& Menu::veh_bus = veh_can;
+
+Button btn_scroll{bindings::button_scroll};
+Button btn_select{bindings::button_select};
 
 int main(void) {
     lv_init();
@@ -33,24 +37,8 @@ int main(void) {
     // ---------------------------------------------------------------
     // LVGL initialization -------------------------------------------
     // ---------------------------------------------------------------
-
     lv_group_t* g = lv_group_create();
     lv_group_set_default(g);
-
-    ButtonHandler button_handler(50);
-
-    static lv_indev_drv_t indev_drv_btn;
-    lv_indev_drv_init(&indev_drv_btn);
-    indev_drv_btn.type = LV_INDEV_TYPE_KEYPAD;
-
-    static ButtonHandler* btn_handler_ptr = &button_handler;
-    indev_drv_btn.read_cb = [](lv_indev_drv_t* indev_drv,
-                               lv_indev_data_t* data) {
-        btn_handler_ptr->update(indev_drv, data);
-    };
-
-    lv_indev_t* btn_indev = lv_indev_drv_register(&indev_drv_btn);
-    lv_indev_set_group(btn_indev, g);
 
     lv_obj_t* dashboard_frame = lv_obj_create(lv_scr_act());
     lv_obj_set_size(dashboard_frame, LV_HOR_RES, LV_VER_RES);
@@ -70,6 +58,10 @@ int main(void) {
     logo_screen.create_menu();
 
     while (true) {
+        int time_ms = lv_tick_get();
+        btn_scroll.Update(time_ms);
+        btn_select.Update(time_ms);
+
         veh_can.Send(TxDashboardStatus{
             .dash_state = Menu::dashboard_state,
 
@@ -77,11 +69,11 @@ int main(void) {
             .event = static_cast<Event>(Menu::selected_event),
 
             .dash_screen = static_cast<uint8_t>(Menu::dashboard_state),
-            .imd_led = button_handler.getScrollState(),
-            .bms_led = button_handler.getSelectState(),
+            .imd_led = btn_scroll.IsPressed(),
+            .bms_led = btn_select.IsPressed(),
         });
 
-        // LVGL specific delay
+        //     // LVGL specific delay
         lv_timer_handler();
         bindings::DelayMS(50);
 
@@ -94,17 +86,17 @@ int main(void) {
             using enum State;
             switch (Menu::dashboard_state) {
                     // clang-format off
-                case LOGO:                  logo_screen.create_menu();      break;
-                case SELECT_DRIVER:         driver_select.create_menu();    break;
-                case SELECT_EVENT:          modes_select.create_menu();     break;
-                case CONFIRM_SELECTION:     confirm_menu.create_menu();     break;
-                case WAIT_SELECTION_ACK:    waiting_screen.create_menu();   break;
-                case PRESS_FOR_HV:          press_for_hv.create_menu();     break;
-                case STARTING_HV:           waiting_screen.create_menu();   break;
-                case PRESS_FOR_MOTOR:       press_for_motor.create_menu();  break;
-                case STARTING_MOTOR:        waiting_screen.create_menu();   break;
-                case BRAKE_TO_START:        start_driving.create_menu();    break;
-                case RUNNING:               drive_menu.create_menu();       break;
+                case LOGO:                  logo_screen.create_menu(); break;
+                case SELECT_DRIVER:         driver_select.create_menu(); break;
+                case SELECT_EVENT:          modes_select.create_menu(); break;
+                case CONFIRM_SELECTION:     confirm_menu.create_menu(); break;
+                case WAIT_SELECTION_ACK:    waiting_screen.create_menu(); break;
+                case PRESS_FOR_HV:          press_for_hv.create_menu(); break;
+                case STARTING_HV:           waiting_screen.create_menu(); break;
+                case PRESS_FOR_MOTOR:       press_for_motor.create_menu(); break;
+                case STARTING_MOTOR:        waiting_screen.create_menu(); break;
+                case BRAKE_TO_START:        start_driving.create_menu(); break;
+                case RUNNING:               drive_menu.create_menu(); break;
                 // clang-format on
                 default:
                     break;
@@ -112,53 +104,45 @@ int main(void) {
             lv_obj_del(delete_screen);
         }
 
-        // get message from FC
-        auto msg = veh_can.GetRxFCDashboardStatus();
-
         switch (Menu::dashboard_state) {
             case State::LOGO:
+                logo_screen.Update(btn_select, btn_scroll);
                 break;
 
             case State::SELECT_DRIVER:
+                driver_select.Update(btn_select, btn_scroll);
                 break;
 
             case State::SELECT_EVENT:
+                modes_select.Update(btn_select, btn_scroll);
                 break;
 
             case State::CONFIRM_SELECTION:
+                confirm_menu.Update(btn_select, btn_scroll);
                 break;
 
             case State::WAIT_SELECTION_ACK:
-                if (msg.has_value() && msg->receiveConfig()) {
-                    Menu::dashboard_state = State::PRESS_FOR_HV;
-                }
+                waiting_screen.Update(btn_select, btn_scroll);
                 break;
 
             case State::PRESS_FOR_HV:
+                press_for_hv.Update(btn_select, btn_scroll);
                 break;
 
             case State::STARTING_HV:
-                if (msg.has_value() && msg->hvStarted()) {
-                    Menu::dashboard_state = State::PRESS_FOR_MOTOR;
-                }
-
+                waiting_screen.Update(btn_select, btn_scroll);
                 break;
 
             case State::PRESS_FOR_MOTOR:
+                press_for_motor.Update(btn_select, btn_scroll);
                 break;
 
             case State::STARTING_MOTOR:
-                if (msg.has_value() && msg->motorStarted()) {
-                    Menu::dashboard_state = State::BRAKE_TO_START;
-                }
-
+                waiting_screen.Update(btn_select, btn_scroll);
                 break;
 
             case State::BRAKE_TO_START:
-                if (msg.has_value() && msg->driveStarted()) {
-                    Menu::dashboard_state = State::RUNNING;
-                }
-
+                start_driving.Update(btn_select, btn_scroll);
                 break;
 
             case State::RUNNING:

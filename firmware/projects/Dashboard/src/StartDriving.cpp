@@ -1,5 +1,7 @@
 #include "inc/StartDriving.hpp"
 
+#include "lvgl/lvgl.h"
+
 StartDriving::StartDriving() {}
 
 void StartDriving::create_menu() {
@@ -34,4 +36,11 @@ void StartDriving::create_menu() {
     // cleanup and load screen
     lv_obj_clean(lv_scr_act());
     lv_scr_load(start_driving_menu);
+}
+
+void StartDriving::Update(Button select, Button scroll) {
+    auto fc_msg = Menu::veh_bus.GetRxFCDashboardStatus();
+    if (fc_msg.has_value() && fc_msg->driveStarted()) {
+        Menu::dashboard_state = State::RUNNING;
+    }
 }

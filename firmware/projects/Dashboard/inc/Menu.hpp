@@ -2,6 +2,7 @@
 
 #include <cerrno>
 
+#include "../generated/can/veh_bus.hpp"
 #include "../generated/can/veh_messages.hpp"
 #include "lvgl/lvgl.h"
 
@@ -10,16 +11,16 @@ public:
     using State = generated::can::TxDashboardStatus::DashState_t;
     using Driver = generated::can::TxDashboardStatus::Driver_t;
     using Event = generated::can::TxDashboardStatus::Event_t;
-    Menu();
+
+    using MaybeFcMsg = std::optional<generated::can::RxFCDashboardStatus>;
 
     static State dashboard_state;
+    static generated::can::VehBus& veh_bus;
 
     // holds the selected driver and mode that are updated within DriverSelect
     // and ModeSelect respectively
     static Driver selected_driver;
     static Event selected_event;
-
-    virtual ~Menu();
 
     static void init_menu(lv_obj_t* frame);
 };

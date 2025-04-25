@@ -2,10 +2,6 @@
 
 #include "../generated/can/veh_messages.hpp"
 
-Menu::Menu() {}
-
-Menu::~Menu() {}
-
 Menu::State Menu::dashboard_state = Menu::State::LOGO;
 
 Menu::Driver Menu::selected_driver = Menu::Driver::UNSPECIFIED;

@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Menu.hpp"
-#include "lvgl/lvgl.h"
+#include "generated/can/veh_bus.hpp"
+#include "inc/ButtonHandler.hpp"
 
 class StartMotors : public Menu {
 public:
     StartMotors();
     static void create_menu();
 
-private:
-    static void start_motors_btn_handler(lv_event_t* e);
+    static void Update(Button select, Button scroll);
 };
