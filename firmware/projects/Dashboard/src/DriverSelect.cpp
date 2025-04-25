@@ -7,6 +7,8 @@ lv_obj_t* DriverSelect::driver_roller = nullptr;  // init roller to null
 DriverSelect::DriverSelect() {}
 
 void DriverSelect::create_menu() {
+    Menu::selected_driver = Menu::Driver::UNSPECIFIED;
+
     // calls base class functionality, handles background and frame
     lv_obj_t* driver_select = lv_obj_create(NULL);  // Create a new screen
     Menu::init_menu(driver_select);

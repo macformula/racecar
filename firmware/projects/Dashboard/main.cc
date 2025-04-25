@@ -5,8 +5,8 @@
 #include "inc/ConfirmMenu.hpp"
 #include "inc/DriveModeMenu.hpp"
 #include "inc/DriverSelect.hpp"
+#include "inc/EventSelect.hpp"
 #include "inc/LogoScreen.hpp"
-#include "inc/ModeSelect.hpp"
 #include "inc/StartDriving.hpp"
 #include "inc/StartHV.hpp"
 #include "inc/StartMotors.hpp"
@@ -58,7 +58,7 @@ int main(void) {
     LogoScreen logo_screen;
     DriveModeMenu drive_menu;
     DriverSelect driver_select;
-    ModeSelect modes_select;
+    EventSelect modes_select;
     ConfirmMenu confirm_menu;
     WaitingScreen waiting_screen;
     StartHV press_for_hv;
@@ -74,7 +74,7 @@ int main(void) {
             .dash_state = Menu::dashboard_state,
 
             .driver = static_cast<Driver>(Menu::selected_driver),
-            .event = static_cast<Event>(Menu::selected_mode),
+            .event = static_cast<Event>(Menu::selected_event),
 
             .dash_screen = static_cast<uint8_t>(Menu::dashboard_state),
             .imd_led = button_handler.getScrollState(),

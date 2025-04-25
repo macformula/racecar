@@ -9,7 +9,7 @@ Menu::~Menu() {}
 Menu::State Menu::dashboard_state = Menu::State::LOGO;
 
 Menu::Driver Menu::selected_driver = Menu::Driver::UNSPECIFIED;
-Menu::Event Menu::selected_mode = Menu::Event::UNSPECIFIED;
+Menu::Event Menu::selected_event = Menu::Event::UNSPECIFIED;
 
 void Menu::init_menu(lv_obj_t* frame) {
     // Create a background for the menu

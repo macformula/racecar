@@ -1,41 +1,41 @@
-#include "inc/ModeSelect.hpp"
+#include "inc/EventSelect.hpp"
 
-lv_obj_t* ModeSelect::modes_roller = nullptr;  // init roller to null
+lv_obj_t* EventSelect::roller = nullptr;  // init roller to null
 
-ModeSelect::ModeSelect() {}
+EventSelect::EventSelect() {}
 
-void ModeSelect::create_menu() {
+void EventSelect::create_menu() {
+    Menu::selected_event = Menu::Event::UNSPECIFIED;
     // calls base class functionality, handles background and frame
-    lv_obj_t* modes_select = lv_obj_create(NULL);  // Create a new screen
-    Menu::init_menu(modes_select);
+    lv_obj_t* frame = lv_obj_create(NULL);  // Create a new screen
+    Menu::init_menu(frame);
 
     // title label
-    lv_obj_t* title_label = lv_label_create(modes_select);
-    lv_label_set_text(title_label, "Select the Mode");
+    lv_obj_t* title_label = lv_label_create(frame);
+    lv_label_set_text(title_label, "Select the Event");
     lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 50);
     lv_obj_set_style_text_font(title_label, &lv_font_montserrat_38, 0);
 
-    // modes roller
-    modes_roller = lv_roller_create(modes_select);
+    roller = lv_roller_create(frame);
 
-    // create the modes list in format of "Mode1\nMode2\nMode3"
-    char modes_list[256] = "";
+    // create a string list "Event1\nEvent2\nEvent3"
+    char event_list[256] = "";
 
-    for (int i = 0; i < kNumModes; i++) {
+    for (int i = 0; i < kEventCount; i++) {
         if (i > 0) {
-            strcat(modes_list, "\n");
+            strcat(event_list, "\n");
         }
-        strcat(modes_list, GetEventName(static_cast<Menu::Event>(i)));
+        strcat(event_list, GetEventName(static_cast<Menu::Event>(i)));
     }
 
-    lv_roller_set_options(modes_roller, modes_list, LV_ROLLER_MODE_NORMAL);
-    lv_obj_set_width(modes_roller, 300);
-    lv_obj_set_style_text_font(modes_roller, &lv_font_montserrat_24, 0);
-    lv_roller_set_visible_row_count(modes_roller, 5);
-    lv_obj_center(modes_roller);
+    lv_roller_set_options(roller, event_list, LV_ROLLER_MODE_NORMAL);
+    lv_obj_set_width(roller, 300);
+    lv_obj_set_style_text_font(roller, &lv_font_montserrat_24, 0);
+    lv_roller_set_visible_row_count(roller, 5);
+    lv_obj_center(roller);
 
     // up and down buttons
-    lv_obj_t* up_btn = lv_btn_create(modes_select);
+    lv_obj_t* up_btn = lv_btn_create(frame);
     lv_obj_set_size(up_btn, 100, 50);
     lv_obj_center(up_btn);
     lv_obj_set_x(up_btn, lv_obj_get_x(up_btn) + 250);
@@ -43,7 +43,7 @@ void ModeSelect::create_menu() {
     lv_label_set_text(up_btn_label, "Up");
     lv_obj_center(up_btn_label);
 
-    lv_obj_t* down_btn = lv_btn_create(modes_select);
+    lv_obj_t* down_btn = lv_btn_create(frame);
     lv_obj_set_size(down_btn, 100, 50);
     lv_obj_center(down_btn);
     lv_obj_set_x(down_btn, lv_obj_get_x(down_btn) - 250);
@@ -57,7 +57,7 @@ void ModeSelect::create_menu() {
                         NULL);
 
     // back button
-    lv_obj_t* confirm_btn = lv_btn_create(modes_select);
+    lv_obj_t* confirm_btn = lv_btn_create(frame);
     lv_obj_set_size(confirm_btn, 100, 50);
     lv_obj_center(confirm_btn);
     lv_obj_set_y(confirm_btn, lv_obj_get_y(confirm_btn) + 175);
@@ -69,34 +69,34 @@ void ModeSelect::create_menu() {
 
     // cleanup and load screen
     lv_obj_clean(lv_scr_act());
-    lv_scr_load(modes_select);
+    lv_scr_load(frame);
 }
 
 // proceeds to next screen
-void ModeSelect::confirm_btn_event_handler(lv_event_t* e) {
+void EventSelect::confirm_btn_event_handler(lv_event_t* e) {
     lv_event_code_t code = lv_event_get_code(e);
 
     if (code == LV_EVENT_CLICKED) {
         Menu::dashboard_state = State::CONFIRM_SELECTION;
 
-        Menu::selected_mode =
-            static_cast<Menu::Event>(lv_roller_get_selected(modes_roller));
+        Menu::selected_event =
+            static_cast<Menu::Event>(lv_roller_get_selected(roller));
     }
 }
 
 // moves the roller up
-void ModeSelect::up_btn_event_handler(lv_event_t* e) {
-    int selected = lv_roller_get_selected(modes_roller);
+void EventSelect::up_btn_event_handler(lv_event_t* e) {
+    int selected = lv_roller_get_selected(roller);
     if (selected > 0) {
-        lv_roller_set_selected(modes_roller, selected - 1, LV_ANIM_ON);
+        lv_roller_set_selected(roller, selected - 1, LV_ANIM_ON);
     }
 }
 
 // moves the roller down
-void ModeSelect::down_btn_event_handler(lv_event_t* e) {
-    int selected = lv_roller_get_selected(modes_roller);
-    if (selected < kNumModes - 1) {
-        lv_roller_set_selected(modes_roller, selected + 1, LV_ANIM_ON);
+void EventSelect::down_btn_event_handler(lv_event_t* e) {
+    int selected = lv_roller_get_selected(roller);
+    if (selected < kEventCount - 1) {
+        lv_roller_set_selected(roller, selected + 1, LV_ANIM_ON);
     }
 }
 

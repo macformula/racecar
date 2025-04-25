@@ -17,7 +17,7 @@ public:
     // holds the selected driver and mode that are updated within DriverSelect
     // and ModeSelect respectively
     static Driver selected_driver;
-    static Event selected_mode;
+    static Event selected_event;
 
     virtual ~Menu();
 
