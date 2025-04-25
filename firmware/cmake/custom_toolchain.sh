@@ -4,11 +4,11 @@
 
 # CubeMX forces CMake to skip its automatic compiler detection, which messes
 # with our clangd setup. Comment out the lines that do this.
-sed -E '/set\(CMAKE.*COMPILER_FORCED.*$/s/^/# /g' $1 > tmp.txt
-mv tmp.txt $1
+sed -E '/set\(CMAKE.*COMPILER_FORCED.*$/s/^/# /g' cmake/racecar-toolchain.cmake > tmp.txt
+mv tmp.txt cmake/racecar-toolchain.cmake
 
 # CubeMX incorrectly assumes that our top-level CMakeLists.txt is in the same
 # directory as the .ioc file. This means that the linker script directory is wrong.
 # Find the "-T ** .ld" line and replace the CMAKE variable with the current directory.
-sed -E "/-T.*\.ld/s|\\\$\{CMAKE_SOURCE_DIR\}|${PWD}|g" $1 > tmp.txt
-mv tmp.txt $1
+sed -E "/-T.*\.ld/s|\\\$\{CMAKE_SOURCE_DIR\}|${PWD}|g" cmake/racecar-toolchain.cmake > tmp.txt
+mv tmp.txt cmake/racecar-toolchain.cmake
