@@ -60,10 +60,8 @@ bool ButtonHandler::updateButton(ButtonState& btn, bool raw_input) {
 }
 
 void ButtonHandler::update(lv_indev_drv_t* indev_drv, lv_indev_data_t* data) {
-    // ipdate button states
-    // buttons are active low -> invert signal
-    updateButton(scroll_, !bindings::button_scroll.Read());
-    updateButton(select_, !bindings::button_select.Read());
+    updateButton(scroll_, bindings::button_scroll.Read());
+    updateButton(select_, bindings::button_select.Read());
 
     // simulate tab and enter keys for scroll and select respectively
     if (scroll_.current_state && !scroll_.previous_state) {

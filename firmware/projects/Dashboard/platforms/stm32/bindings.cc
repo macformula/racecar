@@ -30,8 +30,10 @@ using namespace stm32f::periph;
 
 CanBase veh_can_base{&hcan1};
 // TODO swap these labels in CubeMX instead of here
-DigitalInput button_scroll{BUTTON_SELECT_GPIO_Port, BUTTON_SELECT_Pin};
-DigitalInput button_select{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
+DigitalInput button_scroll_n{BUTTON_SELECT_GPIO_Port, BUTTON_SELECT_Pin};
+DigitalInput button_select_n{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
+shared::periph::InvertedDigitalInput button_scroll{button_scroll_n};
+shared::periph::InvertedDigitalInput button_select{button_select_n};
 
 }  // namespace mcal
 
