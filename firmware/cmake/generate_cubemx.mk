@@ -31,7 +31,7 @@ CUBEMX_GEN_SCRIPT_TEMPLATE := $(BUILD_SYS_DIR)generate_cubemx_script.txt.templat
 cmake/racecar-toolchain.cmake: cmake/gcc-arm-none-eabi.cmake
 	@echo "Modifying autogen toolchain file."
 	cp $< $@
-	. $(BUILD_SYS_DIR)custom_toolchain.sh $@
+	. $(BUILD_SYS_DIR)custom_toolchain.sh
 
 # This recipe will execute whenever IOC_FILE has a newer timestamp than the
 # generated toolchain file, i.e. whenever IOC_FILE has been updated but new code
