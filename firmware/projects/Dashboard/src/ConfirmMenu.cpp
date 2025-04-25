@@ -1,5 +1,8 @@
 #include "inc/ConfirmMenu.hpp"
 
+#include "inc/DriverSelect.hpp"
+#include "inc/ModeSelect.hpp"
+
 ConfirmMenu::ConfirmMenu() {}
 
 void ConfirmMenu::create_menu() {
@@ -15,8 +18,9 @@ void ConfirmMenu::create_menu() {
 
     // display selected driver and mode
     lv_obj_t* selection_label = lv_label_create(confirm_menu);
-    lv_label_set_text_fmt(selection_label, "Driver: %d | Mode: %d",
-                          selected_driver, selected_mode);
+    lv_label_set_text_fmt(selection_label, "Driver: %s\nMode: %s",
+                          GetDriverName(selected_driver),
+                          GetEventName(selected_mode));
     lv_obj_align(selection_label, LV_ALIGN_TOP_MID, 0, 100);
     lv_obj_set_style_text_font(selection_label, &lv_font_montserrat_24, 0);
 

@@ -1,19 +1,23 @@
 ﻿#pragma once
 
+#include <cerrno>
+
 #include "../generated/can/veh_messages.hpp"
 #include "lvgl/lvgl.h"
 
 class Menu {
 public:
     using State = generated::can::TxDashboardStatus::DashState_t;
+    using Driver = generated::can::TxDashboardStatus::Driver_t;
+    using Event = generated::can::TxDashboardStatus::Event_t;
     Menu();
 
     static State dashboard_state;
 
     // holds the selected driver and mode that are updated within DriverSelect
     // and ModeSelect respectively
-    static int selected_driver;
-    static int selected_mode;
+    static Driver selected_driver;
+    static Event selected_mode;
 
     virtual ~Menu();
 

@@ -1,9 +1,5 @@
 #include "inc/ModeSelect.hpp"
 
-// define the names of the modes here
-const char* ModeSelect::modes[ModeSelect::num_modes] = {"Launch", "Skidpad",
-                                                        "Endurance"};
-
 lv_obj_t* ModeSelect::modes_roller = nullptr;  // init roller to null
 
 ModeSelect::ModeSelect() {}
@@ -23,14 +19,13 @@ void ModeSelect::create_menu() {
     modes_roller = lv_roller_create(modes_select);
 
     // create the modes list in format of "Mode1\nMode2\nMode3"
-    // supports maximum 256 characters
     char modes_list[256] = "";
 
-    for (int i = 0; i < num_modes; i++) {
-        strcat(modes_list, modes[i]);
-        if (i < num_modes - 1) {
+    for (int i = 0; i < kNumModes; i++) {
+        if (i > 0) {
             strcat(modes_list, "\n");
         }
+        strcat(modes_list, GetEventName(static_cast<Menu::Event>(i)));
     }
 
     lv_roller_set_options(modes_roller, modes_list, LV_ROLLER_MODE_NORMAL);
@@ -84,8 +79,8 @@ void ModeSelect::confirm_btn_event_handler(lv_event_t* e) {
     if (code == LV_EVENT_CLICKED) {
         Menu::dashboard_state = State::CONFIRM_SELECTION;
 
-        // Same function as DriverSelect.cpp, read comments there
-        selected_mode = 1;
+        Menu::selected_mode =
+            static_cast<Menu::Event>(lv_roller_get_selected(modes_roller));
     }
 }
 
@@ -100,7 +95,21 @@ void ModeSelect::up_btn_event_handler(lv_event_t* e) {
 // moves the roller down
 void ModeSelect::down_btn_event_handler(lv_event_t* e) {
     int selected = lv_roller_get_selected(modes_roller);
-    if (selected < num_modes - 1) {
+    if (selected < kNumModes - 1) {
         lv_roller_set_selected(modes_roller, selected + 1, LV_ANIM_ON);
     }
+}
+
+// define the names of the modes here
+const char* GetEventName(Menu::Event e) {
+    using enum Menu::Event;
+    // clang-format off
+    switch (e) {
+        case Launch:        return "Launch";
+        case Skidpad:       return "Skidpad";
+        case Endurance:     return "Endurance";
+        case UNSPECIFIED:
+        default:            return "--";
+    }
+    // clang-format on
 }

@@ -3,7 +3,6 @@
 #include "generated/can/veh_messages.hpp"
 #include "inc/ButtonHandler.hpp"
 #include "inc/ConfirmMenu.hpp"
-#include "inc/DashboardMenu.hpp"
 #include "inc/DriveModeMenu.hpp"
 #include "inc/DriverSelect.hpp"
 #include "inc/LogoScreen.hpp"
@@ -57,7 +56,6 @@ int main(void) {
     lv_obj_set_size(dashboard_frame, LV_HOR_RES, LV_VER_RES);
 
     LogoScreen logo_screen;
-    DashboardMenu dashboard_menu;  // unused
     DriveModeMenu drive_menu;
     DriverSelect driver_select;
     ModeSelect modes_select;
@@ -67,18 +65,18 @@ int main(void) {
     StartMotors press_for_motor;
     StartDriving start_driving;
 
-    dashboard_menu.dashboard_state = State::LOGO;
-    State previous_state = dashboard_menu.dashboard_state;
+    Menu::dashboard_state = State::LOGO;
+    State previous_state = Menu::dashboard_state;
     logo_screen.create_menu();
 
     while (true) {
         veh_can.Send(TxDashboardStatus{
-            .dash_state = dashboard_menu.dashboard_state,
+            .dash_state = Menu::dashboard_state,
 
-            .driver = static_cast<Driver>(dashboard_menu.selected_driver),
-            .event = static_cast<Event>(dashboard_menu.selected_mode),
+            .driver = static_cast<Driver>(Menu::selected_driver),
+            .event = static_cast<Event>(Menu::selected_mode),
 
-            .dash_screen = static_cast<uint8_t>(dashboard_menu.dashboard_state),
+            .dash_screen = static_cast<uint8_t>(Menu::dashboard_state),
             .imd_led = button_handler.getScrollState(),
             .bms_led = button_handler.getSelectState(),
         });
@@ -88,13 +86,13 @@ int main(void) {
         bindings::DelayMS(50);
 
         // Handle screen transitions
-        if (dashboard_menu.dashboard_state != previous_state) {
-            previous_state = dashboard_menu.dashboard_state;
+        if (Menu::dashboard_state != previous_state) {
+            previous_state = Menu::dashboard_state;
 
             lv_obj_t* delete_screen = lv_scr_act();
 
             using enum State;
-            switch (dashboard_menu.dashboard_state) {
+            switch (Menu::dashboard_state) {
                     // clang-format off
                 case LOGO:                  logo_screen.create_menu();      break;
                 case SELECT_DRIVER:         driver_select.create_menu();    break;
@@ -117,7 +115,7 @@ int main(void) {
         // get message from FC
         auto msg = veh_can.GetRxFCDashboardStatus();
 
-        switch (dashboard_menu.dashboard_state) {
+        switch (Menu::dashboard_state) {
             case State::LOGO:
                 break;
 
@@ -132,7 +130,7 @@ int main(void) {
 
             case State::WAIT_SELECTION_ACK:
                 if (msg.has_value() && msg->receiveConfig()) {
-                    dashboard_menu.dashboard_state = State::PRESS_FOR_HV;
+                    Menu::dashboard_state = State::PRESS_FOR_HV;
                 }
                 break;
 
@@ -141,7 +139,7 @@ int main(void) {
 
             case State::STARTING_HV:
                 if (msg.has_value() && msg->hvStarted()) {
-                    dashboard_menu.dashboard_state = State::PRESS_FOR_MOTOR;
+                    Menu::dashboard_state = State::PRESS_FOR_MOTOR;
                 }
 
                 break;
@@ -151,14 +149,14 @@ int main(void) {
 
             case State::STARTING_MOTOR:
                 if (msg.has_value() && msg->motorStarted()) {
-                    dashboard_menu.dashboard_state = State::BRAKE_TO_START;
+                    Menu::dashboard_state = State::BRAKE_TO_START;
                 }
 
                 break;
 
             case State::BRAKE_TO_START:
                 if (msg.has_value() && msg->driveStarted()) {
-                    dashboard_menu.dashboard_state = State::RUNNING;
+                    Menu::dashboard_state = State::RUNNING;
                 }
 
                 break;

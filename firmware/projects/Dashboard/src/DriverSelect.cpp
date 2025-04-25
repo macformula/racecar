@@ -1,8 +1,6 @@
 #include "inc/DriverSelect.hpp"
 
-// define the names of the drivers here
-const char* DriverSelect::drivers[DriverSelect::num_drivers] = {
-    "Ada", "Lin", "Logan", "Luca", "Mubashir", "Nathan", "Tyler"};
+#include "inc/Menu.hpp"
 
 lv_obj_t* DriverSelect::driver_roller = nullptr;  // init roller to null
 
@@ -23,14 +21,13 @@ void DriverSelect::create_menu() {
     driver_roller = lv_roller_create(driver_select);
 
     // create the drivers list in format of "Driver1\nDriver2\nDriver3"
-    // supports maximum 256 characters
     char driver_list[256] = "";
 
-    for (int i = 0; i < num_drivers; i++) {
-        strcat(driver_list, drivers[i]);
-        if (i < num_drivers - 1) {
+    for (int i = 0; i < kNumDrivers; i++) {
+        if (i > 0) {
             strcat(driver_list, "\n");
         }
+        strcat(driver_list, GetDriverName(static_cast<Menu::Driver>(i)));
     }
 
     lv_roller_set_options(driver_roller, driver_list, LV_ROLLER_MODE_NORMAL);
@@ -84,22 +81,8 @@ void DriverSelect::confirm_btn_event_handler(lv_event_t* e) {
     if (code == LV_EVENT_CLICKED) {
         Menu::dashboard_state = State::SELECT_EVENT;
 
-        // Map the roller input to the driver data you want to send via CAN
-        // e.g say all the driver data is stored in an array of objects called
-        // drivers_data and its stored in the same order as drivers then just
-        // have if statements checking if it matches, if so set selected_drivers
-        // to the correct drivers_data then in the main function access
-        // drivers_data and send it via CAN Not implemented yet because I'm
-        // unsure what data types and format we are sending and recieving
-
-        /*if(lv_roller_get_selected(roller) == drivers[0]){
-            selected_driver = drivers_data[0]
-        }
-            ...
-        */
-
-        // for now, just setting selected_driver = 1;
-        selected_driver = 1;
+        selected_driver =
+            static_cast<Menu::Driver>(lv_roller_get_selected(driver_roller));
     }
 }
 
@@ -114,7 +97,24 @@ void DriverSelect::up_btn_event_handler(lv_event_t* e) {
 // moves the roller down
 void DriverSelect::down_btn_event_handler(lv_event_t* e) {
     int selected = lv_roller_get_selected(driver_roller);
-    if (selected < num_drivers - 1) {
+    if (selected < kNumDrivers - 1) {
         lv_roller_set_selected(driver_roller, selected + 1, LV_ANIM_ON);
     }
+}
+
+const char* GetDriverName(Menu::Driver d) {
+    using enum Menu::Driver;
+    // clang-format off
+    switch (d) {
+        case Ada:           return "Ada";
+        case Lin:           return "Lin";
+        case Logan:         return "Logan";
+        case Luca:          return "Luca";
+        case Mubashir:      return "Mubashir";
+        case Nathan:        return "Nathan";
+        case Tyler:         return "Tyler";
+        case UNSPECIFIED:
+        default:            return "ERROR"; // this should not be displayed
+    }
+    // clang-format on
 }
