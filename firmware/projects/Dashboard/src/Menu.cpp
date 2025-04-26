@@ -10,12 +10,18 @@ Menu::Menu(generated::can::VehBus& veh)
       waiting_screen(this),
       start_motors(this),
       start_driving(this),
-      drive_mode(this) {}
+      drive_mode(this),
+      screen_(&logo_screen) {}
+
+Menu::State Menu::GetState() const {
+    return state_;
+}
 
 void Menu::ChangeState(State new_state_) {
     lv_obj_t* old_screen = lv_scr_act();
+    state_ = new_state_;
 
-    switch (Menu::state_) {
+    switch (state_) {
         using enum State;
             // clang-format off
         case LOGO:                  screen_ = &logo_screen; break;

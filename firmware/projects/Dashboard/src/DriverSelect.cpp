@@ -42,7 +42,8 @@ void DriverSelect::Update(Button select, Button scroll) {
         menu_->selected_driver =
             static_cast<Menu::Driver>(lv_roller_get_selected(roller));
 
-        menu_->state_ = State::SELECT_EVENT;
+        menu_->ChangeState(State::SELECT_EVENT);
+
     } else if (scroll.PosEdge()) {
         int new_position = lv_roller_get_selected(roller) + 1;
         new_position = new_position % kNumDrivers;

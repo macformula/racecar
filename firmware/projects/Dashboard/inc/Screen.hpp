@@ -12,8 +12,8 @@ public:
 
     Screen(Menu* menu) : menu_(menu) {}
 
-    virtual void Update(Button select, Button scroll) = 0;
     void Create();
+    virtual void Update(Button select, Button scroll) = 0;
 
 protected:
     Menu* menu_;

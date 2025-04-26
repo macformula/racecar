@@ -1,6 +1,7 @@
 #pragma once
 
-#include "lvgl.h"
+#include <cstdint>
+
 #include "shared/periph/gpio.hpp"
 
 class Button {
@@ -19,6 +20,6 @@ private:
     bool previous_state_;
     uint32_t last_change_time_;
 
-    const uint32_t kDebounceDelay = 100;
+    const uint32_t kDebounceDelay = 200;
     shared::periph::DigitalInput& input_;
 };

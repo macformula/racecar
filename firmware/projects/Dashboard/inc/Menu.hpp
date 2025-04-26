@@ -11,7 +11,6 @@
 #include "inc/StartHV.hpp"
 #include "inc/StartMotors.hpp"
 #include "inc/WaitingScreen.hpp"
-#include "lvgl/lvgl.h"
 
 class Menu {
 public:
@@ -23,17 +22,17 @@ public:
 
     generated::can::VehBus& veh_bus;
 
-    // holds the selected driver and mode that are updated within DriverSelect
-    // and ModeSelect respectively
-    Driver selected_driver = Menu::Driver::UNSPECIFIED;
-    Event selected_event = Menu::Event::UNSPECIFIED;
-    State state_ = Menu::State::LOGO;
+    Driver selected_driver = Driver::UNSPECIFIED;
+    Event selected_event = Event::UNSPECIFIED;
 
     Screen* screen_;
 
     void ChangeState(State screen);
+    State GetState() const;
 
 private:
+    State state_ = State::LOGO;
+
     LogoScreen logo_screen;
     DriverSelect driver_select;
     EventSelect event_select;

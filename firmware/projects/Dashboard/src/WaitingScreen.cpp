@@ -22,7 +22,7 @@ void WaitingScreen::PostCreate() {
 
 void WaitingScreen::Update(Button select, Button scroll) {
     auto fc_msg = menu_->veh_bus.GetRxFCDashboardStatus();
-    switch (menu_->state_) {
+    switch (menu_->GetState()) {
         case State::WAIT_SELECTION_ACK:
             if (fc_msg.has_value() && fc_msg->receiveConfig()) {
                 menu_->ChangeState(State::PRESS_FOR_HV);
