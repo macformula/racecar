@@ -1,21 +1,23 @@
 #pragma once
 
-#include "Menu.hpp"
-#include "generated/can/veh_bus.hpp"
+#include "Screen.hpp"
+#include "generated/can/veh_messages.hpp"
 #include "inc/ButtonHandler.hpp"
 #include "lvgl/lvgl.h"
 
-class EventSelect : public Menu {
+class EventSelect : public Screen {
 public:
-    EventSelect();
-    static void create_menu();
+    using Event = generated::can::TxDashboardStatus::Event_t;
 
-    void Update(Button select, Button scroll);
+    EventSelect(Menu* menu);
+
+    void PostCreate() override;
+    void Update(Button select, Button scroll) override;
 
 private:
-    static lv_obj_t*
-        roller;  // create the roller object that stores the modes names
+    const uint8_t kEventCount = static_cast<uint8_t>(Event::UNSPECIFIED);
+    // create the roller object that stores the modes names
+    lv_obj_t* roller;
 };
 
-const uint8_t kEventCount = static_cast<uint8_t>(Menu::Event::UNSPECIFIED);
-const char* GetEventName(Menu::Event e);
+const char* GetEventName(EventSelect::Event e);

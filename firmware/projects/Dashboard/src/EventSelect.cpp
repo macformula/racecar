@@ -1,16 +1,13 @@
 #include "inc/EventSelect.hpp"
 
 #include "generated/can/veh_bus.hpp"
+#include "inc/Menu.hpp"
 
-lv_obj_t* EventSelect::roller = nullptr;  // init roller to null
+EventSelect::EventSelect(Menu* menu) : Screen(menu) {}
 
-EventSelect::EventSelect() {}
-
-void EventSelect::create_menu() {
-    Menu::selected_event = Menu::Event::UNSPECIFIED;
+void EventSelect::PostCreate() {
+    menu_->selected_event = Event::UNSPECIFIED;
     // calls base class functionality, handles background and frame
-    lv_obj_t* frame = lv_obj_create(NULL);  // Create a new screen
-    Menu::init_menu(frame);
 
     // title label
     lv_obj_t* title_label = lv_label_create(frame);
@@ -27,7 +24,7 @@ void EventSelect::create_menu() {
         if (i > 0) {
             strcat(event_list, "\n");
         }
-        strcat(event_list, GetEventName(static_cast<Menu::Event>(i)));
+        strcat(event_list, GetEventName(static_cast<Event>(i)));
     }
 
     lv_roller_set_options(roller, event_list, LV_ROLLER_MODE_NORMAL);
@@ -43,9 +40,9 @@ void EventSelect::create_menu() {
 
 void EventSelect::Update(Button select, Button scroll) {
     if (select.PosEdge()) {
-        selected_event =
-            static_cast<Menu::Event>(lv_roller_get_selected(roller));
-        Menu::dashboard_state = State::CONFIRM_SELECTION;
+        menu_->selected_event =
+            static_cast<Event>(lv_roller_get_selected(roller));
+        menu_->ChangeState(State::CONFIRM_SELECTION);
     } else if (scroll.PosEdge()) {
         int new_position = lv_roller_get_selected(roller) + 1;
         new_position %= kEventCount;

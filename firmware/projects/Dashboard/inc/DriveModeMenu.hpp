@@ -1,17 +1,18 @@
 #pragma once
 
-#include "Menu.hpp"
+#include "Screen.hpp"
 #include "lvgl/lvgl.h"
 
-class DriveModeMenu : public Menu {
+class DriveModeMenu : public Screen {
 public:
-    DriveModeMenu();
-    static void create_menu();
+    DriveModeMenu(Menu* menu);
+
+    void PostCreate() override;
+    void Update(Button select, Button scroll) override;
 
 private:
-    static int speed;
-    static bool increasing;
-    static lv_obj_t* drive_screen;
-    static lv_timer_t* speed_timer;
-    static void speed_update_cb(lv_timer_t* timer);
+    int speed;
+    bool increasing;
+    lv_timer_t* speed_timer;
+    void speed_update_cb(lv_timer_t* timer);
 };

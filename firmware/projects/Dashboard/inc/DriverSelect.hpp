@@ -1,18 +1,21 @@
 #pragma once
 
-#include "Menu.hpp"
+#include "Screen.hpp"
+#include "generated/can/veh_messages.hpp"
 #include "inc/ButtonHandler.hpp"
 
-class DriverSelect : public Menu {
+class DriverSelect : public Screen {
 public:
-    DriverSelect();
-    static void create_menu();
+    using Driver = generated::can::TxDashboardStatus::Driver_t;
 
-    static void Update(Button select, Button scroll);
+    DriverSelect(Menu* menu);
+
+    void PostCreate() override;
+    void Update(Button select, Button scroll) override;
 
 private:
-    static lv_obj_t* roller;
+    const uint8_t kNumDrivers = static_cast<uint8_t>(Driver::UNSPECIFIED);
+    lv_obj_t* roller;
 };
 
-const uint8_t kNumDrivers = static_cast<uint8_t>(Menu::Driver::UNSPECIFIED);
-const char* GetDriverName(Menu::Driver d);
+const char* GetDriverName(DriverSelect::Driver d);

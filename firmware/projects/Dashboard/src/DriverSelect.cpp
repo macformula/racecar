@@ -2,25 +2,19 @@
 
 #include "inc/Menu.hpp"
 
-lv_obj_t* DriverSelect::roller = nullptr;  // init roller to null
+DriverSelect::DriverSelect(Menu* menu) : Screen(menu) {}
 
-DriverSelect::DriverSelect() {}
-
-void DriverSelect::create_menu() {
-    Menu::selected_driver = Menu::Driver::UNSPECIFIED;
-
-    // calls base class functionality, handles background and frame
-    lv_obj_t* driver_select = lv_obj_create(NULL);  // Create a new screen
-    Menu::init_menu(driver_select);
+void DriverSelect::PostCreate() {
+    menu_->selected_driver = Menu::Driver::UNSPECIFIED;
 
     // title label
-    lv_obj_t* title_label = lv_label_create(driver_select);
+    lv_obj_t* title_label = lv_label_create(frame);
     lv_label_set_text(title_label, "Select the Driver");
     lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 50);
     lv_obj_set_style_text_font(title_label, &lv_font_montserrat_38, 0);
 
     // driver roller
-    roller = lv_roller_create(driver_select);
+    roller = lv_roller_create(frame);
 
     // create the drivers list in format of "Driver1\nDriver2\nDriver3"
     char driver_list[256] = "";
@@ -40,15 +34,15 @@ void DriverSelect::create_menu() {
 
     // cleanup and load screen
     lv_obj_clean(lv_scr_act());
-    lv_scr_load(driver_select);
+    lv_scr_load(frame);
 }
 
 void DriverSelect::Update(Button select, Button scroll) {
     if (select.PosEdge()) {
-        selected_driver =
+        menu_->selected_driver =
             static_cast<Menu::Driver>(lv_roller_get_selected(roller));
 
-        Menu::dashboard_state = State::SELECT_EVENT;
+        menu_->state_ = State::SELECT_EVENT;
     } else if (scroll.PosEdge()) {
         int new_position = lv_roller_get_selected(roller) + 1;
         new_position = new_position % kNumDrivers;

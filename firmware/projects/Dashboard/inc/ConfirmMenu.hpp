@@ -1,22 +1,21 @@
 #pragma once
 
-#include "Menu.hpp"
-#include "generated/can/veh_bus.hpp"
+#include "Screen.hpp"
 #include "inc/ButtonHandler.hpp"
 #include "lvgl/lvgl.h"
 
-class ConfirmMenu : public Menu {
+class ConfirmMenu : public Screen {
     enum Selection : bool {
         CONFIRM = false,
         RESET = true
     };
 
 public:
-    ConfirmMenu();
-    static void create_menu();
+    ConfirmMenu(Menu* menu);
 
-    static void Update(Button select, Button scroll);
+    void PostCreate() override;
+    void Update(Button select, Button scroll) override;
 
 private:
-    static lv_obj_t* roller;
+    lv_obj_t* roller;
 };

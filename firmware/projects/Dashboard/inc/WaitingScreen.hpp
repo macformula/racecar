@@ -1,15 +1,12 @@
 #pragma once
 
-#include "Menu.hpp"
+#include "Screen.hpp"
 #include "inc/ButtonHandler.hpp"
-#include "lvgl/lvgl.h"
 
-class WaitingScreen : public Menu {
+class WaitingScreen : public Screen {
 public:
-    WaitingScreen();
-    static void create_menu();
+    WaitingScreen(Menu* menu);
 
-    static void Update(Button select, Button scroll);
-
-private:
+    void PostCreate() override;
+    void Update(Button select, Button scroll) override;
 };

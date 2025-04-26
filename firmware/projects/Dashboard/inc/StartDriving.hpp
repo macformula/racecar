@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Menu.hpp"
+#include "Screen.hpp"
 #include "inc/ButtonHandler.hpp"
 
-class StartDriving : public Menu {
+class StartDriving : public Screen {
 public:
-    StartDriving();
-    static void create_menu();
+    StartDriving(Menu* menu);
 
-    void Update(Button select, Button scroll);
+    void PostCreate() override;
+    void Update(Button select, Button scroll) override;
 
 private:
 };

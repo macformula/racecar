@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Menu.hpp"
 #include "inc/ButtonHandler.hpp"
+#include "inc/Screen.hpp"
 
-class LogoScreen : public Menu {
+class LogoScreen : public Screen {
 public:
-    static void create_menu();
+    LogoScreen(Menu* menu);
 
-    static void Update(Button select, Button scroll);
+    void PostCreate() override;
+    void Update(Button select, Button scroll) override;
 };

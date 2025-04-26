@@ -1,13 +1,12 @@
 #pragma once
 
-#include "Menu.hpp"
-#include "generated/can/veh_bus.hpp"
+#include "Screen.hpp"
 #include "inc/ButtonHandler.hpp"
 
-class StartHV : public Menu {
+class StartHV : public Screen {
 public:
-    StartHV();
-    static void create_menu();
+    StartHV(Menu* menu);
 
-    static void Update(Button select, Button scroll);
+    void PostCreate() override;
+    void Update(Button select, Button scroll) override;
 };

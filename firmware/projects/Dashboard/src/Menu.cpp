@@ -1,17 +1,39 @@
 ﻿#include "inc/Menu.hpp"
 
-#include "../generated/can/veh_messages.hpp"
+Menu::Menu(generated::can::VehBus& veh)
+    : veh_bus(veh),
+      logo_screen(this),
+      driver_select(this),
+      event_select(this),
+      confirm_menu(this),
+      start_hv(this),
+      waiting_screen(this),
+      start_motors(this),
+      start_driving(this),
+      drive_mode(this) {}
 
-Menu::State Menu::dashboard_state = Menu::State::LOGO;
+void Menu::ChangeState(State new_state_) {
+    lv_obj_t* old_screen = lv_scr_act();
 
-Menu::Driver Menu::selected_driver = Menu::Driver::UNSPECIFIED;
-Menu::Event Menu::selected_event = Menu::Event::UNSPECIFIED;
+    switch (Menu::state_) {
+        using enum State;
+            // clang-format off
+        case LOGO:                  screen_ = &logo_screen; break;
+        case SELECT_DRIVER:         screen_ = &driver_select; break;
+        case SELECT_EVENT:          screen_ = &event_select; break;
+        case CONFIRM_SELECTION:     screen_ = &confirm_menu; break;
+        case WAIT_SELECTION_ACK:    screen_ = &waiting_screen; break;
+        case PRESS_FOR_HV:          screen_ = &start_hv; break;
+        case STARTING_HV:           screen_ = &waiting_screen; break;
+        case PRESS_FOR_MOTOR:       screen_ = &start_motors; break;
+        case STARTING_MOTOR:        screen_ = &waiting_screen; break;
+        case BRAKE_TO_START:        screen_ = &start_driving; break;
+        case RUNNING:               screen_ = &drive_mode; break;
+        // clang-format on
+        default:
+            break;
+    }
 
-void Menu::init_menu(lv_obj_t* frame) {
-    // Create a background for the menu
-    lv_obj_t* rect = lv_obj_create(frame);
-    lv_obj_set_size(rect, 800 - 20, 480 - 20);  // Adjust size for margins
-    lv_obj_align(rect, LV_ALIGN_CENTER, 0, 0);  // Center the rectangle
-    lv_obj_set_style_bg_color(rect, lv_color_hex(0xD3D3D3), LV_PART_MAIN);
-    lv_obj_set_style_bg_opa(rect, LV_OPA_COVER, LV_PART_MAIN);  // Fully opaque
+    screen_->Create();
+    lv_obj_del(old_screen);
 }

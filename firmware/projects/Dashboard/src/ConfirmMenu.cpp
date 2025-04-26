@@ -1,17 +1,10 @@
 #include "inc/ConfirmMenu.hpp"
 
-#include "inc/DriverSelect.hpp"
-#include "inc/EventSelect.hpp"
+#include "inc/Menu.hpp"
 
-ConfirmMenu::ConfirmMenu() {}
+ConfirmMenu::ConfirmMenu(Menu* menu) : Screen(menu) {}
 
-lv_obj_t* ConfirmMenu::roller = nullptr;
-
-void ConfirmMenu::create_menu() {
-    // calls base class functionality, handles background and frame
-    lv_obj_t* frame = lv_obj_create(NULL);  // Create a new screen
-    Menu::init_menu(frame);
-
+void ConfirmMenu::PostCreate() {
     // title label
     lv_obj_t* title_label = lv_label_create(frame);
     lv_label_set_text(title_label, "Confirm Selection");
@@ -21,8 +14,8 @@ void ConfirmMenu::create_menu() {
     // display selected driver and event
     lv_obj_t* selection_label = lv_label_create(frame);
     lv_label_set_text_fmt(selection_label, "Driver: %s\nEvent: %s",
-                          GetDriverName(selected_driver),
-                          GetEventName(selected_event));
+                          GetDriverName(menu_->selected_driver),
+                          GetEventName(menu_->selected_event));
     lv_obj_align(selection_label, LV_ALIGN_TOP_MID, 0, 100);
     lv_obj_set_style_text_font(selection_label, &lv_font_montserrat_24, 0);
 
@@ -42,9 +35,9 @@ void ConfirmMenu::Update(Button select, Button scroll) {
     bool sel = lv_roller_get_selected(roller);
     if (select.PosEdge()) {
         if (sel == Selection::CONFIRM) {
-            Menu::dashboard_state = State::WAIT_SELECTION_ACK;
+            menu_->ChangeState(State::WAIT_SELECTION_ACK);
         } else {
-            Menu::dashboard_state = State::SELECT_DRIVER;
+            menu_->ChangeState(State::SELECT_DRIVER);
         }
     } else if (scroll.PosEdge()) {
         lv_roller_set_selected(roller, !sel, LV_ANIM_ON);
