@@ -83,6 +83,9 @@ BO_ 256 FC_cmd: 1 PC_SG
  SG_ FC_readyToDriveSpeaker : 1|1@1+ (1,0) [0|1] ""  FC
  SG_ FC_brakeLight : 0|1@1+ (1,0) [0|1] ""  FC
 
+BO_ 258 DashTune: 1 RPI                 
+ SG_ Tune_Value_1 : 0|8@1+ (1,0) [0|100] "%"  FC
+ 
 BO_ 1570 ContactorCommand: 3 FC
  SG_ PackPositive : 0|8@1+ (1,0) [0|0] ""  BMS,LVC
  SG_ PackPrecharge : 8|8@1+ (1,0) [0|0] ""  BMS,LVC
