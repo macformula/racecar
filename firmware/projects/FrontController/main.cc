@@ -2,7 +2,7 @@
 /// @date 2025-04
 
 #include "bindings.hpp"
-#include "control-system/battery_monitor.h"
+#include "control-system/battery_monitor.hpp"
 #include "control-system/driver_interface.hpp"
 #include "control-system/governor.hpp"
 #include "control-system/motor_interface.hpp"
@@ -92,7 +92,7 @@ void UpdateControls() {
     DriverInterface::Input di_in = {
         .command = gov_out.di_cmd,
         .brake_pedal_pos = brake_position,
-        .dash_cmd = dash_msg->DashState(),  // bindings::start_button.Read(),
+        .dash_cmd = dash_msg->DashState(),
         .accel_pedal_pos1 = apps1.ReadPosition(),
         .accel_pedal_pos2 = apps2.ReadPosition(),
     };
@@ -306,9 +306,7 @@ int main(void) {
             .apps2_pos = apps2.ReadPosition(),
         });
         veh_can_bus.Send(TxFC_bpps_steer_debug{
-            .bpps_raw_volt =
-                bindings::precharge_monitor
-                    .ReadVoltage(),  // bindings::brake_pressure_sensor.ReadVoltage(),
+            .bpps_raw_volt = bindings::brake_pressure_sensor.ReadVoltage(),
             .steering_raw_volt = bindings::steering_angle_sensor.ReadVoltage(),
             .bpps_pos = brake.ReadPosition(),
             .steering_pos = steering_wheel.ReadPosition(),
@@ -323,7 +321,7 @@ int main(void) {
             msg->ECU() == RxInitiateCanFlash::ECU_t::FrontController) {
             bindings::SoftwareReset();
         }
-        bindings::DelayMs(50);
+        bindings::DelayMs(10);
     }
 
     return 0;

@@ -2,8 +2,11 @@
 
 #include <cassert>
 
+#include "../../generated/can/veh_messages.hpp"
 #include "control-system/driver_interface.hpp"
 #include "control-system/enums.hpp"
+
+using DashState = generated::can::RxDashboardStatus::DashState_t;
 
 DriverInterface CycleToState(const DiSts start_state) {
     using enum DiSts;
@@ -34,25 +37,15 @@ DriverInterface CycleToState(const DiSts start_state) {
     assert(out.status == WAITING_FOR_DRIVER_HV);
     if (start_state == WAITING_FOR_DRIVER_HV) return di;
 
-    out = di.Update({.driver_button = true}, time++);
+    out = di.Update({.dash_cmd = DashState::STARTING_HV}, time++);
     assert(out.status == REQUESTED_HV_START);
     if (start_state == REQUESTED_HV_START) return di;
 
-    out = di.Update(
-        {
-            .command = DiCmd::HV_IS_ON,
-            .driver_button = true,
-        },
-        time++);
+    out = di.Update({.command = DiCmd::HV_IS_ON}, time++);
     assert(out.status == WAITING_FOR_DRIVER_MOTOR);
     if (start_state == WAITING_FOR_DRIVER_MOTOR) return di;
 
-    out = di.Update(
-        {
-            .command = DiCmd::HV_IS_ON,
-            .driver_button = true,
-        },
-        time++);
+    out = di.Update({.dash_cmd = DashState::STARTING_MOTORS}, time++);
     assert(out.status == REQUESTED_MOTOR_START);
     if (start_state == REQUESTED_MOTOR_START) return di;
 
@@ -159,7 +152,7 @@ TEST(DriverInterfaceFsm, Sequence) {
     DriverInterface::Input in{
         .command = DiCmd::HV_IS_ON,  // not init
         .brake_pedal_pos = 0,
-        .driver_button = false,
+        .dash_cmd = DashState::LOGO,
         .accel_pedal_pos1 = 0,
         .accel_pedal_pos2 = 0,
     };
@@ -178,35 +171,26 @@ TEST(DriverInterfaceFsm, Sequence) {
         EXPECT_FALSE(out.driver_speaker);
     }
 
-    {  // Nothing should happen if button isn't pressed
-        in.driver_button = false;
-        out = di.Update(in, time_ms++);
-        ASSERT_EQ(out.status, DiSts::WAITING_FOR_DRIVER_HV);
-    }
-
     {  // Start the motor only if the high-voltage is on and the driver presses
         // the button
-        in.driver_button = true;
+
+        // Initiale the sequence from the Dashboard
+        in.dash_cmd = DashState::STARTING_HV;
         out = di.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::REQUESTED_HV_START);
         EXPECT_FALSE(out.ready_to_drive);
         EXPECT_FALSE(out.driver_speaker);
 
-        out = di.Update(in, time_ms++);
-        ASSERT_EQ(out.status, DiSts::REQUESTED_HV_START);
-
         in.command = DiCmd::HV_IS_ON;
-        in.driver_button = false;
-
         out = di.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::WAITING_FOR_DRIVER_MOTOR);
 
-        in.driver_button = false;
+        in.dash_cmd = DashState::PRESS_FOR_MOTOR;
         out = di.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::WAITING_FOR_DRIVER_MOTOR)
-            << "Should wait for button.";
+            << "Should wait for dashboard button.";
 
-        in.driver_button = true;
+        in.dash_cmd = DashState::STARTING_MOTORS;
         out = di.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::REQUESTED_MOTOR_START);
         EXPECT_FALSE(out.ready_to_drive);
@@ -264,7 +248,7 @@ TEST(DriverInterfaceFsm, StartRunning) {
     DriverInterface::Input in{
         .command = DiCmd::HV_IS_ON,
         .brake_pedal_pos = 50,  // brakes pressed
-        .driver_button = false,
+        .dash_cmd = DashState::BRAKE_TO_START,
         .accel_pedal_pos1 = 0,
         .accel_pedal_pos2 = 0,
     };
