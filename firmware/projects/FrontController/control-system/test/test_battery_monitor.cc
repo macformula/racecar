@@ -1,11 +1,11 @@
-#include "control-system/battery_monitor.h"
+#include "control-system/battery_monitor.hpp"
 #include "control-system/enums.hpp"
 #include "gtest/gtest.h"
 
 // this is not a test itself, rather it produces a BatteryMonitor object in a
 // specific state to make it easier to run other tests
 BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
-    using enum ContactorState;
+    using enum ContactorFeedback::State;
 
     BatteryMonitor bm{};
     time_ms = 0;
@@ -14,9 +14,11 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
     auto output1 = bm.Update(
         {
             .cmd = BmCmd::INIT,
-            .precharge_contactor_states = OPEN,
-            .pos_contactor_states = OPEN,
-            .neg_contactor_states = OPEN,
+            .feedback{
+                .precharge = IS_OPEN,
+                .negative = IS_OPEN,
+                .positive = IS_OPEN,
+            },
             .pack_soc = 50.0,
         },
         time_ms);
@@ -41,9 +43,12 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
     auto output2 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = OPEN,
-            .pos_contactor_states = OPEN,
-            .neg_contactor_states = OPEN,
+            .feedback =
+                {
+                    .precharge = IS_OPEN,
+                    .negative = IS_OPEN,
+                    .positive = IS_OPEN,
+                },
             .pack_soc = 50.0,
         },
         time_ms);
@@ -58,9 +63,11 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
     auto output3 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = OPEN,
-            .pos_contactor_states = OPEN,
-            .neg_contactor_states = CLOSED,
+            .feedback{
+                .precharge = IS_OPEN,
+                .negative = IS_CLOSED,
+                .positive = IS_OPEN,
+            },
             .pack_soc = 50.0,
         },
         time_ms);
@@ -75,9 +82,11 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
     auto output4 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = CLOSED,
-            .pos_contactor_states = OPEN,
-            .neg_contactor_states = CLOSED,
+            .feedback{
+                .precharge = IS_CLOSED,
+                .negative = IS_CLOSED,
+                .positive = IS_OPEN,
+            },
             .pack_soc = 50.0,
         },
         time_ms);
@@ -92,9 +101,12 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
     auto output5 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = CLOSED,
-            .pos_contactor_states = OPEN,
-            .neg_contactor_states = CLOSED,
+            .feedback =
+                {
+                    .precharge = IS_CLOSED,
+                    .negative = IS_CLOSED,
+                    .positive = IS_OPEN,
+                },
             .pack_soc = 50.0,
         },
         time_ms);
@@ -109,9 +121,12 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
     auto output6 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = CLOSED,
-            .pos_contactor_states = CLOSED,
-            .neg_contactor_states = CLOSED,
+            .feedback =
+                {
+                    .precharge = IS_CLOSED,
+                    .negative = IS_CLOSED,
+                    .positive = IS_CLOSED,
+                },
             .pack_soc = 50.0,
         },
         time_ms);
@@ -126,9 +141,12 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
     auto output7 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = CLOSED,
-            .pos_contactor_states = CLOSED,
-            .neg_contactor_states = CLOSED,
+            .feedback =
+                {
+                    .precharge = IS_CLOSED,
+                    .negative = IS_CLOSED,
+                    .positive = IS_CLOSED,
+                },
             .pack_soc = 50.0,
         },
         time_ms);
@@ -143,9 +161,12 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
     auto output8 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = OPEN,
-            .pos_contactor_states = CLOSED,
-            .neg_contactor_states = CLOSED,
+            .feedback =
+                {
+                    .precharge = IS_OPEN,
+                    .negative = IS_CLOSED,
+                    .positive = IS_CLOSED,
+                },
             .pack_soc = 50.0,
         },
         time_ms);
@@ -160,9 +181,12 @@ BatteryMonitor CycleToState(BmSts desired_state, int& time_ms) {
     auto output9 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = OPEN,
-            .pos_contactor_states = CLOSED,
-            .neg_contactor_states = CLOSED,
+            .feedback =
+                {
+                    .precharge = IS_OPEN,
+                    .negative = IS_CLOSED,
+                    .positive = IS_CLOSED,
+                },
             .pack_soc = 50.0,
         },
         time_ms);
@@ -206,7 +230,6 @@ std::string BmStatusToString(BmSts status) {
 }
 
 TEST(BatteryMonitor, LowSocTransitions) {
-    using enum ContactorState;
     std::vector<BmSts> states = {
         BmSts::STARTUP_CLOSE_NEG, BmSts::STARTUP_CLOSE_PRECHARGE,
         BmSts::STARTUP_CLOSE_POS, BmSts::STARTUP_OPEN_PRECHARGE};
@@ -230,7 +253,7 @@ TEST(BatteryMonitor, LowSocTransitions) {
 }
 
 TEST(BatteryMonitor, StateTransitions) {
-    using enum ContactorState;
+    using enum ContactorFeedback::State;
     using enum BmSts;
 
     BatteryMonitor bm{};
@@ -239,9 +262,9 @@ TEST(BatteryMonitor, StateTransitions) {
     auto output1 = bm.Update(
         {
             .cmd = BmCmd::INIT,
-            .precharge_contactor_states = OPEN,
-            .pos_contactor_states = OPEN,
-            .neg_contactor_states = OPEN,
+            .feedback = {.precharge = IS_OPEN,
+                         .negative = IS_OPEN,
+                         .positive = IS_OPEN},
             .pack_soc = 50.0,
         },
         time_ms);
@@ -251,21 +274,47 @@ TEST(BatteryMonitor, StateTransitions) {
     auto output2 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = OPEN,
-            .pos_contactor_states = OPEN,
-            .neg_contactor_states = OPEN,
+            .feedback = {.precharge = IS_OPEN,
+                         .negative = IS_OPEN,
+                         .positive = IS_OPEN},
             .pack_soc = 50.0,
         },
         time_ms);
-    ASSERT_EQ(output2.status, STARTUP_CLOSE_NEG) << "Failed INIT to CLOSE_NEG";
+    ASSERT_EQ(output2.status, STARTUP_ENSURE_OPEN);
+
+    time_ms += 10;
+    auto output2b = bm.Update(
+        {
+            .cmd = BmCmd::STARTUP,
+            .feedback = {.precharge = IS_OPEN,
+                         .negative = IS_CLOSED,
+                         .positive = IS_OPEN},
+            .pack_soc = 50.0,
+        },
+        time_ms);
+    ASSERT_EQ(output2b.status, STARTUP_ENSURE_OPEN)
+        << "Shouldn't transition until all are OPEN.";
+
+    time_ms += 10;
+    auto output2c = bm.Update(
+        {
+            .cmd = BmCmd::STARTUP,
+            .feedback = {.precharge = IS_OPEN,
+                         .negative = IS_OPEN,
+                         .positive = IS_OPEN},
+            .pack_soc = 50.0,
+        },
+        time_ms);
+    ASSERT_EQ(output2c.status, STARTUP_CLOSE_NEG)
+        << "Should proceed once contactora are OPEN.";
 
     time_ms += 10;
     auto output3 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = OPEN,
-            .pos_contactor_states = OPEN,
-            .neg_contactor_states = CLOSED,
+            .feedback = {.precharge = IS_OPEN,
+                         .negative = IS_CLOSED,
+                         .positive = IS_OPEN},
             .pack_soc = 50.0,
         },
         time_ms);
@@ -276,9 +325,9 @@ TEST(BatteryMonitor, StateTransitions) {
     auto output4 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = CLOSED,
-            .pos_contactor_states = OPEN,
-            .neg_contactor_states = CLOSED,
+            .feedback = {.precharge = IS_CLOSED,
+                         .negative = IS_CLOSED,
+                         .positive = IS_OPEN},
             .pack_soc = 50.0,
         },
         time_ms);
@@ -289,9 +338,9 @@ TEST(BatteryMonitor, StateTransitions) {
     auto output5 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = CLOSED,
-            .pos_contactor_states = OPEN,
-            .neg_contactor_states = CLOSED,
+            .feedback = {.precharge = IS_CLOSED,
+                         .negative = IS_CLOSED,
+                         .positive = IS_OPEN},
             .pack_soc = 50.0,
         },
         time_ms);
@@ -302,9 +351,9 @@ TEST(BatteryMonitor, StateTransitions) {
     auto output6 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = CLOSED,
-            .pos_contactor_states = CLOSED,
-            .neg_contactor_states = CLOSED,
+            .feedback = {.precharge = IS_CLOSED,
+                         .negative = IS_CLOSED,
+                         .positive = IS_CLOSED},
             .pack_soc = 50.0,
         },
         time_ms);
@@ -315,9 +364,9 @@ TEST(BatteryMonitor, StateTransitions) {
     auto output7 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = CLOSED,
-            .pos_contactor_states = CLOSED,
-            .neg_contactor_states = CLOSED,
+            .feedback = {.precharge = IS_CLOSED,
+                         .negative = IS_CLOSED,
+                         .positive = IS_CLOSED},
             .pack_soc = 50.0,
         },
         time_ms);
@@ -328,9 +377,9 @@ TEST(BatteryMonitor, StateTransitions) {
     auto output8 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = OPEN,
-            .pos_contactor_states = CLOSED,
-            .neg_contactor_states = CLOSED,
+            .feedback = {.precharge = IS_OPEN,
+                         .negative = IS_CLOSED,
+                         .positive = IS_CLOSED},
             .pack_soc = 50.0,
         },
         time_ms);
@@ -341,11 +390,20 @@ TEST(BatteryMonitor, StateTransitions) {
     auto output9 = bm.Update(
         {
             .cmd = BmCmd::STARTUP,
-            .precharge_contactor_states = OPEN,
-            .pos_contactor_states = CLOSED,
-            .neg_contactor_states = CLOSED,
+            .feedback = {.precharge = IS_OPEN,
+                         .negative = IS_CLOSED,
+                         .positive = IS_CLOSED},
             .pack_soc = 50.0,
         },
         time_ms);
     ASSERT_EQ(output9.status, RUNNING) << "Failed OPEN_PRECHARGE to RUNNING";
+}
+
+TEST(BatteryMonitor, BooleanValues) {
+    // Make sure nobody changes these!
+    EXPECT_EQ(static_cast<bool>(ContactorFeedback::State::IS_CLOSED), false);
+    EXPECT_EQ(static_cast<bool>(ContactorFeedback::State::IS_OPEN), true);
+
+    EXPECT_EQ(static_cast<bool>(ContactorCommand::State::CLOSE), true);
+    EXPECT_EQ(static_cast<bool>(ContactorCommand::State::OPEN), false);
 }

@@ -8,7 +8,6 @@
 
 #include "etl/algorithm.h"
 #include "shared/periph/pwm.hpp"
-#include "shared/util/mappers/clamper.hpp"
 
 #ifdef STM32F7
 #include "stm32f7xx_hal.h"

@@ -104,7 +104,8 @@ public:
                     if (msg.has_value()) {
                         // don't actually care about the status, just that FC
                         // has come online
-                        transition = PWRUP_CHECK_HASH_STATUS;
+                        // transition = PWRUP_CHECK_HASH_STATUS;
+                        transition = PWRUP_ACCUMULATOR_ON;
                     }
                 }
                 break;
@@ -319,6 +320,15 @@ void UpdateBrakeLight() {
         bindings::brake_light_en.SetHigh();
     }
 }
+void ReadFaults(int time_ms) {
+    bool imd_faulted = bindings::imd_fault.Read();
+    bool bms_faulted = bindings::bms_fault.Read();
+
+    tssi.Update(bms_faulted, imd_faulted, time_ms);
+
+    // Send message to FC to enable LEDs on dashboard
+    veh_can.Send(TxFaultLEDs{.imd = imd_faulted, .bms = bms_faulted});
+}
 
 int main(void) {
     bindings::Initialize();
@@ -330,15 +340,8 @@ int main(void) {
         int time_ms = bindings::GetTick();
         fsm.Update(time_ms);
 
-        // {  // temporarily commented -> may be causing problems on EV5 TSAL
-        //     tssi.Update(bindings::bms_fault.Read(),
-        //     bindings::imd_fault.Read(),
-        //                 time_ms);
-        // }
-
-        bindings::tssi_en.Set(time_ms & (1 << 11));
-
         UpdateBrakeLight();
+        ReadFaults(time_ms);
 
         TxSuspensionTravel34 suspension_msg{
             // todo: update the mapping

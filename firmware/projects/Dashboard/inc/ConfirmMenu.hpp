@@ -1,15 +1,20 @@
-#include "DashboardFSM.hpp"
-#include "Menu.hpp"
-#include "lvgl/lvgl.h"
+#pragma once
 
-class ConfirmMenu : public Menu {
+#include "Screen.hpp"
+#include "lvgl.h"
+
+class ConfirmMenu : public Screen {
+    enum Selection : bool {
+        CONFIRM = false,
+        RESET = true
+    };
+
 public:
-    ConfirmMenu();
-    static void create_menu();
+    ConfirmMenu(Display* display);
 
-    static int initiate_start;
+    void CreateGUI() override;
+    void Update() override;
 
 private:
-    static void confirm_btn_event_handler(lv_event_t* e);
-    static void restart_btn_event_handler(lv_event_t* e);
+    lv_obj_t* roller;
 };

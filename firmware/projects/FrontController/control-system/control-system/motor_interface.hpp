@@ -106,8 +106,6 @@ private:
     AmkManager<LEFT_ACTUAL1, LEFT_SP> left_amk_manager{};
     AmkManager<RIGHT_ACTUAL1, RIGHT_SP> right_amk_manager{};
     MiSts status_ = MiSts::OFF;
-
-    void UpdateOutputStatus(MiSts left_status, MiSts right_status);
 };
 
 template <AmkActualValues1 V1, AmkSetPoints1 SP>
@@ -346,22 +344,15 @@ MotorInterface<LV1, RV1, LSP, RSP>::Update(const Input& input,
     auto right = right_amk_manager.UpdateMotor(
         input.right_actual1, input.right_motor_input, input.cmd, time_ms);
 
-    UpdateOutputStatus(left.status, right.status);
+    if (left.status == MiSts::ERR || right.status == MiSts::ERR) {
+        status_ = MiSts::ERR;
+    } else if (left.status == right.status) {
+        status_ = left.status;
+    }  // else keep previous status
 
     return Output{
         .status = status_,
         .left_setpoints = left.setpoints,
         .right_setpoints = right.setpoints,
         .inverter_enable = left.inverter_enable && right.inverter_enable};
-}
-
-template <AmkActualValues1 LV1, AmkActualValues1 RV1, AmkSetPoints1 LSP,
-          AmkSetPoints1 RSP>
-void MotorInterface<LV1, RV1, LSP, RSP>::UpdateOutputStatus(
-    MiSts left_status, MiSts right_status) {
-    if (left_status == MiSts::ERR || right_status == MiSts::ERR) {
-        status_ = MiSts::ERR;
-    } else if (left_status == right_status) {
-        status_ = left_status;
-    }  // else keep previous status
 }

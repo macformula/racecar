@@ -1,11 +1,13 @@
-#include "DashboardFSM.hpp"
-#include "Menu.hpp"
-#include "lvgl/lvgl.h"
+#pragma once
 
-class StartDriving : public Menu {
+#include "Screen.hpp"
+
+class StartDriving : public Screen {
 public:
-    StartDriving();
-    static void create_menu();
+    StartDriving(Display* display);
+
+    void CreateGUI() override;
+    void Update() override;
 
 private:
 };

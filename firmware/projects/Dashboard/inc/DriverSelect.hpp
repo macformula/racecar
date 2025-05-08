@@ -1,22 +1,20 @@
-#include "DashboardFSM.hpp"
-#include "Menu.hpp"
-#include "lvgl/lvgl.h"
+#pragma once
 
-class DriverSelect : public Menu {
+#include "Screen.hpp"
+#include "generated/can/veh_messages.hpp"
+
+class DriverSelect : public Screen {
 public:
-    DriverSelect();
-    static void create_menu();
+    using Driver = generated::can::TxDashboardStatus::Driver_t;
+
+    DriverSelect(Display* display);
+
+    void CreateGUI() override;
+    void Update() override;
 
 private:
-    // holds all the driver names, this will be manually changed within
-    // DriverSelect.cpp to add/remove drivers
-    static constexpr int num_drivers = 7;
-    static const char* drivers[num_drivers];
-
-    static lv_obj_t* driver_roller;  // create the roller object that stores the
-                                     // drivers names
-
-    static void confirm_btn_event_handler(lv_event_t* e);
-    static void up_btn_event_handler(lv_event_t* e);
-    static void down_btn_event_handler(lv_event_t* e);
+    const uint8_t kNumDrivers = static_cast<uint8_t>(Driver::UNSPECIFIED);
+    lv_obj_t* roller;
 };
+
+const char* GetDriverName(DriverSelect::Driver d);

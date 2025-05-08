@@ -1,12 +1,11 @@
-#include "DashboardFSM.hpp"
-#include "Menu.hpp"
-#include "lvgl/lvgl.h"
+#pragma once
 
-class LogoScreen : public Menu {
+#include "inc/Screen.hpp"
+
+class LogoScreen : public Screen {
 public:
-    LogoScreen();
-    static void create_menu();
+    LogoScreen(Display* display);
 
-private:
-    static void btn_event_handler(lv_event_t* e);
+    void CreateGUI() override;
+    void Update() override;
 };

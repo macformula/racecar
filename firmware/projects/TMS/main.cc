@@ -95,6 +95,7 @@ void Update(float update_period_ms) {
     // Toggle the green LED to indicate the program is running
     static bool toggle = true;
     bindings::debug_led_green.Set(toggle);
+    bindings::debug_led_red.Set(toggle);
     toggle = !toggle;
 }
 

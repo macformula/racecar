@@ -2,71 +2,97 @@
 
 #include <cmath>
 
-#include "control-system/driver_interface_fsm.hpp"
 #include "shared/util/lookup_table.hpp"
-
-template <typename T>
-bool isInRange(T fractionIn) {
-    return (fractionIn >= 0 && fractionIn <= 1);
-}
 
 DriverInterface::Output DriverInterface::Update(const Input input,
                                                 const int time_ms) {
     using LUT = shared::util::LookupTable<float>;
 
-    // do we even need these? don't think so
-    auto apps_pedal_map = std::to_array<LUT::Entry>({
-        {0, 0},
-        {1, 1},
-    });
+    const float kPedalImplausiblePercent = 10;
+    const int kSpeakerDurationMs = 2000;
 
-    auto bpps_pedal_map = std::to_array<LUT::Entry>({
-        {0, 0},
-        {1, 1},
-    });
+    double apps_diff =
+        std::abs(input.accel_pedal_pos1 - input.accel_pedal_pos2);
+    bool apps_implausible = apps_diff > kPedalImplausiblePercent;
+
+    status_ = Transition(input, apps_implausible, time_ms);
 
     Output out;
+    out.status = status_;
+    out.brake_light_en = input.brake_pedal_pos > kBrakePressedThreshold;
 
-    bool accel_pedal_1_error = !isInRange(input.accel_pedal_pos1);
-    bool accel_pedal_2_error = !isInRange(input.accel_pedal_pos2);
-    bool brake_pedal_error = !isInRange(input.brake_pedal_pos);
-    bool steering_angle_error = !isInRange(input.steering_angle);
-
-    double diff = std::abs(input.accel_pedal_pos1 - input.accel_pedal_pos2);
-    bool accel_pedal_implausible = diff > 0.1;
-
-    bool di_error = accel_pedal_1_error || accel_pedal_2_error ||
-                    brake_pedal_error || steering_angle_error ||
-                    accel_pedal_implausible;
-
-    out.brake_light_en = input.brake_pedal_pos > 0.1 && !brake_pedal_error;
-
-    if (brake_pedal_error) {
-        out.brake_pedal_position = 0;
+    if (status_ == DiSts::RUNNING) {
+        out.ready_to_drive = true;
+        out.driver_speaker =
+            time_ms <= speaker_start_time_ + kSpeakerDurationMs;
+        out.driver_torque_req = apps_implausible ? 0 : input.accel_pedal_pos1;
     } else {
-        out.brake_pedal_position =
-            LUT::Evaluate(bpps_pedal_map, input.brake_pedal_pos);
-    }
-
-    out.steering_angle = steering_angle_error ? 0.5 : input.steering_angle;
-
-    DiFsm::Output fsm_output = di_fsm.Update(
-        {
-            .command = input.di_cmd,
-            .driver_button = input.driver_button,
-            .brake_pedal_pos = input.brake_pedal_pos,
-            .di_error = di_error,
-        },
-        time_ms);
-    out.di_sts = fsm_output.status;
-    out.driver_speaker = fsm_output.speaker_enable;
-
-    if (fsm_output.ready_to_drive && !di_error) {
-        out.driver_torque_req =
-            LUT::Evaluate(apps_pedal_map, input.accel_pedal_pos1);
-    } else {
+        out.ready_to_drive = false;
+        out.driver_speaker = false;
         out.driver_torque_req = 0;
     }
 
     return out;
+}
+
+DiSts DriverInterface::Transition(const DriverInterface::Input input,
+                                  bool di_error, const int time_ms) {
+    // Superstate transitions
+    if (status_ == DiSts::WAITING_FOR_DRIVER_HV ||
+        status_ == DiSts::REQUESTED_HV_START ||
+        status_ == DiSts::REQUESTED_MOTOR_START || status_ == DiSts::RUNNING) {
+        if (input.command == DiCmd::SHUTDOWN) {
+            return DiSts::IDLE;
+        } else if (di_error) {
+            return DiSts::ERR;
+        }
+    }
+
+    // Regular transitions
+    switch (status_) {
+        case DiSts::IDLE:
+            if (input.command == DiCmd::INIT) {
+                return DiSts::WAITING_FOR_DRIVER_HV;
+            }
+            break;
+
+        case DiSts::WAITING_FOR_DRIVER_HV:
+            if (input.dash_cmd == DashState::STARTING_HV) {
+                return DiSts::REQUESTED_HV_START;
+            }
+            break;
+
+        case DiSts::REQUESTED_HV_START:
+            if (input.command == DiCmd::HV_IS_ON) {
+                return DiSts::WAITING_FOR_DRIVER_MOTOR;
+            }
+            break;
+
+        case DiSts::WAITING_FOR_DRIVER_MOTOR:
+            if (input.dash_cmd == DashState::STARTING_MOTORS) {
+                return DiSts::REQUESTED_MOTOR_START;
+            }
+            break;
+
+        case DiSts::REQUESTED_MOTOR_START:
+            if ((input.command == DiCmd::READY_TO_DRIVE) &&
+                (input.brake_pedal_pos > kBrakePressedThreshold)) {
+                speaker_start_time_ = time_ms;
+                return DiSts::RUNNING;
+            }
+            break;
+
+        case DiSts::RUNNING:
+            if (input.command == DiCmd::RUN_ERROR) {
+                return DiSts::ERR_COASTING;
+            }
+            break;
+
+        // No transitions from the following states
+        case DiSts::ERR:
+            break;
+        case DiSts::ERR_COASTING:
+            break;
+    }
+    return status_;  // no transition to perform
 }

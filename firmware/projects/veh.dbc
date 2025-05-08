@@ -35,15 +35,15 @@ BS_:
 
 BU_: PC_SG BMS FC TMS CANmod LVC RPI
 
+BO_ 107 FaultLEDs: 1 LVC
+ SG_ IMD : 0|1@1+ (1,0) [0|1] "" FC
+ SG_ BMS : 1|1@1+ (1,0) [0|1] "" FC
+
 BO_ 109 InitiateCanFlash: 1 RPI
  SG_ ECU : 0|8@1+ (1,0) [0|2] "" FC,LVC,TMS
 
 BO_ 110 LvSwitch: 6 PC_SG
  SG_ SwitchClose : 0|8@1+ (1,0) [0|1] ""  LVC
-
-BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX
- SG_ FC_userBtnL : 0|1@1+ (1,0) [0|1] "" Vector__XXX
- SG_ FC_userBtnR : 0|1@1+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 123 SyncDbcHash: 8 LVC
  SG_ DbcHash : 0|64@1+ (1,0) [0|1] "" FC
@@ -73,9 +73,11 @@ BO_ 511 FC_apps_debug: 8 FC
  SG_ apps1_pos : 32|16@1+ (0.1,0) [0|0] "percent" PC_SG
  SG_ apps2_pos : 48|16@1+ (0.1,0) [0|0] "percent" PC_SG
 
-BO_ 512 FC_debug: 8 FC
- SG_ FC_bpps : 32|12@1+ (1,0) [0|4095] ""  PC_SG
- SG_ FC_steeringAngle : 48|12@1+ (1,0) [0|4095] ""  PC_SG
+BO_ 512 FC_bpps_steer_debug: 8 FC
+ SG_ bpps_raw_volt : 0|16@1+ (0.001,0) [0|0] "volt"  PC_SG
+ SG_ steering_raw_volt : 16|16@1+ (0.001,0) [0|0] "volt"  PC_SG
+ SG_ bpps_pos : 32|16@1+ (0.1,0) [0|0] "percent" PC_SG
+ SG_ steering_pos : 48|16@1+ (0.01,-1) [0|0] "[-1,+1]" PC_SG
 
 BO_ 256 FC_cmd: 1 PC_SG
  SG_ FC_readyToDriveSpeaker : 1|1@1+ (1,0) [0|1] ""  FC
@@ -101,9 +103,9 @@ BO_ 1573 Pack_SOC: 3 BMS
  SG_ Maximum_Pack_Voltage : 8|16@1+ (0.1,0) [0|0] "Volts"  FC
 
 BO_ 1574 Contactor_Feedback: 3 BMS
- SG_ Pack_Positive_Feedback : 0|1@1+ (1,0) [0|1] ""  FC
- SG_ Pack_Negative_Feedback : 8|1@1+ (1,0) [0|1] ""  FC
- SG_ Pack_Precharge_Feedback : 16|1@1+ (1,0) [0|1] ""  FC
+ SG_ Pack_Positive_Feedback : 0|1@1+ (1,0) [0|1] ""  FC,Dash
+ SG_ Pack_Negative_Feedback : 8|1@1+ (1,0) [0|1] ""  FC,Dash
+ SG_ Pack_Precharge_Feedback : 16|1@1+ (1,0) [0|1] ""  FC,Dash
 
 BO_ 2553934720 BmsBroadcast: 8 TMS
  SG_ ThermModuleNum : 0|8@1+ (1,0) [0|0] ""  BMS
@@ -183,25 +185,17 @@ BO_ 777 GnssImu: 8 CANmod
 
 BO_ 258 FCDashboardStatus: 4 FC
  SG_ receiveConfig      : 0|1@1+ (1,0) [0|1] "" Dash
- SG_ hvStarted          : 8|1@1+ (1,0) [0|1] ""  Dash
- SG_ motorStarted       : 16|1@1+ (1,0) [0|1] ""  Dash
- SG_ driveStarted       : 24|1@1+ (1,0) [0|1] ""  Dash
+ SG_ hvStarted          : 1|1@1+ (1,0) [0|1] ""  Dash
+ SG_ motorStarted       : 2|1@1+ (1,0) [0|1] ""  Dash
+ SG_ driveStarted       : 3|1@1+ (1,0) [0|1] ""  Dash
+ SG_ hv_charge_percent  : 8|8@1+ (1,0) [0|100] ""  Dash
+ SG_ speed              : 16|12@1+ (0.1,0) [0|200] "km/h" Dash
 
-BO_ 259 DashboardIndicatorStatus: 7 Dash
- SG_ dashState           : 0|8@1+ (1,0) [0|1] "" FC
- SG_ driverNumber        : 8|8@1+ (1,0) [0|15] "" FC
- SG_ eventNumber         : 16|8@1+ (1,0) [0|15] "" FC
- SG_ dashScreen          : 24|8@1+ (1,0) [0|255] "" FC
- SG_ IMDLed			     : 40|1@1+ (1,0) [0|1] "" FC
- SG_ BMSLed  			 : 48|1@1+ (1,0) [0|1] "" FC
+BO_ 259 DashboardStatus: 3 Dash
+ SG_ DashState          : 0|8@1+ (1,0) [0|1] "" FC
+ SG_ Driver             : 8|8@1+ (1,0) [0|15] "" FC
+ SG_ Event              : 16|8@1+ (1,0) [0|15] "" FC
 
-BO_ 260 RpiSpeed: 1 RPI 
- SG_ speed : 0|8@1+ (1,0) [0|100] "" DASH
-
-BO_ 261 dashboardTest: 1 Dash
- SG_ dashState           : 0|8@1+ (1,0) [0|1] "" FC
-
-CM_ BO_ 3221225472 "This is a message for not used signals, created by Vector CANdb++ DBC OLE DB Provider.";
 CM_ BO_ 1572 "This ID Transmits at 8 ms.";
 CM_ BO_ 1571 "This ID Transmits at 8 ms.";
 CM_ BO_ 1573 "This ID Transmits at 8 ms.";
@@ -264,10 +258,7 @@ VAL_ 109 ECU 0 "FrontController" 1 "LvController" 2 "TMS";
 VAL_ 111 LvState 0 "PWRUP_START" 1 "PWRUP_TSSI_ON" 2 "PWRUP_PERIPHERALS_ON" 3 "PWRUP_ACCUMULATOR_ON" 4 "PWRUP_MOTOR_PRECHARGE_ON" 5 "PWRUP_MOTOR_LV" 6 "PWRUP_MOTOR_PRECHARGE_OFF" 7 "PWRUP_SHUTDOWN_ON" 8 "MOTOR_CONTROLLER_SWITCH_SEQ" 9 "DCDC_ON" 10 "POWERTRAIN_PUMP_ON" 11 "POWERTRAIN_FAN_ON" 12 "POWERTRAIN_FAN_SWEEP" 13 "READY_TO_DRIVE" 14 "SHUTDOWN_DRIVER_WARNING" 15 "SHUTDOWN_PUMP_OFF" 16 "SHUTDOWN_FAN_OFF" 17 "SHUTDOWN_COMPLETE" 18 "PWRUP_CHECK_HASH_STATUS";
 VAL_ 112 FcState 0 "PWRUP_START" 1 "HVIL_OPEN";
 VAL_ 255 DbcHashStatus 0 "WAITING" 1 "VALID" 2 "INVALID";
-VAL_ 255 VC_bmStatus 9 "err_running" 8 "bm_low_soc" 7 "hvil_interrupt" 6 "bm_running" 5 "precharge" 4 "init_precharge" 3 "bm_startup" 2 "bm_idle" 1 "bm_init" 0 "bm_unknown" ;
-VAL_ 255 VC_diStatus 8 "di_error" 7 "di_running" 6 "hv_start_req" 5 "ready_to_drive_req" 4 "waiting_for_driver" 3 "di_startup" 2 "di_idle" 1 "di_sts_init" 0 "di_unknown" ;
-VAL_ 255 VC_miStatus 7 "off" 6 "mi_sts_error" 5 "shutdown" 4 "running" 3 "ready" 2 "startup" 1 "sts_init" 0 "unknown" ;
-VAL_ 255 VC_govStatus 8 "motor_run_error" 7 "hv_run_error" 6 "gov_di_error" 5 "motor_startup_error" 4 "hv_startup_error" 3 "gov_shutdown" 2 "gov_running" 1 "gov_startup" 0 "gov_init" ;
-VAL_ 259 driverNumber 6 "Tyler" 5 "Nathan" 4 "Mubashir" 3 "Luca" 2 "Logan" 1 "Lin" 0 "Ada" ;
-VAL_ 259 eventNumber 2 "Endurance" 1 "Skidpad" 0 "Launch" ;
-VAL_ 259 dashState 5 "WaitBrakeStart" 4 "RequestedMotor" 3 "WaitRequestMotor" 2 "RequestedHV" 1 "WaitRequestHV" 0 "On" ;
+VAL_ 255 DiStatus 0 "IDLE" 1 "WAITING_FOR_DRIVER_HV" 2 "REQUESTED_HV_START" 3 "WAITING_FOR_DRIVER_MOTOR" 4 "REQUESTED_MOTOR_START" 5 "RUNNING" 6 "ERR_COASTING" 7 "ERR";
+VAL_ 259 Driver 0 "Ada" 1 "Lin" 2 "Logan" 3 "Luca" 4 "Mubashir" 5 "Nathan" 6 "Tyler" 7 "UNSPECIFIED";
+VAL_ 259 Event 0 "Launch" 1 "Skidpad" 2 "Endurance" 3 "UNSPECIFIED";
+VAL_ 259 DashState 0 "LOGO" 1 "SELECT_DRIVER" 2 "SELECT_EVENT" 3 "CONFIRM_SELECTION" 4 "WAIT_SELECTION_ACK" 5 "PRESS_FOR_HV" 6 "STARTING_HV" 7 "PRESS_FOR_MOTOR" 8 "STARTING_MOTORS" 9 "BRAKE_TO_START" 10 "RUNNING";

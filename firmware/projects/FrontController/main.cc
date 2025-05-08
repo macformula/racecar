@@ -1,8 +1,8 @@
 /// @author Blake Freer
-/// @date 2025-02
+/// @date 2025-04
 
 #include "bindings.hpp"
-#include "control-system/battery_monitor.h"
+#include "control-system/battery_monitor.hpp"
 #include "control-system/driver_interface.hpp"
 #include "control-system/governor.hpp"
 #include "control-system/motor_interface.hpp"
@@ -63,49 +63,44 @@ Governor gov;
 DriverInterface di;
 VehicleDynamics vd{tuning::pedal_to_torque};
 
-// Global Governer input defined
 Governor::Input gov_in{};
 
 using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
-TxFC_Status fc_status{0, 0, 0, 0, DbcHashStatus::WAITING};
+TxFC_Status fc_status{0, DiSts::IDLE, 0, 0, DbcHashStatus::WAITING};
+TxContactorCommand contactor_cmd{
+    static_cast<bool>(ContactorCommand::State::OPEN),
+    static_cast<bool>(ContactorCommand::State::OPEN),
+    static_cast<bool>(ContactorCommand::State::OPEN),
+};
 
 void UpdateControls() {
-    // NOTE #1: For defining inputs, I commented out inputs where I didn't know
-    // what to set it to NOTE #2: Some binding values like brake_pedal_front and
-    // accel_pedal are defined above, I used those and used Update(), idk if
-    // thats the correct thing to do or not NOTE #3: There are some warnings for
-    // type conversions, I don't know if those are mistakes from me or some
-    // conversions from simulink to c++ were wrong NOTE #4: All outputs are
-    // created and most of them are supposed to be sent to CAN. Assuming Blake
-    // will be doing that part?
-
-    // Capture time to use in Update call for each block
     int time_ms = bindings::GetTickMs();
 
-    // Governer update
-    // Question: do I just use the default values for the gov input at first, or
-    // do I set some value?
     Governor::Output gov_out = gov.Update(gov_in, time_ms);
 
     fc_status.gov_status = static_cast<uint8_t>(gov_out.gov_sts);
-    fc_status.di_status = static_cast<uint8_t>(gov_in.di_sts);
+    fc_status.di_status = gov_in.di_sts;
     fc_status.mi_status = static_cast<uint8_t>(gov_in.mi_sts);
     fc_status.bm_status = static_cast<uint8_t>(gov_in.bm_sts);
 
+    float brake_position = brake.ReadPosition();
+
+    auto dash_msg = veh_can_bus.GetRxDashboardStatus();
+    if (!dash_msg.has_value()) return;
+
     // Driver Interface update
     DriverInterface::Input di_in = {
-        .di_cmd = gov_out.di_cmd,
-        .brake_pedal_pos = brake.ReadPosition(),
-        .driver_button = 0,  // bindings::start_button.Read(),
+        .command = gov_out.di_cmd,
+        .brake_pedal_pos = brake_position,
+        .dash_cmd = dash_msg->DashState(),
         .accel_pedal_pos1 = apps1.ReadPosition(),
         .accel_pedal_pos2 = apps2.ReadPosition(),
-        .steering_angle = steering_wheel.ReadPosition(),
     };
     DriverInterface::Output di_out = di.Update(di_in, time_ms);
-    gov_in.di_sts = di_out.di_sts;
+    gov_in.di_sts = di_out.status;
 
-    // bindings::rtds_en.Set(di_out.driver_speaker);
-    // bindings::brake_light_en.Set(di_out.brake_light_en);
+    bindings::ready_to_drive_sig_en.Set(di_out.driver_speaker);
+    veh_can_bus.Send(TxBrakeLight{.enable = di_out.brake_light_en});
 
     auto contactor_states = veh_can_bus.GetRxContactor_Feedback();
     if (!contactor_states.has_value()) {
@@ -114,34 +109,35 @@ void UpdateControls() {
 
     BatteryMonitor::Input bm_in = {
         .cmd = gov_out.bm_cmd,
-        .precharge_contactor_states = static_cast<ContactorState>(
-            !contactor_states->Pack_Precharge_Feedback()),
-        .pos_contactor_states = static_cast<ContactorState>(
-            !contactor_states->Pack_Positive_Feedback()),
-        .neg_contactor_states = static_cast<ContactorState>(
-            !contactor_states->Pack_Negative_Feedback()),
+        .feedback{
+            .precharge = static_cast<ContactorFeedback::State>(
+                contactor_states->Pack_Precharge_Feedback()),
+
+            .negative = static_cast<ContactorFeedback::State>(
+                contactor_states->Pack_Negative_Feedback()),
+
+            .positive = static_cast<ContactorFeedback::State>(
+                contactor_states->Pack_Positive_Feedback()),
+        },
         .pack_soc = 550  // temporary, should it come from sensor?
     };
     BatteryMonitor::Output bm_out = bm.Update(bm_in, time_ms);
     gov_in.bm_sts = bm_out.status;
 
-    veh_can_bus.Send(TxContactorCommand{
-        .pack_positive = static_cast<bool>(bm_out.contactor.positive),
-        .pack_precharge = static_cast<bool>(bm_out.contactor.precharge),
-        .pack_negative = static_cast<bool>(bm_out.contactor.negative),
-    });
+    contactor_cmd.pack_positive = static_cast<bool>(bm_out.command.positive);
+    contactor_cmd.pack_precharge = static_cast<bool>(bm_out.command.precharge);
+    contactor_cmd.pack_negative = static_cast<bool>(bm_out.command.negative);
 
     // Vehicle Dynamics update
     VehicleDynamics::Input vd_in = {
         .driver_torque_request = di_out.driver_torque_req,
-        .brake_pedal_postion = di_out.brake_pedal_position,
-        .steering_angle = di_out.steering_angle,
-        // These are all connected to GND in simulink, assuming that means set
-        // to 0
-        .wheel_speed_lr = 0,  // set to wheel speed sensors later
-        .wheel_speed_rr = 0,
-        .wheel_speed_lf = 0,
-        .wheel_speed_rf = 0,
+        .brake_pedal_postion = brake_position,
+        .steering_angle = steering_wheel.ReadPosition(),
+        // All wheel speed inputs were fixed to 0 in the old simulink model
+        .wheel_speed_lr = 0 * bindings::wheel_speed_rear_left.ReadVoltage(),
+        .wheel_speed_rr = 0 * bindings::wheel_speed_rear_right.ReadVoltage(),
+        .wheel_speed_lf = 0 * bindings::wheel_speed_front_left.ReadVoltage(),
+        .wheel_speed_rf = 0 * bindings::wheel_speed_front_right.ReadVoltage(),
         .tv_enable = false,
     };
     VehicleDynamics::Output vd_out = vd.Update(vd_in, time_ms);
@@ -175,7 +171,7 @@ void UpdateControls() {
     };
     MotorIface::Output mi_out = mi.Update(mi_in, time_ms);
     (void)mi_out.inverter_enable;  // unused -> inverter en signal is set in the
-                                   // setpoint message inside MI.Update()
+    // setpoint message inside MI.Update()
 
     gov_in.mi_sts = mi_out.status;
 
@@ -183,39 +179,124 @@ void UpdateControls() {
     pt_can_bus.Send(mi_out.right_setpoints);
 }
 
+class FrontController {
+public:
+    enum class State {
+        INIT,
+        START_DASHBOARD,
+        SYNC_HASH,
+        WAIT_DRIVER_SELECT,
+        // WAIT_HV_START,
+        // STARTING_HV,
+        // WAIT_MOTOR_START,
+        // STARTING_MOTOR,
+        RUNNING,
+        ERROR_HASH_INVALID,
+    };
+
+    FrontController(int start_time)
+        : state_(State::INIT), state_enter_time_(start_time) {}
+
+    void Update(int time_ms);
+
+private:
+    State state_;
+    int state_enter_time_;
+    bool on_enter = true;
+
+    TxFCDashboardStatus to_dash{0, 0, 0, 0};
+};
+
+void FrontController::Update(int time_ms) {
+    using enum State;
+    using DashState = RxDashboardStatus::DashState_t;
+    std::optional<State> transition = std::nullopt;
+    int elapsed = time_ms - state_enter_time_;
+
+    switch (state_) {
+        case INIT:
+            // this state is trivial and can be removed unless we add more
+            transition = START_DASHBOARD;
+            break;
+
+        case START_DASHBOARD: {
+            bindings::dashboard_power_en.SetHigh();
+
+            // wait until dashboard comes alive
+            auto msg = veh_can_bus.GetRxDashboardStatus();
+            // if (msg.has_value()) transition = SYNC_HASH;
+            if (msg.has_value()) transition = WAIT_DRIVER_SELECT;
+        } break;
+
+        case SYNC_HASH: {
+            if (on_enter) {
+                fc_status.dbc_hash_status = DbcHashStatus::WAITING;
+            }
+
+            auto msg = veh_can_bus.GetRxSyncDbcHash();
+
+            if (msg.has_value()) {
+                if (msg->DbcHash() == generated::can::kVehDbcHash) {
+                    fc_status.dbc_hash_status = DbcHashStatus::VALID;
+                    transition = WAIT_DRIVER_SELECT;
+                } else {
+                    fc_status.dbc_hash_status = DbcHashStatus::INVALID;
+                    transition = ERROR_HASH_INVALID;
+                }
+            }
+        } break;
+
+        case WAIT_DRIVER_SELECT: {
+            auto msg = veh_can_bus.GetRxDashboardStatus();
+
+            if (msg.has_value()) {
+                if (msg->DashState() == DashState::WAIT_SELECTION_ACK) {
+                    to_dash.receive_config = true;
+                    transition = RUNNING;
+                }
+            }
+        } break;
+
+        case RUNNING:
+            UpdateControls();
+
+            to_dash.hv_started = gov_in.bm_sts == BmSts::RUNNING;
+            to_dash.motor_started = gov_in.mi_sts == MiSts::RUNNING;
+            to_dash.drive_started = gov_in.di_sts == DiSts::RUNNING;
+            break;
+
+        case ERROR_HASH_INVALID:
+            break;
+    }
+
+    veh_can_bus.Send(to_dash);
+
+    on_enter = transition.has_value();
+    if (on_enter) {
+        on_enter = true;
+        state_enter_time_ = time_ms;
+        state_ = transition.value();
+    }
+}
+
 int main(void) {
     bindings::Initialize();
 
-    // Constantly check for hash to compare dbc version's between boards
-    auto dbc_hash = veh_can_bus.GetRxSyncDbcHash();
-    while (!dbc_hash.has_value()) {
-        fc_status.dbc_hash_status = DbcHashStatus::WAITING;
-        veh_can_bus.Send(fc_status);
-
-        bindings::DelayMs(100);
-
-        dbc_hash = veh_can_bus.GetRxSyncDbcHash();
-    }
-
-    // Error state. If hash of LVController doesn't match, constantly send
-    // invalid messages back, not exiting
-    if (dbc_hash->DbcHash() != generated::can::kVehDbcHash) {
-        while (true) {
-            fc_status.dbc_hash_status = DbcHashStatus::INVALID;
-            veh_can_bus.Send(fc_status);
-
-            bindings::DelayMs(100);
-        }
-    }
-    fc_status.dbc_hash_status = DbcHashStatus::VALID;
-
-    bindings::dashboard_power_en.SetHigh();
-
     bool state = true;
 
+    FrontController fc{bindings::GetTickMs()};
+
     while (true) {
-        UpdateControls();
+        fc.Update(bindings::GetTickMs());
+
+        auto error_led = veh_can_bus.GetRxFaultLEDs();
+        if (error_led.has_value()) {
+            bindings::imd_fault_led_en.Set(error_led->IMD());
+            bindings::bms_fault_led_en.Set(error_led->BMS());
+        }
+
         veh_can_bus.Send(fc_status);
+        veh_can_bus.Send(contactor_cmd);
 
         // test pedals
         veh_can_bus.Send(TxFC_apps_debug{
@@ -224,11 +305,11 @@ int main(void) {
             .apps1_pos = apps1.ReadPosition(),
             .apps2_pos = apps2.ReadPosition(),
         });
-        veh_can_bus.Send(TxFC_debug{
-            .fc_bpps = static_cast<uint16_t>(
-                100 * bindings::brake_pressure_sensor.ReadVoltage()),
-            .fc_steering_angle = static_cast<uint16_t>(
-                100 * bindings::steering_angle_sensor.ReadVoltage()),
+        veh_can_bus.Send(TxFC_bpps_steer_debug{
+            .bpps_raw_volt = bindings::brake_pressure_sensor.ReadVoltage(),
+            .steering_raw_volt = bindings::steering_angle_sensor.ReadVoltage(),
+            .bpps_pos = brake.ReadPosition(),
+            .steering_pos = steering_wheel.ReadPosition(),
         });
 
         bindings::debug_led.Set(state);

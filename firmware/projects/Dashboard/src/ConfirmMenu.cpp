@@ -1,72 +1,42 @@
 #include "inc/ConfirmMenu.hpp"
 
-int ConfirmMenu::initiate_start = 0;
+#include "inc/Display.hpp"
 
-ConfirmMenu::ConfirmMenu() {}
+ConfirmMenu::ConfirmMenu(Display* display) : Screen(display) {}
 
-void ConfirmMenu::create_menu() {
-    // calls base class functionality, handles background and frame
-    lv_obj_t* confirm_menu = lv_obj_create(NULL);  // Create a new screen
-    Menu::init_menu(confirm_menu);
-
+void ConfirmMenu::CreateGUI() {
     // title label
-    lv_obj_t* title_label = lv_label_create(confirm_menu);
+    lv_obj_t* title_label = lv_label_create(frame_);
     lv_label_set_text(title_label, "Confirm Selection");
     lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 50);
     lv_obj_set_style_text_font(title_label, &lv_font_montserrat_38, 0);
 
-    // display selected driver and mode
-    lv_obj_t* selection_label = lv_label_create(confirm_menu);
-    lv_label_set_text_fmt(selection_label, "Driver: %d | Mode: %d",
-                          selected_driver, selected_mode);
+    // display selected driver and event
+    lv_obj_t* selection_label = lv_label_create(frame_);
+    lv_label_set_text_fmt(selection_label, "Driver: %s\nEvent: %s",
+                          GetDriverName(display_->selected_driver),
+                          GetEventName(display_->selected_event));
     lv_obj_align(selection_label, LV_ALIGN_TOP_MID, 0, 100);
     lv_obj_set_style_text_font(selection_label, &lv_font_montserrat_24, 0);
 
-    // confirm button
-    lv_obj_t* confirm_btn = lv_btn_create(confirm_menu);
-    lv_obj_set_size(confirm_btn, 100, 50);
-    lv_obj_center(confirm_btn);
-    lv_obj_set_x(confirm_btn, lv_obj_get_x(confirm_btn) - 150);
-    lv_obj_t* confirm_btn_label = lv_label_create(confirm_btn);
-    lv_label_set_text(confirm_btn_label, "Confirm");
-    lv_obj_center(confirm_btn_label);
-    lv_obj_add_event_cb(confirm_btn, confirm_btn_event_handler,
-                        LV_EVENT_CLICKED, NULL);
-
-    // reset button
-    lv_obj_t* reset_btn = lv_btn_create(confirm_menu);
-    lv_obj_set_size(reset_btn, 100, 50);
-    lv_obj_center(reset_btn);
-    lv_obj_set_x(reset_btn, lv_obj_get_x(reset_btn) + 150);
-    lv_obj_t* reset_btn_label = lv_label_create(reset_btn);
-    lv_label_set_text(reset_btn_label, "Reset");
-    lv_obj_center(reset_btn_label);
-    lv_obj_add_event_cb(reset_btn, restart_btn_event_handler, LV_EVENT_CLICKED,
-                        NULL);
-
-    // cleanup and load screen
-    lv_obj_clean(lv_scr_act());
-    lv_scr_load(confirm_menu);
+    roller = lv_roller_create(frame_);
+    lv_roller_set_options(roller, "CONFIRM\nCHANGE", LV_ROLLER_MODE_NORMAL);
+    lv_obj_set_width(roller, 300);
+    lv_obj_set_style_text_font(roller, &lv_font_montserrat_24, 0);
+    lv_roller_set_visible_row_count(roller, 3);
+    lv_obj_center(roller);
 }
 
-// proceeds to next screen
-void ConfirmMenu::confirm_btn_event_handler(lv_event_t* e) {
-    lv_event_code_t code = lv_event_get_code(e);
+void ConfirmMenu::Update() {
+    bool sel = lv_roller_get_selected(roller);
 
-    if (code == LV_EVENT_CLICKED) {
-        Menu::dashboard_state = STATE_WAITING;
-
-        // start initiated, implement logic in main function to detect this and
-        // proceed with CAN
-        initiate_start = 1;
-    }
-}
-
-// restarts to driverselect
-void ConfirmMenu::restart_btn_event_handler(lv_event_t* e) {
-    lv_event_code_t code = lv_event_get_code(e);
-
-    if (code == LV_EVENT_CLICKED) {
-        Menu::dashboard_state = STATE_DRIVER;
+    if (display_->enter.PosEdge()) {
+        if (sel == Selection::CONFIRM) {
+            display_->ChangeState(State::WAIT_SELECTION_ACK);
+        } else {
+            display_->ChangeState(State::SELECT_DRIVER);
+        }
+    } else if (display_->scroll.PosEdge()) {
+        lv_roller_set_selected(roller, !sel, LV_ANIM_ON);
     }
 }

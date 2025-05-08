@@ -7,10 +7,9 @@ namespace bindings {
 
 extern shared::periph::CanBase& veh_can_base;
 extern shared::periph::DigitalInput& button_scroll;
-extern shared::periph::DigitalInput& button_select;
+extern shared::periph::DigitalInput& button_enter;
 
 extern void Initialize();
-extern void PostLvglInit();
 
 extern void DelayMS(uint32_t ms);
 

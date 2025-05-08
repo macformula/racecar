@@ -1,16 +1,19 @@
-#include "DashboardFSM.hpp"
-#include "Menu.hpp"
-#include "lvgl/lvgl.h"
+#pragma once
 
-class DriveModeMenu : public Menu {
+#include "Screen.hpp"
+#include "lvgl.h"
+
+class DriveModeMenu : public Screen {
 public:
-    DriveModeMenu();
-    static void create_menu();
+    DriveModeMenu(Display* display);
+
+    void CreateGUI() override;
+    void Update() override;
 
 private:
-    static int speed;
-    static bool increasing;
-    static lv_obj_t* drive_screen;
-    static lv_timer_t* speed_timer;
-    static void speed_update_cb(lv_timer_t* timer);
+    const float kArcMaxSpeed = 120;
+    const float kArcSpeedResolution = 10;
+
+    lv_obj_t* speedometer_arc;
+    lv_obj_t* speed_label;
 };

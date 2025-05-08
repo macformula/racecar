@@ -1,14 +1,11 @@
-#include "DashboardFSM.hpp"
-#include "Menu.hpp"
-#include "lvgl/lvgl.h"
+#pragma once
 
-class StartHV : public Menu {
+#include "Screen.hpp"
+
+class StartHV : public Screen {
 public:
-    StartHV();
-    static void create_menu();
+    StartHV(Display* display);
 
-    static int start_HV_toggle;
-
-private:
-    static void start_hv_btn_handler(lv_event_t* e);
+    void CreateGUI() override;
+    void Update() override;
 };

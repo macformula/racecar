@@ -36,8 +36,13 @@ using namespace mcal::stm32f::periph;
 
 // Tractive System Status Indicator
 DigitalOutput tssi_en{TSSI_EN_GPIO_Port, TSSI_EN_Pin};
-DigitalOutput tssi_red_signal{TSSI_RED_SIG_GPIO_Port, TSSI_RED_SIG_Pin};
-DigitalOutput tssi_green_signal{TSSI_GN_SIG_GPIO_Port, TSSI_GN_SIG_Pin};
+DigitalOutput tssi_red_signal_n{TSSI_RED_SIG_GPIO_Port, TSSI_RED_SIG_Pin};
+DigitalOutput tssi_green_signal_n{TSSI_GN_SIG_GPIO_Port, TSSI_GN_SIG_Pin};
+
+// Both red and green are inverted logic
+shared::periph::InvertedDigitalOutput tssi_red_signal{tssi_red_signal_n};
+shared::periph::InvertedDigitalOutput tssi_green_signal{tssi_green_signal_n};
+
 DigitalInput imd_fault{IMD_FAULT_STATUS_GPIO_Port, IMD_FAULT_STATUS_Pin};
 DigitalInput bms_fault{BMS_FAULT_STATUS_GPIO_Port, BMS_FAULT_STATUS_Pin};
 
@@ -86,6 +91,7 @@ using namespace shared::periph;
 
 // Tractive System Status Indicator
 DigitalOutput& tssi_en = mcal::tssi_en;
+
 DigitalOutput& tssi_red_signal = mcal::tssi_red_signal;
 DigitalOutput& tssi_green_signal = mcal::tssi_green_signal;
 DigitalInput& imd_fault = mcal::imd_fault;

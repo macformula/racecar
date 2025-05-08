@@ -32,7 +32,7 @@ Governor::Output Governor::Update(const Governor::Input input,
             break;
 
         case STARTUP_READY_TO_DRIVE:
-            output_.di_cmd = DiCmd::HV_ON;
+            output_.di_cmd = DiCmd::HV_IS_ON;
             break;
 
         case STARTUP_MOTOR:
@@ -117,7 +117,7 @@ std::optional<GovSts> Governor::Transition(const Governor::Input input,
     switch (*fsm_state_) {
         case INIT:
             if (time_ms - state_entered_time_ >= 2000 &&
-                input.di_sts == DiSts::HV_START_REQ) {
+                input.di_sts == DiSts::REQUESTED_HV_START) {
                 return STARTUP_HV;
             }
             break;
@@ -129,7 +129,7 @@ std::optional<GovSts> Governor::Transition(const Governor::Input input,
             break;
 
         case STARTUP_READY_TO_DRIVE:
-            if (input.di_sts == DiSts::MOTOR_START_REQ) {
+            if (input.di_sts == DiSts::REQUESTED_MOTOR_START) {
                 return STARTUP_MOTOR;
             }
             break;
