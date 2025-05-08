@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Screen.hpp"
-#include "inc/ButtonHandler.hpp"
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 
 class ConfirmMenu : public Screen {
     enum Selection : bool {
@@ -11,10 +10,10 @@ class ConfirmMenu : public Screen {
     };
 
 public:
-    ConfirmMenu(Menu* menu);
+    ConfirmMenu(Display* display);
 
-    void PostCreate() override;
-    void Update(Button select, Button scroll) override;
+    void CreateGUI() override;
+    void Update() override;
 
 private:
     lv_obj_t* roller;

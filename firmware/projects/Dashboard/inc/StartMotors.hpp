@@ -1,12 +1,11 @@
 #pragma once
 
 #include "Screen.hpp"
-#include "inc/ButtonHandler.hpp"
 
 class StartMotors : public Screen {
 public:
-    StartMotors(Menu* menu);
+    StartMotors(Display* display);
 
-    void PostCreate() override;
-    void Update(Button select, Button scroll) override;
+    void CreateGUI() override;
+    void Update() override;
 };

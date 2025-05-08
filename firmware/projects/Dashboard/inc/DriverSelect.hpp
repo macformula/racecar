@@ -2,16 +2,15 @@
 
 #include "Screen.hpp"
 #include "generated/can/veh_messages.hpp"
-#include "inc/ButtonHandler.hpp"
 
 class DriverSelect : public Screen {
 public:
     using Driver = generated::can::TxDashboardStatus::Driver_t;
 
-    DriverSelect(Menu* menu);
+    DriverSelect(Display* display);
 
-    void PostCreate() override;
-    void Update(Button select, Button scroll) override;
+    void CreateGUI() override;
+    void Update() override;
 
 private:
     const uint8_t kNumDrivers = static_cast<uint8_t>(Driver::UNSPECIFIED);

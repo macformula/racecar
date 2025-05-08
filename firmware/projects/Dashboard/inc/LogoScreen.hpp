@@ -1,12 +1,11 @@
 #pragma once
 
-#include "inc/ButtonHandler.hpp"
 #include "inc/Screen.hpp"
 
 class LogoScreen : public Screen {
 public:
-    LogoScreen(Menu* menu);
+    LogoScreen(Display* display);
 
-    void PostCreate() override;
-    void Update(Button select, Button scroll) override;
+    void CreateGUI() override;
+    void Update() override;
 };

@@ -1,24 +1,23 @@
 #pragma once
 
 #include "generated/can/veh_messages.hpp"
-#include "inc/ButtonHandler.hpp"
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 
-class Menu;
+class Display;
 
 class Screen {
 public:
     using State = generated::can::TxDashboardStatus::DashState_t;
 
-    Screen(Menu* menu) : menu_(menu) {}
+    Screen(Display* display);
 
     void Create();
-    virtual void Update(Button select, Button scroll) = 0;
+    virtual void Update() = 0;
 
 protected:
-    Menu* menu_;
-    lv_obj_t* frame;
+    Display* const display_;
+    lv_obj_t* frame_;
 
 private:
-    virtual void PostCreate() = 0;
+    virtual void CreateGUI() = 0;
 };

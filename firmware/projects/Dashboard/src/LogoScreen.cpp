@@ -1,24 +1,25 @@
 #include "inc/LogoScreen.hpp"
 
-#include "FE_Logo.cpp"
-#include "inc/Menu.hpp"
+#include "FE_Logo.cpp"  // don't open this file! it's big and will crash your IDE
+#include "inc/Display.hpp"
 
-LogoScreen::LogoScreen(Menu* menu) : Screen(menu) {}
+LogoScreen::LogoScreen(Display* display) : Screen(display) {}
 
-void LogoScreen::PostCreate() {
+void LogoScreen::CreateGUI() {
     LV_IMG_DECLARE(FE_Logo);
 
-    lv_obj_t* img = lv_img_create(frame);
+    lv_obj_t* img = lv_img_create(frame_);
     lv_img_set_src(img, &FE_Logo);
     lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
 
-    // cleanup and load screen
-    lv_obj_clean(lv_scr_act());
-    lv_scr_load(frame);
+    lv_obj_t* help_msg = lv_label_create(frame_);
+    lv_label_set_text(help_msg, "Press any button to continue");
+    lv_obj_set_style_text_font(help_msg, &lv_font_montserrat_24, 0);
+    lv_obj_align(help_msg, LV_ALIGN_BOTTOM_MID, 0, 0);
 }
 
-void LogoScreen::Update(Button select, Button scroll) {
-    if (select.IsPressed() || scroll.IsPressed()) {
-        menu_->ChangeState(State::SELECT_DRIVER);
+void LogoScreen::Update() {
+    if (display_->enter.IsPressed() || display_->scroll.IsPressed()) {
+        display_->ChangeState(State::SELECT_DRIVER);
     }
 }
