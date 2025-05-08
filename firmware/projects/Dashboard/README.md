@@ -39,14 +39,14 @@ make PROJECT=Dashboard PLATFORM=lnx
 
 The platform name is `lnx` (not `linux`) because C/C++ consider `linux` a keyword which breaks imports.
 
-To run, enable the vcan interface then run the executable.
+Enable the SocketCAN interface then run the executable. In another terminal, run the FrontController mock script to provide replies to the Dashbaord's CAN messages.
 
 ```bash
-source platforms/lnx/vcan_setup.sh
+source platforms/lnx/socketcan_setup.sh
 ./build/Dashboard/lnx/main
+# In a separate terminal
+python3 platforms/lnx/fc_sim.py
 ```
-
-Some dashboard states require a CAN message from the FrontController before proceding. You can mock these messages with SocketCAN. The `platforms/lnx/fc_sim.py` uses SocketCAN to simulate the FrontController response.
 
 ## Development
 
