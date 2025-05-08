@@ -1,4 +1,4 @@
-#include "inc/ButtonHandler.hpp"
+#include "inc/Button.hpp"
 
 #include "../bindings.hpp"
 
