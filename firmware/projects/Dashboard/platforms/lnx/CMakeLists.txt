@@ -1,9 +1,9 @@
-target_sources(main PRIVATE bindings.cc lvgl_linux.cc)
+target_sources(main PRIVATE bindings.cc)
 target_link_libraries(main PRIVATE mcal-linux)
 
 add_definitions(-DSIMULATOR=1 -DLV_BUILD_TEST=0)
 
-add_subdirectory(lv_drivers) # do we need this? seems to only be for touch screen simulators
+add_subdirectory(lv_drivers)
 target_link_libraries(main PRIVATE lv_drivers)
 target_link_libraries(lv_drivers PRIVATE lvgl)
 target_include_directories(lv_drivers PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

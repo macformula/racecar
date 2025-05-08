@@ -29,11 +29,10 @@ namespace mcal {
 using namespace stm32f::periph;
 
 CanBase veh_can_base{&hcan1};
-// TODO swap these labels in CubeMX instead of here
-DigitalInput button_scroll_n{BUTTON_SELECT_GPIO_Port, BUTTON_SELECT_Pin};
-DigitalInput button_select_n{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
+DigitalInput button_scroll_n{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
+DigitalInput button_enter_n{BUTTON_SELECT_GPIO_Port, BUTTON_SELECT_Pin};
 shared::periph::InvertedDigitalInput button_scroll{button_scroll_n};
-shared::periph::InvertedDigitalInput button_select{button_select_n};
+shared::periph::InvertedDigitalInput button_enter{button_enter_n};
 
 }  // namespace mcal
 
@@ -41,7 +40,7 @@ namespace bindings {
 
 shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
 shared::periph::DigitalInput& button_scroll = mcal::button_scroll;
-shared::periph::DigitalInput& button_select = mcal::button_select;
+shared::periph::DigitalInput& button_enter = mcal::button_enter;
 
 void Initialize() {
     HAL_Init();
@@ -61,12 +60,10 @@ void Initialize() {
     MX_LTDC_Init();
     MX_USART3_UART_Init();
 
-    screen_driver_init();
-
     mcal::veh_can_base.Setup();
-}
 
-void PostLvglInit() {}  // nothing to do on this platform
+    screen_driver_init();
+}
 
 void DelayMS(uint32_t ms) {
     HAL_Delay(ms);
