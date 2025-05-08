@@ -67,6 +67,11 @@ Governor::Input gov_in{};
 
 using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
 TxFC_Status fc_status{0, DiSts::IDLE, 0, 0, DbcHashStatus::WAITING};
+TxContactorCommand contactor_cmd{
+    static_cast<bool>(ContactorCommand::State::OPEN),
+    static_cast<bool>(ContactorCommand::State::OPEN),
+    static_cast<bool>(ContactorCommand::State::OPEN),
+};
 
 void UpdateControls() {
     int time_ms = bindings::GetTickMs();
@@ -119,11 +124,9 @@ void UpdateControls() {
     BatteryMonitor::Output bm_out = bm.Update(bm_in, time_ms);
     gov_in.bm_sts = bm_out.status;
 
-    veh_can_bus.Send(TxContactorCommand{
-        .pack_positive = static_cast<bool>(bm_out.command.positive),
-        .pack_precharge = static_cast<bool>(bm_out.command.precharge),
-        .pack_negative = static_cast<bool>(bm_out.command.negative),
-    });
+    contactor_cmd.pack_positive = static_cast<bool>(bm_out.command.positive);
+    contactor_cmd.pack_precharge = static_cast<bool>(bm_out.command.precharge);
+    contactor_cmd.pack_negative = static_cast<bool>(bm_out.command.negative);
 
     // Vehicle Dynamics update
     VehicleDynamics::Input vd_in = {
@@ -293,6 +296,7 @@ int main(void) {
         }
 
         veh_can_bus.Send(fc_status);
+        veh_can_bus.Send(contactor_cmd);
 
         // test pedals
         veh_can_bus.Send(TxFC_apps_debug{
