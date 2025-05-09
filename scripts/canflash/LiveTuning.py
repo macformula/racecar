@@ -1,6 +1,5 @@
 from nicegui import ui, events
-
-
+import subprocess
 class LiveTuning:
     def __init__(self) -> None:
         self.value1 = 0          
@@ -37,6 +36,7 @@ class LiveTuning:
             self.value1 = 0
         print(f'Slider changed to {self.value1}')
 
-    def submit(self, _=None) -> None:
-        # no‑op for now
+    def submit(self, _=None, iface = 'can0') -> None:
+
         print(f'Submit pressed (current value: {self.value1})')
+        subprocess.run(["bash", "./scripts/tune.sh", str(self.value1), iface], check=True)

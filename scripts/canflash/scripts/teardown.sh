@@ -16,7 +16,7 @@ sudo rm -f /lib/systemd/system/canflash.service
 
 # Remove installed packages
 echo "Removing installed packages..."
-sudo apt remove --purge -y libgtk-3-dev build-essential gcc g++ pkg-config make hostapd libqrencode-dev libpng-dev iptables
+sudo apt remove --purge -y libgtk-3-dev build-essential gcc g++ pkg-config make hostapd libqrencode-dev libpng-dev iptables can-utils
 sudo apt autoremove -y
 sudo apt clean
 
