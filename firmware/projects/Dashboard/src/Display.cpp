@@ -5,8 +5,7 @@ Display::Display(Button& enter, Button& scroll, generated::can::VehBus& veh)
       scroll(scroll),
       veh_bus(veh),
       logo_screen(this),
-      driver_select(this),
-      event_select(this),
+      profile_select(this),
       confirm_menu(this),
       acknowledge_config(this),
       start_hv(this),
@@ -54,8 +53,7 @@ void Display::InnerChangeState(State new_state_) {
         using enum State;
             // clang-format off
         case LOGO:                  screen_ = &logo_screen; break;
-        case SELECT_DRIVER:         screen_ = &driver_select; break;
-        case SELECT_EVENT:          screen_ = &event_select; break;
+        case SELECT_PROFILE:        screen_ = &profile_select; break;
         case CONFIRM_SELECTION:     screen_ = &confirm_menu; break;
         case WAIT_SELECTION_ACK:    screen_ = &acknowledge_config; break;
         case PRESS_FOR_HV:          screen_ = &start_hv; break;
