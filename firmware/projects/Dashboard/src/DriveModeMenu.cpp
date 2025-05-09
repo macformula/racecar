@@ -27,4 +27,9 @@ void DriveModeMenu::Update() {
         lv_arc_set_value(speedometer_arc, speed * kArcSpeedResolution);
         lv_label_set_text_fmt(speed_label, "%d", static_cast<int>(speed));
     }
+
+    if (display_->enter.GetHeldDuration() > 5000 &&
+        display_->enter.IsPressed()) {
+        display_->ChangeState(State::LOGO);
+    }
 }

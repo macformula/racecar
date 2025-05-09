@@ -5,6 +5,7 @@
 
 #include <cstdint>
 
+#include "../../tuning.hpp"
 #include "shared/util/lookup_table.hpp"
 #include "shared/util/moving_average.hpp"
 #include "vehicle_dynamics_calc.hpp"
@@ -34,7 +35,7 @@ public:
     };
 
     VehicleDynamics(
-        LUT::Data pedal_to_torque,
+        LUT::Data pedal_to_torque, tuning::Profile profile,
         float target_slip = 0.2f);  // default target slip is float 0.2
     void Init(int time_ms);
     Output Update(const Input& input, int time_ms);

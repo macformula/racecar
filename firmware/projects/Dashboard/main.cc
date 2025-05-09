@@ -32,8 +32,7 @@ int main(void) {
 
         veh_can.Send(TxDashboardStatus{
             .dash_state = display.GetState(),
-            .driver = display.selected_driver,
-            .event = display.selected_event,
+            .profile = display.selected_profile,
         });
 
         bindings::DelayMS(kUpdatePeriodMs);

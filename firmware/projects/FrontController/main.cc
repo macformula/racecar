@@ -61,7 +61,9 @@ MotorIface mi;
 BatteryMonitor bm;
 Governor gov;
 DriverInterface di;
-VehicleDynamics vd{tuning::pedal_to_torque};
+VehicleDynamics vd{
+    tuning::pedal_to_torque,
+    tuning::GetProfile(generated::can::RxDashboardStatus::Profile_t::Default)};
 
 Governor::Input gov_in{};
 
@@ -251,8 +253,30 @@ void FrontController::Update(int time_ms) {
 
             if (msg.has_value()) {
                 if (msg->DashState() == DashState::WAIT_SELECTION_ACK) {
-                    to_dash.receive_config = true;
-                    transition = RUNNING;
+                    using enum RxDashboardStatus::Profile_t;
+
+                    std::optional<tuning::Profile> profile = std::nullopt;
+
+                    if (msg->Profile() == Tuning) {
+                        auto profile_msg = veh_can_bus.GetRxTuningParams();
+                        if (profile_msg.has_value()) {
+                            profile = tuning::Profile{
+                                .aggressiveness =
+                                    float(profile_msg->aggressiveness()),
+                                // fill in other fields
+                            };
+                        }
+
+                        break;
+                    } else {
+                        profile = tuning::GetProfile(msg->Profile());
+                    }
+
+                    if (profile.has_value()) {
+                        vd = VehicleDynamics{tuning::pedal_to_torque,
+                                             profile.value()};
+                        transition = RUNNING;
+                    }
                 }
             }
         } break;
@@ -260,6 +284,7 @@ void FrontController::Update(int time_ms) {
         case RUNNING:
             UpdateControls();
 
+            to_dash.receive_config = true;
             to_dash.hv_started = gov_in.bm_sts == BmSts::RUNNING;
             to_dash.motor_started = gov_in.mi_sts == MiSts::RUNNING;
             to_dash.drive_started = gov_in.di_sts == DiSts::RUNNING;

@@ -19,7 +19,7 @@ void LogoScreen::CreateGUI() {
 }
 
 void LogoScreen::Update() {
-    if (display_->enter.IsPressed() || display_->scroll.IsPressed()) {
-        display_->ChangeState(State::SELECT_DRIVER);
+    if (display_->enter.PosEdge() || display_->scroll.PosEdge()) {
+        display_->ChangeState(State::SELECT_PROFILE);
     }
 }

@@ -191,10 +191,12 @@ BO_ 258 FCDashboardStatus: 4 FC
  SG_ hv_charge_percent  : 8|8@1+ (1,0) [0|100] ""  Dash
  SG_ speed              : 16|12@1+ (0.1,0) [0|200] "km/h" Dash
 
-BO_ 259 DashboardStatus: 3 Dash
+BO_ 259 DashboardStatus: 2 Dash
  SG_ DashState          : 0|8@1+ (1,0) [0|1] "" FC
- SG_ Driver             : 8|8@1+ (1,0) [0|15] "" FC
- SG_ Event              : 16|8@1+ (1,0) [0|15] "" FC
+ SG_ Profile            : 8|8@1+ (1,0) [0|15] "" FC
+
+BO_ 260 TuningParams: 8 RPI
+ SG_ aggressiveness     : 0|8@1+ (1,0) [0|100] "" FC
 
 CM_ BO_ 1572 "This ID Transmits at 8 ms.";
 CM_ BO_ 1571 "This ID Transmits at 8 ms.";
@@ -259,6 +261,5 @@ VAL_ 111 LvState 0 "PWRUP_START" 1 "PWRUP_TSSI_ON" 2 "PWRUP_PERIPHERALS_ON" 3 "P
 VAL_ 112 FcState 0 "PWRUP_START" 1 "HVIL_OPEN";
 VAL_ 255 DbcHashStatus 0 "WAITING" 1 "VALID" 2 "INVALID";
 VAL_ 255 DiStatus 0 "IDLE" 1 "WAITING_FOR_DRIVER_HV" 2 "REQUESTED_HV_START" 3 "WAITING_FOR_DRIVER_MOTOR" 4 "REQUESTED_MOTOR_START" 5 "RUNNING" 6 "ERR_COASTING" 7 "ERR";
-VAL_ 259 Driver 0 "Ada" 1 "Lin" 2 "Logan" 3 "Luca" 4 "Mubashir" 5 "Nathan" 6 "Tyler" 7 "UNSPECIFIED";
-VAL_ 259 Event 0 "Launch" 1 "Skidpad" 2 "Endurance" 3 "UNSPECIFIED";
-VAL_ 259 DashState 0 "LOGO" 1 "SELECT_DRIVER" 2 "SELECT_EVENT" 3 "CONFIRM_SELECTION" 4 "WAIT_SELECTION_ACK" 5 "PRESS_FOR_HV" 6 "STARTING_HV" 7 "PRESS_FOR_MOTOR" 8 "STARTING_MOTORS" 9 "BRAKE_TO_START" 10 "RUNNING";
+VAL_ 259 Profile 0 "Default" 1 "Launch" 2 "Skidpad" 3 "Endurance" 4 "Tuning" 5 "_ENUM_TAIL_";
+VAL_ 259 DashState 0 "LOGO" 1 "SELECT_PROFILE" 2 "CONFIRM_SELECTION" 3 "WAIT_SELECTION_ACK" 4 "PRESS_FOR_HV" 5 "STARTING_HV" 6 "PRESS_FOR_MOTOR" 7 "STARTING_MOTORS" 8 "BRAKE_TO_START" 9 "RUNNING";
