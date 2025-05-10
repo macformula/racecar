@@ -5,7 +5,6 @@
 namespace bindings {
 
 extern shared::periph::DigitalOutput& indicator;
-extern void DelayMS(unsigned int ms);
 extern void Initialize();
 
 }  // namespace bindings

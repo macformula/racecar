@@ -2,7 +2,6 @@
 
 #include <signal.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #include <iostream>
 
@@ -18,10 +17,6 @@ cli::periph::DigitalOutput indicator{"Indicator"};
 namespace bindings {
 
 shared::periph::DigitalOutput& indicator = mcal::indicator;
-
-void DelayMS(unsigned int ms) {
-    usleep(ms * 1000);
-}
 
 void Initialize() {
     std::cout << "Initializing the CLI..." << std::endl;
