@@ -1,8 +1,11 @@
-#include <unistd.h>
-#include <stdlib.h>
-#include <iostream>
+#include "../../bindings.hpp"
+
 #include <signal.h>
-#include "../../bindings.h"
+#include <stdlib.h>
+#include <unistd.h>
+
+#include <iostream>
+
 #include "mcal/cli/periph/gpio.h"
 #include "shared/periph/gpio.h"
 
@@ -14,15 +17,20 @@ cli::periph::DigitalOutput indicator{"Indicator"};
 
 namespace bindings {
 
-    shared::periph::DigitalOutput& indicator = mcal::indicator;
+shared::periph::DigitalOutput& indicator = mcal::indicator;
 
-    void DelayMS(unsigned int ms) {
-        usleep(ms * 1000);
-    }
+void DelayMS(unsigned int ms) {
+    usleep(ms * 1000);
+}
 
-    void Initialize() {
-        std::cout << "Initializing the CLI...\n" << std::endl;
-        signal(SIGINT, (__p_sig_fn_t)&ToggleInterruptHandler);
-    }
+void Initialize() {
+    std::cout << "Initializing the CLI..." << std::endl;
+    std::cout << "Press ctrl+c to simulate the interrupt" << std::endl;
+    std::cout << "Press ctrl+\\ to exit.\n" << std::endl;
 
-    }  // namespace bindings
+    // register the signal handler for SIGINT (ctrl+c)
+    // this is used to simulate the interrupt on the CLI
+    signal(SIGINT, AppInterruptHandler);
+}
+
+}  // namespace bindings

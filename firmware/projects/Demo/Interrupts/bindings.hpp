@@ -1,0 +1,14 @@
+#pragma once
+
+#include "shared/periph/gpio.h"
+
+namespace bindings {
+
+extern shared::periph::DigitalOutput& indicator;
+extern void DelayMS(unsigned int ms);
+extern void Initialize();
+
+}  // namespace bindings
+
+// Declaring the handler in bindings allows the platforms to call it.
+extern void AppInterruptHandler(int);

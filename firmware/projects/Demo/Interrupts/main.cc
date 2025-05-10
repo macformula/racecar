@@ -1,30 +1,21 @@
-#include "bindings.h"
-#include <iostream> 
+#include "bindings.hpp"
 
-
-//toggle variable
 volatile bool toggle = false;
 
-void AppLevelFunction();
-
-void ToggleInterruptHandler() {
-    AppLevelFunction();
-}
-
-//app level function that takes care of the interupt handler
-void AppLevelFunction() {
-    std::cout << "Toggle Switch is Pressed" << std::endl;
+void AppInterruptHandler(int) {
+    // This is called by the a platform's interrupt mechanism. See
+    // platforms/cli/bindings.cc
     toggle = !toggle;
+    bindings::indicator.Set(toggle);
 }
 
 int main() {
     bindings::Initialize();
+    bindings::indicator.SetLow();
 
-    while (true) {
-        //toggling between the high and low once toggle switch has been activated
-        bindings::indicator.Set(toggle);
-        bindings::DelayMS(1000);
-    }
+    // Nothing happens in the loop. All behaviour occurs in the
+    // interrupt handler function.
+    while (true) continue;
 
     return 0;
 }
