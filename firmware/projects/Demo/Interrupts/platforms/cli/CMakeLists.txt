@@ -1,2 +1,2 @@
-target_sources(bindings PRIVATE bindings.cc)
-target_link_libraries(bindings PUBLIC mcal-cli)
+target_sources(main PRIVATE bindings.cc)
+target_link_libraries(main PUBLIC mcal-cli)
