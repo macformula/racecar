@@ -1,0 +1,1048 @@
+name: veh
+baud_rate: null
+nodes:
+  - name: PC_SG
+  - name: BMS
+  - name: FC
+  - name: TMS
+  - name: CANmod
+  - name: LVC
+  - name: RPI
+enum_types:
+  LvControllerState:
+    DcdcEnabled: 26
+    WaitingForOpenContactors: 25
+    PowertrainFanPwmOff: 24
+    PowertrainFanOff: 23
+    PowertrainPumpOff: 22
+    DisabledLed: 21
+    LostDcdcValid: 20
+    SequenceComplete: 19
+    PowertrainFanSweeping: 18
+    PowertrainFanEnabled: 17
+    PowertrainPumpEnabled: 16
+    DcdcLedEnabled: 15
+    DcdcValid: 14
+    WaitingForDcdcValid: 13
+    WaitingForClosedContactors: 12
+    ShutdownCircuitEnabled: 11
+    ImuGpsEnabled: 10
+    MotorControllerPrechargeDisabled: 9
+    MotorControllerEnabled: 8
+    MotorControllerPrechargeEnabled: 7
+    AccumulatorEnabled: 6
+    SpeedgoatEnabled: 5
+    FrontControllerEnabled: 4
+    RaspiEnabled: 3
+    TsalEnabled: 2
+    Startup: 1
+    Unknown: 0
+  VC_govStatus:
+    motor_run_error: 8
+    hv_run_error: 7
+    gov_di_error: 6
+    motor_startup_error: 5
+    hv_startup_error: 4
+    gov_shutdown: 3
+    gov_running: 2
+    gov_startup: 1
+    gov_init: 0
+  VC_diStatus:
+    di_error: 8
+    di_running: 7
+    hv_start_req: 6
+    ready_to_drive_req: 5
+    waiting_for_driver: 4
+    di_startup: 3
+    di_idle: 2
+    di_sts_init: 1
+    di_unknown: 0
+  VC_miStatus:
+    "off": 7
+    mi_sts_error: 6
+    shutdown: 5
+    running: 4
+    ready: 3
+    startup: 2
+    sts_init: 1
+    unknown: 0
+  VC_bmStatus:
+    err_running: 9
+    bm_low_soc: 8
+    hvil_interrupt: 7
+    bm_running: 6
+    precharge: 5
+    init_precharge: 4
+    bm_startup: 3
+    bm_idle: 2
+    bm_init: 1
+    bm_unknown: 0
+messages:
+  - name: LvControllerStatus
+    id: 111
+    is_extended_id: false
+    length: 1
+    sender: LVC
+    receivers:
+      - RPI
+    frequency: 100
+    signals:
+      - name: LvControllerState
+        start_bit: 0
+        length: 8
+        endianness: LITTLE
+        signal_type: enum
+        enum_config: LvControllerState
+  - name: VC_Status
+    id: 255
+    is_extended_id: false
+    length: 4
+    sender: PC_SG
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: VC_govStatus
+        start_bit: 0
+        length: 4
+        endianness: LITTLE
+        signal_type: enum
+        enum_config: VC_govStatus
+      - name: VC_diStatus
+        start_bit: 8
+        length: 4
+        endianness: LITTLE
+        signal_type: enum
+        enum_config: VC_diStatus
+      - name: VC_miStatus
+        start_bit: 16
+        length: 3
+        endianness: LITTLE
+        signal_type: enum
+        enum_config: VC_miStatus
+      - name: VC_bmStatus
+        start_bit: 24
+        length: 4
+        endianness: LITTLE
+        signal_type: enum
+        enum_config: VC_bmStatus
+  - name: FC_msg
+    id: 511
+    is_extended_id: false
+    length: 8
+    sender: FC
+    receivers:
+      - PC_SG
+    frequency: 100
+    signals:
+      - name: FC_apps1
+        start_bit: 0
+        length: 12
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 4095
+        is_signed: false
+      - name: FC_apps2
+        start_bit: 16
+        length: 12
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 4095
+        is_signed: false
+      - name: FC_bpps
+        start_bit: 32
+        length: 12
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 4095
+        is_signed: false
+      - name: FC_steeringAngle
+        start_bit: 48
+        length: 12
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 4095
+        is_signed: false
+      - name: FC_hvilSts
+        start_bit: 60
+        length: 1
+        endianness: LITTLE
+        signal_type: boolean
+      - name: FC_readyToDriveBtn_n
+        start_bit: 61
+        length: 1
+        endianness: LITTLE
+        signal_type: boolean
+  - name: FC_cmd
+    id: 256
+    is_extended_id: false
+    length: 1
+    sender: PC_SG
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: FC_brakeLight
+        start_bit: 0
+        length: 1
+        endianness: LITTLE
+        signal_type: boolean
+      - name: FC_readyToDriveSpeaker
+        start_bit: 1
+        length: 1
+        endianness: LITTLE
+        signal_type: boolean
+  - name: InverterCommand
+    id: 1560
+    is_extended_id: false
+    length: 1
+    sender: FC
+    receivers:
+      - LVC
+    frequency: 100
+    signals:
+      - name: EnableInverter
+        start_bit: 0
+        length: 1
+        endianness: LITTLE
+        signal_type: boolean
+  - name: ContactorStates
+    id: 1570
+    is_extended_id: false
+    length: 3
+    sender: FC
+    receivers:
+      - LVC
+      - BMS
+    frequency: 100
+    signals:
+      - name: PackPositive
+        start_bit: 0
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false
+      - name: PackPrecharge
+        start_bit: 8
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false
+      - name: PackNegative
+        start_bit: 16
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false
+  - name: Pack_State
+    id: 1572
+    is_extended_id: false
+    length: 7
+    sender: BMS
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: Pack_Current
+        start_bit: 0
+        length: 16
+        endianness: LITTLE
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - 0
+          - 0
+        scale: 0.1
+        offset: 0
+        unit: Amps
+      - name: Pack_Inst_Voltage
+        start_bit: 16
+        length: 16
+        endianness: LITTLE
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - 0
+          - 0
+        scale: 0.1
+        offset: 0
+        unit: Volts
+      - name: Avg_Cell_Voltage
+        start_bit: 32
+        length: 16
+        endianness: LITTLE
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - 0
+          - 0
+        scale: 0.0001
+        offset: 0
+        unit: Volts
+      - name: Populated_Cells
+        start_bit: 48
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false
+    description: This ID Transmits at 8 ms.
+  - name: Pack_Current_Limits
+    id: 1571
+    is_extended_id: false
+    length: 4
+    sender: BMS
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: Pack_CCL
+        start_bit: 0
+        length: 16
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false
+      - name: Pack_DCL
+        start_bit: 16
+        length: 16
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false
+    description: This ID Transmits at 8 ms.
+  - name: Pack_SOC
+    id: 1573
+    is_extended_id: false
+    length: 3
+    sender: BMS
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: Pack_SOC
+        start_bit: 0
+        length: 8
+        endianness: LITTLE
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - 0
+          - 0
+        scale: 0.5
+        offset: 0
+        unit: Percent
+      - name: Maximum_Pack_Voltage
+        start_bit: 8
+        length: 16
+        endianness: LITTLE
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - 0
+          - 0
+        scale: 0.1
+        offset: 0
+        unit: Volts
+    description: This ID Transmits at 8 ms.
+  - name: Contactor_Feedback
+    id: 1574
+    is_extended_id: false
+    length: 3
+    sender: BMS
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: Pack_Positive_Feedback
+        start_bit: 0
+        length: 1
+        endianness: LITTLE
+        signal_type: boolean
+      - name: Pack_Negative_Feedback
+        start_bit: 8
+        length: 1
+        endianness: LITTLE
+        signal_type: boolean
+      - name: Pack_Precharge_Feedback
+        start_bit: 16
+        length: 1
+        endianness: LITTLE
+        signal_type: boolean
+    description: This ID Transmits at 8 ms.
+  - name: BmsBroadcast
+    id: 406451072
+    is_extended_id: true
+    length: 8
+    sender: TMS
+    receivers:
+      - BMS
+    frequency: 100
+    signals:
+      - name: ThermModuleNum
+        start_bit: 0
+        length: 8
+        endianness: LITTLE
+        description: Thermistor Module Number
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false
+      - name: LowThermValue
+        start_bit: 8
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: true
+      - name: HighThermValue
+        start_bit: 16
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: true
+      - name: AvgThermValue
+        start_bit: 24
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: true
+      - name: NumThermEn
+        start_bit: 32
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false
+      - name: HighThermID
+        start_bit: 40
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false
+      - name: LowThermID
+        start_bit: 48
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false
+      - name: Checksum
+        start_bit: 56
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false
+    description: Thermistor Module - BMS Broadcast
+  - name: ThermistorBroadcast
+    id: 419361278
+    is_extended_id: true
+    length: 8
+    sender: TMS
+    receivers:
+      - BMS
+    frequency: 100
+    signals:
+      - name: RelThermID
+        start_bit: 0
+        length: 16
+        endianness: LITTLE
+        description: Thermistor ID relative to all configured Thermistor Modules
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false
+      - name: ThermValue
+        start_bit: 16
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: true
+      - name: NumEnTherm
+        start_bit: 24
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: true
+      - name: LowThermValue
+        start_bit: 32
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: true
+      - name: HighThermValue
+        start_bit: 40
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: true
+      - name: HighThermID
+        start_bit: 48
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false
+      - name: LowThermID
+        start_bit: 56
+        length: 8
+        endianness: LITTLE
+        signal_type: integral
+        value_range:
+          - 0
+          - 0
+        is_signed: false
+    description: Thermistor General Broadcast
+  - name: GnssStatus
+    id: 769
+    is_extended_id: false
+    length: 1
+    sender: CANmod
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: FixType
+        start_bit: 0
+        length: 3
+        endianness: LITTLE
+        description: Fix type
+        signal_type: integral
+        value_range:
+          - 0
+          - 5
+        is_signed: false
+      - name: Satellites
+        start_bit: 3
+        length: 5
+        endianness: LITTLE
+        description: Number of satellites used
+        signal_type: integral
+        value_range:
+          - 0
+          - 31
+        is_signed: false
+    description: GNSS information
+  - name: GnssTime
+    id: 770
+    is_extended_id: false
+    length: 6
+    sender: CANmod
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: TimeValid
+        start_bit: 0
+        length: 1
+        endianness: LITTLE
+        description: Time validity
+        signal_type: boolean
+      - name: TimeConfirmed
+        start_bit: 1
+        length: 1
+        endianness: LITTLE
+        description: Time confirmed
+        signal_type: boolean
+      - name: Epoch
+        start_bit: 8
+        length: 40
+        endianness: LITTLE
+        description: Epoch time
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - 0
+          - 0
+        scale: 0.001
+        offset: 1577840400
+        unit: sec
+    description: GNSS time
+  - name: GnssPosition
+    id: 771
+    is_extended_id: false
+    length: 8
+    sender: CANmod
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: PositionValid
+        start_bit: 0
+        length: 1
+        endianness: LITTLE
+        description: Position validity
+        signal_type: boolean
+      - name: Latitude
+        start_bit: 1
+        length: 28
+        endianness: LITTLE
+        description: Latitude
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - -90
+          - 178.435455
+        scale: 1e-06
+        offset: -90
+        unit: deg
+      - name: Longitude
+        start_bit: 29
+        length: 29
+        endianness: LITTLE
+        description: Longitude
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - -180
+          - 356.870911
+        scale: 1e-06
+        offset: -180
+        unit: deg
+      - name: PositionAccuracy
+        start_bit: 58
+        length: 6
+        endianness: LITTLE
+        description: Accuracy of position
+        signal_type: integral
+        value_range:
+          - 0
+          - 63
+        is_signed: false
+    description: GNSS position
+  - name: GnssAltitude
+    id: 772
+    is_extended_id: false
+    length: 4
+    sender: CANmod
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: AltitudeValid
+        start_bit: 0
+        length: 1
+        endianness: LITTLE
+        description: Altitude validity
+        signal_type: boolean
+      - name: Altitude
+        start_bit: 1
+        length: 18
+        endianness: LITTLE
+        description: Altitude
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - -6000
+          - 20000
+        scale: 0.1
+        offset: -6000
+        unit: m
+      - name: AltitudeAccuracy
+        start_bit: 19
+        length: 13
+        endianness: LITTLE
+        description: Accuracy of altitude
+        signal_type: integral
+        value_range:
+          - 0
+          - 8000
+        is_signed: false
+    description: GNSS altitude
+  - name: GnssAttitude
+    id: 773
+    is_extended_id: false
+    length: 8
+    sender: CANmod
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: AttitudeValid
+        start_bit: 0
+        length: 1
+        endianness: LITTLE
+        description: Attitude validity
+        signal_type: boolean
+      - name: Roll
+        start_bit: 1
+        length: 12
+        endianness: LITTLE
+        description: Vehicle roll
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - -180
+          - 180
+        scale: 0.1
+        offset: -180
+        unit: deg
+      - name: RollAccuracy
+        start_bit: 13
+        length: 9
+        endianness: LITTLE
+        description: Vehicle roll accuracy
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - 0
+          - 50
+        scale: 0.1
+        offset: 0
+        unit: deg
+      - name: Pitch
+        start_bit: 22
+        length: 12
+        endianness: LITTLE
+        description: Vehicle pitch
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - -90
+          - 90
+        scale: 0.1
+        offset: -90
+        unit: deg
+      - name: PitchAccuracy
+        start_bit: 34
+        length: 9
+        endianness: LITTLE
+        description: Vehicle pitch accuracy
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - 0
+          - 50
+        scale: 0.1
+        offset: 0
+        unit: deg
+      - name: Heading
+        start_bit: 43
+        length: 12
+        endianness: LITTLE
+        description: Vehicle heading
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - 0
+          - 360
+        scale: 0.1
+        offset: 0
+        unit: deg
+      - name: HeadingAccuracy
+        start_bit: 55
+        length: 9
+        endianness: LITTLE
+        description: Vehicle heading accuracy
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - 0
+          - 50
+        scale: 0.1
+        offset: 0
+        unit: deg
+    description: GNSS attitude
+  - name: GnssOdo
+    id: 774
+    is_extended_id: false
+    length: 8
+    sender: CANmod
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: DistanceValid
+        start_bit: 0
+        length: 1
+        endianness: LITTLE
+        signal_type: boolean
+      - name: DistanceTrip
+        start_bit: 1
+        length: 22
+        endianness: LITTLE
+        description: Distance traveled since last reset
+        signal_type: integral
+        value_range:
+          - 0
+          - 4194303
+        is_signed: false
+      - name: DistanceAccuracy
+        start_bit: 23
+        length: 19
+        endianness: LITTLE
+        description: Distance accuracy (1-sigma)
+        signal_type: integral
+        value_range:
+          - 0
+          - 524287
+        is_signed: false
+      - name: DistanceTotal
+        start_bit: 42
+        length: 22
+        endianness: LITTLE
+        description: Distance traveled in total
+        signal_type: integral
+        value_range:
+          - 0
+          - 4194303
+        is_signed: false
+    description: GNSS odometer
+  - name: GnssSpeed
+    id: 775
+    is_extended_id: false
+    length: 5
+    sender: CANmod
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: SpeedValid
+        start_bit: 0
+        length: 1
+        endianness: LITTLE
+        description: Speed valid
+        signal_type: boolean
+      - name: Speed
+        start_bit: 1
+        length: 20
+        endianness: LITTLE
+        description: Speed m/s
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - 0
+          - 1048.575
+        scale: 0.001
+        offset: 0
+        unit: m/s
+      - name: SpeedAccuracy
+        start_bit: 21
+        length: 19
+        endianness: LITTLE
+        description: Speed accuracy
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - 0
+          - 524.287
+        scale: 0.001
+        offset: 0
+        unit: m/s
+    description: GNSS speed
+  - name: GnssGeofence
+    id: 776
+    is_extended_id: false
+    length: 2
+    sender: CANmod
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: FenceValid
+        start_bit: 0
+        length: 1
+        endianness: LITTLE
+        description: Geofencing status
+        signal_type: boolean
+      - name: FenceCombined
+        start_bit: 1
+        length: 2
+        endianness: LITTLE
+        description: Combined (logical OR) state of all geofences
+        signal_type: integral
+        value_range:
+          - 0
+          - 1
+        is_signed: false
+      - name: Fence1
+        start_bit: 8
+        length: 2
+        endianness: LITTLE
+        description: Geofence 1 state
+        signal_type: integral
+        value_range:
+          - 0
+          - 1
+        is_signed: false
+      - name: Fence2
+        start_bit: 10
+        length: 2
+        endianness: LITTLE
+        description: Geofence 2 state
+        signal_type: integral
+        value_range:
+          - 0
+          - 1
+        is_signed: false
+      - name: Fence3
+        start_bit: 12
+        length: 2
+        endianness: LITTLE
+        description: Geofence 3 state
+        signal_type: integral
+        value_range:
+          - 0
+          - 1
+        is_signed: false
+      - name: Fence4
+        start_bit: 14
+        length: 2
+        endianness: LITTLE
+        description: Geofence 4 state
+        signal_type: integral
+        value_range:
+          - 0
+          - 1
+        is_signed: false
+    description: GNSS geofence(s)
+  - name: GnssImu
+    id: 777
+    is_extended_id: false
+    length: 8
+    sender: CANmod
+    receivers:
+      - FC
+    frequency: 100
+    signals:
+      - name: ImuValid
+        start_bit: 0
+        length: 1
+        endianness: LITTLE
+        signal_type: boolean
+      - name: AccelerationX
+        start_bit: 1
+        length: 10
+        endianness: LITTLE
+        description: X acceleration with a resolution of 0.125 m/s^2
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - -64
+          - 63.875
+        scale: 0.125
+        offset: -64
+        unit: m/s^2
+      - name: AccelerationY
+        start_bit: 11
+        length: 10
+        endianness: LITTLE
+        description: Y acceleration with a resolution of 0.125 m/s^2
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - -64
+          - 63.875
+        scale: 0.125
+        offset: -64
+        unit: m/s^2
+      - name: AccelerationZ
+        start_bit: 21
+        length: 10
+        endianness: LITTLE
+        description: Z acceleration with a resolution of 0.125 m/s^2
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - -64
+          - 63.875
+        scale: 0.125
+        offset: -64
+        unit: m/s^2
+      - name: AngularRateX
+        start_bit: 31
+        length: 11
+        endianness: LITTLE
+        description: X angular rate with a resolution of 0.25 deg/s
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - -256
+          - 255.75
+        scale: 0.25
+        offset: -256
+        unit: deg/s
+      - name: AngularRateY
+        start_bit: 42
+        length: 11
+        endianness: LITTLE
+        description: Y angular rate with a resolution of 0.25 deg/s
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - -256
+          - 255.75
+        scale: 0.25
+        offset: -256
+        unit: deg/s
+      - name: AngularRateZ
+        start_bit: 53
+        length: 11
+        endianness: LITTLE
+        description: Z angular rate with a resolution of 0.25 deg/s
+        signal_type: floating
+        is_signed: false
+        value_range:
+          - -256
+          - 255.75
+        scale: 0.25
+        offset: -256
+        unit: deg/s
+    description: GNSS IMU
