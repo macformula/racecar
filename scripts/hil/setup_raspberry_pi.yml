@@ -1,0 +1,25 @@
+- name: Setup Raspberry Pi
+  hosts: raspberry_pi
+  become: true
+
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install clangd
+      apt:
+        name: clangd
+        state: present
+
+    - name: Install clang-format
+      apt:
+        name: clang-format
+        state: present
+
+    - name: Verify clangd installation
+      command: clangd --version
+
+    - name: Verify clang-format installation
+      command: clang-format --version
