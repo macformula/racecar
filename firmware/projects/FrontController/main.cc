@@ -68,7 +68,8 @@ VehicleDynamics vd{
 Governor::Input gov_in{};
 
 using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
-TxFC_Status fc_status{0, DiSts::IDLE, 0, 0, DbcHashStatus::WAITING};
+TxFC_Status fc_status{GovSts::INIT, DiSts::IDLE, MiSts::INIT, BmSts::INIT,
+                      DbcHashStatus::WAITING};
 TxContactorCommand contactor_cmd{
     static_cast<bool>(ContactorCommand::State::OPEN),
     static_cast<bool>(ContactorCommand::State::OPEN),
@@ -80,10 +81,10 @@ void UpdateControls() {
 
     Governor::Output gov_out = gov.Update(gov_in, time_ms);
 
-    fc_status.gov_status = static_cast<uint8_t>(gov_out.gov_sts);
+    fc_status.gov_status = gov_out.gov_sts;
     fc_status.di_status = gov_in.di_sts;
-    fc_status.mi_status = static_cast<uint8_t>(gov_in.mi_sts);
-    fc_status.bm_status = static_cast<uint8_t>(gov_in.bm_sts);
+    fc_status.mi_status = gov_in.mi_sts;
+    fc_status.bm_status = gov_in.bm_sts;
 
     float brake_position = brake.ReadPosition();
 
@@ -156,20 +157,8 @@ void UpdateControls() {
         .cmd = gov_out.mi_cmd,
         .left_actual1 = left_act.value(),
         .right_actual1 = right_act.value(),
-        .left_motor_input =
-            {
-                .speed_request =
-                    static_cast<float>(vd_out.left_motor_speed_request),
-                .torque_limit_positive = vd_out.lm_torque_limit_positive,
-                .torque_limit_negative = vd_out.lm_torque_limit_negative,
-            },
-        .right_motor_input =
-            {
-                .speed_request =
-                    static_cast<float>(vd_out.right_motor_speed_request),
-                .torque_limit_positive = vd_out.rm_torque_limit_positive,
-                .torque_limit_negative = vd_out.rm_torque_limit_negative,
-            },
+        .left_motor_input = vd_out.left_motor_request,
+        .right_motor_input = vd_out.right_motor_request,
     };
     MotorIface::Output mi_out = mi.Update(mi_in, time_ms);
     (void)mi_out.inverter_enable;  // unused -> inverter en signal is set in the
@@ -186,14 +175,14 @@ public:
     enum class State {
         INIT,
         START_DASHBOARD,
-        SYNC_HASH,
+        // SYNC_HASH, // disable for now
         WAIT_DRIVER_SELECT,
         // WAIT_HV_START,
         // STARTING_HV,
         // WAIT_MOTOR_START,
         // STARTING_MOTOR,
         RUNNING,
-        ERROR_HASH_INVALID,
+        // ERROR_HASH_INVALID, // disable for now
     };
 
     FrontController(int start_time)
@@ -230,23 +219,23 @@ void FrontController::Update(int time_ms) {
             if (msg.has_value()) transition = WAIT_DRIVER_SELECT;
         } break;
 
-        case SYNC_HASH: {
-            if (on_enter) {
-                fc_status.dbc_hash_status = DbcHashStatus::WAITING;
-            }
+            // case SYNC_HASH: {
+            //     if (on_enter) {
+            //         fc_status.dbc_hash_status = DbcHashStatus::WAITING;
+            //     }
 
-            auto msg = veh_can_bus.GetRxSyncDbcHash();
+            //     auto msg = veh_can_bus.GetRxSyncDbcHash();
 
-            if (msg.has_value()) {
-                if (msg->DbcHash() == generated::can::kVehDbcHash) {
-                    fc_status.dbc_hash_status = DbcHashStatus::VALID;
-                    transition = WAIT_DRIVER_SELECT;
-                } else {
-                    fc_status.dbc_hash_status = DbcHashStatus::INVALID;
-                    transition = ERROR_HASH_INVALID;
-                }
-            }
-        } break;
+            //     if (msg.has_value()) {
+            //         if (msg->DbcHash() == generated::can::kVehDbcHash) {
+            //             fc_status.dbc_hash_status = DbcHashStatus::VALID;
+            //             transition = WAIT_DRIVER_SELECT;
+            //         } else {
+            //             fc_status.dbc_hash_status = DbcHashStatus::INVALID;
+            //             transition = ERROR_HASH_INVALID;
+            //         }
+            //     }
+            // } break;
 
         case WAIT_DRIVER_SELECT: {
             auto msg = veh_can_bus.GetRxDashboardStatus();
@@ -290,8 +279,8 @@ void FrontController::Update(int time_ms) {
             to_dash.drive_started = gov_in.di_sts == DiSts::RUNNING;
             break;
 
-        case ERROR_HASH_INVALID:
-            break;
+            // case ERROR_HASH_INVALID:
+            //     break;
     }
 
     veh_can_bus.Send(to_dash);
@@ -340,12 +329,14 @@ int main(void) {
         bindings::debug_led.Set(state);
         state = !state;
 
-        auto msg = veh_can_bus.GetRxInitiateCanFlash();
+        // no CAN flash in 2025
+        // auto msg = veh_can_bus.GetRxInitiateCanFlash();
 
-        if (msg.has_value() &&
-            msg->ECU() == RxInitiateCanFlash::ECU_t::FrontController) {
-            bindings::SoftwareReset();
-        }
+        // if (msg.has_value() &&
+        //     msg->ECU() == RxInitiateCanFlash::ECU_t::FrontController) {
+        //     bindings::SoftwareReset();
+        // }
+
         bindings::DelayMs(10);
     }
 
