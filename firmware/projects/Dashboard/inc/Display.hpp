@@ -8,9 +8,8 @@
 #include "inc/Button.hpp"
 #include "inc/ConfirmMenu.hpp"
 #include "inc/DriveModeMenu.hpp"
-#include "inc/DriverSelect.hpp"
-#include "inc/EventSelect.hpp"
 #include "inc/LogoScreen.hpp"
+#include "inc/ProfileSelect.hpp"
 #include "inc/StartDriving.hpp"
 #include "inc/StartHV.hpp"
 #include "inc/StartMotors.hpp"
@@ -20,8 +19,7 @@
 class Display {
 public:
     using State = generated::can::TxDashboardStatus::DashState_t;
-    using Driver = generated::can::TxDashboardStatus::Driver_t;
-    using Event = generated::can::TxDashboardStatus::Event_t;
+    using Profile = generated::can::TxDashboardStatus::Profile_t;
 
     Display(Button& enter, Button& scroll, generated::can::VehBus& veh);
 
@@ -30,8 +28,7 @@ public:
     Button enter;
     Button scroll;
 
-    Driver selected_driver = Driver::UNSPECIFIED;
-    Event selected_event = Event::UNSPECIFIED;
+    Profile selected_profile = Profile::Default;
 
     void Start();
     void Update(int time_ms);
@@ -47,8 +44,7 @@ private:
     Screen* screen_;
 
     LogoScreen logo_screen;
-    DriverSelect driver_select;
-    EventSelect event_select;
+    ProfileSelect profile_select;
     ConfirmMenu confirm_menu;
     AcknowledgeConfig acknowledge_config;
     StartHV start_hv;

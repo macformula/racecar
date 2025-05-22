@@ -103,11 +103,10 @@ class Simulation:
         DELAY = 0.5  # between screens
 
         ds = self.wait_for_dash(
-            "Waiting for Driver/Event Selection",
+            "Waiting for Profile Selection",
             lambda ds: ds["DashState"] == "WAIT_SELECTION_ACK",
         )
-        print(f"Driver:\t{ds['Driver']}")
-        print(f"Event:\t{ds['Event']}")
+        print(f"Profile:\t{ds['Profile']}")
         sleep(DELAY)
         self.fc_status["receiveConfig"] = True
 

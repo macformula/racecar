@@ -11,6 +11,7 @@ public:
     bool IsPressed() const;
     bool PosEdge() const;
     bool NegEdge() const;
+    uint32_t GetHeldDuration() const;
 
     void Update(int time_ms);
 
@@ -19,6 +20,7 @@ private:
     bool neg_edge_;
     bool previous_state_;
     uint32_t last_change_time_;
+    uint32_t last_update_time_;
 
     const uint32_t kDebounceDelay = 200;
     shared::periph::DigitalInput& input_;

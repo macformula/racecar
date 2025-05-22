@@ -19,6 +19,10 @@ bool Button::IsPressed() const {
     return previous_state_;
 }
 
+uint32_t Button::GetHeldDuration() const {
+    return last_update_time_ - last_change_time_;
+}
+
 void Button::Update(int time_ms) {
     bool new_state = input_.Read();
     if (new_state != previous_state_) {
@@ -27,7 +31,7 @@ void Button::Update(int time_ms) {
 
             last_change_time_ = time_ms;
 
-            // we must be on an edge to enter the outer if statement
+            // based on the outer IF statement, we must be on an edge
             neg_edge_ = !new_state;
             pos_edge_ = new_state;
         }
@@ -35,4 +39,5 @@ void Button::Update(int time_ms) {
         neg_edge_ = false;
         pos_edge_ = false;
     }
+    last_update_time_ = time_ms;
 }
