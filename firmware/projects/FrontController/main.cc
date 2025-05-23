@@ -13,6 +13,7 @@
 #include "generated/can/veh_messages.hpp"
 #include "inc/app.hpp"
 #include "physical.hpp"
+#include "scheduler/scheduler.h"
 #include "tuning.hpp"
 
 /***************************************************************
@@ -68,7 +69,11 @@ VehicleDynamics vd{
 Governor::Input gov_in{};
 
 using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
-TxFC_Status fc_status{GovSts::INIT, DiSts::IDLE, MiSts::INIT, BmSts::INIT,
+TxFC_Status fc_status{GovSts::INIT,
+                      DiSts::IDLE,
+                      MiSts::INIT,
+                      BmSts::INIT,
+                      TxFC_Status::FcState_t::INIT,
                       DbcHashStatus::WAITING};
 TxContactorCommand contactor_cmd{
     static_cast<bool>(ContactorCommand::State::OPEN),
@@ -170,43 +175,24 @@ void UpdateControls() {
     // pt_can_bus.Send(mi_out.right_setpoints);
 }
 
-class FrontController {
-public:
-    enum class State {
-        INIT,
-        START_DASHBOARD,
-        // SYNC_HASH, // disable for now
-        WAIT_DRIVER_SELECT,
-        // WAIT_HV_START,
-        // STARTING_HV,
-        // WAIT_MOTOR_START,
-        // STARTING_MOTOR,
-        RUNNING,
-        // ERROR_HASH_INVALID, // disable for now
-    };
-
-    FrontController(int start_time)
-        : state_(State::INIT), state_enter_time_(start_time) {}
-
-    void Update(int time_ms);
-
-private:
-    State state_;
-    int state_enter_time_;
-    bool on_enter = true;
-
-    TxFCDashboardStatus to_dash{0, 0, 0, 0};
+TxFCDashboardStatus to_dash{
+    .receive_config = false,
+    .hv_started = false,
+    .motor_started = false,
+    .drive_started = false,
+    .hv_charge_percent = false,
+    .speed = 0,
 };
 
-void FrontController::Update(int time_ms) {
-    using enum State;
+static TxFC_Status::FcState_t fc_state = TxFC_Status::FcState_t::INIT;
+static void update_state_machine(void) {
+    using enum TxFC_Status::FcState_t;
     using DashState = RxDashboardStatus::DashState_t;
-    std::optional<State> transition = std::nullopt;
-    int elapsed = time_ms - state_enter_time_;
 
-    switch (state_) {
+    std::optional<TxFC_Status::FcState_t> transition = std::nullopt;
+
+    switch (fc_state) {
         case INIT:
-            // this state is trivial and can be removed unless we add more
             transition = START_DASHBOARD;
             break;
 
@@ -231,8 +217,9 @@ void FrontController::Update(int time_ms) {
             //             fc_status.dbc_hash_status = DbcHashStatus::VALID;
             //             transition = WAIT_DRIVER_SELECT;
             //         } else {
-            //             fc_status.dbc_hash_status = DbcHashStatus::INVALID;
-            //             transition = ERROR_HASH_INVALID;
+            //             fc_status.dbc_hash_status =
+            //             DbcHashStatus::INVALID; transition =
+            //             ERROR_HASH_INVALID;
             //         }
             //     }
             // } break;
@@ -264,6 +251,7 @@ void FrontController::Update(int time_ms) {
                     if (profile.has_value()) {
                         vd = VehicleDynamics{tuning::pedal_to_torque,
                                              profile.value()};
+                        to_dash.receive_config = true;
                         transition = RUNNING;
                     }
                 }
@@ -273,7 +261,6 @@ void FrontController::Update(int time_ms) {
         case RUNNING:
             UpdateControls();
 
-            to_dash.receive_config = true;
             to_dash.hv_started = gov_in.bm_sts == BmSts::RUNNING;
             to_dash.motor_started = gov_in.mi_sts == MiSts::RUNNING;
             to_dash.drive_started = gov_in.di_sts == DiSts::RUNNING;
@@ -283,62 +270,79 @@ void FrontController::Update(int time_ms) {
             //     break;
     }
 
-    veh_can_bus.Send(to_dash);
-
-    on_enter = transition.has_value();
-    if (on_enter) {
-        on_enter = true;
-        state_enter_time_ = time_ms;
-        state_ = transition.value();
+    if (transition.has_value()) {
+        fc_state = transition.value();
     }
+}
+
+// Shows that the ECU is alive
+void toggle_debug_led() {
+    static bool state = false;
+    state = !state;
+    bindings::debug_led.Set(state);
+}
+
+// Reboot the ECU. Assumes that the Rasberry Pi has pulled the BOOT pin high
+// so that the ECU enters bootloader mode.
+void check_can_flash() {
+    auto msg = veh_can_bus.GetRxInitiateCanFlash();
+
+    if (msg.has_value() &&
+        msg->ECU() == RxInitiateCanFlash::ECU_t::FrontController) {
+        bindings::SoftwareReset();
+    }
+}
+
+void log_pedal_and_steer() {
+    veh_can_bus.Send(TxFC_apps_debug{
+        .apps1_raw_volt = bindings::accel_pedal_sensor1.ReadVoltage(),
+        .apps2_raw_volt = bindings::accel_pedal_sensor2.ReadVoltage(),
+        .apps1_pos = apps1.ReadPosition(),
+        .apps2_pos = apps2.ReadPosition(),
+    });
+    veh_can_bus.Send(TxFC_bpps_steer_debug{
+        .bpps_raw_volt = bindings::brake_pressure_sensor.ReadVoltage(),
+        .steering_raw_volt = bindings::steering_angle_sensor.ReadVoltage(),
+        .bpps_pos = brake.ReadPosition(),
+        .steering_pos = steering_wheel.ReadPosition(),
+    });
+}
+
+void update_error_leds() {
+    auto error_led = veh_can_bus.GetRxLvControllerStatus();
+    if (error_led.has_value()) {
+        bindings::imd_fault_led_en.Set(error_led->ImdFault());
+        bindings::bms_fault_led_en.Set(error_led->BmsFault());
+    }
+}
+
+void task_10hz(void* argument) {
+    (void)argument;
+
+    toggle_debug_led();
+    update_error_leds();
+    log_pedal_and_steer();
+    // check_can_flash();  // no CAN flash in 2025
+
+    veh_can_bus.Send(to_dash);
+    veh_can_bus.Send(fc_status);
+}
+
+void task_100hz(void* argument) {
+    update_state_machine();
+
+    veh_can_bus.Send(contactor_cmd);
 }
 
 int main(void) {
     bindings::Initialize();
 
-    bool state = true;
+    scheduler_register_task(task_10hz, 100, nullptr);
+    scheduler_register_task(task_100hz, 10, nullptr);
 
-    FrontController fc{bindings::GetTickMs()};
+    scheduler_run();
 
-    while (true) {
-        fc.Update(bindings::GetTickMs());
-
-        auto error_led = veh_can_bus.GetRxLvControllerStatus();
-        if (error_led.has_value()) {
-            bindings::imd_fault_led_en.Set(error_led->ImdFault());
-            bindings::bms_fault_led_en.Set(error_led->BmsFault());
-        }
-
-        veh_can_bus.Send(fc_status);
-        veh_can_bus.Send(contactor_cmd);
-
-        // test pedals
-        veh_can_bus.Send(TxFC_apps_debug{
-            .apps1_raw_volt = bindings::accel_pedal_sensor1.ReadVoltage(),
-            .apps2_raw_volt = bindings::accel_pedal_sensor2.ReadVoltage(),
-            .apps1_pos = apps1.ReadPosition(),
-            .apps2_pos = apps2.ReadPosition(),
-        });
-        veh_can_bus.Send(TxFC_bpps_steer_debug{
-            .bpps_raw_volt = bindings::brake_pressure_sensor.ReadVoltage(),
-            .steering_raw_volt = bindings::steering_angle_sensor.ReadVoltage(),
-            .bpps_pos = brake.ReadPosition(),
-            .steering_pos = steering_wheel.ReadPosition(),
-        });
-
-        bindings::debug_led.Set(state);
-        state = !state;
-
-        // no CAN flash in 2025
-        // auto msg = veh_can_bus.GetRxInitiateCanFlash();
-
-        // if (msg.has_value() &&
-        //     msg->ECU() == RxInitiateCanFlash::ECU_t::FrontController) {
-        //     bindings::SoftwareReset();
-        // }
-
-        bindings::DelayMs(10);
-    }
+    while (true) continue;
 
     return 0;
 }
