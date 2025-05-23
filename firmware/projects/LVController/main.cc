@@ -271,31 +271,32 @@ public:
         }
 
         // Shutdown checks that can occur from multiple states
-        bool check_shutdown =
-            state_ == DCDC_ON || state_ == POWERTRAIN_PUMP_ON ||
-            state_ == POWERTRAIN_FAN_ON || state_ == POWERTRAIN_FAN_SWEEP ||
-            state_ == READY_TO_DRIVE;
+        // bool check_shutdown =
+        //     state_ == DCDC_ON || state_ == POWERTRAIN_PUMP_ON ||
+        //     state_ == POWERTRAIN_FAN_ON || state_ == POWERTRAIN_FAN_SWEEP ||
+        //     state_ == READY_TO_DRIVE;
 
-        if (false && check_shutdown) {  // temporary -> not on EV5
-            const float kNoCurrentThresholdAmp = 0.5;  // what should this be?
-            bool lost_lv_comms =
-                false;  // this should come from a SPI heartbeat
+        // if (false && check_shutdown) {  // temporary -> not on EV5
+        //     const float kNoCurrentThresholdAmp = 0.5;  // what should this
+        //     be? bool lost_lv_comms =
+        //         false;  // this should come from a SPI heartbeat
 
-            if (dcdc.MeasureVoltage() < 19.2 ||
-                (lost_lv_comms &&
-                 dcdc.MeasureAmps() < kNoCurrentThresholdAmp)) {
-                transition = SHUTDOWN_DRIVER_WARNING;
-            }
+        //     if (dcdc.MeasureVoltage() < 19.2 ||
+        //         (lost_lv_comms &&
+        //          dcdc.MeasureAmps() < kNoCurrentThresholdAmp)) {
+        //         transition = SHUTDOWN_DRIVER_WARNING;
+        //     }
 
-            auto msg = veh_can.GetRxFC_Status();
-            // remove static_cast once cangen properly handles enums
-            if (msg.has_value())
-                // -1 is NOT SENT by FC as of 2025/02/12. This should be updated
-                // in the future once FC sends useful statuses
-                if (msg->GovStatus() == static_cast<uint8_t>(-1)) {
-                    transition = SHUTDOWN_PUMP_OFF;
-                }
-        }
+        //     auto msg = veh_can.GetRxFC_Status();
+        //     // remove static_cast once cangen properly handles enums
+        //     if (msg.has_value())
+        //         // -1 is NOT SENT by FC as of 2025/02/12. This should be
+        //         updated
+        //         // in the future once FC sends useful statuses
+        //         if (msg->GovStatus() == static_cast<uint8_t>(-1)) {
+        //             transition = SHUTDOWN_PUMP_OFF;
+        //         }
+        // }
 
         // If a transition was indicated, handle it
         on_enter_ = transition.has_value();
