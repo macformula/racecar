@@ -185,9 +185,14 @@ TxFCDashboardStatus to_dash{
 };
 
 static TxFC_Status::FcState_t fc_state = TxFC_Status::FcState_t::INIT;
+static tuning::Profile profile;
+static bool state_machine_on_enter = true;
+
 static void update_state_machine(void) {
     using enum TxFC_Status::FcState_t;
     using DashState = RxDashboardStatus::DashState_t;
+
+    fc_status.fc_state = fc_state;
 
     std::optional<TxFC_Status::FcState_t> transition = std::nullopt;
 
@@ -201,64 +206,65 @@ static void update_state_machine(void) {
 
             // wait until dashboard comes alive
             auto msg = veh_can_bus.GetRxDashboardStatus();
-            // if (msg.has_value()) transition = SYNC_HASH;
-            if (msg.has_value()) transition = WAIT_DRIVER_SELECT;
+            if (msg.has_value()) {
+                transition = SYNC_HASH;
+            }
         } break;
 
-            // case SYNC_HASH: {
-            //     if (on_enter) {
-            //         fc_status.dbc_hash_status = DbcHashStatus::WAITING;
-            //     }
+        case SYNC_HASH: {
+            fc_status.dbc_hash_status = DbcHashStatus::WAITING;
 
-            //     auto msg = veh_can_bus.GetRxSyncDbcHash();
+            auto msg = veh_can_bus.GetRxSyncDbcHash();
 
-            //     if (msg.has_value()) {
-            //         if (msg->DbcHash() == generated::can::kVehDbcHash) {
-            //             fc_status.dbc_hash_status = DbcHashStatus::VALID;
-            //             transition = WAIT_DRIVER_SELECT;
-            //         } else {
-            //             fc_status.dbc_hash_status =
-            //             DbcHashStatus::INVALID; transition =
-            //             ERROR_HASH_INVALID;
-            //         }
-            //     }
-            // } break;
+            if (msg.has_value()) {
+                // bypass hash check for now
+                fc_status.dbc_hash_status = DbcHashStatus::VALID;
+                transition = WAIT_DRIVER_SELECT;
+                break;
+
+                // if (msg->DbcHash() == generated::can::kVehDbcHash) {
+                //     fc_status.dbc_hash_status = DbcHashStatus::VALID;
+                //     transition = WAIT_DRIVER_SELECT;
+                // } else {
+                //     fc_status.dbc_hash_status = DbcHashStatus::INVALID;
+                //     transition = ERROR_INVALID_HASH;
+                // }
+            }
+        } break;
 
         case WAIT_DRIVER_SELECT: {
             auto msg = veh_can_bus.GetRxDashboardStatus();
 
-            if (msg.has_value()) {
-                if (msg->DashState() == DashState::WAIT_SELECTION_ACK) {
-                    using enum RxDashboardStatus::Profile_t;
-
-                    std::optional<tuning::Profile> profile = std::nullopt;
-
-                    if (msg->Profile() == Tuning) {
-                        auto profile_msg = veh_can_bus.GetRxTuningParams();
-                        if (profile_msg.has_value()) {
-                            profile = tuning::Profile{
-                                .aggressiveness =
-                                    float(profile_msg->aggressiveness()),
-                                // fill in other fields
-                            };
-                        }
-
-                        break;
-                    } else {
-                        profile = tuning::GetProfile(msg->Profile());
-                    }
-
-                    if (profile.has_value()) {
-                        vd = VehicleDynamics{tuning::pedal_to_torque,
-                                             profile.value()};
-                        to_dash.receive_config = true;
-                        transition = RUNNING;
-                    }
+            if (!msg.has_value()) {
+                break;
+            }
+            if (msg->DashState() == DashState::WAIT_SELECTION_ACK) {
+                if (msg->Profile() == RxDashboardStatus::Profile_t::Tuning) {
+                    transition = WAIT_RASPI_TUNING;
+                } else {
+                    profile = tuning::GetProfile(msg->Profile());
+                    transition = RUNNING;
                 }
             }
         } break;
 
+        case WAIT_RASPI_TUNING: {
+            auto msg = veh_can_bus.GetRxTuningParams();
+            if (msg.has_value()) {
+                profile = tuning::Profile{
+                    .aggressiveness = float(msg->aggressiveness()),
+                    // fill in other fields
+                };
+                transition = RUNNING;
+            }
+        } break;
+
         case RUNNING:
+            if (state_machine_on_enter) {
+                to_dash.receive_config = true;
+                vd = VehicleDynamics{tuning::pedal_to_torque, profile};
+            }
+
             UpdateControls();
 
             to_dash.hv_started = gov_in.bm_sts == BmSts::RUNNING;
@@ -268,9 +274,14 @@ static void update_state_machine(void) {
 
             // case ERROR_HASH_INVALID:
             //     break;
+
+        case ERROR_INVALID_HASH:
+            // nothing to do
+            break;
     }
 
-    if (transition.has_value()) {
+    state_machine_on_enter = transition.has_value();
+    if (state_machine_on_enter) {
         fc_state = transition.value();
     }
 }

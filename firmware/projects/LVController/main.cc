@@ -104,8 +104,8 @@ public:
                     if (msg.has_value()) {
                         // don't actually care about the status, just that FC
                         // has come online
-                        // transition = PWRUP_CHECK_HASH_STATUS;
-                        transition = PWRUP_ACCUMULATOR_ON;
+                        // transition = PWRUP_ACCUMULATOR_ON; // bypass for now
+                        transition = PWRUP_CHECK_HASH_STATUS;
                     }
                 }
                 break;
