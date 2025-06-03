@@ -15,7 +15,7 @@ enum Feedback : bool {
 };
 
 static bool enabled = false;
-std::optional<RxContactor_Feedback> contactors;
+static std::optional<RxContactor_Feedback> contactors;
 
 static void UpdateOutputs(void) {
     bindings::accumulator_en.Set(enabled);
