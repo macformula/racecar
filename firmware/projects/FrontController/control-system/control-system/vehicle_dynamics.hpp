@@ -6,6 +6,7 @@
 #include <cstdint>
 
 #include "../../tuning.hpp"
+#include "motor_interface.hpp"
 #include "shared/util/lookup_table.hpp"
 #include "shared/util/moving_average.hpp"
 #include "vehicle_dynamics_calc.hpp"
@@ -26,12 +27,8 @@ public:
     };
     struct Output {  // this should produce a left and right
                      // AmkManagerBase::MotorRequest
-        float lm_torque_limit_positive;
-        float rm_torque_limit_positive;
-        float lm_torque_limit_negative;
-        float rm_torque_limit_negative;
-        uint16_t left_motor_speed_request;
-        uint16_t right_motor_speed_request;
+        AmkManagerBase::Request left_motor_request;
+        AmkManagerBase::Request right_motor_request;
     };
 
     VehicleDynamics(
