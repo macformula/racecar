@@ -35,23 +35,21 @@ BS_:
 
 BU_: PC_SG BMS FC TMS CANmod LVC RPI
 
-BO_ 107 FaultLEDs: 1 LVC
- SG_ IMD : 0|1@1+ (1,0) [0|1] "" FC
- SG_ BMS : 1|1@1+ (1,0) [0|1] "" FC
-
 BO_ 109 InitiateCanFlash: 1 RPI
  SG_ ECU : 0|8@1+ (1,0) [0|2] "" FC,LVC,TMS
 
-BO_ 110 LvSwitch: 6 PC_SG
- SG_ SwitchClose : 0|8@1+ (1,0) [0|1] ""  LVC
+BO_ 110 MotorControllerRequest: 1 FC
+ SG_ CloseSwitch : 0|1@1+ (1,0) [0|1] ""  LVC
 
 BO_ 123 SyncDbcHash: 8 LVC
  SG_ DbcHash : 0|64@1+ (1,0) [0|1] "" FC
 
 BO_ 111 LvControllerStatus: 6 LVC
- SG_ LvState : 0|8@1+ (1,0) [0|1] ""  RPI
- SG_ Elapsed : 8|32@1- (1,0) [0|1] ""  RPI
- SG_ Flag : 40|1@1+ (1,0) [0|1] ""  RPI
+ SG_ LvState : 0|8@1+ (1,0) [0|1] "" FC,RPI
+ SG_ MotorControllerState : 8|8@1+ (1,0) [0|1] "" FC,RPI
+ SG_ MotorControllerSwitchClosed : 16|1@1+ (1,0) [0|1] "" FC,RPI
+ SG_ ImdFault : 17|1@1+ (1,0) [0|1] "" FC,RPI
+ SG_ BmsFault : 18|1@1+ (1,0) [0|1] "" FC,RPI
 
 BO_ 114 BrakeLight: 1 FC
  SG_ Enable : 0|1@1+ (1,0) [0|1] "" LVC 
@@ -84,9 +82,9 @@ BO_ 256 FC_cmd: 1 PC_SG
  SG_ FC_brakeLight : 0|1@1+ (1,0) [0|1] ""  FC
 
 BO_ 1570 ContactorCommand: 3 FC
- SG_ PackPositive : 0|8@1+ (1,0) [0|0] ""  BMS,LVC
- SG_ PackPrecharge : 8|8@1+ (1,0) [0|0] ""  BMS,LVC
- SG_ PackNegative : 16|8@1+ (1,0) [0|0] ""  BMS,LVC
+ SG_ PackPositive : 0|8@1+ (1,0) [0|0] ""  BMS
+ SG_ PackPrecharge : 8|8@1+ (1,0) [0|0] ""  BMS
+ SG_ PackNegative : 16|8@1+ (1,0) [0|0] ""  BMS
 
 BO_ 1572 Pack_State: 7 BMS
  SG_ Pack_Current : 0|16@1+ (0.1,0) [0|0] "Amps"  FC
@@ -103,9 +101,9 @@ BO_ 1573 Pack_SOC: 3 BMS
  SG_ Maximum_Pack_Voltage : 8|16@1+ (0.1,0) [0|0] "Volts"  FC
 
 BO_ 1574 Contactor_Feedback: 3 BMS
- SG_ Pack_Positive_Feedback : 0|1@1+ (1,0) [0|1] ""  FC,Dash
- SG_ Pack_Negative_Feedback : 8|1@1+ (1,0) [0|1] ""  FC,Dash
- SG_ Pack_Precharge_Feedback : 16|1@1+ (1,0) [0|1] ""  FC,Dash
+ SG_ Pack_Positive_Feedback : 0|1@1+ (1,0) [0|1] ""  FC,Dash,LVC
+ SG_ Pack_Negative_Feedback : 8|1@1+ (1,0) [0|1] ""  FC,Dash,LVC
+ SG_ Pack_Precharge_Feedback : 16|1@1+ (1,0) [0|1] ""  FC,Dash,LVC
 
 BO_ 2553934720 BmsBroadcast: 8 TMS
  SG_ ThermModuleNum : 0|8@1+ (1,0) [0|0] ""  BMS
@@ -257,7 +255,8 @@ BA_DEF_  "MultiplexExtEnabled" ENUM  "No","Yes";
 BA_DEF_DEF_  "BusType" "CAN";
 BA_DEF_DEF_  "MultiplexExtEnabled" "No";
 VAL_ 109 ECU 0 "FrontController" 1 "LvController" 2 "TMS";
-VAL_ 111 LvState 0 "PWRUP_START" 1 "PWRUP_TSSI_ON" 2 "PWRUP_PERIPHERALS_ON" 3 "PWRUP_ACCUMULATOR_ON" 4 "PWRUP_MOTOR_PRECHARGE_ON" 5 "PWRUP_MOTOR_LV" 6 "PWRUP_MOTOR_PRECHARGE_OFF" 7 "PWRUP_SHUTDOWN_ON" 8 "MOTOR_CONTROLLER_SWITCH_SEQ" 9 "DCDC_ON" 10 "POWERTRAIN_PUMP_ON" 11 "POWERTRAIN_FAN_ON" 12 "POWERTRAIN_FAN_SWEEP" 13 "READY_TO_DRIVE" 14 "SHUTDOWN_DRIVER_WARNING" 15 "SHUTDOWN_PUMP_OFF" 16 "SHUTDOWN_FAN_OFF" 17 "SHUTDOWN_COMPLETE" 18 "PWRUP_CHECK_HASH_STATUS";
+VAL_ 111 LvState 0 "PWRUP_START" 1 "PWRUP_TSSI_ON" 2 "PWRUP_PERIPHERALS_ON" 3 "PWRUP_ACCUMULATOR_ON" 4 "PWRUP_MOTOR_CONTROLLER_PRECHARGING" 7 "PWRUP_SHUTDOWN_ON" 9 "DCDC_ON" 10 "POWERTRAIN_PUMP_ON" 11 "POWERTRAIN_FAN_ON" 13 "READY_TO_DRIVE" 14 "SHUTDOWN_DRIVER_WARNING" 15 "SHUTDOWN_PUMP_OFF" 16 "SHUTDOWN_FAN_OFF" 17 "SHUTDOWN_COMPLETE" 18 "PWRUP_CHECK_HASH_STATUS";
+VAL_ 111 MotorControllerState 0 "OFF" 1 "PRECHARGING" 2 "PRECHARGING_HANDOFF" 3 "ON";
 VAL_ 112 FcState 0 "PWRUP_START" 1 "HVIL_OPEN";
 VAL_ 255 DbcHashStatus 0 "WAITING" 1 "VALID" 2 "INVALID";
 VAL_ 255 DiStatus 0 "IDLE" 1 "WAITING_FOR_DRIVER_HV" 2 "REQUESTED_HV_START" 3 "WAITING_FOR_DRIVER_MOTOR" 4 "REQUESTED_MOTOR_START" 5 "RUNNING" 6 "ERR_COASTING" 7 "ERR";
