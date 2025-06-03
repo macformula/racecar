@@ -12,28 +12,31 @@ static bool flash_toggle = true;
 static uint32_t state_entered_time = 0;
 
 static bool enabled = false;
+static bool imd_fault;
+static bool bms_fault;
 
 void SetEnabled(bool enable) {
     enabled = enable;
 }
 
+bool GetImdFault(void) {
+    return imd_fault;
+}
+
+bool GetBmsFault(void) {
+    return bms_fault;
+}
+
 /// @brief See FSAE 2025 Rules EV.5.11.5
-void task_10hz(generated::can::VehBus& veh_can) {
+void task_10hz(void) {
     bindings::tssi_en.Set(enabled);
 
-    bool imd_fault = bindings::imd_fault.Read();
-    bool bms_fault = bindings::bms_fault.Read();
-
-    veh_can.Send(generated::can::TxFaultLEDs{
-        .imd = imd_fault,
-        .bms = bms_fault,
-    });
-
-    bool fault = bms_fault || imd_fault;
+    imd_fault = bindings::imd_fault.Read();
+    bms_fault = bindings::bms_fault.Read();
 
     uint32_t time_ms = bindings::GetTick();
 
-    if (fault) {
+    if (bms_fault || imd_fault) {
         bindings::tssi_green_signal.SetLow();
         bindings::tssi_red_signal.Set(flash_toggle);
         if ((time_ms - state_entered_time) > kTogglePeriodMs) {

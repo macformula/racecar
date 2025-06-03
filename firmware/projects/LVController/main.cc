@@ -220,7 +220,7 @@ void check_can_flash(void) {
 
 void task_10hz(void) {
     suspension::task_10hz(veh_can);
-    tssi::task_10hz(veh_can);
+    tssi::task_10hz();
     accumulator::task_10hz(veh_can);
     // check_can_flash(); // unused in 2025
 
@@ -228,6 +228,8 @@ void task_10hz(void) {
         .lv_state = fsm::state,
         .motor_controller_state = motor_controller::GetState(),
         .motor_controller_switch_closed = motor_controller::GetSwitchClosed(),
+        .imd_fault = tssi::GetImdFault(),
+        .bms_fault = tssi::GetBmsFault(),
     });
 }
 

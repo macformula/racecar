@@ -35,10 +35,6 @@ BS_:
 
 BU_: PC_SG BMS FC TMS CANmod LVC RPI
 
-BO_ 107 FaultLEDs: 1 LVC
- SG_ IMD : 0|1@1+ (1,0) [0|1] "" FC
- SG_ BMS : 1|1@1+ (1,0) [0|1] "" FC
-
 BO_ 109 InitiateCanFlash: 1 RPI
  SG_ ECU : 0|8@1+ (1,0) [0|2] "" FC,LVC,TMS
 
@@ -52,6 +48,8 @@ BO_ 111 LvControllerStatus: 6 LVC
  SG_ LvState : 0|8@1+ (1,0) [0|1] "" FC,RPI
  SG_ MotorControllerState : 8|8@1+ (1,0) [0|1] "" FC,RPI
  SG_ MotorControllerSwitchClosed : 16|1@1+ (1,0) [0|1] "" FC,RPI
+ SG_ ImdFault : 17|1@1+ (1,0) [0|1] "" FC,RPI
+ SG_ BmsFault : 18|1@1+ (1,0) [0|1] "" FC,RPI
 
 BO_ 114 BrakeLight: 1 FC
  SG_ Enable : 0|1@1+ (1,0) [0|1] "" LVC 

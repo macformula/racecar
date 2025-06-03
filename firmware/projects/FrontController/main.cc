@@ -314,10 +314,10 @@ int main(void) {
     while (true) {
         fc.Update(bindings::GetTickMs());
 
-        auto error_led = veh_can_bus.GetRxFaultLEDs();
+        auto error_led = veh_can_bus.GetRxLvControllerStatus();
         if (error_led.has_value()) {
-            bindings::imd_fault_led_en.Set(error_led->IMD());
-            bindings::bms_fault_led_en.Set(error_led->BMS());
+            bindings::imd_fault_led_en.Set(error_led->ImdFault());
+            bindings::bms_fault_led_en.Set(error_led->BmsFault());
         }
 
         veh_can_bus.Send(fc_status);
