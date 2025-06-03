@@ -10,6 +10,7 @@ void Init(void);
 
 void SetEnabled(bool enable);
 State GetState(void);
+bool GetSwitchClosed(void);
 
 void task_100hz(generated::can::VehBus& veh_can);
 

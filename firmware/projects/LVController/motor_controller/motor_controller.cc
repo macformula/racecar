@@ -6,9 +6,10 @@
 namespace motor_controller {
 
 using namespace generated::can;
-using Switch_t = RxMotorControllerRequest::Switch_t;
 
 static bool enabled = false;
+
+bool sw = false;
 static State state = State::OFF;
 static uint32_t elapsed = 0;
 
@@ -16,6 +17,7 @@ void Init(void) {
     bindings::motor_ctrl_precharge_en.SetLow();
     bindings::motor_controller_en.SetLow();
     bindings::motor_ctrl_switch_en.SetLow();
+
     enabled = false;
     state = State::OFF;
     elapsed = 0;
@@ -88,16 +90,18 @@ static void StateMachine_100hz(void) {
 }
 
 void HandleSwitch(VehBus& veh_can) {
-    Switch_t sw;
-
     auto msg = veh_can.GetRxMotorControllerRequest();
     if (msg.has_value()) {
-        sw = msg->Switch();
+        sw = msg->CloseSwitch();
     } else {
-        sw = Switch_t::OPEN;
+        sw = false;
     }
 
-    bindings::motor_ctrl_switch_en.Set(sw == Switch_t::CLOSE);
+    bindings::motor_ctrl_switch_en.Set(sw);
+}
+
+bool GetSwitchClosed(void) {
+    return sw;
 }
 
 void task_100hz(VehBus& veh_can) {

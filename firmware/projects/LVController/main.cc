@@ -227,6 +227,7 @@ void task_10hz(void) {
     veh_can.Send(TxLvControllerStatus{
         .lv_state = fsm::state,
         .motor_controller_state = motor_controller::GetState(),
+        .motor_controller_switch_closed = motor_controller::GetSwitchClosed(),
     });
 }
 
