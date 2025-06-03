@@ -240,6 +240,10 @@ static void update_state_machine(void) {
                 break;
             }
             if (msg->DashState() == DashState::WAIT_SELECTION_ACK) {
+                profile = tuning::GetProfile(msg->Profile());
+                transition = RUNNING;
+
+                // avoid raspi for now
                 if (msg->Profile() == RxDashboardStatus::Profile_t::Tuning) {
                     transition = WAIT_RASPI_TUNING;
                 } else {
@@ -250,6 +254,12 @@ static void update_state_machine(void) {
         } break;
 
         case WAIT_RASPI_TUNING: {
+            profile = tuning::GetProfile(
+                generated::can::RxDashboardStatus::Profile_t::Default);  // temp
+            transition = RUNNING;                                        // temp
+
+            // avoid raspi for now
+            break;
             auto msg = veh_can_bus.GetRxTuningParams();
             if (msg.has_value()) {
                 profile = tuning::Profile{
@@ -272,9 +282,6 @@ static void update_state_machine(void) {
             to_dash.motor_started = gov_in.mi_sts == MiSts::RUNNING;
             to_dash.drive_started = gov_in.di_sts == DiSts::RUNNING;
             break;
-
-            // case ERROR_HASH_INVALID:
-            //     break;
 
         case ERROR_INVALID_HASH:
             // nothing to do
@@ -333,7 +340,7 @@ void task_10hz(void* argument) {
 
     toggle_debug_led();
     update_error_leds();
-    log_pedal_and_steer();
+    // log_pedal_and_steer(); // temporary, reduce bus load for testing
     // check_can_flash();  // no CAN flash in 2025
 
     veh_can_bus.Send(to_dash);
