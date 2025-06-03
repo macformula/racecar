@@ -108,7 +108,7 @@ void UpdateControls() {
     gov_in.di_sts = di_out.status;
 
     bindings::ready_to_drive_sig_en.Set(di_out.driver_speaker);
-    veh_can_bus.Send(TxBrakeLight{.enable = di_out.brake_light_en});
+    fc_status.brake_light_enable = di_out.brake_light_en;
 
     auto contactor_states = veh_can_bus.GetRxContactor_Feedback();
     if (!contactor_states.has_value()) {
