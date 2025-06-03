@@ -177,8 +177,8 @@ void UpdateControls() {
 
     gov_in.mi_sts = mi_out.status;
 
-    pt_can_bus.Send(mi_out.left_setpoints);
-    pt_can_bus.Send(mi_out.right_setpoints);
+    // pt_can_bus.Send(mi_out.left_setpoints);
+    // pt_can_bus.Send(mi_out.right_setpoints);
 }
 
 class FrontController {
