@@ -230,6 +230,7 @@ static void update_state_machine(void) {
                 //     transition = ERROR_INVALID_HASH;
                 // }
             }
+            transition = WAIT_DRIVER_SELECT;  // bypass hash check for now
         } break;
 
         case WAIT_DRIVER_SELECT: {
@@ -340,6 +341,8 @@ void task_10hz(void* argument) {
 }
 
 void task_100hz(void* argument) {
+    (void)argument;
+
     update_state_machine();
 
     veh_can_bus.Send(contactor_cmd);

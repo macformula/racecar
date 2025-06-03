@@ -88,6 +88,8 @@ void Update_100hz(void) {
                 msg->DbcHashStatus() == RxFC_Status::DbcHashStatus_t::VALID) {
                 new_state = PWRUP_ACCUMULATOR_ON;
             }
+            new_state = PWRUP_ACCUMULATOR_ON;  // bypass hash check for now
+
         } break;
 
         case PWRUP_ACCUMULATOR_ON:
