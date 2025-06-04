@@ -12,65 +12,55 @@
 
 #include "can.hpp"
 
-// FIFO0 is the "high priority" queue on stm32f7. We do not use FIFO1
-constexpr uint32_t kCanFifo = CAN_RX_FIFO0;
-constexpr uint32_t kCanInterrupt = CAN_IT_RX_FIFO0_MSG_PENDING;
+using CanBase = mcal::stm32f::periph::CanBase;
 
-namespace {  // InterruptHandler is private to this file
+namespace interrupt_handler {
 
-/// Prior to this class, we spent several hours debugging an issue where the
-/// interrupt was activated but the handler was not being called, causing the
-/// program to get repeatedly executed the interupt callback and stall the rest
-/// of the program.
-/// This class ensures that interrupts activated and handled together.
-class InterruptHandler {
-    using CanBase = mcal::stm32f::periph::CanBase;
+// Store references to the CanBase so we know where to send
+CanBase* can1 = nullptr;
+CanBase* can2 = nullptr;
 
-public:
-    void RegisterCanBase(CAN_HandleTypeDef* hcan, CanBase* can_base) {
-        int index = HandleToIndex(hcan);
-        if (index == -1) return;
-
-        can_bases[index] = can_base;
-        HAL_CAN_ActivateNotification(hcan, kCanInterrupt);
-    }
-
-    void Handle(CAN_HandleTypeDef* hcan) {
-        int index = HandleToIndex(hcan);
-        if (index == -1) return;
-
-        auto can_base = can_bases[index];
-        if (can_base != nullptr) {
-            can_bases[index]->Receive();
-        }
-    }
-
-private:
-    CanBase* can_bases[3] = {nullptr, nullptr, nullptr};
-
-    int HandleToIndex(CAN_HandleTypeDef* hcan) {
-        // CANx are not contiguous in memory, so we can't use a simple array
-        if (hcan->Instance == CAN1) {
-            return 0;
-        } else if (hcan->Instance == CAN2) {
-            return 1;
 #ifdef STM32F7  // CAN3 is available on F7, not F4
-        } else if (hcan->Instance == CAN3) {
-            return 2;
+CanBase* can3 = nullptr;
 #endif
-        } else {
-            return -1;
-        }
-    }
-};
-}  // namespace
 
-static InterruptHandler interrupt_handler;
+CanBase* GetCanBase(CAN_HandleTypeDef* hcan) {
+    if (hcan->Instance == CAN1) {
+        return can1;
+    } else if (hcan->Instance == CAN2) {
+        return can2;
+#ifdef STM32F7
+    } else if (hcan->Instance == CAN3) {
+        return can3;
+#endif
+    } else {
+        return nullptr;
+    }
+}
+
+void RegisterCanBase(CAN_HandleTypeDef* hcan, CanBase* can_base) {
+    if (hcan->Instance == CAN1) {
+        can1 = can_base;
+    } else if (hcan->Instance == CAN2) {
+        can2 = can_base;
+#ifdef STM32F7
+    } else if (hcan->Instance == CAN3) {
+        can3 = can_base;
+#endif
+    } else {
+        // unknown handle
+    }
+}
+
+}  // namespace interrupt_handler
 
 extern "C" {
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
     // Overrides the "weak" callback defined by CubeMX
-    interrupt_handler.Handle(hcan);
+    CanBase* can_base = interrupt_handler::GetCanBase(hcan);
+    if (can_base != nullptr) {
+        can_base->Receive();
+    }
 }
 }
 
@@ -79,18 +69,13 @@ namespace mcal::stm32f::periph {
 CanBase::CanBase(CAN_HandleTypeDef* hcan) : hcan_{hcan} {}
 
 void CanBase::Setup() {
+    interrupt_handler::RegisterCanBase(hcan_, this);
     ConfigFilters();
-    interrupt_handler.RegisterCanBase(hcan_, this);
+    HAL_CAN_ActivateNotification(hcan_, CAN_IT_RX_FIFO0_MSG_PENDING);
     HAL_CAN_Start(hcan_);
 }
 
 void CanBase::Send(const shared::can::RawMessage& msg) {
-    uint32_t tx_mailboxes_free_level = HAL_CAN_GetTxMailboxesFreeLevel(hcan_);
-    if (tx_mailboxes_free_level < 1) {
-        dropped_tx_frames_ += 1;
-        return;
-    }
-
     CAN_TxHeaderTypeDef stm_tx_header;
     stm_tx_header.RTR = CAN_RTR_DATA;  // we only support data frames currently
     stm_tx_header.DLC = msg.data_length;
@@ -103,14 +88,24 @@ void CanBase::Send(const shared::can::RawMessage& msg) {
         stm_tx_header.StdId = msg.id;
     }
 
-    HAL_CAN_AddTxMessage(hcan_, &stm_tx_header, msg.data, &tx_mailbox_addr_);
+    uint32_t tick = HAL_GetTick();
+    while (HAL_CAN_AddTxMessage(hcan_, &stm_tx_header, msg.data,
+                                &tx_mailbox_addr_) != HAL_OK) {
+        // Attempt to send the message for up to 1ms (blocking)
+        // This is bad code.
+        // See description at https://github.com/macformula/racecar/pull/480
+        if (HAL_GetTick() - tick >= 1) {
+            dropped_tx_frames_ += 1;
+            return;
+        }
+    }
 }
 
 void CanBase::Receive() {
     shared::can::RawMessage rx_msg;
 
     CAN_RxHeaderTypeDef stm_rx_header;
-    HAL_CAN_GetRxMessage(hcan_, kCanFifo, &stm_rx_header, rx_msg.data);
+    HAL_CAN_GetRxMessage(hcan_, CAN_RX_FIFO0, &stm_rx_header, rx_msg.data);
 
     rx_msg.is_extended_frame = stm_rx_header.IDE == CAN_ID_EXT;
     rx_msg.data_length = static_cast<uint8_t>(stm_rx_header.DLC);
@@ -134,7 +129,7 @@ void CanBase::ConfigFilters() {
         .FilterIdLow = 0x0000,
         .FilterMaskIdHigh = 0x0000,
         .FilterMaskIdLow = 0x0000,
-        .FilterFIFOAssignment = kCanFifo,
+        .FilterFIFOAssignment = CAN_RX_FIFO0,
         .FilterBank = 0,
         .FilterMode = CAN_FILTERMODE_IDMASK,
         .FilterScale = CAN_FILTERSCALE_32BIT,
