@@ -1,194 +1,194 @@
 #include "governor.hpp"
 
-#include <optional>
-
 #include "../enums.hpp"
 
-Governor::Governor() : fsm_state_(std::nullopt) {}
+namespace governor {
 
-Governor::Output Governor::Update(const Governor::Input input,
-                                  const int time_ms) {
-    using enum GovSts;
+static AccCmd accumulator_cmd;
+static MiCmd motor_cmd;
+static DiCmd driver_cmd;
+static GovSts state;
 
-    auto transition = Transition(input, time_ms);
+static uint32_t elapsed;
+static bool on_enter;
 
-    if (!transition.has_value()) {
-        return output_;  // no transition -> nothing to update
-    }
+static const uint32_t kMotorMaxAttempts = 5;
+static uint32_t motor_start_count;  // this should be handled in motors/
 
-    fsm_state_ = transition.value();
-    state_entered_time_ = time_ms;
-
-    switch (*fsm_state_) {
-        case INIT:
-            output_.acc_cmd = AccCmd::OFF;
-            output_.mi_cmd = MiCmd::INIT;
-            output_.di_cmd = DiCmd::INIT;
-            motor_start_count_ = 0;
-            break;
-
-        case STARTUP_HV:
-            output_.acc_cmd = AccCmd::ENABLED;
-            break;
-
-        case STARTUP_READY_TO_DRIVE:
-            output_.di_cmd = DiCmd::HV_IS_ON;
-            break;
-
-        case STARTUP_MOTOR:
-            output_.mi_cmd = MiCmd::STARTUP;
-            motor_start_count_++;
-            break;
-
-        case STARTUP_SEND_READY_TO_DRIVE:
-            output_.di_cmd = DiCmd::READY_TO_DRIVE;
-            break;
-
-        case RUNNING:
-            break;
-
-        case SHUTDOWN:
-            output_.mi_cmd = MiCmd::SHUTDOWN;
-            output_.di_cmd = DiCmd::SHUTDOWN;
-            break;
-
-        case ERR_STARTUP_HV:
-            output_.di_cmd = DiCmd::SHUTDOWN;
-            break;
-
-        case ERR_STARTUP_MOTOR_RESET:
-            output_.mi_cmd = MiCmd::ERR_RESET;
-            break;
-
-        case ERR_STARTUP_MOTOR_FAULT:
-            output_.mi_cmd = MiCmd::SHUTDOWN;
-            break;
-
-        case ERR_STARTUP_DI:
-            break;
-
-        case ERR_RUNNING_HV:
-            output_.di_cmd = DiCmd::RUN_ERROR;
-            break;
-
-        case ERR_RUNNING_MOTOR:
-            output_.di_cmd = DiCmd::RUN_ERROR;
-            break;
-    }
-
-    output_.gov_sts = *fsm_state_;
-
-    return output_;
+AccCmd GetAccumulatorCmd(void) {
+    return accumulator_cmd;
 }
 
-std::optional<GovSts> Governor::Transition(const Governor::Input input,
-                                           const int time_ms) {
+MiCmd GetMotorCmd(void) {
+    return motor_cmd;
+}
+
+DiCmd GetDriverInterfaceCmd(void) {
+    return driver_cmd;
+}
+
+GovSts GetState(void) {
+    return state;
+}
+
+void Init(void) {
+    accumulator_cmd = AccCmd::OFF;
+    motor_cmd = MiCmd::INIT;
+    driver_cmd = DiCmd::INIT;
+    state = GovSts::INIT;
+    elapsed = 0;
+    motor_start_count = 0;
+}
+
+void Update_100Hz(AccSts acc, MiSts mi, DiSts di) {
     using enum GovSts;
 
-    if (!fsm_state_.has_value()) {
-        // this will happen only the first cycle.
-        return INIT;
-    }
+    bool hvil_interrupt = false;  // not part of EV6. What should this be?
 
-    // HVIL_INTERRUPT is not part of BM anymore. What should this condition be?
-    bool hvil_interrupt = false;
+    GovSts new_state = state;
 
-    // Handle the startup superstate errors
-    if (*fsm_state_ == STARTUP_HV || *fsm_state_ == STARTUP_READY_TO_DRIVE ||
-        *fsm_state_ == STARTUP_MOTOR ||
-        *fsm_state_ == STARTUP_SEND_READY_TO_DRIVE) {
-        if (hvil_interrupt) {
-            return ERR_STARTUP_HV;
-        }
-
-        if (input.mi_sts == MiSts::ERR) {
-            if (motor_start_count_ < kMaxMotorStartAttempts) {
-                return ERR_STARTUP_MOTOR_RESET;
-            } else {
-                return ERR_STARTUP_MOTOR_FAULT;  // don't keep trying
-            }
-        }
-
-        if (input.di_sts == DiSts::ERR) {
-            return ERR_STARTUP_DI;
-        }
-    }
-
-    switch (*fsm_state_) {
+    switch (state) {
         case INIT:
-            if (time_ms - state_entered_time_ >= 2000 &&
-                input.di_sts == DiSts::REQUESTED_HV_START) {
-                return STARTUP_HV;
+            accumulator_cmd = AccCmd::OFF;
+            motor_cmd = MiCmd::INIT;
+            driver_cmd = DiCmd::INIT;
+            motor_start_count = 0;
+
+            if ((elapsed >= 2000) && (di == DiSts::REQUESTED_HV_START)) {
+                new_state = STARTUP_HV;
             }
             break;
 
         case STARTUP_HV:
-            if (input.acc_sts == AccSts::RUNNING) {
-                return STARTUP_READY_TO_DRIVE;
+            accumulator_cmd = AccCmd::ENABLED;
+            motor_cmd = MiCmd::INIT;
+            driver_cmd = DiCmd::INIT;
+
+            if (acc == AccSts::RUNNING) {
+                new_state = STARTUP_READY_TO_DRIVE;
             }
             break;
 
         case STARTUP_READY_TO_DRIVE:
-            if (input.di_sts == DiSts::REQUESTED_MOTOR_START) {
-                return STARTUP_MOTOR;
+            accumulator_cmd = AccCmd::ENABLED;
+            motor_cmd = MiCmd::INIT;
+            driver_cmd = DiCmd::HV_IS_ON;
+
+            if (di == DiSts::REQUESTED_MOTOR_START) {
+                new_state = STARTUP_MOTOR;
             }
             break;
 
         case STARTUP_MOTOR:
-            if (input.mi_sts == MiSts::RUNNING) {
-                return STARTUP_SEND_READY_TO_DRIVE;
+            accumulator_cmd = AccCmd::ENABLED;
+            motor_cmd = MiCmd::STARTUP;
+            driver_cmd = DiCmd::HV_IS_ON;
+
+            if (on_enter) {
+                motor_start_count++;
+            }
+
+            if (mi == MiSts::RUNNING) {
+                new_state = STARTUP_SEND_READY_TO_DRIVE;
+            }
+
+            if (mi == MiSts::ERR) {
+                if (motor_start_count < kMotorMaxAttempts) {
+                    new_state = ERR_STARTUP_MOTOR_RESET;
+                } else {
+                    new_state = ERR_STARTUP_MOTOR_FAULT;  // don't keep trying
+                }
             }
             break;
 
         case STARTUP_SEND_READY_TO_DRIVE:
-            if (input.di_sts == DiSts::RUNNING) {
-                return RUNNING;
+            accumulator_cmd = AccCmd::ENABLED;
+            motor_cmd = MiCmd::STARTUP;
+            driver_cmd = DiCmd::READY_TO_DRIVE;
+
+            if (di == DiSts::RUNNING) {
+                new_state = RUNNING;
             }
             break;
 
         case RUNNING:
-            if (hvil_interrupt || input.acc_sts == AccSts::LOW_SOC) {
-                return SHUTDOWN;
+            accumulator_cmd = AccCmd::ENABLED;
+            motor_cmd = MiCmd::STARTUP;
+            driver_cmd = DiCmd::READY_TO_DRIVE;
+
+            if (acc == AccSts::LOW_SOC) {
+                new_state = SHUTDOWN;
             }
 
-            if (input.acc_sts == AccSts::ERR_RUNNING) {
-                return ERR_RUNNING_HV;
+            if (acc == AccSts::ERR_RUNNING) {
+                new_state = ERR_RUNNING_HV;
             }
 
-            if (input.mi_sts == MiSts::ERR) {
-                return ERR_RUNNING_MOTOR;
+            if (mi == MiSts::ERR) {
+                new_state = ERR_RUNNING_MOTOR;
             }
 
             break;
 
         case SHUTDOWN:
-            if (input.acc_sts == AccSts::IDLE) {
-                return INIT;
+            // can this be combined with ERR_STARTUP_HV?
+            accumulator_cmd = AccCmd::OFF;
+            motor_cmd = MiCmd::SHUTDOWN;
+            driver_cmd = DiCmd::SHUTDOWN;
+
+            if (acc == AccSts::IDLE) {
+                // should probably check if motors and DI have shut down
+                new_state = INIT;
             }
             break;
 
         case ERR_STARTUP_HV:
-            if (input.acc_sts == AccSts::IDLE) {
-                return INIT;
+            accumulator_cmd = AccCmd::OFF;
+            motor_cmd = MiCmd::SHUTDOWN;
+            driver_cmd = DiCmd::SHUTDOWN;
+
+            if (acc == AccSts::IDLE) {
+                // should probably check if motors and DI have shut down
+                new_state = INIT;
             }
             break;
 
         case ERR_STARTUP_MOTOR_RESET:
-            if (input.mi_sts == MiSts::OFF) {
-                return STARTUP_HV;
+            accumulator_cmd = AccCmd::ENABLED;
+            motor_cmd = MiCmd::ERR_RESET;
+            driver_cmd = DiCmd::HV_IS_ON;  // is this correct?
+
+            if (mi == MiSts::OFF) {
+                new_state = STARTUP_MOTOR;
             }
             break;
 
         // The vehicle cannot escape these error states without rebooting.
         case ERR_STARTUP_MOTOR_FAULT:
-            break;
         case ERR_STARTUP_DI:
-            break;
         case ERR_RUNNING_HV:
-            break;
         case ERR_RUNNING_MOTOR:
+            accumulator_cmd = AccCmd::OFF;
+            motor_cmd = MiCmd::SHUTDOWN;
+            driver_cmd = DiCmd::RUN_ERROR;
             break;
     }
 
-    return std::nullopt;
+    if (di == DiSts::ERR) {
+        new_state = ERR_STARTUP_DI;  // what is this for? can it be removed?
+    }
+
+    if (hvil_interrupt) {
+        new_state = SHUTDOWN;
+    }
+
+    on_enter = new_state != state;
+    if (on_enter) {
+        elapsed = 0;
+        state = new_state;
+    } else {
+        elapsed += 10;
+    }
 }
+
+}  // namespace governor

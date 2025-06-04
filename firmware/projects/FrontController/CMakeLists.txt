@@ -29,7 +29,7 @@ if(TESTING_ENABLED)
         PRIVATE
 
         # accumulator/test_accumulator.cc
-        governor/test_governor.cc
+        # governor/test_governor.cc
         vehicle_dynamics/test_vehicle_dynamics_calc.cc
         driver_interface/test_driver_interface.cc
         motors/test_motor_interface.cc

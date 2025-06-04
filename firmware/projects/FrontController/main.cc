@@ -59,31 +59,22 @@ SteeringWheel steering_wheel{
 using MotorIface = MotorInterface<RxAMK0_ActualValues1, RxAMK1_ActualValues1,
                                   TxAMK0_SetPoints1, TxAMK0_SetPoints1>;
 MotorIface mi;
-Governor gov;
 DriverInterface di;
 VehicleDynamics vd{
     tuning::pedal_to_torque,
     tuning::GetProfile(generated::can::RxDashboardStatus::Profile_t::Default)};
 
-Governor::Input gov_in{};
-
 using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
-TxFC_Status fc_status{GovSts::INIT,
-                      DiSts::IDLE,
-                      MiSts::INIT,
-                      AccSts::IDLE,
-                      TxFC_Status::FcState_t::INIT,
-                      DbcHashStatus::WAITING};
+
+// temp until modularized
+DiSts di_state = DiSts::IDLE;
+MiSts mi_state = MiSts::INIT;
+bool brake_light_en = false;
 
 void UpdateControls() {
     int time_ms = bindings::GetTickMs();
 
-    Governor::Output gov_out = gov.Update(gov_in, time_ms);
-
-    fc_status.gov_status = gov_out.gov_sts;
-    fc_status.di_status = gov_in.di_sts;
-    fc_status.mi_status = gov_in.mi_sts;
-    fc_status.acc_status = gov_in.acc_sts;
+    governor::Update_100Hz(accumulator::GetState(), mi_state, di_state);
 
     float brake_position = brake.ReadPosition();
 
@@ -92,17 +83,17 @@ void UpdateControls() {
 
     // Driver Interface update
     DriverInterface::Input di_in = {
-        .command = gov_out.di_cmd,
+        .command = governor::GetDriverInterfaceCmd(),
         .brake_pedal_pos = brake_position,
         .dash_cmd = dash_msg->DashState(),
         .accel_pedal_pos1 = apps1.ReadPosition(),
         .accel_pedal_pos2 = apps2.ReadPosition(),
     };
     DriverInterface::Output di_out = di.Update(di_in, time_ms);
-    gov_in.di_sts = di_out.status;
+    di_state = di_out.status;  // temp
 
     bindings::ready_to_drive_sig_en.Set(di_out.driver_speaker);
-    fc_status.brake_light_enable = di_out.brake_light_en;
+    brake_light_en = di_out.brake_light_en;
 
     auto contactor_states = veh_can_bus.GetRxContactor_Feedback();
     if (!contactor_states.has_value()) {
@@ -120,8 +111,7 @@ void UpdateControls() {
             contactor_states->Pack_Positive_Feedback()),
     };
     accumulator::SetPackSoc(100);  // this should come from a sensor
-    accumulator::Update_100Hz(gov_out.acc_cmd, fb);
-    gov_in.acc_sts = accumulator::GetState();
+    accumulator::Update_100Hz(governor::GetAccumulatorCmd(), fb);
 
     // Vehicle Dynamics update
     VehicleDynamics::Input vd_in = {
@@ -146,7 +136,7 @@ void UpdateControls() {
 
     // Motor Interface Update
     MotorIface::Input mi_in = {
-        .cmd = gov_out.mi_cmd,
+        .cmd = governor::GetMotorCmd(),
         .left_actual1 = left_act.value(),
         .right_actual1 = right_act.value(),
         .left_motor_input = vd_out.left_motor_request,
@@ -156,12 +146,13 @@ void UpdateControls() {
     (void)mi_out.inverter_enable;  // unused -> inverter en signal is set in the
     // setpoint message inside MI.Update()
 
-    gov_in.mi_sts = mi_out.status;
+    mi_state = mi_out.status;
 
     // pt_can_bus.Send(mi_out.left_setpoints);
     // pt_can_bus.Send(mi_out.right_setpoints);
 }
 
+// create a dashboard module
 TxFCDashboardStatus to_dash{
     .receive_config = false,
     .hv_started = false,
@@ -175,11 +166,11 @@ static TxFC_Status::FcState_t fc_state = TxFC_Status::FcState_t::INIT;
 static tuning::Profile profile;
 static bool state_machine_on_enter = true;
 
+DbcHashStatus dbc_hash_status = DbcHashStatus::WAITING;  // make module
+
 static void update_state_machine(void) {
     using enum TxFC_Status::FcState_t;
     using DashState = RxDashboardStatus::DashState_t;
-
-    fc_status.fc_state = fc_state;
 
     std::optional<TxFC_Status::FcState_t> transition = std::nullopt;
 
@@ -199,13 +190,13 @@ static void update_state_machine(void) {
         } break;
 
         case SYNC_HASH: {
-            fc_status.dbc_hash_status = DbcHashStatus::WAITING;
+            dbc_hash_status = DbcHashStatus::WAITING;
 
             auto msg = veh_can_bus.GetRxSyncDbcHash();
 
             if (msg.has_value()) {
                 // bypass hash check for now
-                fc_status.dbc_hash_status = DbcHashStatus::VALID;
+                dbc_hash_status = DbcHashStatus::VALID;
                 transition = WAIT_DRIVER_SELECT;
                 break;
 
@@ -265,9 +256,9 @@ static void update_state_machine(void) {
 
             UpdateControls();
 
-            to_dash.hv_started = gov_in.acc_sts == AccSts::RUNNING;
-            to_dash.motor_started = gov_in.mi_sts == MiSts::RUNNING;
-            to_dash.drive_started = gov_in.di_sts == DiSts::RUNNING;
+            to_dash.hv_started = accumulator::GetState() == AccSts::RUNNING;
+            to_dash.motor_started = mi_state == MiSts::RUNNING;
+            to_dash.drive_started = di_state == DiSts::RUNNING;
             break;
 
         case ERROR_INVALID_HASH:
@@ -331,7 +322,15 @@ void task_10hz(void* argument) {
     // check_can_flash();  // no CAN flash in 2025
 
     veh_can_bus.Send(to_dash);
-    veh_can_bus.Send(fc_status);
+    veh_can_bus.Send(TxFC_Status{
+        .gov_status = governor::GetState(),
+        .di_status = di_state,
+        .mi_status = mi_state,
+        .acc_status = accumulator::GetState(),
+        .dbc_hash_status = dbc_hash_status,
+        .brake_light_enable = brake_light_en,
+
+    });
 }
 
 void task_100hz(void* argument) {
