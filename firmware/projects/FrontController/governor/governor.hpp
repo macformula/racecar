@@ -1,37 +1,18 @@
 #pragma once
 
-#include <optional>
-
 #include "../accumulator/accumulator.hpp"
 #include "../driver_interface/driver_interface.hpp"
 #include "../enums.hpp"
 #include "../motors/motor_interface.hpp"
 
-class Governor {
-public:
-    struct Input {
-        AccSts acc_sts;
-        MiSts mi_sts;
-        DiSts di_sts;
-    };
-    struct Output {
-        AccCmd acc_cmd;
-        MiCmd mi_cmd;
-        DiCmd di_cmd;
-        GovSts gov_sts;
-    };
+namespace governor {
 
-    Governor();
-    Output Update(const Input input, const int time_ms);
+AccCmd GetAccumulatorCmd(void);
+MiCmd GetMotorCmd(void);
+DiCmd GetDriverInterfaceCmd(void);
+GovSts GetState(void);
 
-private:
-    std::optional<GovSts> fsm_state_;  // nullopt = unitialized
-    int state_entered_time_;
+void Init(void);
+void Update_100Hz(AccSts acc, MiSts mi, DiSts di);
 
-    Output output_;
-
-    const int kMaxMotorStartAttempts = 5;
-    int motor_start_count_;
-
-    std::optional<GovSts> Transition(const Input input, const int time_ms);
-};
+}  // namespace governor
