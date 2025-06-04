@@ -1,50 +1,43 @@
 #pragma once
 
-#include <optional>
-
 #include "../enums.hpp"
 
-struct ContactorFeedback {
-    enum class State : bool {
-        // WARNING: feedback is inverted relative to command
-        IS_OPEN = true,
-        IS_CLOSED = false,
-    };
-    State precharge;
-    State negative;
-    State positive;
+enum class AccCmd {
+    OFF,
+    ENABLED,
 };
 
-struct ContactorCommand {
-    enum class State {
-        OPEN = false,
-        CLOSE = true,
-    };
-    State precharge;
-    State positive;
-    State negative;
+enum class ContactorFeedback : bool {
+    // WARNING: feedback is inverted relative to command
+    IS_OPEN = true,
+    IS_CLOSED = false,
 };
 
-class Accumulator {
-public:
-    struct Input {
-        AccCmd cmd;
-        ContactorFeedback feedback;
-        float pack_soc;
-    };
-    struct Output {
-        AccSts status;
-        ContactorCommand command;
-    };
-
-    Accumulator();
-    Output Update(const Input& input, int time_ms);
-
-private:
-    std::optional<AccSts> TransitionStatus(const Input& input, int time_ms);
-    ContactorCommand SelectContactorCmd(AccSts status);
-
-    // State machine variables (BmUpdate)
-    std::optional<AccSts> current_status_;
-    int status_snapshot_time_ms_;
+enum class ContactorCommand {
+    OPEN = false,
+    CLOSE = true,
 };
+
+struct ContactorFeedbacks {
+    ContactorFeedback precharge;
+    ContactorFeedback negative;
+    ContactorFeedback positive;
+};
+
+struct ContactorCommands {
+    ContactorCommand precharge;
+    ContactorCommand positive;
+    ContactorCommand negative;
+};
+
+namespace accumulator {
+
+AccSts GetState(void);
+ContactorCommands GetContactorCommand(void);
+
+void SetPackSoc(float pack_soc);
+
+void Init(void);
+void Update_100Hz(AccCmd command, ContactorFeedbacks contactors);
+
+}  // namespace accumulator

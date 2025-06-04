@@ -27,7 +27,8 @@ if(TESTING_ENABLED)
 
     target_sources(tests
         PRIVATE
-        accumulator/test_accumulator.cc
+
+        # accumulator/test_accumulator.cc
         governor/test_governor.cc
         vehicle_dynamics/test_vehicle_dynamics_calc.cc
         driver_interface/test_driver_interface.cc

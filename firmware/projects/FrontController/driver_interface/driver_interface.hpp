@@ -3,6 +3,15 @@
 #include "../enums.hpp"
 #include "../generated/can/veh_messages.hpp"
 
+enum class DiCmd {
+    INIT,
+    HV_IS_ON,
+    READY_TO_DRIVE,
+    SHUTDOWN,
+    RUN_ERROR,
+    ERR_RESET,
+};
+
 class DriverInterface {
     using DashState = generated::can::RxDashboardStatus::DashState_t;
 

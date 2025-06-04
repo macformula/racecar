@@ -7,23 +7,3 @@ using GovSts = generated::can::TxFC_Status::GovStatus_t;
 using AccSts = generated::can::TxFC_Status::AccStatus_t;
 using MiSts = generated::can::TxFC_Status::MiStatus_t;
 
-enum class AccCmd {
-    INIT,
-    STARTUP,
-};
-
-enum class DiCmd {
-    INIT,
-    HV_IS_ON,
-    READY_TO_DRIVE,
-    SHUTDOWN,
-    RUN_ERROR,
-    ERR_RESET,
-};
-
-enum class MiCmd {
-    INIT,
-    STARTUP,
-    SHUTDOWN,
-    ERR_RESET
-};

@@ -21,14 +21,14 @@ Governor::Output Governor::Update(const Governor::Input input,
 
     switch (*fsm_state_) {
         case INIT:
-            output_.acc_cmd = AccCmd::INIT;
+            output_.acc_cmd = AccCmd::OFF;
             output_.mi_cmd = MiCmd::INIT;
             output_.di_cmd = DiCmd::INIT;
             motor_start_count_ = 0;
             break;
 
         case STARTUP_HV:
-            output_.acc_cmd = AccCmd::STARTUP;
+            output_.acc_cmd = AccCmd::ENABLED;
             break;
 
         case STARTUP_READY_TO_DRIVE:
@@ -162,13 +162,13 @@ std::optional<GovSts> Governor::Transition(const Governor::Input input,
             break;
 
         case SHUTDOWN:
-            if (input.acc_sts == AccSts::INIT) {
+            if (input.acc_sts == AccSts::IDLE) {
                 return INIT;
             }
             break;
 
         case ERR_STARTUP_HV:
-            if (input.acc_sts == AccSts::INIT) {
+            if (input.acc_sts == AccSts::IDLE) {
                 return INIT;
             }
             break;

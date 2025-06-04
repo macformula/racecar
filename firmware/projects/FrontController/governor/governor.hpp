@@ -2,7 +2,10 @@
 
 #include <optional>
 
+#include "../accumulator/accumulator.hpp"
+#include "../driver_interface/driver_interface.hpp"
 #include "../enums.hpp"
+#include "../motors/motor_interface.hpp"
 
 class Governor {
 public:

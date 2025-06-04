@@ -1,173 +1,166 @@
 #include "accumulator.hpp"
 
-#include <optional>
+namespace accumulator {
 
-Accumulator::Accumulator() : current_status_(std::nullopt) {}
+static AccSts state;
+static ContactorCommands contactor_command;
 
-Accumulator::Output Accumulator::Update(const Input& input, int time_ms) {
-    auto new_transition = TransitionStatus(input, time_ms);
+static uint32_t elapsed;
+static float pack_soc;
 
-    if (new_transition.has_value()) {
-        status_snapshot_time_ms_ = time_ms;
-        current_status_ = new_transition.value();
-    }
-
-    return Output{
-        .status = current_status_.value(),
-        .command = SelectContactorCmd(current_status_.value()),
-    };
+AccSts GetState(void) {
+    return state;
 }
 
-std::optional<AccSts> Accumulator::TransitionStatus(const Input& input,
-                                                    int time_ms) {
-    using enum ContactorFeedback::State;
+ContactorCommands GetContactorCommand(void) {
+    return contactor_command;
+}
+
+void SetPackSoc(float _pack_soc) {
+    pack_soc = _pack_soc;
+}
+
+void Init(void) {
+    state = AccSts::IDLE;
+    contactor_command = {
+        .precharge = ContactorCommand::OPEN,
+        .positive = ContactorCommand::OPEN,
+        .negative = ContactorCommand::OPEN,
+    };
+    elapsed = 0;
+    pack_soc = 100;  // assume charged until told otherwise
+}
+
+static bool FeedbackMatchesCommand(ContactorCommands cmd,
+                                   ContactorFeedbacks fb) {
+    using enum ContactorCommand;
+    using enum ContactorFeedback;
+
+    bool precharge_match =
+        (cmd.precharge == CLOSE) == (fb.precharge == IS_CLOSED);
+    bool positive_match = (cmd.positive == CLOSE) == (fb.positive == IS_CLOSED);
+    bool negative_match = (cmd.negative == CLOSE) == (fb.negative == IS_CLOSED);
+
+    return precharge_match && positive_match && negative_match;
+}
+
+void Update_100Hz(AccCmd command, ContactorFeedbacks fb) {
     using enum AccSts;
+    using enum ContactorFeedback;
+    using enum ContactorCommand;
 
-    if (!current_status_.has_value()) {
-        return INIT;
-    }
+    AccSts new_state = state;
+    ContactorCommands cmd = {
+        .precharge = OPEN,
+        .positive = OPEN,
+        .negative = OPEN,
+    };
 
-    if (input.pack_soc < 30) {
-        return LOW_SOC;
-    }
+    switch (state) {
+        case IDLE:
+            cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
 
-    int elapsed = time_ms - status_snapshot_time_ms_;
-
-    switch (current_status_.value()) {
-        case INIT:
-            if (input.cmd == AccCmd::STARTUP) {
-                return STARTUP_ENSURE_OPEN;
+            if (command == AccCmd::ENABLED) {
+                new_state = STARTUP_ENSURE_OPEN;
             }
             break;
 
         case STARTUP_ENSURE_OPEN:
-            if (input.feedback.precharge == IS_OPEN &&
-                input.feedback.positive == IS_OPEN &&
-                input.feedback.negative == IS_OPEN) {
-                return STARTUP_CLOSE_NEG;
+            cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
+
+            if (FeedbackMatchesCommand(cmd, fb)) {
+                new_state = STARTUP_CLOSE_NEG;
             }
             break;
 
         case STARTUP_CLOSE_NEG:
-            if (input.feedback.precharge == IS_OPEN &&
-                input.feedback.positive == IS_OPEN &&
-                input.feedback.negative == IS_CLOSED) {
-                return STARTUP_HOLD_CLOSE_NEG;
+            cmd = {.precharge = OPEN, .positive = OPEN, .negative = CLOSE};
+
+            if (FeedbackMatchesCommand(cmd, fb)) {
+                new_state = STARTUP_HOLD_CLOSE_NEG;
             }
             break;
 
         case STARTUP_HOLD_CLOSE_NEG:
+            cmd = {.precharge = OPEN, .positive = OPEN, .negative = CLOSE};
+
             if (elapsed >= 100) {
-                return STARTUP_CLOSE_PRECHARGE;
+                new_state = STARTUP_CLOSE_PRECHARGE;
             }
             break;
 
         case STARTUP_CLOSE_PRECHARGE:
-            if (input.feedback.precharge == IS_CLOSED &&
-                input.feedback.negative == IS_CLOSED &&
-                input.feedback.positive == IS_OPEN) {
-                return STARTUP_HOLD_CLOSE_PRECHARGE;
+            cmd = {.precharge = CLOSE, .positive = OPEN, .negative = CLOSE};
+
+            if (FeedbackMatchesCommand(cmd, fb)) {
+                new_state = STARTUP_HOLD_CLOSE_PRECHARGE;
             }
             break;
 
         case STARTUP_HOLD_CLOSE_PRECHARGE:
+            cmd = {.precharge = CLOSE, .positive = OPEN, .negative = CLOSE};
+
             if (elapsed >= 10000) {
-                return STARTUP_CLOSE_POS;
+                new_state = STARTUP_CLOSE_POS;
             }
             break;
 
         case STARTUP_CLOSE_POS:
-            if (input.feedback.precharge == IS_CLOSED ||
-                input.feedback.negative == IS_CLOSED ||
-                input.feedback.positive == IS_CLOSED) {
-                return STARTUP_HOLD_CLOSE_POS;
+            cmd = {.precharge = CLOSE, .positive = CLOSE, .negative = CLOSE};
+
+            if (FeedbackMatchesCommand(cmd, fb)) {
+                new_state = STARTUP_HOLD_CLOSE_POS;
             }
             break;
 
         case STARTUP_HOLD_CLOSE_POS:
+            cmd = {.precharge = CLOSE, .positive = CLOSE, .negative = CLOSE};
+
             if (elapsed >= 100) {
-                return STARTUP_OPEN_PRECHARGE;
+                new_state = STARTUP_OPEN_PRECHARGE;
             }
             break;
 
         case STARTUP_OPEN_PRECHARGE:
-            if (input.feedback.precharge == IS_OPEN ||
-                input.feedback.negative == IS_CLOSED ||
-                input.feedback.positive == IS_CLOSED) {
-                return RUNNING;
+            cmd = {.precharge = OPEN, .positive = CLOSE, .negative = CLOSE};
+
+            if (FeedbackMatchesCommand(cmd, fb)) {
+                new_state = RUNNING;
             }
             break;
 
         case RUNNING:
+            cmd = {.precharge = OPEN, .positive = CLOSE, .negative = CLOSE};
             break;
 
         case LOW_SOC:
+            cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
             break;
 
         case ERR_RUNNING:
-            break;  // The Simulink model never entered this state! Should
-                    // remove but Governor has behaviour which uses it. Uh oh!
-    }
-    return std::nullopt;
-}
-
-ContactorCommand Accumulator::SelectContactorCmd(AccSts status) {
-    using enum ContactorCommand::State;
-    using enum AccSts;
-
-    switch (status) {
-        case INIT:
-        case STARTUP_ENSURE_OPEN:
-            return ContactorCommand{
-                .precharge = OPEN,
-                .positive = OPEN,
-                .negative = OPEN,
-            };
-
-        case STARTUP_CLOSE_NEG:
-        case STARTUP_HOLD_CLOSE_NEG:
-            return ContactorCommand{
-                .precharge = OPEN,
-                .positive = OPEN,
-                .negative = CLOSE,
-            };
-
-        case STARTUP_CLOSE_PRECHARGE:
-        case STARTUP_HOLD_CLOSE_PRECHARGE:
-            return ContactorCommand{
-                .precharge = CLOSE,
-                .positive = OPEN,
-                .negative = CLOSE,
-            };
-
-        case STARTUP_CLOSE_POS:
-        case STARTUP_HOLD_CLOSE_POS:
-            return ContactorCommand{
-                .precharge = CLOSE,
-                .positive = CLOSE,
-                .negative = CLOSE,
-            };
-
-        case STARTUP_OPEN_PRECHARGE:
-        case RUNNING:
-            return ContactorCommand{
-                .precharge = OPEN,
-                .positive = CLOSE,
-                .negative = CLOSE,
-            };
-        case AccSts::LOW_SOC:
-            return ContactorCommand{
-                .precharge = OPEN,
-                .positive = OPEN,
-                .negative = OPEN,
-            };
-        case AccSts::ERR_RUNNING:
-            return ContactorCommand{
-                .precharge = OPEN,
-                .positive = OPEN,
-                .negative = OPEN,
-            };
+            // The Simulink model never entered this state! Should remove but
+            // Governor has behaviour which uses it. Uh oh!
+            cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
+            break;
     }
 
-    return {};  // switch case shouold return. return needed to satisfy warning
+    if (pack_soc < 30) {
+        new_state = LOW_SOC;
+    }
+
+    if (command == AccCmd::OFF) {
+        cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
+        new_state = IDLE;
+    }
+
+    contactor_command = cmd;
+
+    if (new_state != state) {
+        elapsed = 0;
+        state = new_state;
+    } else {
+        elapsed += 10;
+    }
 }
+
+}  // namespace accumulator
