@@ -2,9 +2,9 @@
 
 #include <optional>
 
-BatteryMonitor::BatteryMonitor() : current_status_(std::nullopt) {}
+Accumulator::Accumulator() : current_status_(std::nullopt) {}
 
-BatteryMonitor::Output BatteryMonitor::Update(const Input& input, int time_ms) {
+Accumulator::Output Accumulator::Update(const Input& input, int time_ms) {
     auto new_transition = TransitionStatus(input, time_ms);
 
     if (new_transition.has_value()) {
@@ -18,10 +18,10 @@ BatteryMonitor::Output BatteryMonitor::Update(const Input& input, int time_ms) {
     };
 }
 
-std::optional<BmSts> BatteryMonitor::TransitionStatus(const Input& input,
-                                                      int time_ms) {
+std::optional<AccSts> Accumulator::TransitionStatus(const Input& input,
+                                                    int time_ms) {
     using enum ContactorFeedback::State;
-    using enum BmSts;
+    using enum AccSts;
 
     if (!current_status_.has_value()) {
         return INIT;
@@ -35,7 +35,7 @@ std::optional<BmSts> BatteryMonitor::TransitionStatus(const Input& input,
 
     switch (current_status_.value()) {
         case INIT:
-            if (input.cmd == BmCmd::STARTUP) {
+            if (input.cmd == AccCmd::STARTUP) {
                 return STARTUP_ENSURE_OPEN;
             }
             break;
@@ -111,9 +111,9 @@ std::optional<BmSts> BatteryMonitor::TransitionStatus(const Input& input,
     return std::nullopt;
 }
 
-ContactorCommand BatteryMonitor::SelectContactorCmd(BmSts status) {
+ContactorCommand Accumulator::SelectContactorCmd(AccSts status) {
     using enum ContactorCommand::State;
-    using enum BmSts;
+    using enum AccSts;
 
     switch (status) {
         case INIT:
@@ -155,13 +155,13 @@ ContactorCommand BatteryMonitor::SelectContactorCmd(BmSts status) {
                 .positive = CLOSE,
                 .negative = CLOSE,
             };
-        case BmSts::LOW_SOC:
+        case AccSts::LOW_SOC:
             return ContactorCommand{
                 .precharge = OPEN,
                 .positive = OPEN,
                 .negative = OPEN,
             };
-        case BmSts::ERR_RUNNING:
+        case AccSts::ERR_RUNNING:
             return ContactorCommand{
                 .precharge = OPEN,
                 .positive = OPEN,

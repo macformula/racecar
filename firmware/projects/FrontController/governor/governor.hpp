@@ -7,12 +7,12 @@
 class Governor {
 public:
     struct Input {
-        BmSts bm_sts;
+        AccSts acc_sts;
         MiSts mi_sts;
         DiSts di_sts;
     };
     struct Output {
-        BmCmd bm_cmd;
+        AccCmd acc_cmd;
         MiCmd mi_cmd;
         DiCmd di_cmd;
         GovSts gov_sts;
