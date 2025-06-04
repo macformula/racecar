@@ -1,5 +1,5 @@
-#include "control-system/enums.hpp"
-#include "control-system/governor.hpp"
+#include "../enums.hpp"
+#include "governor.hpp"
 #include "gtest/gtest.h"
 
 /// Helper function to prepare a Governor in a specific state for testing.

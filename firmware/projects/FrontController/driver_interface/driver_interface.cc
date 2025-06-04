@@ -1,4 +1,4 @@
-#include "control-system/driver_interface.hpp"
+#include "driver_interface.hpp"
 
 #include <cmath>
 

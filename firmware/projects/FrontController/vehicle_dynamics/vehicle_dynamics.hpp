@@ -5,8 +5,8 @@
 
 #include <cstdint>
 
-#include "../../tuning.hpp"
-#include "motor_interface.hpp"
+#include "../motors/motor_interface.hpp"
+#include "../tuning.hpp"
 #include "shared/util/lookup_table.hpp"
 #include "shared/util/moving_average.hpp"
 #include "vehicle_dynamics_calc.hpp"

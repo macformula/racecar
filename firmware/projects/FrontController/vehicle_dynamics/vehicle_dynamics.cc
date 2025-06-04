@@ -1,11 +1,11 @@
 /// @author Teghveer Singh Ateliey
 /// @date 2024-11-23
 
-#include "control-system/vehicle_dynamics.hpp"
+#include "vehicle_dynamics.hpp"
 
-#include "../../tuning.hpp"
-#include "control-system/vehicle_dynamics_calc.hpp"
+#include "../tuning.hpp"
 #include "shared/util/lookup_table.hpp"
+#include "vehicle_dynamics_calc.hpp"
 
 using namespace ctrl;
 
