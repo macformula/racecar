@@ -1,5 +1,5 @@
-#include "control-system/battery_monitor.hpp"
-#include "control-system/enums.hpp"
+#include "../enums.hpp"
+#include "accumulator.hpp"
 #include "gtest/gtest.h"
 
 // this is not a test itself, rather it produces a BatteryMonitor object in a

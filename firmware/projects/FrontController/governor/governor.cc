@@ -1,8 +1,8 @@
-#include "control-system/governor.hpp"
+#include "governor.hpp"
 
 #include <optional>
 
-#include "control-system/enums.hpp"
+#include "../enums.hpp"
 
 Governor::Governor() : fsm_state_(std::nullopt) {}
 

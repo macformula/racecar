@@ -2,9 +2,9 @@
 
 #include <cassert>
 
-#include "../../generated/can/veh_messages.hpp"
-#include "control-system/driver_interface.hpp"
-#include "control-system/enums.hpp"
+#include "../enums.hpp"
+#include "../generated/can/veh_messages.hpp"
+#include "driver_interface.hpp"
 
 using DashState = generated::can::RxDashboardStatus::DashState_t;
 

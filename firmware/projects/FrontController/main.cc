@@ -1,20 +1,20 @@
 /// @author Blake Freer
 /// @date 2025-04
 
+#include "accumulator/accumulator.hpp"
 #include "bindings.hpp"
-#include "control-system/battery_monitor.hpp"
-#include "control-system/driver_interface.hpp"
-#include "control-system/governor.hpp"
-#include "control-system/motor_interface.hpp"
-#include "control-system/vehicle_dynamics.hpp"
+#include "driver_interface/driver_interface.hpp"
 #include "generated/can/pt_bus.hpp"
 #include "generated/can/pt_messages.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "governor/governor.hpp"
 #include "inc/app.hpp"
+#include "motors/motor_interface.hpp"
 #include "physical.hpp"
 #include "scheduler/scheduler.h"
 #include "tuning.hpp"
+#include "vehicle_dynamics/vehicle_dynamics.hpp"
 
 /***************************************************************
     CAN

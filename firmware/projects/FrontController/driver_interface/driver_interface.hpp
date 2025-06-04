@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../generated/can/veh_messages.hpp"
-#include "enums.hpp"
+#include "../enums.hpp"
+#include "../generated/can/veh_messages.hpp"
 
 class DriverInterface {
     using DashState = generated::can::RxDashboardStatus::DashState_t;

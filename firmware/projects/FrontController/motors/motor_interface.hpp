@@ -2,7 +2,7 @@
 #include <concepts>
 #include <cstdint>
 
-#include "enums.hpp"
+#include "../enums.hpp"
 
 // AmkActualValues1 concept, combines AMK0_ActualValues1 and AMK1_ActualValues1
 // into one common type for easier use
