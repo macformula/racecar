@@ -59,7 +59,6 @@ SteeringWheel steering_wheel{
 using MotorIface = MotorInterface<RxAMK0_ActualValues1, RxAMK1_ActualValues1,
                                   TxAMK0_SetPoints1, TxAMK0_SetPoints1>;
 MotorIface mi;
-Accumulator acc;
 Governor gov;
 DriverInterface di;
 VehicleDynamics vd{
@@ -72,14 +71,9 @@ using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
 TxFC_Status fc_status{GovSts::INIT,
                       DiSts::IDLE,
                       MiSts::INIT,
-                      AccSts::INIT,
+                      AccSts::IDLE,
                       TxFC_Status::FcState_t::INIT,
                       DbcHashStatus::WAITING};
-TxContactorCommand contactor_cmd{
-    static_cast<bool>(ContactorCommand::State::OPEN),
-    static_cast<bool>(ContactorCommand::State::OPEN),
-    static_cast<bool>(ContactorCommand::State::OPEN),
-};
 
 void UpdateControls() {
     int time_ms = bindings::GetTickMs();
@@ -115,26 +109,19 @@ void UpdateControls() {
         return;
     }
 
-    Accumulator::Input bm_in = {
-        .cmd = gov_out.acc_cmd,
-        .feedback{
-            .precharge = static_cast<ContactorFeedback::State>(
-                contactor_states->Pack_Precharge_Feedback()),
+    ContactorFeedbacks fb = {
+        .precharge = static_cast<ContactorFeedback>(
+            contactor_states->Pack_Precharge_Feedback()),
 
-            .negative = static_cast<ContactorFeedback::State>(
-                contactor_states->Pack_Negative_Feedback()),
+        .negative = static_cast<ContactorFeedback>(
+            contactor_states->Pack_Negative_Feedback()),
 
-            .positive = static_cast<ContactorFeedback::State>(
-                contactor_states->Pack_Positive_Feedback()),
-        },
-        .pack_soc = 550  // temporary, should it come from sensor?
+        .positive = static_cast<ContactorFeedback>(
+            contactor_states->Pack_Positive_Feedback()),
     };
-    Accumulator::Output bm_out = acc.Update(bm_in, time_ms);
-    gov_in.acc_sts = bm_out.status;
-
-    contactor_cmd.pack_positive = static_cast<bool>(bm_out.command.positive);
-    contactor_cmd.pack_precharge = static_cast<bool>(bm_out.command.precharge);
-    contactor_cmd.pack_negative = static_cast<bool>(bm_out.command.negative);
+    accumulator::SetPackSoc(100);  // this should come from a sensor
+    accumulator::Update_100Hz(gov_out.acc_cmd, fb);
+    gov_in.acc_sts = accumulator::GetState();
 
     // Vehicle Dynamics update
     VehicleDynamics::Input vd_in = {
@@ -352,7 +339,12 @@ void task_100hz(void* argument) {
 
     update_state_machine();
 
-    veh_can_bus.Send(contactor_cmd);
+    ContactorCommands cmd = accumulator::GetContactorCommand();
+    veh_can_bus.Send(TxContactorCommand{
+        .pack_positive = static_cast<bool>(cmd.positive),
+        .pack_precharge = static_cast<bool>(cmd.precharge),
+        .pack_negative = static_cast<bool>(cmd.negative),
+    });
 }
 
 int main(void) {
