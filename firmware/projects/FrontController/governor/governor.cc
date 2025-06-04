@@ -21,14 +21,14 @@ Governor::Output Governor::Update(const Governor::Input input,
 
     switch (*fsm_state_) {
         case INIT:
-            output_.bm_cmd = BmCmd::INIT;
+            output_.acc_cmd = AccCmd::INIT;
             output_.mi_cmd = MiCmd::INIT;
             output_.di_cmd = DiCmd::INIT;
             motor_start_count_ = 0;
             break;
 
         case STARTUP_HV:
-            output_.bm_cmd = BmCmd::STARTUP;
+            output_.acc_cmd = AccCmd::STARTUP;
             break;
 
         case STARTUP_READY_TO_DRIVE:
@@ -123,7 +123,7 @@ std::optional<GovSts> Governor::Transition(const Governor::Input input,
             break;
 
         case STARTUP_HV:
-            if (input.bm_sts == BmSts::RUNNING) {
+            if (input.acc_sts == AccSts::RUNNING) {
                 return STARTUP_READY_TO_DRIVE;
             }
             break;
@@ -147,11 +147,11 @@ std::optional<GovSts> Governor::Transition(const Governor::Input input,
             break;
 
         case RUNNING:
-            if (hvil_interrupt || input.bm_sts == BmSts::LOW_SOC) {
+            if (hvil_interrupt || input.acc_sts == AccSts::LOW_SOC) {
                 return SHUTDOWN;
             }
 
-            if (input.bm_sts == BmSts::ERR_RUNNING) {
+            if (input.acc_sts == AccSts::ERR_RUNNING) {
                 return ERR_RUNNING_HV;
             }
 
@@ -162,13 +162,13 @@ std::optional<GovSts> Governor::Transition(const Governor::Input input,
             break;
 
         case SHUTDOWN:
-            if (input.bm_sts == BmSts::INIT) {
+            if (input.acc_sts == AccSts::INIT) {
                 return INIT;
             }
             break;
 
         case ERR_STARTUP_HV:
-            if (input.bm_sts == BmSts::INIT) {
+            if (input.acc_sts == AccSts::INIT) {
                 return INIT;
             }
             break;

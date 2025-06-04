@@ -21,7 +21,7 @@ Governor CycleToState(GovSts desired_state_) {
 
     Governor g;
     Governor::Input in{
-        .bm_sts = BmSts::INIT,
+        .acc_sts = AccSts::INIT,
         .mi_sts = MiSts::INIT,
         .di_sts = DiSts::IDLE,
     };
@@ -35,7 +35,7 @@ Governor CycleToState(GovSts desired_state_) {
     assert(g.Update(in, ++time).gov_sts == STARTUP_HV);
     if (desired_state_ == STARTUP_HV) return g;
 
-    in.bm_sts = BmSts::RUNNING;
+    in.acc_sts = AccSts::RUNNING;
     assert(g.Update(in, ++time).gov_sts == STARTUP_READY_TO_DRIVE);
     if (desired_state_ == STARTUP_READY_TO_DRIVE) return g;
 
@@ -64,7 +64,7 @@ TEST(Governor, NormalSequence) {
     Governor g;
 
     Governor::Input in{
-        .bm_sts = BmSts::INIT,
+        .acc_sts = AccSts::INIT,
         .mi_sts = MiSts::INIT,
         .di_sts = DiSts::IDLE,
     };
@@ -75,7 +75,7 @@ TEST(Governor, NormalSequence) {
         auto out = g.Update(in, time);
         ASSERT_EQ(out.gov_sts, GovSts::INIT);
         EXPECT_EQ(out.di_cmd, DiCmd::INIT);
-        EXPECT_EQ(out.bm_cmd, BmCmd::INIT);
+        EXPECT_EQ(out.acc_cmd, AccCmd::INIT);
         EXPECT_EQ(out.mi_cmd, MiCmd::INIT);
     }
 
@@ -92,12 +92,12 @@ TEST(Governor, NormalSequence) {
     {  // 2s have elapsed -> enter startup
         auto out = g.Update(in, time);
         ASSERT_EQ(out.gov_sts, GovSts::STARTUP_HV);
-        EXPECT_EQ(out.bm_cmd, BmCmd::STARTUP);
+        EXPECT_EQ(out.acc_cmd, AccCmd::STARTUP);
 
         ASSERT_EQ(g.Update(in, ++time).gov_sts, GovSts::STARTUP_HV);
     }
 
-    in.bm_sts = BmSts::RUNNING;
+    in.acc_sts = AccSts::RUNNING;
 
     {
         auto out = g.Update(in, ++time);
@@ -176,7 +176,7 @@ TEST(Governor, LowSocShutdown) {
     Governor g = CycleToState(GovSts::RUNNING);
 
     Governor::Input in{
-        .bm_sts = BmSts::RUNNING,
+        .acc_sts = AccSts::RUNNING,
         .mi_sts = MiSts::RUNNING,
         .di_sts = DiSts::RUNNING,
     };
@@ -184,7 +184,7 @@ TEST(Governor, LowSocShutdown) {
     int time = 5000;
     ASSERT_EQ(g.Update(in, time).gov_sts, GovSts::RUNNING);
 
-    in.bm_sts = BmSts::LOW_SOC;
+    in.acc_sts = AccSts::LOW_SOC;
 
     {
         auto out = g.Update(in, ++time);
@@ -195,12 +195,12 @@ TEST(Governor, LowSocShutdown) {
         ASSERT_EQ(g.Update(in, ++time).gov_sts, GovSts::SHUTDOWN);
     }
 
-    in.bm_sts = BmSts::INIT;
+    in.acc_sts = AccSts::INIT;
 
     {
         auto out = g.Update(in, ++time);
         ASSERT_EQ(out.gov_sts, GovSts::INIT);
-        EXPECT_EQ(out.bm_cmd, BmCmd::INIT);
+        EXPECT_EQ(out.acc_cmd, AccCmd::INIT);
         EXPECT_EQ(out.di_cmd, DiCmd::INIT);
     }
 }
@@ -209,7 +209,7 @@ TEST(Governor, RunningError) {
     Governor g = CycleToState(GovSts::RUNNING);
 
     Governor::Input in{
-        .bm_sts = BmSts::RUNNING,
+        .acc_sts = AccSts::RUNNING,
         .mi_sts = MiSts::RUNNING,
         .di_sts = DiSts::RUNNING,
     };
@@ -217,7 +217,7 @@ TEST(Governor, RunningError) {
 
     ASSERT_EQ(g.Update(in, ++time).gov_sts, GovSts::RUNNING);
 
-    in.bm_sts = BmSts::ERR_RUNNING;
+    in.acc_sts = AccSts::ERR_RUNNING;
 
     auto out = g.Update(in, ++time);
     ASSERT_EQ(out.gov_sts, GovSts::ERR_RUNNING_HV);
@@ -228,7 +228,7 @@ TEST(Governor, RunningMotorError) {
     Governor g = CycleToState(GovSts::RUNNING);
 
     Governor::Input in{
-        .bm_sts = BmSts::RUNNING,
+        .acc_sts = AccSts::RUNNING,
         .mi_sts = MiSts::RUNNING,
         .di_sts = DiSts::RUNNING,
     };
@@ -253,7 +253,7 @@ TEST(Governor, StartupDriverError) {
         Governor g = CycleToState(start_state);
 
         Governor::Input in{
-            .bm_sts = BmSts::INIT,
+            .acc_sts = AccSts::INIT,
             .mi_sts = MiSts::INIT,
             .di_sts = DiSts::IDLE,
         };
@@ -336,7 +336,7 @@ TEST(Governor, StartupMotorError) {
         }
 
         Governor::Input in{
-            .bm_sts = BmSts::INIT,
+            .acc_sts = AccSts::INIT,
             .mi_sts = MiSts::INIT,
             .di_sts = DiSts::REQUESTED_HV_START,
         };
@@ -363,7 +363,7 @@ TEST(Governor, StartupMotorError) {
             ASSERT_EQ(out.gov_sts, STARTUP_HV);
 
             // Go back to MOTOR_STARTUP state to increment counter
-            in.bm_sts = BmSts::RUNNING;
+            in.acc_sts = AccSts::RUNNING;
             g.Update(in, ++time);
             in.di_sts = DiSts::REQUESTED_MOTOR_START;
             ASSERT_EQ(g.Update(in, ++time).gov_sts, STARTUP_MOTOR);

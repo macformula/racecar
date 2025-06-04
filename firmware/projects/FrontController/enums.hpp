@@ -4,10 +4,10 @@
 
 using DiSts = generated::can::TxFC_Status::DiStatus_t;
 using GovSts = generated::can::TxFC_Status::GovStatus_t;
-using BmSts = generated::can::TxFC_Status::BmStatus_t;
+using AccSts = generated::can::TxFC_Status::AccStatus_t;
 using MiSts = generated::can::TxFC_Status::MiStatus_t;
 
-enum class BmCmd {
+enum class AccCmd {
     INIT,
     STARTUP,
 };

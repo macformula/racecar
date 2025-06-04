@@ -59,7 +59,7 @@ SteeringWheel steering_wheel{
 using MotorIface = MotorInterface<RxAMK0_ActualValues1, RxAMK1_ActualValues1,
                                   TxAMK0_SetPoints1, TxAMK0_SetPoints1>;
 MotorIface mi;
-BatteryMonitor bm;
+Accumulator acc;
 Governor gov;
 DriverInterface di;
 VehicleDynamics vd{
@@ -72,7 +72,7 @@ using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
 TxFC_Status fc_status{GovSts::INIT,
                       DiSts::IDLE,
                       MiSts::INIT,
-                      BmSts::INIT,
+                      AccSts::INIT,
                       TxFC_Status::FcState_t::INIT,
                       DbcHashStatus::WAITING};
 TxContactorCommand contactor_cmd{
@@ -89,7 +89,7 @@ void UpdateControls() {
     fc_status.gov_status = gov_out.gov_sts;
     fc_status.di_status = gov_in.di_sts;
     fc_status.mi_status = gov_in.mi_sts;
-    fc_status.bm_status = gov_in.bm_sts;
+    fc_status.acc_status = gov_in.acc_sts;
 
     float brake_position = brake.ReadPosition();
 
@@ -115,8 +115,8 @@ void UpdateControls() {
         return;
     }
 
-    BatteryMonitor::Input bm_in = {
-        .cmd = gov_out.bm_cmd,
+    Accumulator::Input bm_in = {
+        .cmd = gov_out.acc_cmd,
         .feedback{
             .precharge = static_cast<ContactorFeedback::State>(
                 contactor_states->Pack_Precharge_Feedback()),
@@ -129,8 +129,8 @@ void UpdateControls() {
         },
         .pack_soc = 550  // temporary, should it come from sensor?
     };
-    BatteryMonitor::Output bm_out = bm.Update(bm_in, time_ms);
-    gov_in.bm_sts = bm_out.status;
+    Accumulator::Output bm_out = acc.Update(bm_in, time_ms);
+    gov_in.acc_sts = bm_out.status;
 
     contactor_cmd.pack_positive = static_cast<bool>(bm_out.command.positive);
     contactor_cmd.pack_precharge = static_cast<bool>(bm_out.command.precharge);
@@ -278,7 +278,7 @@ static void update_state_machine(void) {
 
             UpdateControls();
 
-            to_dash.hv_started = gov_in.bm_sts == BmSts::RUNNING;
+            to_dash.hv_started = gov_in.acc_sts == AccSts::RUNNING;
             to_dash.motor_started = gov_in.mi_sts == MiSts::RUNNING;
             to_dash.drive_started = gov_in.di_sts == DiSts::RUNNING;
             break;

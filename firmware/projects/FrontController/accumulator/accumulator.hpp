@@ -25,26 +25,26 @@ struct ContactorCommand {
     State negative;
 };
 
-class BatteryMonitor {
+class Accumulator {
 public:
     struct Input {
-        BmCmd cmd;
+        AccCmd cmd;
         ContactorFeedback feedback;
         float pack_soc;
     };
     struct Output {
-        BmSts status;
+        AccSts status;
         ContactorCommand command;
     };
 
-    BatteryMonitor();
+    Accumulator();
     Output Update(const Input& input, int time_ms);
 
 private:
-    std::optional<BmSts> TransitionStatus(const Input& input, int time_ms);
-    ContactorCommand SelectContactorCmd(BmSts status);
+    std::optional<AccSts> TransitionStatus(const Input& input, int time_ms);
+    ContactorCommand SelectContactorCmd(AccSts status);
 
     // State machine variables (BmUpdate)
-    std::optional<BmSts> current_status_;
+    std::optional<AccSts> current_status_;
     int status_snapshot_time_ms_;
 };
