@@ -2,12 +2,8 @@
 
 #include <cmath>
 
-#include "shared/util/lookup_table.hpp"
-
 DriverInterface::Output DriverInterface::Update(const Input input,
                                                 const int time_ms) {
-    using LUT = shared::util::LookupTable<float>;
-
     const float kPedalImplausiblePercent = 10;
     const int kSpeakerDurationMs = 2000;
 

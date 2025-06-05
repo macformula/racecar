@@ -9,11 +9,11 @@
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "governor/governor.hpp"
-#include "inc/app.hpp"
 #include "motors/motor_interface.hpp"
 #include "physical.hpp"
 #include "scheduler/scheduler.h"
-#include "tuning.hpp"
+#include "sensors/driver/driver.hpp"
+#include "sensors/dynamics/dynamics.hpp"
 #include "vehicle_dynamics/vehicle_dynamics.hpp"
 
 /***************************************************************
@@ -25,34 +25,6 @@ VehBus veh_can_bus{bindings::veh_can_base};
 PtBus pt_can_bus{bindings::pt_can_base};
 
 /***************************************************************
-    Objects
-***************************************************************/
-
-Pedal apps1{
-    bindings::accel_pedal_sensor1,
-    tuning::apps1_volt_pos_0,
-    tuning::apps1_volt_pos_100,
-};
-
-Pedal apps2{
-    bindings::accel_pedal_sensor2,
-    tuning::apps2_volt_pos_0,
-    tuning::apps2_volt_pos_100,
-};
-
-Pedal brake{
-    bindings::brake_pressure_sensor,
-    tuning::bpps_volt_pos_0,
-    tuning::bpps_volt_pos_100,
-};
-
-SteeringWheel steering_wheel{
-    bindings::steering_angle_sensor,
-    tuning::steer_volt_straight,
-    tuning::steer_volt_full_right,
-};
-
-/***************************************************************
     Control System
 ***************************************************************/
 
@@ -60,9 +32,6 @@ using MotorIface = MotorInterface<RxAMK0_ActualValues1, RxAMK1_ActualValues1,
                                   TxAMK0_SetPoints1, TxAMK0_SetPoints1>;
 MotorIface mi;
 DriverInterface di;
-VehicleDynamics vd{
-    tuning::pedal_to_torque,
-    tuning::GetProfile(generated::can::RxDashboardStatus::Profile_t::Default)};
 
 using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
 
@@ -76,18 +45,16 @@ void UpdateControls() {
 
     governor::Update_100Hz(accumulator::GetState(), mi_state, di_state);
 
-    float brake_position = brake.ReadPosition();
-
     auto dash_msg = veh_can_bus.GetRxDashboardStatus();
     if (!dash_msg.has_value()) return;
 
     // Driver Interface update
     DriverInterface::Input di_in = {
         .command = governor::GetDriverInterfaceCmd(),
-        .brake_pedal_pos = brake_position,
+        .brake_pedal_pos = sensors::driver::GetBrakePercent(),
         .dash_cmd = dash_msg->DashState(),
-        .accel_pedal_pos1 = apps1.ReadPosition(),
-        .accel_pedal_pos2 = apps2.ReadPosition(),
+        .accel_pedal_pos1 = sensors::driver::GetAccelPercent1(),
+        .accel_pedal_pos2 = sensors::driver::GetAccelPercent1(),
     };
     DriverInterface::Output di_out = di.Update(di_in, time_ms);
     di_state = di_out.status;  // temp
@@ -114,18 +81,7 @@ void UpdateControls() {
     accumulator::Update_100Hz(governor::GetAccumulatorCmd(), fb);
 
     // Vehicle Dynamics update
-    VehicleDynamics::Input vd_in = {
-        .driver_torque_request = di_out.driver_torque_req,
-        .brake_pedal_postion = brake_position,
-        .steering_angle = steering_wheel.ReadPosition(),
-        // All wheel speed inputs were fixed to 0 in the old simulink model
-        .wheel_speed_lr = 0 * bindings::wheel_speed_rear_left.ReadVoltage(),
-        .wheel_speed_rr = 0 * bindings::wheel_speed_rear_right.ReadVoltage(),
-        .wheel_speed_lf = 0 * bindings::wheel_speed_front_left.ReadVoltage(),
-        .wheel_speed_rf = 0 * bindings::wheel_speed_front_right.ReadVoltage(),
-        .tv_enable = false,
-    };
-    VehicleDynamics::Output vd_out = vd.Update(vd_in, time_ms);
+    vehicle_dynamics::Update_100Hz(di_out.driver_torque_req);
 
     auto left_act = pt_can_bus.GetRxAMK0_ActualValues1();
     auto right_act = pt_can_bus.GetRxAMK1_ActualValues1();
@@ -139,8 +95,8 @@ void UpdateControls() {
         .cmd = governor::GetMotorCmd(),
         .left_actual1 = left_act.value(),
         .right_actual1 = right_act.value(),
-        .left_motor_input = vd_out.left_motor_request,
-        .right_motor_input = vd_out.right_motor_request,
+        .left_motor_input = vehicle_dynamics::GetLeftMotorRequest(),
+        .right_motor_input = vehicle_dynamics::GetRightMotorRequest(),
     };
     MotorIface::Output mi_out = mi.Update(mi_in, time_ms);
     (void)mi_out.inverter_enable;  // unused -> inverter en signal is set in the
@@ -163,7 +119,6 @@ TxFCDashboardStatus to_dash{
 };
 
 static TxFC_Status::FcState_t fc_state = TxFC_Status::FcState_t::INIT;
-static tuning::Profile profile;
 static bool state_machine_on_enter = true;
 
 DbcHashStatus dbc_hash_status = DbcHashStatus::WAITING;  // make module
@@ -218,42 +173,13 @@ static void update_state_machine(void) {
                 break;
             }
             if (msg->DashState() == DashState::WAIT_SELECTION_ACK) {
-                profile = tuning::GetProfile(msg->Profile());
-                transition = RUNNING;
-
-                // avoid raspi for now
-                if (msg->Profile() == RxDashboardStatus::Profile_t::Tuning) {
-                    transition = WAIT_RASPI_TUNING;
-                } else {
-                    profile = tuning::GetProfile(msg->Profile());
-                    transition = RUNNING;
-                }
-            }
-        } break;
-
-        case WAIT_RASPI_TUNING: {
-            profile = tuning::GetProfile(
-                generated::can::RxDashboardStatus::Profile_t::Default);  // temp
-            transition = RUNNING;                                        // temp
-
-            // avoid raspi for now
-            break;
-            auto msg = veh_can_bus.GetRxTuningParams();
-            if (msg.has_value()) {
-                profile = tuning::Profile{
-                    .aggressiveness = float(msg->aggressiveness()),
-                    // fill in other fields
-                };
+                vehicle_dynamics::SetProfile(msg->Profile());
+                to_dash.receive_config = true;
                 transition = RUNNING;
             }
         } break;
 
         case RUNNING:
-            if (state_machine_on_enter) {
-                to_dash.receive_config = true;
-                vd = VehicleDynamics{tuning::pedal_to_torque, profile};
-            }
-
             UpdateControls();
 
             to_dash.hv_started = accumulator::GetState() == AccSts::RUNNING;
@@ -291,18 +217,8 @@ void check_can_flash() {
 }
 
 void log_pedal_and_steer() {
-    veh_can_bus.Send(TxFC_apps_debug{
-        .apps1_raw_volt = bindings::accel_pedal_sensor1.ReadVoltage(),
-        .apps2_raw_volt = bindings::accel_pedal_sensor2.ReadVoltage(),
-        .apps1_pos = apps1.ReadPosition(),
-        .apps2_pos = apps2.ReadPosition(),
-    });
-    veh_can_bus.Send(TxFC_bpps_steer_debug{
-        .bpps_raw_volt = bindings::brake_pressure_sensor.ReadVoltage(),
-        .steering_raw_volt = bindings::steering_angle_sensor.ReadVoltage(),
-        .bpps_pos = brake.ReadPosition(),
-        .steering_pos = steering_wheel.ReadPosition(),
-    });
+    veh_can_bus.Send(sensors::driver::GetAppsDebugMsg());
+    veh_can_bus.Send(sensors::driver::GetBppsSteerDebugMsg());
 }
 
 void update_error_leds() {
@@ -310,6 +226,10 @@ void update_error_leds() {
     if (error_led.has_value()) {
         bindings::imd_fault_led_en.Set(error_led->ImdFault());
         bindings::bms_fault_led_en.Set(error_led->BmsFault());
+    } else {
+        // Default to lights on
+        bindings::imd_fault_led_en.SetHigh();
+        bindings::bms_fault_led_en.SetHigh();
     }
 }
 
@@ -327,14 +247,17 @@ void task_10hz(void* argument) {
         .di_status = di_state,
         .mi_status = mi_state,
         .acc_status = accumulator::GetState(),
+        .fc_state = fc_state,
         .dbc_hash_status = dbc_hash_status,
         .brake_light_enable = brake_light_en,
-
     });
 }
 
 void task_100hz(void* argument) {
     (void)argument;
+
+    sensors::driver::Update_100Hz();
+    sensors::dynamics::Update_100Hz();
 
     update_state_machine();
 

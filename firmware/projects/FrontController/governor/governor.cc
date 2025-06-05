@@ -1,6 +1,6 @@
 #include "governor.hpp"
 
-#include "../enums.hpp"
+#include "enums.hpp"
 
 namespace governor {
 

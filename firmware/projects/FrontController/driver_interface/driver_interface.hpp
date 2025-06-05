@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../enums.hpp"
-#include "../generated/can/veh_messages.hpp"
+#include "enums.hpp"
+#include "generated/can/veh_messages.hpp"
 
 enum class DiCmd {
     INIT,

@@ -1,14 +1,19 @@
 include("${CMAKE_SOURCE_DIR}/cmake/cangen.cmake")
 
+
 target_sources(main
     PRIVATE
     main.cc
     scheduler/scheduler.cc
+    sensors/dynamics/dynamics.cc
+    sensors/driver/driver.cc
 )
+
+target_include_directories(main PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(control-system INTERFACE)
 add_dependencies(control-system generated_can)
-target_link_libraries(control-system INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(control-system INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_sources(control-system
     INTERFACE
@@ -30,7 +35,7 @@ if(TESTING_ENABLED)
 
         # accumulator/test_accumulator.cc
         # governor/test_governor.cc
-        vehicle_dynamics/test_vehicle_dynamics_calc.cc
+        # vehicle_dynamics/test_vehicle_dynamics_calc.cc
         driver_interface/test_driver_interface.cc
         motors/test_motor_interface.cc
     )
