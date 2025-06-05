@@ -13,7 +13,7 @@ Accumulator CycleToState(AccSts desired_state, int& time_ms) {
     // Initialize the BatteryMonitor
     auto output1 = bm.Update(
         {
-            .cmd = AccCmd::INIT,
+            .cmd = accumulator::Command::INIT,
             .feedback{
                 .precharge = IS_OPEN,
                 .negative = IS_OPEN,
@@ -30,7 +30,7 @@ Accumulator CycleToState(AccSts desired_state, int& time_ms) {
 
     if (bm.Update(
               {
-                  .cmd = AccCmd::STARTUP,
+                  .cmd = accumulator::Command::STARTUP,
                   .pack_soc = 20.0,
               },
               time_ms)
@@ -42,7 +42,7 @@ Accumulator CycleToState(AccSts desired_state, int& time_ms) {
     time_ms += 10;
     auto output2 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback =
                 {
                     .precharge = IS_OPEN,
@@ -62,7 +62,7 @@ Accumulator CycleToState(AccSts desired_state, int& time_ms) {
     time_ms += 10;
     auto output3 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback{
                 .precharge = IS_OPEN,
                 .negative = IS_CLOSED,
@@ -81,7 +81,7 @@ Accumulator CycleToState(AccSts desired_state, int& time_ms) {
     time_ms += 100;
     auto output4 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback{
                 .precharge = IS_CLOSED,
                 .negative = IS_CLOSED,
@@ -100,7 +100,7 @@ Accumulator CycleToState(AccSts desired_state, int& time_ms) {
     time_ms += 10;
     auto output5 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback =
                 {
                     .precharge = IS_CLOSED,
@@ -120,7 +120,7 @@ Accumulator CycleToState(AccSts desired_state, int& time_ms) {
     time_ms += 10000;
     auto output6 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback =
                 {
                     .precharge = IS_CLOSED,
@@ -140,7 +140,7 @@ Accumulator CycleToState(AccSts desired_state, int& time_ms) {
     time_ms += 10;
     auto output7 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback =
                 {
                     .precharge = IS_CLOSED,
@@ -160,7 +160,7 @@ Accumulator CycleToState(AccSts desired_state, int& time_ms) {
     time_ms += 100;
     auto output8 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback =
                 {
                     .precharge = IS_OPEN,
@@ -180,7 +180,7 @@ Accumulator CycleToState(AccSts desired_state, int& time_ms) {
     time_ms += 10;
     auto output9 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback =
                 {
                     .precharge = IS_OPEN,
@@ -199,7 +199,7 @@ Accumulator CycleToState(AccSts desired_state, int& time_ms) {
     // Transition to LOW_SOC
     auto output10 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .pack_soc = 20.0,
         },
         time_ms);
@@ -241,7 +241,7 @@ TEST(BatteryMonitor, LowSocTransitions) {
         time_ms += 10;
         auto output = bm.Update(
             {
-                .cmd = AccCmd::STARTUP,
+                .cmd = accumulator::Command::STARTUP,
                 .pack_soc = 20.0,
             },
             time_ms);
@@ -261,7 +261,7 @@ TEST(BatteryMonitor, StateTransitions) {
 
     auto output1 = bm.Update(
         {
-            .cmd = AccCmd::INIT,
+            .cmd = accumulator::Command::INIT,
             .feedback = {.precharge = IS_OPEN,
                          .negative = IS_OPEN,
                          .positive = IS_OPEN},
@@ -273,7 +273,7 @@ TEST(BatteryMonitor, StateTransitions) {
     time_ms += 10;
     auto output2 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback = {.precharge = IS_OPEN,
                          .negative = IS_OPEN,
                          .positive = IS_OPEN},
@@ -285,7 +285,7 @@ TEST(BatteryMonitor, StateTransitions) {
     time_ms += 10;
     auto output2b = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback = {.precharge = IS_OPEN,
                          .negative = IS_CLOSED,
                          .positive = IS_OPEN},
@@ -298,7 +298,7 @@ TEST(BatteryMonitor, StateTransitions) {
     time_ms += 10;
     auto output2c = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback = {.precharge = IS_OPEN,
                          .negative = IS_OPEN,
                          .positive = IS_OPEN},
@@ -311,7 +311,7 @@ TEST(BatteryMonitor, StateTransitions) {
     time_ms += 10;
     auto output3 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback = {.precharge = IS_OPEN,
                          .negative = IS_CLOSED,
                          .positive = IS_OPEN},
@@ -324,7 +324,7 @@ TEST(BatteryMonitor, StateTransitions) {
     time_ms += 100;
     auto output4 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback = {.precharge = IS_CLOSED,
                          .negative = IS_CLOSED,
                          .positive = IS_OPEN},
@@ -337,7 +337,7 @@ TEST(BatteryMonitor, StateTransitions) {
     time_ms += 10;
     auto output5 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback = {.precharge = IS_CLOSED,
                          .negative = IS_CLOSED,
                          .positive = IS_OPEN},
@@ -350,7 +350,7 @@ TEST(BatteryMonitor, StateTransitions) {
     time_ms += 10000;
     auto output6 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback = {.precharge = IS_CLOSED,
                          .negative = IS_CLOSED,
                          .positive = IS_CLOSED},
@@ -363,7 +363,7 @@ TEST(BatteryMonitor, StateTransitions) {
     time_ms += 10;
     auto output7 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback = {.precharge = IS_CLOSED,
                          .negative = IS_CLOSED,
                          .positive = IS_CLOSED},
@@ -376,7 +376,7 @@ TEST(BatteryMonitor, StateTransitions) {
     time_ms += 100;
     auto output8 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback = {.precharge = IS_OPEN,
                          .negative = IS_CLOSED,
                          .positive = IS_CLOSED},
@@ -389,7 +389,7 @@ TEST(BatteryMonitor, StateTransitions) {
     time_ms += 10;
     auto output9 = bm.Update(
         {
-            .cmd = AccCmd::STARTUP,
+            .cmd = accumulator::Command::STARTUP,
             .feedback = {.precharge = IS_OPEN,
                          .negative = IS_CLOSED,
                          .positive = IS_CLOSED},

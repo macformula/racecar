@@ -17,7 +17,7 @@ DriverInterface::Output DriverInterface::Update(const Input input,
     out.status = status_;
     out.brake_light_en = input.brake_pedal_pos > kBrakePressedThreshold;
 
-    if (status_ == DiSts::RUNNING) {
+    if (status_ == driver_interface::State::RUNNING) {
         out.ready_to_drive = true;
         out.driver_speaker =
             time_ms <= speaker_start_time_ + kSpeakerDurationMs;
@@ -31,63 +31,64 @@ DriverInterface::Output DriverInterface::Update(const Input input,
     return out;
 }
 
-DiSts DriverInterface::Transition(const DriverInterface::Input input,
-                                  bool di_error, const int time_ms) {
+driver_interface::State DriverInterface::Transition(
+    const DriverInterface::Input input, bool di_error, const int time_ms) {
     // Superstate transitions
-    if (status_ == DiSts::WAITING_FOR_DRIVER_HV ||
-        status_ == DiSts::REQUESTED_HV_START ||
-        status_ == DiSts::REQUESTED_MOTOR_START || status_ == DiSts::RUNNING) {
-        if (input.command == DiCmd::SHUTDOWN) {
-            return DiSts::IDLE;
+    if (status_ == driver_interface::State::WAITING_FOR_DRIVER_HV ||
+        status_ == driver_interface::State::REQUESTED_HV_START ||
+        status_ == driver_interface::State::REQUESTED_MOTOR_START ||
+        status_ == driver_interface::State::RUNNING) {
+        if (input.command == driver_interface::Command::SHUTDOWN) {
+            return driver_interface::State::IDLE;
         } else if (di_error) {
-            return DiSts::ERR;
+            return driver_interface::State::ERR;
         }
     }
 
     // Regular transitions
     switch (status_) {
-        case DiSts::IDLE:
-            if (input.command == DiCmd::INIT) {
-                return DiSts::WAITING_FOR_DRIVER_HV;
+        case driver_interface::State::IDLE:
+            if (input.command == driver_interface::Command::INIT) {
+                return driver_interface::State::WAITING_FOR_DRIVER_HV;
             }
             break;
 
-        case DiSts::WAITING_FOR_DRIVER_HV:
+        case driver_interface::State::WAITING_FOR_DRIVER_HV:
             if (input.dash_cmd == DashState::STARTING_HV) {
-                return DiSts::REQUESTED_HV_START;
+                return driver_interface::State::REQUESTED_HV_START;
             }
             break;
 
-        case DiSts::REQUESTED_HV_START:
-            if (input.command == DiCmd::HV_IS_ON) {
-                return DiSts::WAITING_FOR_DRIVER_MOTOR;
+        case driver_interface::State::REQUESTED_HV_START:
+            if (input.command == driver_interface::Command::HV_IS_ON) {
+                return driver_interface::State::WAITING_FOR_DRIVER_MOTOR;
             }
             break;
 
-        case DiSts::WAITING_FOR_DRIVER_MOTOR:
+        case driver_interface::State::WAITING_FOR_DRIVER_MOTOR:
             if (input.dash_cmd == DashState::STARTING_MOTORS) {
-                return DiSts::REQUESTED_MOTOR_START;
+                return driver_interface::State::REQUESTED_MOTOR_START;
             }
             break;
 
-        case DiSts::REQUESTED_MOTOR_START:
-            if ((input.command == DiCmd::READY_TO_DRIVE) &&
+        case driver_interface::State::REQUESTED_MOTOR_START:
+            if ((input.command == driver_interface::Command::READY_TO_DRIVE) &&
                 (input.brake_pedal_pos > kBrakePressedThreshold)) {
                 speaker_start_time_ = time_ms;
-                return DiSts::RUNNING;
+                return driver_interface::State::RUNNING;
             }
             break;
 
-        case DiSts::RUNNING:
-            if (input.command == DiCmd::RUN_ERROR) {
-                return DiSts::ERR_COASTING;
+        case driver_interface::State::RUNNING:
+            if (input.command == driver_interface::Command::RUN_ERROR) {
+                return driver_interface::State::ERR_COASTING;
             }
             break;
 
         // No transitions from the following states
-        case DiSts::ERR:
+        case driver_interface::State::ERR:
             break;
-        case DiSts::ERR_COASTING:
+        case driver_interface::State::ERR_COASTING:
             break;
     }
     return status_;  // no transition to perform

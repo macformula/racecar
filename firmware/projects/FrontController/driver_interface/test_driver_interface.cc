@@ -33,7 +33,7 @@ DriverInterface CycleToState(const DiSts start_state) {
     int time = 0;
     if (start_state == IDLE) return di;
 
-    auto out = di.Update({.command = DiCmd::INIT}, time++);
+    auto out = di.Update({.command = driver_interface::Command::INIT}, time++);
     assert(out.status == WAITING_FOR_DRIVER_HV);
     if (start_state == WAITING_FOR_DRIVER_HV) return di;
 
@@ -41,7 +41,7 @@ DriverInterface CycleToState(const DiSts start_state) {
     assert(out.status == REQUESTED_HV_START);
     if (start_state == REQUESTED_HV_START) return di;
 
-    out = di.Update({.command = DiCmd::HV_IS_ON}, time++);
+    out = di.Update({.command = driver_interface::Command::HV_IS_ON}, time++);
     assert(out.status == WAITING_FOR_DRIVER_MOTOR);
     if (start_state == WAITING_FOR_DRIVER_MOTOR) return di;
 
@@ -51,7 +51,7 @@ DriverInterface CycleToState(const DiSts start_state) {
 
     out = di.Update(
         {
-            .command = DiCmd::READY_TO_DRIVE,
+            .command = driver_interface::Command::READY_TO_DRIVE,
             .brake_pedal_pos = 20,
         },
         time++);
@@ -61,7 +61,7 @@ DriverInterface CycleToState(const DiSts start_state) {
     if (start_state == ERR) {
         out = di.Update(
             {
-                .command = DiCmd::READY_TO_DRIVE,
+                .command = driver_interface::Command::READY_TO_DRIVE,
                 .accel_pedal_pos1 = 0,
                 .accel_pedal_pos2 = 100,  // should force implausible
             },
@@ -71,7 +71,7 @@ DriverInterface CycleToState(const DiSts start_state) {
     } else if (start_state == ERR_COASTING) {
         out = di.Update(
             {
-                .command = DiCmd::RUN_ERROR,
+                .command = driver_interface::Command::RUN_ERROR,
             },
             time++);
         assert(out.status == ERR_COASTING);
@@ -150,7 +150,7 @@ TEST(DriverInterfaceFsm, Sequence) {
 
     int time_ms = 0;
     DriverInterface::Input in{
-        .command = DiCmd::HV_IS_ON,  // not init
+        .command = driver_interface::Command::HV_IS_ON,  // not init
         .brake_pedal_pos = 0,
         .dash_cmd = DashState::LOGO,
         .accel_pedal_pos1 = 0,
@@ -163,7 +163,7 @@ TEST(DriverInterfaceFsm, Sequence) {
         EXPECT_FALSE(out.ready_to_drive);
         EXPECT_FALSE(out.driver_speaker);
 
-        in.command = DiCmd::INIT;
+        in.command = driver_interface::Command::INIT;
 
         out = di.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::WAITING_FOR_DRIVER_HV);
@@ -181,7 +181,7 @@ TEST(DriverInterfaceFsm, Sequence) {
         EXPECT_FALSE(out.ready_to_drive);
         EXPECT_FALSE(out.driver_speaker);
 
-        in.command = DiCmd::HV_IS_ON;
+        in.command = driver_interface::Command::HV_IS_ON;
         out = di.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::WAITING_FOR_DRIVER_MOTOR);
 
@@ -199,21 +199,21 @@ TEST(DriverInterfaceFsm, Sequence) {
 
     {  // Only enter RUNNING when both command and pedal are valid
         in.brake_pedal_pos = 0;
-        in.command = DiCmd::HV_IS_ON;
+        in.command = driver_interface::Command::HV_IS_ON;
         out = di.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::REQUESTED_MOTOR_START);
 
-        in.command = DiCmd::HV_IS_ON;
+        in.command = driver_interface::Command::HV_IS_ON;
         in.brake_pedal_pos = 5;
         out = di.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::REQUESTED_MOTOR_START);
 
-        in.command = DiCmd::READY_TO_DRIVE;
+        in.command = driver_interface::Command::READY_TO_DRIVE;
         in.brake_pedal_pos = 0;
         out = di.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::REQUESTED_MOTOR_START);
 
-        in.command = DiCmd::READY_TO_DRIVE;
+        in.command = driver_interface::Command::READY_TO_DRIVE;
         in.brake_pedal_pos = 50;
         out = di.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::RUNNING);
@@ -236,7 +236,7 @@ TEST(DriverInterfaceFsm, Sequence) {
     }
 
     {  // shutdown
-        in.command = DiCmd::SHUTDOWN;
+        in.command = driver_interface::Command::SHUTDOWN;
         out = di.Update(in, time_ms++);
         ASSERT_EQ(out.status, DiSts::IDLE);
     }
@@ -246,7 +246,7 @@ TEST(DriverInterfaceFsm, StartRunning) {
     DriverInterface di = CycleToState(DiSts::REQUESTED_MOTOR_START);
 
     DriverInterface::Input in{
-        .command = DiCmd::HV_IS_ON,
+        .command = driver_interface::Command::HV_IS_ON,
         .brake_pedal_pos = 50,  // brakes pressed
         .dash_cmd = DashState::BRAKE_TO_START,
         .accel_pedal_pos1 = 0,
@@ -262,7 +262,7 @@ TEST(DriverInterfaceFsm, StartRunning) {
     }
 
     // Governor replies RTD
-    in.command = DiCmd::READY_TO_DRIVE;
+    in.command = driver_interface::Command::READY_TO_DRIVE;
     for (; time_ms < 5000; time_ms++) {
         out = di.Update(in, time_ms);
         EXPECT_TRUE(out.ready_to_drive);
@@ -298,7 +298,7 @@ TEST(DriverInterfaceFsm, GeneralError) {
 
 TEST(DriverInterfaceFsm, RunningError) {
     DriverInterface di = CycleToState(DiSts::RUNNING);
-    auto out = di.Update({.command = DiCmd::RUN_ERROR}, 0);
+    auto out = di.Update({.command = driver_interface::Command::RUN_ERROR}, 0);
     ASSERT_EQ(out.status, DiSts::ERR_COASTING);
 
     // Assert no other states go to ERR_COASTING
@@ -310,7 +310,8 @@ TEST(DriverInterfaceFsm, RunningError) {
              DiSts::ERR,
          }) {
         DriverInterface not_running = CycleToState(state);
-        auto out = not_running.Update({.command = DiCmd::RUN_ERROR}, 0);
+        auto out = not_running.Update(
+            {.command = driver_interface::Command::RUN_ERROR}, 0);
         ASSERT_NE(out.status, DiSts::ERR_COASTING);
     }
 }
@@ -320,13 +321,15 @@ TEST(DriverInterfaceFsm, Shutdown) {
     for (auto state : {DiSts::WAITING_FOR_DRIVER_HV, DiSts::REQUESTED_HV_START,
                        DiSts::REQUESTED_MOTOR_START, DiSts::RUNNING}) {
         DriverInterface di = CycleToState(state);
-        auto out = di.Update({.command = DiCmd::SHUTDOWN}, 0);
+        auto out =
+            di.Update({.command = driver_interface::Command::SHUTDOWN}, 0);
         ASSERT_EQ(out.status, DiSts::IDLE);
     }
 
     for (auto state : {DiSts::ERR, DiSts::ERR_COASTING}) {
         DriverInterface di = CycleToState(state);
-        auto out = di.Update({.command = DiCmd::SHUTDOWN}, 0);
+        auto out =
+            di.Update({.command = driver_interface::Command::SHUTDOWN}, 0);
         ASSERT_NE(out.status, DiSts::IDLE);
     }
 }
