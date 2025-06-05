@@ -2,13 +2,13 @@
 
 namespace accumulator {
 
-static AccSts state;
+static State state;
 static ContactorCommands contactor_command;
 
 static uint32_t elapsed;
 static float pack_soc;
 
-AccSts GetState(void) {
+State GetState(void) {
     return state;
 }
 
@@ -21,7 +21,7 @@ void SetPackSoc(float _pack_soc) {
 }
 
 void Init(void) {
-    state = AccSts::IDLE;
+    state = State::IDLE;
     contactor_command = {
         .precharge = ContactorCommand::OPEN,
         .positive = ContactorCommand::OPEN,
@@ -44,12 +44,12 @@ static bool FeedbackMatchesCommand(ContactorCommands cmd,
     return precharge_match && positive_match && negative_match;
 }
 
-void Update_100Hz(AccCmd command, ContactorFeedbacks fb) {
-    using enum AccSts;
+void Update_100Hz(Command command, ContactorFeedbacks fb) {
+    using enum State;
     using enum ContactorFeedback;
     using enum ContactorCommand;
 
-    AccSts new_state = state;
+    State new_state = state;
     ContactorCommands cmd = {
         .precharge = OPEN,
         .positive = OPEN,
@@ -60,7 +60,7 @@ void Update_100Hz(AccCmd command, ContactorFeedbacks fb) {
         case IDLE:
             cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
 
-            if (command == AccCmd::ENABLED) {
+            if (command == Command::ENABLED) {
                 new_state = STARTUP_ENSURE_OPEN;
             }
             break;
@@ -148,7 +148,7 @@ void Update_100Hz(AccCmd command, ContactorFeedbacks fb) {
         new_state = LOW_SOC;
     }
 
-    if (command == AccCmd::OFF) {
+    if (command == Command::OFF) {
         cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
         new_state = IDLE;
     }

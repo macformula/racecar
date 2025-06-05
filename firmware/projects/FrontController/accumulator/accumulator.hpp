@@ -1,11 +1,6 @@
 #pragma once
 
-#include "../enums.hpp"
-
-enum class AccCmd {
-    OFF,
-    ENABLED,
-};
+#include "generated/can/veh_messages.hpp"
 
 enum class ContactorFeedback : bool {
     // WARNING: feedback is inverted relative to command
@@ -32,12 +27,19 @@ struct ContactorCommands {
 
 namespace accumulator {
 
-AccSts GetState(void);
+using State = generated::can::TxFC_Status::AccStatus_t;
+
+enum class Command {
+    OFF,
+    ENABLED,
+};
+
+State GetState(void);
 ContactorCommands GetContactorCommand(void);
 
 void SetPackSoc(float pack_soc);
 
 void Init(void);
-void Update_100Hz(AccCmd command, ContactorFeedbacks contactors);
+void Update_100Hz(Command command, ContactorFeedbacks contactors);
 
 }  // namespace accumulator

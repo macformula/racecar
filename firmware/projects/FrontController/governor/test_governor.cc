@@ -74,9 +74,9 @@ TEST(Governor, NormalSequence) {
     {
         auto out = g.Update(in, time);
         ASSERT_EQ(out.gov_sts, GovSts::INIT);
-        EXPECT_EQ(out.di_cmd, DiCmd::INIT);
-        EXPECT_EQ(out.acc_cmd, AccCmd::INIT);
-        EXPECT_EQ(out.mi_cmd, MiCmd::INIT);
+        EXPECT_EQ(out.di_cmd, driver_interface::Command::INIT);
+        EXPECT_EQ(out.acc_cmd, accumulator::Command::INIT);
+        EXPECT_EQ(out.mi_cmd, motor::Command::INIT);
     }
 
     in.di_sts = DiSts::REQUESTED_HV_START;
@@ -92,7 +92,7 @@ TEST(Governor, NormalSequence) {
     {  // 2s have elapsed -> enter startup
         auto out = g.Update(in, time);
         ASSERT_EQ(out.gov_sts, GovSts::STARTUP_HV);
-        EXPECT_EQ(out.acc_cmd, AccCmd::STARTUP);
+        EXPECT_EQ(out.acc_cmd, accumulator::Command::STARTUP);
 
         ASSERT_EQ(g.Update(in, ++time).gov_sts, GovSts::STARTUP_HV);
     }
@@ -102,7 +102,7 @@ TEST(Governor, NormalSequence) {
     {
         auto out = g.Update(in, ++time);
         ASSERT_EQ(out.gov_sts, GovSts::STARTUP_READY_TO_DRIVE);
-        EXPECT_EQ(out.di_cmd, DiCmd::HV_IS_ON);
+        EXPECT_EQ(out.di_cmd, driver_interface::Command::HV_IS_ON);
 
         ASSERT_EQ(g.Update(in, ++time).gov_sts, GovSts::STARTUP_READY_TO_DRIVE);
     }
@@ -112,7 +112,7 @@ TEST(Governor, NormalSequence) {
     {
         auto out = g.Update(in, ++time);
         ASSERT_EQ(out.gov_sts, GovSts::STARTUP_MOTOR);
-        EXPECT_EQ(out.mi_cmd, MiCmd::STARTUP);
+        EXPECT_EQ(out.mi_cmd, motor::Command::STARTUP);
 
         ASSERT_EQ(g.Update(in, ++time).gov_sts, GovSts::STARTUP_MOTOR);
     }
@@ -122,7 +122,7 @@ TEST(Governor, NormalSequence) {
     {
         auto out = g.Update(in, ++time);
         ASSERT_EQ(out.gov_sts, GovSts::STARTUP_SEND_READY_TO_DRIVE);
-        EXPECT_EQ(out.di_cmd, DiCmd::READY_TO_DRIVE);
+        EXPECT_EQ(out.di_cmd, driver_interface::Command::READY_TO_DRIVE);
 
         assert(g.Update(in, ++time).gov_sts ==
                GovSts::STARTUP_SEND_READY_TO_DRIVE);
@@ -154,8 +154,8 @@ TEST(Governor, NormalSequence) {
 //     {
 //         auto out = g.Update(in, ++time);
 //         ASSERT_EQ(out.gov_sts ,  GovSts::SHUTDOWN);
-//         EXPECT_EQ(out.mi_cmd ,  MiCmd::SHUTDOWN);
-//         EXPECT_EQ(out.di_cmd ,  DiCmd::SHUTDOWN);
+//         EXPECT_EQ(out.mi_cmd ,  motor::Command::SHUTDOWN);
+//         EXPECT_EQ(out.di_cmd ,  driver_interface::Command::SHUTDOWN);
 
 //         ASSERT_EQ(g.Update(in, ++time).gov_sts ,  GovSts::SHUTDOWN);
 //     }
@@ -166,7 +166,7 @@ TEST(Governor, NormalSequence) {
 //         auto out = g.Update(in, ++time);
 //         ASSERT_EQ(out.gov_sts ,  GovSts::INIT);
 //         EXPECT_EQ(out.bm_cmd ,  BmCmd::INIT);
-//         EXPECT_EQ(out.di_cmd ,  DiCmd::INIT);
+//         EXPECT_EQ(out.di_cmd ,  driver_interface::Command::INIT);
 //     }
 
 //     std::cout << "Passed test_shutdown_hvil!" << std::endl;
@@ -189,8 +189,8 @@ TEST(Governor, LowSocShutdown) {
     {
         auto out = g.Update(in, ++time);
         ASSERT_EQ(out.gov_sts, GovSts::SHUTDOWN);
-        EXPECT_EQ(out.mi_cmd, MiCmd::SHUTDOWN);
-        EXPECT_EQ(out.di_cmd, DiCmd::SHUTDOWN);
+        EXPECT_EQ(out.mi_cmd, motor::Command::SHUTDOWN);
+        EXPECT_EQ(out.di_cmd, driver_interface::Command::SHUTDOWN);
 
         ASSERT_EQ(g.Update(in, ++time).gov_sts, GovSts::SHUTDOWN);
     }
@@ -200,8 +200,8 @@ TEST(Governor, LowSocShutdown) {
     {
         auto out = g.Update(in, ++time);
         ASSERT_EQ(out.gov_sts, GovSts::INIT);
-        EXPECT_EQ(out.acc_cmd, AccCmd::INIT);
-        EXPECT_EQ(out.di_cmd, DiCmd::INIT);
+        EXPECT_EQ(out.acc_cmd, accumulator::Command::INIT);
+        EXPECT_EQ(out.di_cmd, driver_interface::Command::INIT);
     }
 }
 
@@ -221,7 +221,7 @@ TEST(Governor, RunningError) {
 
     auto out = g.Update(in, ++time);
     ASSERT_EQ(out.gov_sts, GovSts::ERR_RUNNING_HV);
-    EXPECT_EQ(out.di_cmd, DiCmd::RUN_ERROR);
+    EXPECT_EQ(out.di_cmd, driver_interface::Command::RUN_ERROR);
 }
 
 TEST(Governor, RunningMotorError) {
@@ -240,7 +240,7 @@ TEST(Governor, RunningMotorError) {
 
     auto out = g.Update(in, ++time);
     ASSERT_EQ(out.gov_sts, GovSts::ERR_RUNNING_MOTOR);
-    EXPECT_EQ(out.di_cmd, DiCmd::RUN_ERROR);
+    EXPECT_EQ(out.di_cmd, driver_interface::Command::RUN_ERROR);
 }
 
 TEST(Governor, StartupDriverError) {
@@ -291,7 +291,7 @@ TEST(Governor, StartupDriverError) {
 //         {
 //             auto out = g.Update(in, 1);
 //             ASSERT_EQ(out.gov_sts ,  GovSts::ERR_STARTUP_HV);
-//             EXPECT_EQ(out.di_cmd ,  DiCmd::SHUTDOWN);
+//             EXPECT_EQ(out.di_cmd ,  driver_interface::Command::SHUTDOWN);
 //         }
 
 //         // Return to INIT only after BM=INIT
@@ -302,7 +302,7 @@ TEST(Governor, StartupDriverError) {
 //         {
 //             auto out = g.Update(in, 3);
 //             ASSERT_EQ(out.gov_sts ,  GovSts::INIT);
-//             EXPECT_EQ(out.di_cmd ,  DiCmd::INIT);
+//             EXPECT_EQ(out.di_cmd ,  driver_interface::Command::INIT);
 //             EXPECT_EQ(out.bm_cmd ,  BmCmd::INIT);
 //         }
 //     }
@@ -353,7 +353,7 @@ TEST(Governor, StartupMotorError) {
 
             auto out = g.Update(in, ++time);
             ASSERT_EQ(out.gov_sts, ERR_STARTUP_MOTOR_RESET);
-            EXPECT_EQ(out.mi_cmd, MiCmd::ERR_RESET);
+            EXPECT_EQ(out.mi_cmd, motor::Command::ERR_RESET);
 
             // Return to Startup only once MI turns off
             ASSERT_EQ(g.Update(in, ++time).gov_sts, ERR_STARTUP_MOTOR_RESET);
@@ -373,7 +373,7 @@ TEST(Governor, StartupMotorError) {
         in.mi_sts = MiSts::ERR;
         auto out = g.Update(in, ++time);
         ASSERT_EQ(out.gov_sts, ERR_STARTUP_MOTOR_FAULT);
-        EXPECT_EQ(out.mi_cmd, MiCmd::SHUTDOWN);
+        EXPECT_EQ(out.mi_cmd, motor::Command::SHUTDOWN);
 
         // We should NOT be able to exit this state
         in.mi_sts = MiSts::OFF;

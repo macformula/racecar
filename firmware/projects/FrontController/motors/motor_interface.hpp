@@ -1,15 +1,22 @@
 #pragma once
+
 #include <concepts>
 #include <cstdint>
 
-#include "../enums.hpp"
+#include "generated/can/veh_messages.hpp"
 
-enum class MiCmd {
+namespace motor {
+
+using State = generated::can::TxFC_Status::MiStatus_t;
+
+enum class Command {
     INIT,
     STARTUP,
     SHUTDOWN,
     ERR_RESET
 };
+
+}  // namespace motor
 
 // AmkActualValues1 concept, combines AMK0_ActualValues1 and AMK1_ActualValues1
 // into one common type for easier use
@@ -72,20 +79,21 @@ class AmkManager : public AmkManagerBase {
 public:
     struct Output {
         SP setpoints;
-        MiSts status;
+        motor::State status;
         bool inverter_enable;
         AmkManagerBase::FsmState fsm_state;
     };
 
     Output UpdateMotor(const V1 val1, const Request motor_input,
-                       const MiCmd cmd, int time_ms);
+                       const motor::Command cmd, int time_ms);
 
 private:
     FsmState amk_state_;
     int amk_state_start_time_ = 0;
     Output output_{};
 
-    FsmState Transition(const V1 val1, const MiCmd cmd, const int time_ms);
+    FsmState Transition(const V1 val1, const motor::Command cmd,
+                        const int time_ms);
 };
 
 template <AmkActualValues1 LEFT_ACTUAL1, AmkActualValues1 RIGHT_ACTUAL1,
@@ -93,7 +101,7 @@ template <AmkActualValues1 LEFT_ACTUAL1, AmkActualValues1 RIGHT_ACTUAL1,
 class MotorInterface {
 public:
     struct Input {
-        MiCmd cmd;
+        motor::Command cmd;
         LEFT_ACTUAL1 left_actual1;
         RIGHT_ACTUAL1 right_actual1;
         AmkManagerBase::Request left_motor_input;
@@ -101,7 +109,7 @@ public:
     };
 
     struct Output {
-        MiSts status;
+        motor::State status;
         LEFT_SP left_setpoints;
         RIGHT_SP right_setpoints;
         bool inverter_enable;
@@ -112,12 +120,12 @@ public:
 private:
     AmkManager<LEFT_ACTUAL1, LEFT_SP> left_amk_manager{};
     AmkManager<RIGHT_ACTUAL1, RIGHT_SP> right_amk_manager{};
-    MiSts status_ = MiSts::OFF;
+    motor::State status_ = motor::State::OFF;
 };
 
 template <AmkActualValues1 V1, AmkSetPoints1 SP>
 AmkManager<V1, SP>::Output AmkManager<V1, SP>::UpdateMotor(
-    const V1 val1, const Request motor_input, const MiCmd cmd,
+    const V1 val1, const Request motor_input, const motor::Command cmd,
     const int time_ms) {
     using enum FsmState;
 
@@ -125,7 +133,7 @@ AmkManager<V1, SP>::Output AmkManager<V1, SP>::UpdateMotor(
     output_.fsm_state = amk_state_;
     switch (amk_state_) {
         case MOTOR_OFF_WAITING_FOR_GOV:
-            output_.status = MiSts::OFF;
+            output_.status = motor::State::OFF;
             output_.inverter_enable = false;
 
             output_.setpoints.amk_b_inverter_on = false;
@@ -139,7 +147,7 @@ AmkManager<V1, SP>::Output AmkManager<V1, SP>::UpdateMotor(
             break;
 
         case STARTUP_SYS_READY:
-            output_.status = MiSts::STARTUP;
+            output_.status = motor::State::STARTUP;
 
             break;
 
@@ -162,13 +170,13 @@ AmkManager<V1, SP>::Output AmkManager<V1, SP>::UpdateMotor(
             break;
 
         case READY:
-            output_.status = MiSts::READY;
+            output_.status = motor::State::READY;
             output_.inverter_enable = true;
 
             break;
 
         case RUNNING:
-            output_.status = MiSts::RUNNING;
+            output_.status = motor::State::RUNNING;
 
             output_.setpoints.amk__target_velocity = motor_input.speed_request;
             output_.setpoints.amk__torque_limit_positiv =
@@ -188,7 +196,7 @@ AmkManager<V1, SP>::Output AmkManager<V1, SP>::UpdateMotor(
             break;
 
         case ERROR_DETECTED:
-            output_.status = MiSts::ERR;
+            output_.status = motor::State::ERR;
 
             break;
 
@@ -221,9 +229,8 @@ AmkManager<V1, SP>::Output AmkManager<V1, SP>::UpdateMotor(
 
 // Computes the state to transition to in an update
 template <AmkActualValues1 V1, AmkSetPoints1 SP>
-AmkManagerBase::FsmState AmkManager<V1, SP>::Transition(const V1 val1,
-                                                        const MiCmd cmd,
-                                                        const int time_ms) {
+AmkManagerBase::FsmState AmkManager<V1, SP>::Transition(
+    const V1 val1, const motor::Command cmd, const int time_ms) {
     using enum FsmState;
 
     // If any of these states have amk_b_error set, move to ERROR_DETECTED state
@@ -242,7 +249,7 @@ AmkManagerBase::FsmState AmkManager<V1, SP>::Transition(const V1 val1,
 
     switch (amk_state_) {
         case MOTOR_OFF_WAITING_FOR_GOV:
-            if (cmd == MiCmd::STARTUP) {
+            if (cmd == motor::Command::STARTUP) {
                 new_state = STARTUP_SYS_READY;
             }
 
@@ -284,7 +291,7 @@ AmkManagerBase::FsmState AmkManager<V1, SP>::Transition(const V1 val1,
             break;
 
         case RUNNING:
-            if (cmd == MiCmd::SHUTDOWN) {
+            if (cmd == motor::Command::SHUTDOWN) {
                 new_state = SHUTDOWN;
             }
 
@@ -298,7 +305,7 @@ AmkManagerBase::FsmState AmkManager<V1, SP>::Transition(const V1 val1,
             break;
 
         case ERROR_DETECTED:
-            if (cmd == MiCmd::ERR_RESET) {
+            if (cmd == motor::Command::ERR_RESET) {
                 new_state = ERROR_RESET_ENFORCE_SETPOINTS_ZERO;
             }
 
@@ -351,8 +358,8 @@ MotorInterface<LV1, RV1, LSP, RSP>::Update(const Input& input,
     auto right = right_amk_manager.UpdateMotor(
         input.right_actual1, input.right_motor_input, input.cmd, time_ms);
 
-    if (left.status == MiSts::ERR || right.status == MiSts::ERR) {
-        status_ = MiSts::ERR;
+    if (left.status == motor::State::ERR || right.status == motor::State::ERR) {
+        status_ = motor::State::ERR;
     } else if (left.status == right.status) {
         status_ = left.status;
     }  // else keep previous status

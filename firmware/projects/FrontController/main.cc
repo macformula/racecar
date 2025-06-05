@@ -36,8 +36,8 @@ DriverInterface di;
 using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
 
 // temp until modularized
-DiSts di_state = DiSts::IDLE;
-MiSts mi_state = MiSts::INIT;
+driver_interface::State di_state = driver_interface::State::IDLE;
+motor::State mi_state = motor::State::INIT;
 bool brake_light_en = false;
 
 void UpdateControls() {
@@ -182,9 +182,11 @@ static void update_state_machine(void) {
         case RUNNING:
             UpdateControls();
 
-            to_dash.hv_started = accumulator::GetState() == AccSts::RUNNING;
-            to_dash.motor_started = mi_state == MiSts::RUNNING;
-            to_dash.drive_started = di_state == DiSts::RUNNING;
+            to_dash.hv_started =
+                accumulator::GetState() == accumulator::State::RUNNING;
+            to_dash.motor_started = mi_state == motor::State::RUNNING;
+            to_dash.drive_started =
+                di_state == driver_interface::State::RUNNING;
             break;
 
         case ERROR_INVALID_HASH:

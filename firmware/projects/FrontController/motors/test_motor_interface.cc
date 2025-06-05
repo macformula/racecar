@@ -89,37 +89,37 @@ AmkManager<DummyActualValues1, DummySetpoints1> CycleToState(
     DummyActualValues1 val1{};
     AmkMgr::Output out;
     AmkMgr::Request motor{};
-    out = mgr.UpdateMotor(val1, motor, MiCmd::STARTUP, 0);
+    out = mgr.UpdateMotor(val1, motor, motor::Command::STARTUP, 0);
     assert(out.fsm_state == STARTUP_SYS_READY);
     if (desired_state == STARTUP_SYS_READY) return mgr;
 
     val1.amk_b_system_ready = true;
-    out = mgr.UpdateMotor(val1, motor, MiCmd::STARTUP, 1);
+    out = mgr.UpdateMotor(val1, motor, motor::Command::STARTUP, 1);
     assert(out.fsm_state == STARTUP_TOGGLE_D_CON);
     if (desired_state == STARTUP_TOGGLE_D_CON) return mgr;
 
     val1.amk_b_dc_on = true;
     val1.amk_b_quit_dc_on = true;
-    out = mgr.UpdateMotor(val1, motor, MiCmd::STARTUP, 2);
+    out = mgr.UpdateMotor(val1, motor, motor::Command::STARTUP, 2);
     assert(out.fsm_state == STARTUP_ENFORCE_SETPOINTS_ZERO);
     if (desired_state == STARTUP_ENFORCE_SETPOINTS_ZERO) return mgr;
 
-    out = mgr.UpdateMotor(val1, motor, MiCmd::STARTUP, 150);
+    out = mgr.UpdateMotor(val1, motor, motor::Command::STARTUP, 150);
     assert(out.fsm_state == STARTUP_COMMAND_ON);
     if (desired_state == STARTUP_COMMAND_ON) return mgr;
 
     val1.amk_b_inverter_on = true;
-    out = mgr.UpdateMotor(val1, motor, MiCmd::STARTUP, 151);
+    out = mgr.UpdateMotor(val1, motor, motor::Command::STARTUP, 151);
     assert(out.fsm_state == READY);
     if (desired_state == READY) return mgr;
 
     val1.amk_b_quit_inverter_on = true;
     val1.amk_b_error = false;
-    out = mgr.UpdateMotor(val1, motor, MiCmd::STARTUP, 152);
+    out = mgr.UpdateMotor(val1, motor, motor::Command::STARTUP, 152);
     assert(out.fsm_state == RUNNING);
     if (desired_state == RUNNING) return mgr;
 
-    out = mgr.UpdateMotor(val1, motor, MiCmd::SHUTDOWN, 152);
+    out = mgr.UpdateMotor(val1, motor, motor::Command::SHUTDOWN, 152);
     assert(out.fsm_state == SHUTDOWN);
     return mgr;
 }
@@ -134,7 +134,7 @@ TEST(AmkMotor, NormalSequence) {
     AmkMgr::Request motor_input{.speed_request = 15,
                                 .torque_limit_positive = 25,
                                 .torque_limit_negative = 35};
-    MiCmd cmd = MiCmd::STARTUP;
+    motor::Command cmd = motor::Command::STARTUP;
     int time_ms = 0;
 
     // Expected setpoints to change and use in assert calls
@@ -209,7 +209,7 @@ TEST(AmkMotor, NormalSequence) {
         ASSERT_TRUE(output.inverter_enable);
     }
 
-    cmd = MiCmd::SHUTDOWN;
+    cmd = motor::Command::SHUTDOWN;
     expected_setpoints.amk__target_velocity = 0;
     expected_setpoints.amk__torque_limit_positiv = 0;
     expected_setpoints.amk__torque_limit_negativ = 0;
@@ -248,7 +248,7 @@ TEST(AmkMotor, ErrorDetectedState) {
     AmkMgr::Output output;
     DummyActualValues1 actual_values;
     AmkMgr::Request motor_input{};
-    MiCmd cmd = MiCmd::STARTUP;
+    motor::Command cmd = motor::Command::STARTUP;
     int time_ms = 0;
 
     // Set inputs to cause an error for testing
@@ -310,13 +310,13 @@ TEST(AmkMotor, ErrorSequence) {
 
     // put amk into error state
     output = amk_manager.UpdateMotor({.amk_b_error = true}, motor_input,
-                                     MiCmd::ERR_RESET, time_ms);
+                                     motor::Command::ERR_RESET, time_ms);
     ASSERT_EQ(output.fsm_state, ERROR_DETECTED);
     ASSERT_EQ(output.status, MiSts::ERR);
 
     {
         output = amk_manager.UpdateMotor(actual_values, motor_input,
-                                         MiCmd::ERR_RESET, time_ms);
+                                         motor::Command::ERR_RESET, time_ms);
         EXPECT_EQ(output.setpoints.amk__target_velocity, 0);
         EXPECT_EQ(output.setpoints.amk__torque_limit_positiv, 0);
         EXPECT_EQ(output.setpoints.amk__torque_limit_positiv, 0);
@@ -324,9 +324,9 @@ TEST(AmkMotor, ErrorSequence) {
     }
 
     {
-        output =
-            amk_manager.UpdateMotor({.amk_b_quit_inverter_on = false},
-                                    motor_input, MiCmd::ERR_RESET, time_ms);
+        output = amk_manager.UpdateMotor({.amk_b_quit_inverter_on = false},
+                                         motor_input, motor::Command::ERR_RESET,
+                                         time_ms);
         ASSERT_EQ(output.fsm_state, ERROR_RESET_TOGGLE_ENABLE);
         EXPECT_FALSE(output.setpoints.amk_b_enable);
     }
@@ -334,14 +334,14 @@ TEST(AmkMotor, ErrorSequence) {
     time_ms += 250;
     {
         output = amk_manager.UpdateMotor(actual_values, motor_input,
-                                         MiCmd::ERR_RESET, time_ms);
+                                         motor::Command::ERR_RESET, time_ms);
         ASSERT_EQ(output.fsm_state, ERROR_RESET_TOGGLE_ENABLE);
     }
 
     time_ms += 250;
     {
         output = amk_manager.UpdateMotor(actual_values, motor_input,
-                                         MiCmd::ERR_RESET, time_ms);
+                                         motor::Command::ERR_RESET, time_ms);
         ASSERT_EQ(output.fsm_state, ERROR_RESET_SEND_RESET);
         EXPECT_TRUE(output.setpoints.amk_b_error_reset);
     }
@@ -349,14 +349,14 @@ TEST(AmkMotor, ErrorSequence) {
     time_ms += 250;
     {
         output = amk_manager.UpdateMotor(actual_values, motor_input,
-                                         MiCmd::ERR_RESET, time_ms);
+                                         motor::Command::ERR_RESET, time_ms);
         ASSERT_EQ(output.fsm_state, ERROR_RESET_SEND_RESET);
     }
 
     time_ms += 250;
     {
         output = amk_manager.UpdateMotor(actual_values, motor_input,
-                                         MiCmd::ERR_RESET, time_ms);
+                                         motor::Command::ERR_RESET, time_ms);
         ASSERT_EQ(output.fsm_state, ERROR_RESET_TOGGLE_RESET);
         EXPECT_FALSE(output.setpoints.amk_b_error_reset);
     }
@@ -364,7 +364,7 @@ TEST(AmkMotor, ErrorSequence) {
     actual_values.amk_b_system_ready = true;
     {
         output = amk_manager.UpdateMotor(actual_values, motor_input,
-                                         MiCmd::ERR_RESET, time_ms);
+                                         motor::Command::ERR_RESET, time_ms);
         ASSERT_EQ(output.status, MiSts::OFF);
         EXPECT_FALSE(output.setpoints.amk_b_inverter_on);
         EXPECT_FALSE(output.setpoints.amk_b_dc_on);
