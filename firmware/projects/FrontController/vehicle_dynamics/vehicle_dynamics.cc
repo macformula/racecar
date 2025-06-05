@@ -3,59 +3,97 @@
 
 #include "vehicle_dynamics.hpp"
 
-#include "../tuning.hpp"
+#include "bindings.hpp"
+#include "generated/can/veh_messages.hpp"
+#include "sensors/driver/driver.hpp"
+#include "sensors/dynamics/dynamics.hpp"
 #include "shared/util/lookup_table.hpp"
+#include "shared/util/moving_average.hpp"
+#include "tuning.hpp"
 #include "vehicle_dynamics_calc.hpp"
 
 using namespace ctrl;
+using namespace generated::can;
+using Profile_t = RxDashboardStatus::Profile_t;
+using LUT = shared::util::LookupTable<float>;
+namespace vehicle_dynamics {
 
-VehicleDynamics::VehicleDynamics(LUT::Data pedal_to_torque,
-                                 tuning::Profile profile, float target_slip)
-    : pedal_to_torque(pedal_to_torque), target_slip(target_slip) {}
+static AmkManagerBase::Request left_request;
+static AmkManagerBase::Request right_request;
 
-void VehicleDynamics::Init(int time_ms) {
-    traction_control_.Init(time_ms);
+static Profile_t profile;
+static float target_slip_ratio;
+static TractionControl traction_ctrl;
+static TorqueRequest torque_request;
+static bool torque_vector_enable;
+
+static shared::util::MovingAverage<10, float> torque_ma{};
+
+AmkManagerBase::Request GetLeftMotorRequest(void) {
+    return left_request;
 }
 
-VehicleDynamics::Output VehicleDynamics::Update(const Input& input,
-                                                int time_ms) {
-    // negative limit fields fixed at 0 in simulink model
-    AmkManagerBase::Request left{
+AmkManagerBase::Request GetRightMotorRequest(void) {
+    return right_request;
+}
+
+void SetProfile(generated::can::RxDashboardStatus::Profile_t _profile) {
+    profile = _profile;
+}
+
+void SetTorqueVectorEnable(bool enable) {
+    torque_vector_enable = enable;
+}
+
+void SetTargetSlipRatio(float target_slip) {
+    target_slip_ratio = target_slip;
+}
+
+void Init(void) {
+    SetTorqueVectorEnable(false);
+    SetTargetSlipRatio(0.2f);
+    SetProfile(Profile_t::Default);
+
+    // Fix speed request and control the torque limits
+    left_request = {
         .speed_request = 1000.f,
-        .torque_limit_positive = 0.0f,
-        .torque_limit_negative = 0.0f,
+        .torque_limit_positive = 0,
+        .torque_limit_negative = 0,
     };
-    AmkManagerBase::Request right{
+    right_request = {
         .speed_request = 1000.f,
-        .torque_limit_positive = 0.0f,
-        .torque_limit_negative = 0.0f,
+        .torque_limit_positive = 0,
+        .torque_limit_negative = 0,
     };
+
+    traction_ctrl.Init(bindings::GetTickMs());
+}
+
+void Update_100Hz(float driver_torque_request) {
+    int time_ms = bindings::GetTickMs();
 
     float actual_slip =
-        CalculateActualSlip(input.wheel_speed_lr, input.wheel_speed_rr,
-                            input.wheel_speed_lf, input.wheel_speed_rf);
-    float tc_scale_factor =
-        traction_control_.UpdateScaleFactor(actual_slip, target_slip, time_ms);
+        CalculateActualSlip(sensors::dynamics::GetWheelSpeeds());
 
-    TorqueVector torque_vector;
-    if (input.tv_enable) {
-        torque_vector = AdjustTorqueVectoring(input.steering_angle);
-    } else {
-        torque_vector = {.left = 1.0f, .right = 1.0f};
+    float tc_scale_factor = traction_ctrl.UpdateScaleFactor(
+        actual_slip, target_slip_ratio, time_ms);
+
+    TorqueVector tv = {.left = 1.0, .right = 1.0};
+    if (torque_vector_enable) {
+        tv = AdjustTorqueVectoring(sensors::driver::GetSteeringWheel());
     }
 
-    float motor_torque_request = torque_request_.Update(
-        input.driver_torque_request, input.brake_pedal_postion);
+    float motor_torque_request = torque_request.Update(
+        driver_torque_request, sensors::driver::GetBrakePercent());
 
-    motor_torque_req_running_avg.LoadValue(
-        LUT::Evaluate(pedal_to_torque, motor_torque_request * tc_scale_factor));
-    float smoothed_torque_request = motor_torque_req_running_avg.GetValue();
+    float torque = LUT::Evaluate(tuning::pedal_to_torque,
+                                 motor_torque_request * tc_scale_factor);
+    torque_ma.LoadValue(torque);
+    float smoothed_torque = torque_ma.GetValue();
 
-    left.torque_limit_positive = smoothed_torque_request * torque_vector.left;
-    right.torque_limit_positive = smoothed_torque_request * torque_vector.right;
-
-    return Output{
-        .left_motor_request = left,
-        .right_motor_request = right,
-    };
+    left_request.torque_limit_positive = smoothed_torque * tv.left;
+    right_request.torque_limit_positive = smoothed_torque * tv.right;
+    // negative limit fields fixed at 0 in simulink model
 }
+
+}  // namespace vehicle_dynamics

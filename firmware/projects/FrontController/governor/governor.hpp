@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../accumulator/accumulator.hpp"
-#include "../driver_interface/driver_interface.hpp"
-#include "../enums.hpp"
-#include "../motors/motor_interface.hpp"
+#include "accumulator/accumulator.hpp"
+#include "driver_interface/driver_interface.hpp"
+#include "enums.hpp"
+#include "motors/motor_interface.hpp"
 
 namespace governor {
 
