@@ -31,36 +31,20 @@ PtBus pt_can_bus{bindings::pt_can_base};
 using MotorIface = MotorInterface<RxAMK0_ActualValues1, RxAMK1_ActualValues1,
                                   TxAMK0_SetPoints1, TxAMK0_SetPoints1>;
 MotorIface mi;
-DriverInterface di;
 
 using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
 
 // temp until modularized
-driver_interface::State di_state = driver_interface::State::IDLE;
 motor::State mi_state = motor::State::INIT;
-bool brake_light_en = false;
 
 void UpdateControls() {
     int time_ms = bindings::GetTickMs();
 
-    governor::Update_100Hz(accumulator::GetState(), mi_state, di_state);
-
     auto dash_msg = veh_can_bus.GetRxDashboardStatus();
     if (!dash_msg.has_value()) return;
 
-    // Driver Interface update
-    DriverInterface::Input di_in = {
-        .command = governor::GetDriverInterfaceCmd(),
-        .brake_pedal_pos = sensors::driver::GetBrakePercent(),
-        .dash_cmd = dash_msg->DashState(),
-        .accel_pedal_pos1 = sensors::driver::GetAccelPercent1(),
-        .accel_pedal_pos2 = sensors::driver::GetAccelPercent1(),
-    };
-    DriverInterface::Output di_out = di.Update(di_in, time_ms);
-    di_state = di_out.status;  // temp
-
-    bindings::ready_to_drive_sig_en.Set(di_out.driver_speaker);
-    brake_light_en = di_out.brake_light_en;
+    governor::Update_100Hz(accumulator::GetState(), mi_state,
+                           dash_msg->DashState());
 
     auto contactor_states = veh_can_bus.GetRxContactor_Feedback();
     if (!contactor_states.has_value()) {
@@ -79,8 +63,7 @@ void UpdateControls() {
     };
     accumulator::Update_100Hz(veh_can_bus, governor::GetAccumulatorCmd(), fb);
 
-    // Vehicle Dynamics update
-    vehicle_dynamics::Update_100Hz(di_out.driver_torque_req);
+    vehicle_dynamics::Update_100Hz(driver_interface::GetTorqueRequest());
 
     auto left_act = pt_can_bus.GetRxAMK0_ActualValues1();
     auto right_act = pt_can_bus.GetRxAMK1_ActualValues1();
@@ -162,7 +145,6 @@ static void update_state_machine(void) {
                 //     transition = ERROR_INVALID_HASH;
                 // }
             }
-            transition = WAIT_DRIVER_SELECT;  // bypass hash check for now
         } break;
 
         case WAIT_DRIVER_SELECT: {
@@ -185,7 +167,7 @@ static void update_state_machine(void) {
                 accumulator::GetState() == accumulator::State::RUNNING;
             to_dash.motor_started = mi_state == motor::State::RUNNING;
             to_dash.drive_started =
-                di_state == driver_interface::State::RUNNING;
+                governor::GetState() == governor::State::RUNNING;
             break;
 
         case ERROR_INVALID_HASH:
@@ -245,12 +227,11 @@ void task_10hz(void* argument) {
     veh_can_bus.Send(to_dash);
     veh_can_bus.Send(TxFC_Status{
         .gov_status = governor::GetState(),
-        .di_status = di_state,
         .mi_status = mi_state,
         .acc_status = accumulator::GetState(),
         .fc_state = fc_state,
         .dbc_hash_status = dbc_hash_status,
-        .brake_light_enable = brake_light_en,
+        .brake_light_enable = driver_interface::IsBrakePressed(),
     });
 }
 
