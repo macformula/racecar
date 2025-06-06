@@ -1,10 +1,12 @@
 #include "governor.hpp"
 
+#include "bindings.hpp"
+#include "thresholds.hpp"
+
 namespace governor {
 
 static accumulator::Command accumulator_cmd;
 static motor::Command motor_cmd;
-static driver_interface::Command driver_cmd;
 static State state;
 
 static uint32_t elapsed;
@@ -21,10 +23,6 @@ motor::Command GetMotorCmd(void) {
     return motor_cmd;
 }
 
-driver_interface::Command GetDriverInterfaceCmd(void) {
-    return driver_cmd;
-}
-
 State GetState(void) {
     return state;
 }
@@ -32,14 +30,12 @@ State GetState(void) {
 void Init(void) {
     accumulator_cmd = accumulator::Command::OFF;
     motor_cmd = motor::Command::INIT;
-    driver_cmd = driver_interface::Command::INIT;
     state = State::INIT;
     elapsed = 0;
     motor_start_count = 0;
 }
 
-void Update_100Hz(accumulator::State acc, motor::State mi,
-                  driver_interface::State di) {
+void Update_100Hz(accumulator::State acc, motor::State mi, DashState dash) {
     using enum State;
 
     bool hvil_interrupt = false;  // not part of EV6. What should this be?
@@ -50,11 +46,9 @@ void Update_100Hz(accumulator::State acc, motor::State mi,
         case INIT:
             accumulator_cmd = accumulator::Command::OFF;
             motor_cmd = motor::Command::INIT;
-            driver_cmd = driver_interface::Command::INIT;
             motor_start_count = 0;
 
-            if ((elapsed >= 2000) &&
-                (di == driver_interface::State::REQUESTED_HV_START)) {
+            if ((elapsed >= 2000) && (dash == DashState::STARTING_HV)) {
                 new_state = STARTUP_HV;
             }
             break;
@@ -62,7 +56,6 @@ void Update_100Hz(accumulator::State acc, motor::State mi,
         case STARTUP_HV:
             accumulator_cmd = accumulator::Command::ENABLED;
             motor_cmd = motor::Command::INIT;
-            driver_cmd = driver_interface::Command::INIT;
 
             if (acc == accumulator::State::RUNNING) {
                 new_state = STARTUP_READY_TO_DRIVE;
@@ -72,9 +65,8 @@ void Update_100Hz(accumulator::State acc, motor::State mi,
         case STARTUP_READY_TO_DRIVE:
             accumulator_cmd = accumulator::Command::ENABLED;
             motor_cmd = motor::Command::INIT;
-            driver_cmd = driver_interface::Command::HV_IS_ON;
 
-            if (di == driver_interface::State::REQUESTED_MOTOR_START) {
+            if (dash == DashState::STARTING_MOTORS) {
                 new_state = STARTUP_MOTOR;
             }
             break;
@@ -82,7 +74,6 @@ void Update_100Hz(accumulator::State acc, motor::State mi,
         case STARTUP_MOTOR:
             accumulator_cmd = accumulator::Command::ENABLED;
             motor_cmd = motor::Command::STARTUP;
-            driver_cmd = driver_interface::Command::HV_IS_ON;
 
             if (on_enter) {
                 motor_start_count++;
@@ -104,17 +95,18 @@ void Update_100Hz(accumulator::State acc, motor::State mi,
         case STARTUP_SEND_READY_TO_DRIVE:
             accumulator_cmd = accumulator::Command::ENABLED;
             motor_cmd = motor::Command::STARTUP;
-            driver_cmd = driver_interface::Command::READY_TO_DRIVE;
 
-            if (di == driver_interface::State::RUNNING) {
+            if (driver_interface::IsBrakePressed()) {
                 new_state = RUNNING;
             }
             break;
 
         case RUNNING:
+            bindings::ready_to_drive_sig_en.Set(elapsed <
+                                                timeout::SPEAKER_DURATION);
+
             accumulator_cmd = accumulator::Command::ENABLED;
             motor_cmd = motor::Command::STARTUP;
-            driver_cmd = driver_interface::Command::READY_TO_DRIVE;
 
             if (acc == accumulator::State::LOW_SOC) {
                 new_state = SHUTDOWN;
@@ -134,7 +126,6 @@ void Update_100Hz(accumulator::State acc, motor::State mi,
             // can this be combined with ERR_STARTUP_HV?
             accumulator_cmd = accumulator::Command::OFF;
             motor_cmd = motor::Command::SHUTDOWN;
-            driver_cmd = driver_interface::Command::SHUTDOWN;
 
             if (acc == accumulator::State::IDLE) {
                 // should probably check if motors and DI have shut down
@@ -145,7 +136,6 @@ void Update_100Hz(accumulator::State acc, motor::State mi,
         case ERR_STARTUP_HV:
             accumulator_cmd = accumulator::Command::OFF;
             motor_cmd = motor::Command::SHUTDOWN;
-            driver_cmd = driver_interface::Command::SHUTDOWN;
 
             if (acc == accumulator::State::IDLE) {
                 // should probably check if motors and DI have shut down
@@ -156,8 +146,6 @@ void Update_100Hz(accumulator::State acc, motor::State mi,
         case ERR_STARTUP_MOTOR_RESET:
             accumulator_cmd = accumulator::Command::ENABLED;
             motor_cmd = motor::Command::ERR_RESET;
-            driver_cmd =
-                driver_interface::Command::HV_IS_ON;  // is this correct?
 
             if (mi == motor::State::OFF) {
                 new_state = STARTUP_MOTOR;
@@ -171,12 +159,7 @@ void Update_100Hz(accumulator::State acc, motor::State mi,
         case ERR_RUNNING_MOTOR:
             accumulator_cmd = accumulator::Command::OFF;
             motor_cmd = motor::Command::SHUTDOWN;
-            driver_cmd = driver_interface::Command::RUN_ERROR;
             break;
-    }
-
-    if (di == driver_interface::State::ERR) {
-        new_state = ERR_STARTUP_DI;  // what is this for? can it be removed?
     }
 
     if (hvil_interrupt) {

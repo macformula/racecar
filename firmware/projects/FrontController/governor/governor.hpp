@@ -7,14 +7,13 @@
 namespace governor {
 
 using State = generated::can::TxFC_Status::GovStatus_t;
+using DashState = generated::can::RxDashboardStatus::DashState_t;
 
 accumulator::Command GetAccumulatorCmd(void);
 motor::Command GetMotorCmd(void);
-driver_interface::Command GetDriverInterfaceCmd(void);
 State GetState(void);
 
 void Init(void);
-void Update_100Hz(accumulator::State acc, motor::State mi,
-                  driver_interface::State di);
+void Update_100Hz(accumulator::State acc, motor::State mi, DashState dash);
 
 }  // namespace governor
