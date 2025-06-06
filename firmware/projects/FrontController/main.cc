@@ -77,8 +77,7 @@ void UpdateControls() {
         .positive = static_cast<ContactorFeedback>(
             contactor_states->Pack_Positive_Feedback()),
     };
-    accumulator::SetPackSoc(100);  // this should come from a sensor
-    accumulator::Update_100Hz(governor::GetAccumulatorCmd(), fb);
+    accumulator::Update_100Hz(veh_can_bus, governor::GetAccumulatorCmd(), fb);
 
     // Vehicle Dynamics update
     vehicle_dynamics::Update_100Hz(di_out.driver_torque_req);
@@ -273,6 +272,10 @@ void task_100hz(void* argument) {
 
 int main(void) {
     bindings::Initialize();
+
+    accumulator::Init();
+    governor::Init();
+    vehicle_dynamics::Init();
 
     scheduler_register_task(task_10hz, 100, nullptr);
     scheduler_register_task(task_100hz, 10, nullptr);
