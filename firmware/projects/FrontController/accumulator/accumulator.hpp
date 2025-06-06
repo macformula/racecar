@@ -1,5 +1,6 @@
 #pragma once
 
+#include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 
 enum class ContactorFeedback : bool {
@@ -36,10 +37,10 @@ enum class Command {
 
 State GetState(void);
 ContactorCommands GetContactorCommand(void);
-
-void SetPackSoc(float pack_soc);
+float GetSocPercent(void);
 
 void Init(void);
-void Update_100Hz(Command command, ContactorFeedbacks contactors);
+void Update_100Hz(generated::can::VehBus& veh_can, Command command,
+                  ContactorFeedbacks contactors);
 
 }  // namespace accumulator

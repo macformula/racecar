@@ -1,12 +1,28 @@
 #include "accumulator.hpp"
 
+#include "bindings.hpp"
+#include "generated/can/veh_bus.hpp"
+#include "generated/can/veh_messages.hpp"
+#include "shared/util/moving_average.hpp"
+#include "thresholds.hpp"
+
+using namespace generated::can;
 namespace accumulator {
 
 static State state;
 static ContactorCommands contactor_command;
 
 static uint32_t elapsed;
-static float pack_soc;
+
+// Pack Voltages
+
+static float pack_voltage;
+static uint32_t pack_voltage_timeout;
+static bool pack_voltage_valid;
+
+static float precharge_voltage;
+
+static float max_pack_voltage;
 
 State GetState(void) {
     return state;
@@ -16,8 +32,13 @@ ContactorCommands GetContactorCommand(void) {
     return contactor_command;
 }
 
-void SetPackSoc(float _pack_soc) {
-    pack_soc = _pack_soc;
+float GetSocPercent(void) {
+    return 100.f * pack_voltage / max_pack_voltage;
+}
+
+float GetPrechargePercent(void) {
+    // Has a different denominator than SOC
+    return 100.f * precharge_voltage / pack_voltage;
 }
 
 void Init(void) {
@@ -28,7 +49,11 @@ void Init(void) {
         .negative = ContactorCommand::OPEN,
     };
     elapsed = 0;
-    pack_soc = 100;  // assume charged until told otherwise
+    max_pack_voltage = 0;
+    precharge_voltage = 0;
+    pack_voltage = 0;
+    pack_voltage_valid = false;
+    pack_voltage_timeout = 0;
 }
 
 static bool FeedbackMatchesCommand(ContactorCommands cmd,
@@ -44,7 +69,38 @@ static bool FeedbackMatchesCommand(ContactorCommands cmd,
     return precharge_match && positive_match && negative_match;
 }
 
-void Update_100Hz(Command command, ContactorFeedbacks fb) {
+static void MeasureVoltages(VehBus& veh_can) {
+    // Precharge
+    const float HV_SCALE = (6e6 + 20e3) / (20e3);
+    static shared::util::MovingAverage<50, float> ma;
+
+    ma.LoadValue(bindings::precharge_monitor.ReadVoltage() * HV_SCALE);
+    precharge_voltage = ma.GetValue();
+
+    auto msg = veh_can.PopRxPack_SOC();
+    if (msg.has_value()) {
+        pack_voltage = msg->Pack_SOC();
+        max_pack_voltage = msg->Maximum_Pack_Voltage();
+        pack_voltage_valid = true;
+        pack_voltage_timeout = 0;
+    } else {
+        // Invalidate if data stops arriving
+        pack_voltage_timeout += 10;
+        if (pack_voltage_timeout > timeout::PACK_VOLTAGE_UPDATE) {
+            pack_voltage_valid = false;
+        }
+    }
+}
+
+static bool IsPrechargeComplete(void) {
+    if (!pack_voltage_valid) {
+        return false;
+    }
+
+    return GetPrechargePercent() > threshold::PRECHARGE_COMPLETE_PERCENT;
+}
+
+static void UpdateStateMachine(Command command, ContactorFeedbacks fb) {
     using enum State;
     using enum ContactorFeedback;
     using enum ContactorCommand;
@@ -100,7 +156,8 @@ void Update_100Hz(Command command, ContactorFeedbacks fb) {
         case STARTUP_HOLD_CLOSE_PRECHARGE:
             cmd = {.precharge = CLOSE, .positive = OPEN, .negative = CLOSE};
 
-            if (elapsed >= 10000) {
+            if (IsPrechargeComplete() &&
+                (elapsed >= timeout::MIN_PRECHARGE_TIME)) {
                 new_state = STARTUP_CLOSE_POS;
             }
             break;
@@ -131,6 +188,10 @@ void Update_100Hz(Command command, ContactorFeedbacks fb) {
 
         case RUNNING:
             cmd = {.precharge = OPEN, .positive = CLOSE, .negative = CLOSE};
+
+            if (!FeedbackMatchesCommand(cmd, fb)) {
+                new_state = ERR_RUNNING;
+            }
             break;
 
         case LOW_SOC:
@@ -138,19 +199,24 @@ void Update_100Hz(Command command, ContactorFeedbacks fb) {
             break;
 
         case ERR_RUNNING:
-            // The Simulink model never entered this state! Should remove but
-            // Governor has behaviour which uses it. Uh oh!
             cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
+            break;
+
+        case SHUTDOWN:
+            cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
+
+            if (GetPrechargePercent() < threshold::PACK_SHUTDOWN_PERCENT) {
+                new_state = IDLE;
+            }
             break;
     }
 
-    if (pack_soc < 30) {
-        new_state = LOW_SOC;
+    if (command == Command::OFF) {
+        new_state = SHUTDOWN;
     }
 
-    if (command == Command::OFF) {
-        cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
-        new_state = IDLE;
+    if (GetSocPercent() < threshold::LOW_VOLTAGE_PERCENT) {
+        new_state = LOW_SOC;
     }
 
     contactor_command = cmd;
@@ -161,6 +227,11 @@ void Update_100Hz(Command command, ContactorFeedbacks fb) {
     } else {
         elapsed += 10;
     }
+}
+
+void Update_100Hz(VehBus& veh_can, Command command, ContactorFeedbacks fb) {
+    MeasureVoltages(veh_can);
+    UpdateStateMachine(command, fb);
 }
 
 }  // namespace accumulator
