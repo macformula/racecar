@@ -1,5 +1,5 @@
 /// @author Blake Freer
-/// @date 2025-04
+/// @date 2025-06
 
 #include "accumulator/accumulator.hpp"
 #include "bindings.hpp"
@@ -9,7 +9,7 @@
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "governor/governor.hpp"
-#include "motors/motor_interface.hpp"
+#include "motors/motors.hpp"
 #include "physical.hpp"
 #include "scheduler/scheduler.h"
 #include "sensors/driver/driver.hpp"
@@ -20,75 +20,10 @@
     CAN
 ***************************************************************/
 using namespace generated::can;
+using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
 
 VehBus veh_can_bus{bindings::veh_can_base};
 PtBus pt_can_bus{bindings::pt_can_base};
-
-/***************************************************************
-    Control System
-***************************************************************/
-
-using MotorIface = MotorInterface<RxAMK0_ActualValues1, RxAMK1_ActualValues1,
-                                  TxAMK0_SetPoints1, TxAMK0_SetPoints1>;
-MotorIface mi;
-
-using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
-
-// temp until modularized
-motor::State mi_state = motor::State::INIT;
-
-void UpdateControls() {
-    int time_ms = bindings::GetTickMs();
-
-    auto dash_msg = veh_can_bus.GetRxDashboardStatus();
-    if (!dash_msg.has_value()) return;
-
-    governor::Update_100Hz(accumulator::GetState(), mi_state,
-                           dash_msg->DashState());
-
-    auto contactor_states = veh_can_bus.GetRxContactor_Feedback();
-    if (!contactor_states.has_value()) {
-        return;
-    }
-
-    ContactorFeedbacks fb = {
-        .precharge = static_cast<ContactorFeedback>(
-            contactor_states->Pack_Precharge_Feedback()),
-
-        .negative = static_cast<ContactorFeedback>(
-            contactor_states->Pack_Negative_Feedback()),
-
-        .positive = static_cast<ContactorFeedback>(
-            contactor_states->Pack_Positive_Feedback()),
-    };
-    accumulator::Update_100Hz(veh_can_bus, governor::GetAccumulatorCmd(), fb);
-
-    vehicle_dynamics::Update_100Hz(driver_interface::GetTorqueRequest());
-
-    auto left_act = pt_can_bus.GetRxAMK0_ActualValues1();
-    auto right_act = pt_can_bus.GetRxAMK1_ActualValues1();
-
-    if (!left_act.has_value() || !right_act.has_value()) {
-        return;
-    }
-
-    // Motor Interface Update
-    MotorIface::Input mi_in = {
-        .cmd = governor::GetMotorCmd(),
-        .left_actual1 = left_act.value(),
-        .right_actual1 = right_act.value(),
-        .left_motor_input = vehicle_dynamics::GetLeftMotorRequest(),
-        .right_motor_input = vehicle_dynamics::GetRightMotorRequest(),
-    };
-    MotorIface::Output mi_out = mi.Update(mi_in, time_ms);
-    (void)mi_out.inverter_enable;  // unused -> inverter en signal is set in the
-    // setpoint message inside MI.Update()
-
-    mi_state = mi_out.status;
-
-    // pt_can_bus.Send(mi_out.left_setpoints);
-    // pt_can_bus.Send(mi_out.right_setpoints);
-}
 
 // create a dashboard module
 TxFCDashboardStatus to_dash{
@@ -161,13 +96,6 @@ static void update_state_machine(void) {
         } break;
 
         case RUNNING:
-            UpdateControls();
-
-            to_dash.hv_started =
-                accumulator::GetState() == accumulator::State::RUNNING;
-            to_dash.motor_started = mi_state == motor::State::RUNNING;
-            to_dash.drive_started =
-                governor::GetState() == governor::State::RUNNING;
             break;
 
         case ERROR_INVALID_HASH:
@@ -224,14 +152,26 @@ void task_10hz(void* argument) {
     // log_pedal_and_steer(); // temporary, reduce bus load for testing
     // check_can_flash();  // no CAN flash in 2025
 
-    veh_can_bus.Send(to_dash);
     veh_can_bus.Send(TxFC_Status{
         .gov_status = governor::GetState(),
-        .mi_status = mi_state,
+        .inv1_status = static_cast<uint8_t>(motors::GetLeftState()),
+        .inv2_status = static_cast<uint8_t>(motors::GetRightState()),
+        .mi_status = motors::GetState(),
         .acc_status = accumulator::GetState(),
         .fc_state = fc_state,
         .dbc_hash_status = dbc_hash_status,
         .brake_light_enable = driver_interface::IsBrakePressed(),
+        .elapsed = static_cast<uint8_t>(governor::GetElapsed() / 100),
+    });
+    // veh_can_bus.Send(TxInverterSwitch{.close = motors::GetInverterEnable()});
+    veh_can_bus.Send(TxFCDashboardStatus{
+        .receive_config = fc_state == TxFC_Status::FcState_t::RUNNING,
+        .hv_started = accumulator::GetState() == accumulator::State::RUNNING,
+        .motor_started = motors::GetState() == motors::State::RUNNING,
+        .drive_started = governor::GetState() == governor::State::RUNNING,
+        .hv_charge_percent =
+            static_cast<uint8_t>(accumulator::GetPrechargePercent()),
+        .speed = 0,  // todo
     });
 }
 
@@ -243,12 +183,24 @@ void task_100hz(void* argument) {
 
     update_state_machine();
 
-    ContactorCommands cmd = accumulator::GetContactorCommand();
-    veh_can_bus.Send(TxContactorCommand{
-        .pack_positive = static_cast<bool>(cmd.positive),
-        .pack_precharge = static_cast<bool>(cmd.precharge),
-        .pack_negative = static_cast<bool>(cmd.negative),
-    });
+    auto dash_msg = veh_can_bus.GetRxDashboardStatus();
+    if (dash_msg.has_value()) {
+        // this should always run
+        governor::Update_100Hz(accumulator::GetState(), motors::GetState(),
+                               dash_msg->DashState());
+    };
+
+    accumulator::Update_100Hz(veh_can_bus, governor::GetAccumulatorCmd());
+
+    vehicle_dynamics::Update_100Hz(driver_interface::GetTorqueRequest());
+
+    motors::Update_100Hz(pt_can_bus, veh_can_bus,
+                         vehicle_dynamics::GetLeftMotorRequest(),
+                         vehicle_dynamics::GetRightMotorRequest());
+
+    veh_can_bus.Send(accumulator::GetContactorCommand());
+    // pt_can_bus.Send(motors::GetLeftSetpoints());
+    // pt_can_bus.Send(motors::GetRightSetpoints());
 }
 
 int main(void) {
@@ -256,6 +208,7 @@ int main(void) {
 
     accumulator::Init();
     governor::Init();
+    motors::Init();
     vehicle_dynamics::Init();
 
     scheduler_register_task(task_10hz, 100, nullptr);

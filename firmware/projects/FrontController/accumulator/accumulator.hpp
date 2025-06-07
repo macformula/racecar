@@ -36,11 +36,11 @@ enum class Command {
 };
 
 State GetState(void);
-ContactorCommands GetContactorCommand(void);
+generated::can::TxContactorCommand GetContactorCommand(void);
 float GetSocPercent(void);
+float GetPrechargePercent(void);
 
 void Init(void);
-void Update_100Hz(generated::can::VehBus& veh_can, Command command,
-                  ContactorFeedbacks contactors);
+void Update_100Hz(generated::can::VehBus& veh_can, Command command);
 
 }  // namespace accumulator

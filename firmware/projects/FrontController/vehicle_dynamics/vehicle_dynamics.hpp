@@ -4,12 +4,12 @@
 #pragma once
 
 #include "generated/can/veh_messages.hpp"
-#include "motors/motor_interface.hpp"
+#include "motors/motors.hpp"
 
 namespace vehicle_dynamics {
 
-AmkManagerBase::Request GetLeftMotorRequest(void);
-AmkManagerBase::Request GetRightMotorRequest(void);
+motors::Request GetLeftMotorRequest(void);
+motors::Request GetRightMotorRequest(void);
 
 void SetTorqueVectorEnable(bool enable);
 void SetTargetSlipRatio(float target_slip);

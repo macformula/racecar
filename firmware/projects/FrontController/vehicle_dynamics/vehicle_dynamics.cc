@@ -5,6 +5,7 @@
 
 #include "bindings.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "motors/motors.hpp"
 #include "sensors/driver/driver.hpp"
 #include "sensors/dynamics/dynamics.hpp"
 #include "shared/util/lookup_table.hpp"
@@ -18,8 +19,8 @@ using Profile_t = RxDashboardStatus::Profile_t;
 using LUT = shared::util::LookupTable<float>;
 namespace vehicle_dynamics {
 
-static AmkManagerBase::Request left_request;
-static AmkManagerBase::Request right_request;
+static motors::Request left_request;
+static motors::Request right_request;
 
 static Profile_t profile;
 static float target_slip_ratio;
@@ -29,11 +30,11 @@ static bool torque_vector_enable;
 
 static shared::util::MovingAverage<10, float> torque_ma{};
 
-AmkManagerBase::Request GetLeftMotorRequest(void) {
+amk::Request GetLeftMotorRequest(void) {
     return left_request;
 }
 
-AmkManagerBase::Request GetRightMotorRequest(void) {
+amk::Request GetRightMotorRequest(void) {
     return right_request;
 }
 
