@@ -28,8 +28,12 @@ State GetState(void) {
     return state;
 }
 
-ContactorCommands GetContactorCommand(void) {
-    return contactor_command;
+TxContactorCommand GetContactorCommand(void) {
+    return TxContactorCommand{
+        .pack_positive = static_cast<bool>(contactor_command.positive),
+        .pack_precharge = static_cast<bool>(contactor_command.precharge),
+        .pack_negative = static_cast<bool>(contactor_command.negative),
+    };
 }
 
 float GetSocPercent(void) {
@@ -212,12 +216,13 @@ static void UpdateStateMachine(Command command, ContactorFeedbacks fb) {
     }
 
     if (command == Command::OFF) {
-        new_state = SHUTDOWN;
+        new_state =
+            IDLE;  // should be shutdown but should not run from IDLE state
     }
 
-    if (GetSocPercent() < threshold::LOW_VOLTAGE_PERCENT) {
-        new_state = LOW_SOC;
-    }
+    // if (GetSocPercent() < threshold::LOW_VOLTAGE_PERCENT) {
+    //     new_state = LOW_SOC;
+    // } // bypass until BMS is set up for SOC estimation
 
     contactor_command = cmd;
 
@@ -229,9 +234,34 @@ static void UpdateStateMachine(Command command, ContactorFeedbacks fb) {
     }
 }
 
-void Update_100Hz(VehBus& veh_can, Command command, ContactorFeedbacks fb) {
+static std::optional<ContactorFeedbacks> ReadContactorFeedbacks(
+    VehBus& veh_can) {
+    auto fb_msg = veh_can.GetRxContactor_Feedback();
+
+    if (fb_msg.has_value()) {
+        return ContactorFeedbacks{
+            .precharge = static_cast<ContactorFeedback>(
+                fb_msg->Pack_Precharge_Feedback()),
+
+            .negative = static_cast<ContactorFeedback>(
+                fb_msg->Pack_Negative_Feedback()),
+
+            .positive = static_cast<ContactorFeedback>(
+                fb_msg->Pack_Positive_Feedback()),
+        };
+    } else {
+        return std::nullopt;
+    }
+}
+
+void Update_100Hz(VehBus& veh_can, Command command) {
     MeasureVoltages(veh_can);
-    UpdateStateMachine(command, fb);
+
+    auto fb = ReadContactorFeedbacks(veh_can);
+
+    if (fb.has_value()) {
+        UpdateStateMachine(command, fb.value());
+    }
 }
 
 }  // namespace accumulator

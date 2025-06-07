@@ -20,7 +20,7 @@ namespace timeout {
 using timeout_ms = uint32_t;
 
 const timeout_ms PACK_VOLTAGE_UPDATE = 500;
-const timeout_ms MIN_PRECHARGE_TIME = 6000;
+const timeout_ms MIN_PRECHARGE_TIME = 10000;
 const timeout_ms SPEAKER_DURATION = 2000;
 
 }  // namespace timeout

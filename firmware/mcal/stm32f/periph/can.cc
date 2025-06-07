@@ -91,10 +91,10 @@ void CanBase::Send(const shared::can::RawMessage& msg) {
     uint32_t tick = HAL_GetTick();
     while (HAL_CAN_AddTxMessage(hcan_, &stm_tx_header, msg.data,
                                 &tx_mailbox_addr_) != HAL_OK) {
-        // Attempt to send the message for up to 1ms (blocking)
+        // Attempt to send the message for up to 3ms (blocking)
         // This is bad code.
         // See description at https://github.com/macformula/racecar/pull/480
-        if (HAL_GetTick() - tick >= 1) {
+        if (HAL_GetTick() - tick >= 3) {
             dropped_tx_frames_ += 1;
             return;
         }

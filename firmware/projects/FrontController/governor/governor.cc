@@ -1,26 +1,28 @@
 #include "governor.hpp"
 
 #include "bindings.hpp"
+#include "driver_interface/driver_interface.hpp"
 #include "thresholds.hpp"
 
 namespace governor {
 
 static accumulator::Command accumulator_cmd;
-static motor::Command motor_cmd;
+static motors::Command motor_cmd;
 static State state;
 
 static uint32_t elapsed;
 static bool on_enter;
 
-static const uint32_t kMotorMaxAttempts = 5;
-static uint32_t motor_start_count;  // this should be handled in motors/
-
 accumulator::Command GetAccumulatorCmd(void) {
     return accumulator_cmd;
 }
 
-motor::Command GetMotorCmd(void) {
+motors::Command GetMotorCmd(void) {
     return motor_cmd;
+}
+
+uint32_t GetElapsed(void) {
+    return elapsed;
 }
 
 State GetState(void) {
@@ -29,13 +31,12 @@ State GetState(void) {
 
 void Init(void) {
     accumulator_cmd = accumulator::Command::OFF;
-    motor_cmd = motor::Command::INIT;
+    motor_cmd = motors::Command::OFF;
     state = State::INIT;
     elapsed = 0;
-    motor_start_count = 0;
 }
 
-void Update_100Hz(accumulator::State acc, motor::State mi, DashState dash) {
+void Update_100Hz(accumulator::State acc, motors::State mi, DashState dash) {
     using enum State;
 
     bool hvil_interrupt = false;  // not part of EV6. What should this be?
@@ -45,8 +46,7 @@ void Update_100Hz(accumulator::State acc, motor::State mi, DashState dash) {
     switch (state) {
         case INIT:
             accumulator_cmd = accumulator::Command::OFF;
-            motor_cmd = motor::Command::INIT;
-            motor_start_count = 0;
+            motor_cmd = motors::Command::OFF;
 
             if ((elapsed >= 2000) && (dash == DashState::STARTING_HV)) {
                 new_state = STARTUP_HV;
@@ -55,7 +55,7 @@ void Update_100Hz(accumulator::State acc, motor::State mi, DashState dash) {
 
         case STARTUP_HV:
             accumulator_cmd = accumulator::Command::ENABLED;
-            motor_cmd = motor::Command::INIT;
+            motor_cmd = motors::Command::OFF;
 
             if (acc == accumulator::State::RUNNING) {
                 new_state = STARTUP_READY_TO_DRIVE;
@@ -64,7 +64,7 @@ void Update_100Hz(accumulator::State acc, motor::State mi, DashState dash) {
 
         case STARTUP_READY_TO_DRIVE:
             accumulator_cmd = accumulator::Command::ENABLED;
-            motor_cmd = motor::Command::INIT;
+            motor_cmd = motors::Command::OFF;
 
             if (dash == DashState::STARTING_MOTORS) {
                 new_state = STARTUP_MOTOR;
@@ -73,28 +73,20 @@ void Update_100Hz(accumulator::State acc, motor::State mi, DashState dash) {
 
         case STARTUP_MOTOR:
             accumulator_cmd = accumulator::Command::ENABLED;
-            motor_cmd = motor::Command::STARTUP;
+            motor_cmd = motors::Command::ENABLED;
 
-            if (on_enter) {
-                motor_start_count++;
-            }
-
-            if (mi == motor::State::RUNNING) {
+            if (mi == motors::State::RUNNING) {
                 new_state = STARTUP_SEND_READY_TO_DRIVE;
             }
 
-            if (mi == motor::State::ERR) {
-                if (motor_start_count < kMotorMaxAttempts) {
-                    new_state = ERR_STARTUP_MOTOR_RESET;
-                } else {
-                    new_state = ERR_STARTUP_MOTOR_FAULT;  // don't keep trying
-                }
+            if (mi == motors::State::ERROR_STARTUP) {
+                new_state = ERROR_UNRECOVERABLE;  // don't keep trying
             }
             break;
 
         case STARTUP_SEND_READY_TO_DRIVE:
             accumulator_cmd = accumulator::Command::ENABLED;
-            motor_cmd = motor::Command::STARTUP;
+            motor_cmd = motors::Command::ENABLED;
 
             if (driver_interface::IsBrakePressed()) {
                 new_state = RUNNING;
@@ -106,18 +98,18 @@ void Update_100Hz(accumulator::State acc, motor::State mi, DashState dash) {
                                                 timeout::SPEAKER_DURATION);
 
             accumulator_cmd = accumulator::Command::ENABLED;
-            motor_cmd = motor::Command::STARTUP;
+            motor_cmd = motors::Command::ENABLED;
 
             if (acc == accumulator::State::LOW_SOC) {
                 new_state = SHUTDOWN;
             }
 
             if (acc == accumulator::State::ERR_RUNNING) {
-                new_state = ERR_RUNNING_HV;
+                new_state = ERROR_UNRECOVERABLE;
             }
 
-            if (mi == motor::State::ERR) {
-                new_state = ERR_RUNNING_MOTOR;
+            if (mi == motors::State::ERROR_RUNNING) {
+                new_state = ERROR_UNRECOVERABLE;
             }
 
             break;
@@ -125,7 +117,7 @@ void Update_100Hz(accumulator::State acc, motor::State mi, DashState dash) {
         case SHUTDOWN:
             // can this be combined with ERR_STARTUP_HV?
             accumulator_cmd = accumulator::Command::OFF;
-            motor_cmd = motor::Command::SHUTDOWN;
+            motor_cmd = motors::Command::OFF;
 
             if (acc == accumulator::State::IDLE) {
                 // should probably check if motors and DI have shut down
@@ -135,7 +127,7 @@ void Update_100Hz(accumulator::State acc, motor::State mi, DashState dash) {
 
         case ERR_STARTUP_HV:
             accumulator_cmd = accumulator::Command::OFF;
-            motor_cmd = motor::Command::SHUTDOWN;
+            motor_cmd = motors::Command::OFF;
 
             if (acc == accumulator::State::IDLE) {
                 // should probably check if motors and DI have shut down
@@ -143,22 +135,10 @@ void Update_100Hz(accumulator::State acc, motor::State mi, DashState dash) {
             }
             break;
 
-        case ERR_STARTUP_MOTOR_RESET:
-            accumulator_cmd = accumulator::Command::ENABLED;
-            motor_cmd = motor::Command::ERR_RESET;
-
-            if (mi == motor::State::OFF) {
-                new_state = STARTUP_MOTOR;
-            }
-            break;
-
         // The vehicle cannot escape these error states without rebooting.
-        case ERR_STARTUP_MOTOR_FAULT:
-        case ERR_STARTUP_DI:
-        case ERR_RUNNING_HV:
-        case ERR_RUNNING_MOTOR:
+        case ERROR_UNRECOVERABLE:
             accumulator_cmd = accumulator::Command::OFF;
-            motor_cmd = motor::Command::SHUTDOWN;
+            motor_cmd = motors::Command::OFF;
             break;
     }
 
@@ -170,9 +150,8 @@ void Update_100Hz(accumulator::State acc, motor::State mi, DashState dash) {
     if (on_enter) {
         elapsed = 0;
         state = new_state;
-    } else {
-        elapsed += 10;
     }
+    elapsed += 10;
 }
 
 }  // namespace governor
