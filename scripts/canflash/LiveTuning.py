@@ -36,7 +36,7 @@ class LiveTuning:
             self.value1 = 0
         print(f'Slider changed to {self.value1}')
 
-    def submit(self, _=None, iface = 'can0') -> None:
+    def submit(self, _=None, iface = 'vcan0') -> None:
 
         print(f'Submit pressed (current value: {self.value1})')
         subprocess.run(["bash", "./scripts/tune.sh", str(self.value1), iface], check=True)

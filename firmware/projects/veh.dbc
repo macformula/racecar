@@ -82,9 +82,6 @@ BO_ 512 FC_bpps_steer_debug: 8 FC
 BO_ 256 FC_cmd: 1 PC_SG
  SG_ FC_readyToDriveSpeaker : 1|1@1+ (1,0) [0|1] ""  FC
  SG_ FC_brakeLight : 0|1@1+ (1,0) [0|1] ""  FC
-
-BO_ 258 DashTune: 1 RPI                 
- SG_ Tune_Value_1 : 0|8@1+ (1,0) [0|100] "%"  FC
  
 BO_ 1570 ContactorCommand: 3 FC
  SG_ PackPositive : 0|8@1+ (1,0) [0|0] ""  BMS,LVC
@@ -198,8 +195,9 @@ BO_ 259 DashboardStatus: 2 Dash
  SG_ DashState          : 0|8@1+ (1,0) [0|1] "" FC
  SG_ Profile            : 8|8@1+ (1,0) [0|15] "" FC
 
-BO_ 260 TuningParams: 8 RPI
- SG_ aggressiveness     : 0|8@1+ (1,0) [0|100] "" FC
+BO_ 260 TuningParams: 2 RPI
+ SG_ damping            : 0|8@1+ (1,0) [0|100] "" FC
+ SG_ aggressiveness     : 8|8@1+ (1,0) [0|100] "" FC
 
 CM_ BO_ 1572 "This ID Transmits at 8 ms.";
 CM_ BO_ 1571 "This ID Transmits at 8 ms.";
@@ -265,4 +263,4 @@ VAL_ 112 FcState 0 "PWRUP_START" 1 "HVIL_OPEN";
 VAL_ 255 DbcHashStatus 0 "WAITING" 1 "VALID" 2 "INVALID";
 VAL_ 255 DiStatus 0 "IDLE" 1 "WAITING_FOR_DRIVER_HV" 2 "REQUESTED_HV_START" 3 "WAITING_FOR_DRIVER_MOTOR" 4 "REQUESTED_MOTOR_START" 5 "RUNNING" 6 "ERR_COASTING" 7 "ERR";
 VAL_ 259 Profile 0 "Default" 1 "Launch" 2 "Skidpad" 3 "Endurance" 4 "Tuning" 5 "_ENUM_TAIL_";
-VAL_ 259 DashState 0 "LOGO" 1 "SELECT_PROFILE" 2 "CONFIRM_SELECTION" 3 "WAIT_SELECTION_ACK" 4 "PRESS_FOR_HV" 5 "STARTING_HV" 6 "PRESS_FOR_MOTOR" 7 "STARTING_MOTORS" 8 "BRAKE_TO_START" 9 "RUNNING";
+VAL_ 259 DashState 0 "LOGO" 1 "SELECT_PROFILE" 2 "CONFIRM_SELECTION" 3 "WAIT_SELECTION_ACK" 4 "PRESS_FOR_HV" 5 "STARTING_HV" 6 "PRESS_FOR_MOTOR" 7 "STARTING_MOTORS" 8 "BRAKE_TO_START" 9 "RUNNING" 10 "TUNING";

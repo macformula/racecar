@@ -18,7 +18,7 @@ import numpy as np
 dbc = cantools.database.load_file("../../../veh.dbc")
 fc_msg = dbc.get_message_by_name("FCDashboardStatus")
 dash_msg = dbc.get_message_by_name("DashboardStatus")
-
+rberry_msg = dbc.get_message_by_name("TuningParams")
 
 class Simulation:
     class Restart(BaseException):
@@ -104,9 +104,23 @@ class Simulation:
 
         ds = self.wait_for_dash(
             "Waiting for Profile Selection",
-            lambda ds: ds["DashState"] == "WAIT_SELECTION_ACK",
+            lambda ds: ds["DashState"] == "WAIT_SELECTION_ACK" or ds["DashState"] == "TUNING",
         )
         print(f"Profile:\t{ds['Profile']}")
+
+        if (ds["DashState"] == "TUNING"):
+            while True:
+                self.bus.set_filters(
+            [{"can_id": dash_msg.frame_id, "can_mask": 0x7FF, "extended": False}, {"can_id": rberry_msg.frame_id, "can_mask": 0x7FF, "extended" : False}])
+                tune_msg = self.bus.recv()
+                # print(f"ID: {hex(tune_msg.arbitration_id)}, DLC: {tune_msg.dlc}, data: {tune_msg.data.hex()}")
+
+                tune = dbc.decode_message(tune_msg.arbitration_id, tune_msg.data) 
+                if (tune_msg.arbitration_id == 260):
+                    print(tune)
+                # print(tune)
+
+                
         sleep(DELAY)
         self.fc_status["receiveConfig"] = True
 

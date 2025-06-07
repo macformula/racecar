@@ -15,6 +15,7 @@
 #include "inc/StartMotors.hpp"
 #include "inc/StartingHV.hpp"
 #include "inc/StartingMotors.hpp"
+#include "inc/Tuning.hpp"
 
 class Display {
 public:
@@ -42,7 +43,6 @@ private:
     std::optional<State> transition_;
     State state_ = State::LOGO;
     Screen* screen_;
-
     LogoScreen logo_screen;
     ProfileSelect profile_select;
     ConfirmMenu confirm_menu;
@@ -53,4 +53,5 @@ private:
     StartingMotors starting_motors;
     StartDriving start_driving;
     DriveModeMenu drive_mode;
+    Tuning tuning;
 };

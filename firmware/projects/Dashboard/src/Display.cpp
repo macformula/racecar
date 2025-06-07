@@ -14,6 +14,7 @@ Display::Display(Button& enter, Button& scroll, generated::can::VehBus& veh)
       starting_motors(this),
       start_driving(this),
       drive_mode(this),
+      tuning(this),
       screen_(&logo_screen) {}
 
 Display::State Display::GetState() const {
@@ -62,6 +63,7 @@ void Display::InnerChangeState(State new_state_) {
         case STARTING_MOTORS:       screen_ = &starting_motors; break;
         case BRAKE_TO_START:        screen_ = &start_driving; break;
         case RUNNING:               screen_ = &drive_mode; break;
+        case TUNING:                screen_ = &tuning; break;
             // clang-format on
     }
 
