@@ -19,13 +19,15 @@ using Profile_t = RxDashboardStatus::Profile_t;
 using LUT = shared::util::LookupTable<float>;
 namespace vehicle_dynamics {
 
+static float driver_torque_request;
+
 static motors::Request left_request;
 static motors::Request right_request;
 
 static Profile_t profile;
 static float target_slip_ratio;
 static TractionControl traction_ctrl;
-static TorqueRequest torque_request;
+static TorqueRequest torque_request_machine;
 static bool torque_vector_enable;
 
 static shared::util::MovingAverage<10, float> torque_ma{};
@@ -50,6 +52,10 @@ void SetTargetSlipRatio(float target_slip) {
     target_slip_ratio = target_slip;
 }
 
+void SetDriverTorqueRequest(float _driver_torque_request) {
+    driver_torque_request = _driver_torque_request;
+}
+
 void Init(void) {
     SetTorqueVectorEnable(false);
     SetTargetSlipRatio(0.2f);
@@ -67,10 +73,11 @@ void Init(void) {
         .torque_limit_negative = 0,
     };
 
+    driver_torque_request = 0;
     traction_ctrl.Init(bindings::GetTickMs());
 }
 
-void Update_100Hz(float driver_torque_request) {
+void Update_100Hz(void) {
     int time_ms = bindings::GetTickMs();
 
     float actual_slip =
@@ -84,7 +91,7 @@ void Update_100Hz(float driver_torque_request) {
         tv = AdjustTorqueVectoring(sensors::driver::GetSteeringWheel());
     }
 
-    float motor_torque_request = torque_request.Update(
+    float motor_torque_request = torque_request_machine.Update(
         driver_torque_request, sensors::driver::GetBrakePercent());
 
     float torque = LUT::Evaluate(tuning::pedal_to_torque,

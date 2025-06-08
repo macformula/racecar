@@ -11,6 +11,7 @@ namespace accumulator {
 
 static State state;
 static ContactorCommands contactor_command;
+static Command command;
 
 static uint32_t elapsed;
 
@@ -53,6 +54,10 @@ float GetSocPercent(void) {
 float GetPrechargePercent(void) {
     // Has a different denominator than SOC
     return 100.f * precharge_voltage / pack_voltage;
+}
+
+void SetCommand(Command _command) {
+    command = _command;
 }
 
 void Init(void) {
@@ -114,7 +119,7 @@ static bool IsPrechargeComplete(void) {
     return GetPrechargePercent() > threshold::PRECHARGE_COMPLETE_PERCENT;
 }
 
-static void UpdateStateMachine(Command command, ContactorFeedbacks fb) {
+static void UpdateStateMachine(ContactorFeedbacks fb) {
     using enum State;
     using enum ContactorFeedback;
     using enum ContactorCommand;
@@ -264,13 +269,13 @@ static std::optional<ContactorFeedbacks> ReadContactorFeedbacks(
     }
 }
 
-void Update_100Hz(VehBus& veh_can, Command command) {
+void Update_100Hz(VehBus& veh_can) {
     MeasureVoltages(veh_can);
 
     auto fb = ReadContactorFeedbacks(veh_can);
 
     if (fb.has_value()) {
-        UpdateStateMachine(command, fb.value());
+        UpdateStateMachine(fb.value());
     }
 }
 
