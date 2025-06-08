@@ -3,103 +3,211 @@
 
 #include "accumulator/accumulator.hpp"
 #include "bindings.hpp"
+#include "dbc_hash/dbc_hash.hpp"
 #include "driver_interface/driver_interface.hpp"
 #include "generated/can/pt_bus.hpp"
 #include "generated/can/pt_messages.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
-#include "governor/governor.hpp"
 #include "motors/motors.hpp"
 #include "physical.hpp"
 #include "scheduler/scheduler.h"
 #include "sensors/driver/driver.hpp"
 #include "sensors/dynamics/dynamics.hpp"
+#include "thresholds.hpp"
 #include "vehicle_dynamics/vehicle_dynamics.hpp"
 
-/***************************************************************
-    CAN
-***************************************************************/
 using namespace generated::can;
-using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
 
 VehBus veh_can_bus{bindings::veh_can_base};
 PtBus pt_can_bus{bindings::pt_can_base};
 
-static TxFC_Status::FcState_t fc_state = TxFC_Status::FcState_t::INIT;
-static bool state_machine_on_enter = true;
+namespace fsm {
+using State = TxFC_Status::FcState_t;
 
-DbcHashStatus dbc_hash_status = DbcHashStatus::WAITING;  // make module
+static State state = State::START_DASHBOARD;
+static uint32_t elapsed = 0;
 
-static void update_state_machine(void) {
-    using enum TxFC_Status::FcState_t;
+static void Update_100Hz(void) {
+    using enum State;
     using DashState = RxDashboardStatus::DashState_t;
 
-    TxFC_Status::FcState_t new_state = fc_state;
+    State new_state = state;
 
-    switch (fc_state) {
-        case INIT:
-            new_state = START_DASHBOARD;
-            break;
+    accumulator::Command acc_cmd;
+    motors::Command motor_cmd;
+    bool speaker;
+    float torque_request;
 
+    bool hvil_interrupt = false;  // not part of EV6. What should this be?
+
+    switch (state) {
         case START_DASHBOARD: {
-            bindings::dashboard_power_en.SetHigh();
+            acc_cmd = accumulator::Command::OFF;
+            motor_cmd = motors::Command::OFF;
+            speaker = false;
+            torque_request = 0;
 
-            // wait until dashboard comes alive
+            // wait until dashboard comes online
             auto msg = veh_can_bus.GetRxDashboardStatus();
             if (msg.has_value()) {
-                new_state = SYNC_HASH;
-            }
-        } break;
-
-        case SYNC_HASH: {
-            dbc_hash_status = DbcHashStatus::WAITING;
-
-            auto msg = veh_can_bus.GetRxSyncDbcHash();
-
-            if (msg.has_value()) {
-                // bypass hash check for now
-                dbc_hash_status = DbcHashStatus::VALID;
                 new_state = WAIT_DRIVER_SELECT;
-                break;
-
-                // if (msg->DbcHash() == generated::can::kVehDbcHash) {
-                //     fc_status.dbc_hash_status = DbcHashStatus::VALID;
-                //     new_state = WAIT_DRIVER_SELECT;
-                // } else {
-                //     fc_status.dbc_hash_status = DbcHashStatus::INVALID;
-                //     new_state = ERROR_INVALID_HASH;
-                // }
             }
         } break;
 
         case WAIT_DRIVER_SELECT: {
-            auto msg = veh_can_bus.GetRxDashboardStatus();
+            acc_cmd = accumulator::Command::OFF;
+            motor_cmd = motors::Command::OFF;
+            speaker = false;
+            torque_request = 0;
 
-            if (!msg.has_value()) {
-                break;
-            }
-            if (msg->DashState() == DashState::WAIT_SELECTION_ACK) {
-                vehicle_dynamics::SetProfile(msg->Profile());
-                new_state = RUNNING;
+            auto msg = veh_can_bus.GetRxDashboardStatus();
+            if (msg.has_value()) {
+                if (msg->DashState() == DashState::WAIT_SELECTION_ACK) {
+                    vehicle_dynamics::SetProfile(msg->Profile());
+                    new_state = WAIT_START_HV;
+                }
             }
         } break;
 
-        case RUNNING:
+        case WAIT_START_HV: {
+            acc_cmd = accumulator::Command::OFF;
+            motor_cmd = motors::Command::OFF;
+            speaker = false;
+            torque_request = 0;
+
+            auto dash = veh_can_bus.GetRxDashboardStatus();
+            if (dash.has_value()) {
+                if (dash->DashState() == DashState::STARTING_HV) {
+                    new_state = STARTUP_HV;
+                }
+            }
+        } break;
+
+        case STARTUP_HV:
+            acc_cmd = accumulator::Command::ENABLED;
+            motor_cmd = motors::Command::OFF;
+            speaker = false;
+            torque_request = 0;
+
+            if (accumulator::GetState() == accumulator::State::RUNNING) {
+                new_state = STARTUP_READY_TO_DRIVE;
+            }
             break;
 
-        case ERROR_INVALID_HASH:
-            // nothing to do
+        case STARTUP_READY_TO_DRIVE: {
+            acc_cmd = accumulator::Command::ENABLED;
+            motor_cmd = motors::Command::OFF;
+            speaker = false;
+            torque_request = 0;
+
+            auto dash = veh_can_bus.GetRxDashboardStatus();
+            if (dash.has_value()) {
+                if (dash->DashState() == DashState::STARTING_MOTORS) {
+                    new_state = STARTUP_MOTOR;
+                }
+            }
+        } break;
+
+        case STARTUP_MOTOR:
+            acc_cmd = accumulator::Command::ENABLED;
+            motor_cmd = motors::Command::ENABLED;
+            speaker = false;
+            torque_request = 0;
+
+            if (motors::GetState() == motors::State::RUNNING) {
+                new_state = STARTUP_SEND_READY_TO_DRIVE;
+            }
+
+            if (motors::GetState() == motors::State::ERROR_STARTUP) {
+                new_state = ERROR_UNRECOVERABLE;
+            }
+            break;
+
+        case STARTUP_SEND_READY_TO_DRIVE:
+            acc_cmd = accumulator::Command::ENABLED;
+            motor_cmd = motors::Command::ENABLED;
+            speaker = false;
+            torque_request = 0;
+
+            if (driver_interface::IsBrakePressed()) {
+                new_state = RUNNING;
+            }
+            break;
+
+        case RUNNING:
+            acc_cmd = accumulator::Command::ENABLED;
+            motor_cmd = motors::Command::ENABLED;
+            speaker = elapsed < timeout::SPEAKER_DURATION;
+            torque_request = driver_interface::GetTorqueRequest();
+
+            if (accumulator::GetState() == accumulator::State::LOW_SOC) {
+                new_state = SHUTDOWN;
+            }
+
+            if (accumulator::GetState() == accumulator::State::ERR_RUNNING) {
+                new_state = ERROR_UNRECOVERABLE;
+            }
+
+            if (motors::GetState() == motors::State::ERROR_RUNNING) {
+                new_state = ERROR_UNRECOVERABLE;
+            }
+            break;
+
+        case SHUTDOWN:
+            // can this be combined with ERR_STARTUP_HV?
+            acc_cmd = accumulator::Command::OFF;
+            motor_cmd = motors::Command::OFF;
+            speaker = false;
+            torque_request = 0;
+
+            if (accumulator::GetState() == accumulator::State::IDLE) {
+                // should probably check if motors and DI have shut down
+                new_state = START_DASHBOARD;
+            }
+            break;
+
+        case ERR_STARTUP_HV:
+            acc_cmd = accumulator::Command::OFF;
+            motor_cmd = motors::Command::OFF;
+            speaker = false;
+            torque_request = 0;
+
+            if (accumulator::GetState() == accumulator::State::IDLE) {
+                // should probably check if motors and DI have shut down
+                new_state = START_DASHBOARD;
+            }
+            break;
+
+        case ERROR_UNRECOVERABLE:
+            acc_cmd = accumulator::Command::OFF;
+            motor_cmd = motors::Command::OFF;
+            speaker = false;
+            torque_request = 0;
+
             break;
     }
 
-    state_machine_on_enter = (new_state != fc_state);
-    if (state_machine_on_enter) {
-        fc_state = new_state;
+    if (hvil_interrupt) {
+        new_state = SHUTDOWN;
+    }
+
+    accumulator::SetCommand(acc_cmd);
+    motors::SetCommand(motor_cmd);
+    vehicle_dynamics::SetDriverTorqueRequest(torque_request);
+    bindings::ready_to_drive_sig_en.Set(speaker);
+
+    if (new_state != state) {
+        state = new_state;
+        elapsed = 0;
+    } else {
+        elapsed += 10;
     }
 }
+}  // namespace fsm
 
 // Shows that the ECU is alive
-void toggle_debug_led() {
+void ToggleDebugLed() {
     static bool state = false;
     state = !state;
     bindings::debug_led.Set(state);
@@ -107,7 +215,7 @@ void toggle_debug_led() {
 
 // Reboot the ECU. Assumes that the Rasberry Pi has pulled the BOOT pin high
 // so that the ECU enters bootloader mode.
-void check_can_flash() {
+void CheckCanFlash() {
     auto msg = veh_can_bus.GetRxInitiateCanFlash();
 
     if (msg.has_value() &&
@@ -116,12 +224,12 @@ void check_can_flash() {
     }
 }
 
-void log_pedal_and_steer() {
+void LogPedalAndSteer() {
     veh_can_bus.Send(sensors::driver::GetAppsDebugMsg());
     veh_can_bus.Send(sensors::driver::GetBppsSteerDebugMsg());
 }
 
-void update_error_leds() {
+void UpdateErrorLeds() {
     auto error_led = veh_can_bus.GetRxLvControllerStatus();
     if (error_led.has_value()) {
         bindings::imd_fault_led_en.Set(error_led->ImdFault());
@@ -136,33 +244,32 @@ void update_error_leds() {
 void task_10hz(void* argument) {
     (void)argument;
 
-    toggle_debug_led();
-    update_error_leds();
-    // log_pedal_and_steer(); // temporary, reduce bus load for testing
-    // check_can_flash();  // no CAN flash in 2025
+    ToggleDebugLed();
+    UpdateErrorLeds();
+    dbc_hash::Update_10Hz(veh_can_bus);
+    // CheckCanFlash();  // no CAN flash in 2025
 
     veh_can_bus.Send(TxFC_Status{
-        .gov_status = governor::GetState(),
         .inv1_status = static_cast<uint8_t>(motors::GetLeftState()),
         .inv2_status = static_cast<uint8_t>(motors::GetRightState()),
         .mi_status = motors::GetState(),
         .acc_status = accumulator::GetState(),
-        .fc_state = fc_state,
-        .dbc_hash_status = dbc_hash_status,
+        .fc_state = fsm::state,
         .brake_light_enable = driver_interface::IsBrakePressed(),
-        .elapsed = static_cast<uint8_t>(governor::GetElapsed() / 100),
+        .dbc_valid = dbc_hash::IsValid(),
+        .elapsed = static_cast<uint8_t>(fsm::elapsed / 100),
     });
-    // veh_can_bus.Send(TxInverterSwitch{.close = motors::GetInverterEnable()});
     veh_can_bus.Send(TxFCDashboardStatus{
-        .receive_config = fc_state == TxFC_Status::FcState_t::RUNNING,
+        .receive_config = fsm::state == TxFC_Status::FcState_t::WAIT_START_HV,
         .hv_started = accumulator::GetState() == accumulator::State::RUNNING,
         .motor_started = motors::GetState() == motors::State::RUNNING,
-        .drive_started = governor::GetState() == governor::State::RUNNING,
+        .drive_started = fsm::state == TxFC_Status::FcState_t::RUNNING,
         .hv_charge_percent =
             static_cast<uint8_t>(accumulator::GetPrechargePercent()),
         .speed = 0,  // todo
     });
     veh_can_bus.Send(accumulator::GetDebugMsg());
+    // LogPedalAndSteer();  // temporary, reduce bus load for testing
 }
 
 void task_100hz(void* argument) {
@@ -171,19 +278,10 @@ void task_100hz(void* argument) {
     sensors::driver::Update_100Hz();
     sensors::dynamics::Update_100Hz();
 
-    update_state_machine();
+    fsm::Update_100Hz();
 
-    auto dash_msg = veh_can_bus.GetRxDashboardStatus();
-    if (dash_msg.has_value()) {
-        // this should always run
-        governor::Update_100Hz(accumulator::GetState(), motors::GetState(),
-                               dash_msg->DashState());
-    };
-
-    accumulator::Update_100Hz(veh_can_bus, governor::GetAccumulatorCmd());
-
-    vehicle_dynamics::Update_100Hz(driver_interface::GetTorqueRequest());
-
+    accumulator::Update_100Hz(veh_can_bus);
+    vehicle_dynamics::Update_100Hz();
     motors::Update_100Hz(pt_can_bus, veh_can_bus,
                          vehicle_dynamics::GetLeftMotorRequest(),
                          vehicle_dynamics::GetRightMotorRequest());
@@ -197,9 +295,11 @@ int main(void) {
     bindings::Initialize();
 
     accumulator::Init();
-    governor::Init();
     motors::Init();
     vehicle_dynamics::Init();
+
+    // todo (2026): this is always on. just tie high on PCB
+    bindings::dashboard_power_en.SetHigh();
 
     scheduler_register_task(task_10hz, 100, nullptr);
     scheduler_register_task(task_100hz, 10, nullptr);

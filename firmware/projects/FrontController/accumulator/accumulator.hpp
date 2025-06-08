@@ -41,7 +41,9 @@ generated::can::TxAccumulator_Soc GetDebugMsg(void);
 float GetSocPercent(void);
 float GetPrechargePercent(void);
 
+void SetCommand(Command command);
+
 void Init(void);
-void Update_100Hz(generated::can::VehBus& veh_can, Command command);
+void Update_100Hz(generated::can::VehBus& veh_can);
 
 }  // namespace accumulator

@@ -41,9 +41,11 @@ static void UpdateEnabled(void) {
 
 static void UpdateStep(void) {
     static const float kMaxFanPowerPerMs = 20e-3;  // related to task period
+    static const float kTaskMs = 10;
 
-    float step = etl::clamp(power_setpoint - current_power, -kMaxFanPowerPerMs,
-                            kMaxFanPowerPerMs);
+    float step =
+        etl::clamp(power_setpoint - current_power, -kMaxFanPowerPerMs * kTaskMs,
+                   kMaxFanPowerPerMs * kTaskMs);
 
     current_power += step;
 
@@ -51,7 +53,7 @@ static void UpdateStep(void) {
     bindings::powertrain_fan_pwm.SetDutyCycle(current_power);
 }
 
-void task_1khz(void) {
+void Update_100Hz(void) {
     UpdateEnabled();
     UpdateStep();
 }
