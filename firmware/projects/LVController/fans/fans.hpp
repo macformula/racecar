@@ -7,6 +7,6 @@ void Init(void);
 void SetPowerSetpoint(float power);
 bool IsAtSetpoint(void);
 
-void task_1khz(void);
+void Update_100Hz(void);
 
 }  // namespace fans

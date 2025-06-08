@@ -1,8 +1,9 @@
-#include "control-system/vehicle_dynamics_calc.hpp"
+#include "vehicle_dynamics_calc.hpp"
 
 #include <algorithm>
 
 #include "etl/algorithm.h"
+#include "sensors/dynamics/dynamics.hpp"
 #include "shared/util/lookup_table.hpp"
 
 namespace ctrl {
@@ -65,16 +66,10 @@ TorqueVector AdjustTorqueVectoring(float steering_angle) {
 
 // Note: The CalculateActualSlip function has Div-by-Zero error if left front
 // and right front wheel speeds = 0.
-float CalculateActualSlip(float left_rear_wheel_speed,
-                          float right_rear_wheel_speed,
-                          float left_front_wheel_speed,
-                          float right_front_wheel_speed) {
-    float idle_wheel_spd =
-        (left_front_wheel_speed + right_front_wheel_speed) / 2.0;
+float CalculateActualSlip(const sensors::dynamics::WheelSpeed& ws) {
+    float idle_wheel_spd = (ws.front_left + ws.front_right) / 2.0;
     float actual_slip =
-        std::max(left_rear_wheel_speed, right_rear_wheel_speed) /
-            idle_wheel_spd -
-        1;
+        std::max(ws.rear_left, +ws.rear_right) / idle_wheel_spd - 1;
 
     if (actual_slip < 0) {
         actual_slip = 0;
