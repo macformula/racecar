@@ -43,6 +43,7 @@ constexpr Profile GetProfile(
         case Endurance:
             return {.aggressiveness = 30, .damping = 50};
 
+        case Tuning:
         case _ENUM_TAIL_:
         default:
             // Shouldn't ever be called in this situation. Return Default to be

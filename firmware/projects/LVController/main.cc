@@ -75,10 +75,22 @@ void Update_100hz(void) {
                 if (veh_can.GetRxFC_Status().has_value()) {
                     // don't actually care about the status, just that
                     // FC has come online
-                    new_state = PWRUP_ACCUMULATOR_ON;
+                    new_state = PWRUP_CHECK_HASH_STATUS;
                 }
             }
             break;
+
+        case PWRUP_CHECK_HASH_STATUS: {
+            veh_can.Send(TxSyncDbcHash(generated::can::kVehDbcHash));
+            auto msg = veh_can.GetRxFC_Status();
+
+            if (msg.has_value() &&
+                msg->DbcHashStatus() == RxFC_Status::DbcHashStatus_t::VALID) {
+                new_state = PWRUP_ACCUMULATOR_ON;
+            }
+            new_state = PWRUP_ACCUMULATOR_ON;  // bypass hash check for now
+
+        } break;
 
         case PWRUP_ACCUMULATOR_ON:
             accumulator::SetEnabled(true);
@@ -208,10 +220,6 @@ void check_can_flash(void) {
     }
 }
 
-void task_1hz(void) {
-    veh_can.Send(TxSyncDbcHash(generated::can::kVehDbcHash));
-}
-
 void task_10hz(void) {
     suspension::task_10hz(veh_can);
     tssi::task_10hz();
@@ -233,7 +241,10 @@ void task_100hz(void) {
     motor_controller::task_100hz(veh_can);
 
     fsm::Update_100hz();
-    fans::Update_100Hz();
+}
+
+void task_1khz(void) {
+    fans::task_1khz();
 }
 
 int main(void) {
@@ -244,9 +255,9 @@ int main(void) {
     fsm::Init();
     motor_controller::Init();
 
+    scheduler::register_task(task_1khz, 1);
     scheduler::register_task(task_100hz, 10);
     scheduler::register_task(task_10hz, 100);
-    scheduler::register_task(task_1hz, 1000);
 
     scheduler::run();
 

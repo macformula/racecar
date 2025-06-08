@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "vehicle_dynamics_calc.hpp"
+#include "control-system/vehicle_dynamics_calc.hpp"
 
 using namespace ctrl;
 
