@@ -25,16 +25,6 @@ using DbcHashStatus = TxFC_Status::DbcHashStatus_t;
 VehBus veh_can_bus{bindings::veh_can_base};
 PtBus pt_can_bus{bindings::pt_can_base};
 
-// create a dashboard module
-TxFCDashboardStatus to_dash{
-    .receive_config = false,
-    .hv_started = false,
-    .motor_started = false,
-    .drive_started = false,
-    .hv_charge_percent = false,
-    .speed = 0,
-};
-
 static TxFC_Status::FcState_t fc_state = TxFC_Status::FcState_t::INIT;
 static bool state_machine_on_enter = true;
 
@@ -44,11 +34,11 @@ static void update_state_machine(void) {
     using enum TxFC_Status::FcState_t;
     using DashState = RxDashboardStatus::DashState_t;
 
-    std::optional<TxFC_Status::FcState_t> transition = std::nullopt;
+    TxFC_Status::FcState_t new_state = fc_state;
 
     switch (fc_state) {
         case INIT:
-            transition = START_DASHBOARD;
+            new_state = START_DASHBOARD;
             break;
 
         case START_DASHBOARD: {
@@ -57,7 +47,7 @@ static void update_state_machine(void) {
             // wait until dashboard comes alive
             auto msg = veh_can_bus.GetRxDashboardStatus();
             if (msg.has_value()) {
-                transition = SYNC_HASH;
+                new_state = SYNC_HASH;
             }
         } break;
 
@@ -69,15 +59,15 @@ static void update_state_machine(void) {
             if (msg.has_value()) {
                 // bypass hash check for now
                 dbc_hash_status = DbcHashStatus::VALID;
-                transition = WAIT_DRIVER_SELECT;
+                new_state = WAIT_DRIVER_SELECT;
                 break;
 
                 // if (msg->DbcHash() == generated::can::kVehDbcHash) {
                 //     fc_status.dbc_hash_status = DbcHashStatus::VALID;
-                //     transition = WAIT_DRIVER_SELECT;
+                //     new_state = WAIT_DRIVER_SELECT;
                 // } else {
                 //     fc_status.dbc_hash_status = DbcHashStatus::INVALID;
-                //     transition = ERROR_INVALID_HASH;
+                //     new_state = ERROR_INVALID_HASH;
                 // }
             }
         } break;
@@ -90,8 +80,7 @@ static void update_state_machine(void) {
             }
             if (msg->DashState() == DashState::WAIT_SELECTION_ACK) {
                 vehicle_dynamics::SetProfile(msg->Profile());
-                to_dash.receive_config = true;
-                transition = RUNNING;
+                new_state = RUNNING;
             }
         } break;
 
@@ -103,9 +92,9 @@ static void update_state_machine(void) {
             break;
     }
 
-    state_machine_on_enter = transition.has_value();
+    state_machine_on_enter = (new_state != fc_state);
     if (state_machine_on_enter) {
-        fc_state = transition.value();
+        fc_state = new_state;
     }
 }
 
@@ -173,6 +162,7 @@ void task_10hz(void* argument) {
             static_cast<uint8_t>(accumulator::GetPrechargePercent()),
         .speed = 0,  // todo
     });
+    veh_can_bus.Send(accumulator::GetDebugMsg());
 }
 
 void task_100hz(void* argument) {

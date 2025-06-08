@@ -37,6 +37,7 @@ enum class Command {
 
 State GetState(void);
 generated::can::TxContactorCommand GetContactorCommand(void);
+generated::can::TxAccumulator_Soc GetDebugMsg(void);
 float GetSocPercent(void);
 float GetPrechargePercent(void);
 

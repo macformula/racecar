@@ -63,6 +63,13 @@ BO_ 255 FC_Status: 8 FC
  SG_ BrakeLightEnable : 48|1@1+ (1,0) [0|1] "" LVC, PC_SG
  SG_ elapsed : 56|8@1+ (1,0) [0|1] "" LVC, PC_SG
 
+BO_ 256 Accumulator_Soc: 8 FC
+ SG_ PackVoltage : 0|16@1+ (1,0) [0|255] "" PC_SG
+ SG_ PrechargeVoltage : 16|16@1+ (1,0) [0|255] "" PC_SG
+ SG_ MaxPackVoltage : 32|16@1+ (1,0) [0|255] "" PC_SG
+ SG_ SocPercent : 48|8@1+ (1,0) [0|255] "" PC_SG
+ SG_ PrechargePercent : 56|8@1+ (1,0) [0|255] "" PC_SG
+
 BO_ 110 InverterSwitch: 1 FC
  SG_ Close : 0|1@1+ (1,0) [0|1] "" LVC
 
