@@ -36,6 +36,16 @@ TxContactorCommand GetContactorCommand(void) {
     };
 }
 
+TxAccumulator_Soc GetDebugMsg(void) {
+    return TxAccumulator_Soc{
+        .pack_voltage = static_cast<uint8_t>(pack_voltage),
+        .precharge_voltage = static_cast<uint16_t>(precharge_voltage),
+        .max_pack_voltage = static_cast<uint16_t>(max_pack_voltage),
+        .soc_percent = static_cast<uint8_t>(GetSocPercent()),
+        .precharge_percent = static_cast<uint8_t>(GetPrechargePercent()),
+    };
+}
+
 float GetSocPercent(void) {
     return 100.f * pack_voltage / max_pack_voltage;
 }
