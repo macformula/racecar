@@ -125,11 +125,7 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
     using enum ContactorCommand;
 
     State new_state = state;
-    ContactorCommands cmd = {
-        .precharge = OPEN,
-        .positive = OPEN,
-        .negative = OPEN,
-    };
+    ContactorCommands cmd;
 
     switch (state) {
         case IDLE:
@@ -151,23 +147,31 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
         case STARTUP_CLOSE_NEG:
             cmd = {.precharge = OPEN, .positive = OPEN, .negative = CLOSE};
 
-            if (FeedbackMatchesCommand(cmd, fb)) {
+            if (fb.precharge == IS_CLOSED || fb.positive == IS_CLOSED) {
+                new_state = ERROR_FEEDBACK;
+            } else if (FeedbackMatchesCommand(cmd, fb)) {
                 new_state = STARTUP_HOLD_CLOSE_NEG;
+            } else {
             }
             break;
 
         case STARTUP_HOLD_CLOSE_NEG:
             cmd = {.precharge = OPEN, .positive = OPEN, .negative = CLOSE};
 
-            if (elapsed >= 100) {
+            if (!FeedbackMatchesCommand(cmd, fb)) {
+                new_state = ERROR_FEEDBACK;
+            } else if (elapsed >= 100) {
                 new_state = STARTUP_CLOSE_PRECHARGE;
+            } else {
             }
             break;
 
         case STARTUP_CLOSE_PRECHARGE:
             cmd = {.precharge = CLOSE, .positive = OPEN, .negative = CLOSE};
 
-            if (FeedbackMatchesCommand(cmd, fb)) {
+            if (fb.positive == IS_CLOSED || fb.negative == IS_OPEN) {
+                new_state = ERROR_FEEDBACK;
+            } else if (FeedbackMatchesCommand(cmd, fb)) {
                 new_state = STARTUP_HOLD_CLOSE_PRECHARGE;
             }
             break;
@@ -175,33 +179,46 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
         case STARTUP_HOLD_CLOSE_PRECHARGE:
             cmd = {.precharge = CLOSE, .positive = OPEN, .negative = CLOSE};
 
-            if (IsPrechargeComplete() &&
-                (elapsed >= timeout::MIN_PRECHARGE_TIME)) {
+            if (!FeedbackMatchesCommand(cmd, fb)) {
+                new_state = ERROR_FEEDBACK;
+                break;
+            } else if (IsPrechargeComplete() &&
+                       (elapsed >= timeout::MIN_PRECHARGE_TIME)) {
                 new_state = STARTUP_CLOSE_POS;
+            } else {
             }
             break;
 
         case STARTUP_CLOSE_POS:
             cmd = {.precharge = CLOSE, .positive = CLOSE, .negative = CLOSE};
 
-            if (FeedbackMatchesCommand(cmd, fb)) {
+            if (fb.precharge == IS_OPEN || fb.negative == IS_OPEN) {
+                new_state = ERROR_FEEDBACK;
+            } else if (FeedbackMatchesCommand(cmd, fb)) {
                 new_state = STARTUP_HOLD_CLOSE_POS;
+            } else {
             }
             break;
 
         case STARTUP_HOLD_CLOSE_POS:
             cmd = {.precharge = CLOSE, .positive = CLOSE, .negative = CLOSE};
 
-            if (elapsed >= 100) {
+            if (!FeedbackMatchesCommand(cmd, fb)) {
+                new_state = ERROR_FEEDBACK;
+            } else if (elapsed >= 100) {
                 new_state = STARTUP_OPEN_PRECHARGE;
+            } else {
             }
             break;
 
         case STARTUP_OPEN_PRECHARGE:
             cmd = {.precharge = OPEN, .positive = CLOSE, .negative = CLOSE};
 
-            if (FeedbackMatchesCommand(cmd, fb)) {
+            if (fb.positive == IS_OPEN || fb.negative == IS_OPEN) {
+                new_state = ERROR_FEEDBACK;
+            } else if (FeedbackMatchesCommand(cmd, fb)) {
                 new_state = RUNNING;
+            } else {
             }
             break;
 
@@ -209,7 +226,7 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = OPEN, .positive = CLOSE, .negative = CLOSE};
 
             if (!FeedbackMatchesCommand(cmd, fb)) {
-                new_state = ERR_RUNNING;
+                new_state = ERROR_FEEDBACK;
             }
             break;
 
@@ -217,7 +234,7 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
             break;
 
-        case ERR_RUNNING:
+        case ERROR_FEEDBACK:
             cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
             break;
 
@@ -230,9 +247,8 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             break;
     }
 
-    if (command == Command::OFF) {
-        new_state =
-            IDLE;  // should be shutdown but should not run from IDLE state
+    if (command == Command::OFF && state != IDLE) {
+        new_state = SHUTDOWN;
     }
 
     // if (GetSocPercent() < threshold::LOW_VOLTAGE_PERCENT) {

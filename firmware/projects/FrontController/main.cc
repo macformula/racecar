@@ -145,7 +145,7 @@ static void Update_100Hz(void) {
                 new_state = SHUTDOWN;
             }
 
-            if (accumulator::GetState() == accumulator::State::ERR_RUNNING) {
+            if (accumulator::GetState() == accumulator::State::ERROR_FEEDBACK) {
                 new_state = ERROR_UNRECOVERABLE;
             }
 
