@@ -130,6 +130,7 @@ nav:
     - tutorials/wsl-can/index.md
     - tutorials/ssh-signing/index.md
     - tutorials/busmaster/index.md
+    - tutorials/orion-bms/index.md
   - Firmware:
     - firmware/index.md
     - Development Environment Setup:
