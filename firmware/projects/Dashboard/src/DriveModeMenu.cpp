@@ -20,10 +20,10 @@ void DriveModeMenu::CreateGUI() {
 }
 
 void DriveModeMenu::Update() {
-    auto fc_msg = display_->veh_bus.GetRxFCDashboardStatus();
+    auto fc_msg = display_->veh_bus.GetRxDashCommand();
 
     if (fc_msg.has_value()) {
-        float speed = fc_msg->speed();
+        float speed = fc_msg->Speed();
         lv_arc_set_value(speedometer_arc, speed * kArcSpeedResolution);
         lv_label_set_text_fmt(speed_label, "%d", static_cast<int>(speed));
     }

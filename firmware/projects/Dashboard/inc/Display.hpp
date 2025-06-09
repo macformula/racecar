@@ -18,15 +18,15 @@
 
 class Display {
 public:
-    using State = generated::can::TxDashboardStatus::DashState_t;
-    using Profile = generated::can::TxDashboardStatus::Profile_t;
+    using State = generated::can::TxDashStatus::State_t;
+    using Profile = generated::can::TxDashStatus::Profile_t;
 
     Display(Button& enter, Button& scroll, generated::can::VehBus& veh);
 
     // CAN and Buttons are public so the ScreenUpdate can access them
-    generated::can::VehBus& veh_bus;
     Button enter;
     Button scroll;
+    generated::can::VehBus& veh_bus;
 
     Profile selected_profile = Profile::Default;
 

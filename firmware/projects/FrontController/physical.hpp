@@ -5,7 +5,7 @@
 namespace tuning {
 
 /*
-To measure, open BusMaster, load the veh.dbc, and read the `FC_apps_debug`
+To measure, open BusMaster, load the veh.dbc, and read the `AppsDebug`
 message. https://macformula.github.io/racecar/tutorials/busmaster/
 
 Read the `raw_volt` signals when the pedal is released (pos_0) and fully

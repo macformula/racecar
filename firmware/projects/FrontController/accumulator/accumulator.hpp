@@ -28,7 +28,7 @@ struct ContactorCommands {
 
 namespace accumulator {
 
-using State = generated::can::TxFC_Status::AccStatus_t;
+using State = generated::can::TxFcStatus::AccumulatorState_t;
 
 enum class Command {
     OFF,

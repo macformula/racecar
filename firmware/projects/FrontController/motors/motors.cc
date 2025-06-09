@@ -126,7 +126,7 @@ void Update_100Hz(PtBus& pt_can, VehBus& veh_can, amk::Request req_left,
             new_inverter_en = true;
 
             // Don't proceed until LV confirms the switch
-            auto lv_msg = veh_can.GetRxLvControllerStatus();
+            auto lv_msg = veh_can.GetRxLvStatus();
 
             if (lv_msg.has_value() && lv_msg->MotorControllerSwitchClosed()) {
                 amk_left.ProceedFromInverter();

@@ -4,6 +4,7 @@ Display::Display(Button& enter, Button& scroll, generated::can::VehBus& veh)
     : enter(enter),
       scroll(scroll),
       veh_bus(veh),
+      screen_(&logo_screen),
       logo_screen(this),
       profile_select(this),
       confirm_menu(this),
@@ -13,8 +14,7 @@ Display::Display(Button& enter, Button& scroll, generated::can::VehBus& veh)
       start_motors(this),
       starting_motors(this),
       start_driving(this),
-      drive_mode(this),
-      screen_(&logo_screen) {}
+      drive_mode(this) {}
 
 Display::State Display::GetState() const {
     return state_;

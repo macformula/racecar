@@ -13,7 +13,7 @@ motors::Request GetRightMotorRequest(void);
 
 void SetTorqueVectorEnable(bool enable);
 void SetTargetSlipRatio(float target_slip);
-void SetProfile(generated::can::RxDashboardStatus::Profile_t profile);
+void SetProfile(generated::can::RxDashStatus::Profile_t profile);
 void SetDriverTorqueRequest(float driver_torque_request);
 
 void Init(void);

@@ -13,9 +13,9 @@ void StartingMotors::CreateGUI() {
 }
 
 void StartingMotors::Update() {
-    auto fc_msg = display_->veh_bus.GetRxFCDashboardStatus();
+    auto fc_msg = display_->veh_bus.GetRxDashCommand();
 
-    if (fc_msg.has_value() && fc_msg->motorStarted()) {
+    if (fc_msg.has_value() && fc_msg->MotorStarted()) {
         display_->ChangeState(State::BRAKE_TO_START);
     }
 }

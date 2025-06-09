@@ -27,9 +27,8 @@ constexpr auto pedal_to_torque =
         {100.f, 100.f},
     });
 
-constexpr Profile GetProfile(
-    generated::can::RxDashboardStatus::Profile_t profile) {
-    using enum generated::can::RxDashboardStatus::Profile_t;
+constexpr Profile GetProfile(generated::can::RxDashStatus::Profile_t profile) {
+    using enum generated::can::RxDashStatus::Profile_t;
     switch (profile) {
         case Default:
             return {.aggressiveness = 50, .damping = 50};

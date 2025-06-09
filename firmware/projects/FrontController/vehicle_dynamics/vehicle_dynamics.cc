@@ -15,7 +15,7 @@
 
 using namespace ctrl;
 using namespace generated::can;
-using Profile_t = RxDashboardStatus::Profile_t;
+using Profile_t = RxDashStatus::Profile_t;
 using LUT = shared::util::LookupTable<float>;
 namespace vehicle_dynamics {
 
@@ -40,7 +40,7 @@ amk::Request GetRightMotorRequest(void) {
     return right_request;
 }
 
-void SetProfile(generated::can::RxDashboardStatus::Profile_t _profile) {
+void SetProfile(generated::can::RxDashStatus::Profile_t _profile) {
     profile = _profile;
 }
 

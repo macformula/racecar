@@ -6,7 +6,7 @@
 
 class ProfileSelect : public Screen {
 public:
-    using Profile = generated::can::TxDashboardStatus::Profile_t;
+    using Profile = generated::can::TxDashStatus::Profile_t;
 
     ProfileSelect(Display* display);
 
