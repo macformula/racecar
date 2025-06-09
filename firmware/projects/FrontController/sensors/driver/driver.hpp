@@ -16,7 +16,7 @@ float GetAccelPercent2(void);
 void Update_100Hz(void);
 
 // Logging
-generated::can::TxFC_apps_debug GetAppsDebugMsg(void);
-generated::can::TxFC_bpps_steer_debug GetBppsSteerDebugMsg(void);
+generated::can::TxAppsDebug GetAppsDebugMsg(void);
+generated::can::TxBppsSteerDebug GetBppsSteerDebugMsg(void);
 
 }  // namespace sensors::driver

@@ -74,20 +74,20 @@ void Update_100Hz(void) {
 
 // Logging
 
-TxFC_apps_debug GetAppsDebugMsg(void) {
-    return TxFC_apps_debug{
+TxAppsDebug GetAppsDebugMsg(void) {
+    return TxAppsDebug{
         .apps1_raw_volt = accel_v1,
         .apps2_raw_volt = accel_v2,
-        .apps1_pos = accel_percent1,
-        .apps2_pos = accel_percent2,
+        .apps1_percent = accel_percent1,
+        .apps2_percent = accel_percent2,
     };
 }
-TxFC_bpps_steer_debug GetBppsSteerDebugMsg(void) {
-    return TxFC_bpps_steer_debug{
+TxBppsSteerDebug GetBppsSteerDebugMsg(void) {
+    return TxBppsSteerDebug{
         .bpps_raw_volt = brake_v,
-        .steering_raw_volt = steer_v,
-        .bpps_pos = brake_percent,
-        .steering_pos = steering_wheel,
+        .steer_raw_volt = steer_v,
+        .bpps_percent = brake_percent,
+        .steer_position = steering_wheel,
     };
 }
 

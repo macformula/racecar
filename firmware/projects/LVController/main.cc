@@ -25,7 +25,7 @@ VehBus veh_can{bindings::veh_can_base};
 
 namespace fsm {
 
-using LvState = TxLvControllerStatus::LvState_t;
+using LvState = TxLvStatus::LvState_t;
 
 static LvState state = LvState::PWRUP_START;
 static uint32_t elapsed = 0;
@@ -72,7 +72,7 @@ void Update_100hz(void) {
             bindings::imu_gps_en.SetHigh();
 
             if (elapsed > 50) {
-                if (veh_can.GetRxFC_Status().has_value()) {
+                if (veh_can.GetRxLvCommand().has_value()) {
                     // don't actually care about the status, just that
                     // FC has come online
                     new_state = PWRUP_ACCUMULATOR_ON;
@@ -177,7 +177,7 @@ void Update_100hz(void) {
             new_state = SHUTDOWN_DRIVER_WARNING;
         }
 
-        auto msg = veh_can.GetRxFC_Status();
+        auto msg = veh_can.GetRxFcStatus();
         // remove static_cast once cangen properly handles enums
         if (msg.has_value())
             // -1 is NOT SENT by FC as of 2025/02/12. This should be
@@ -209,16 +209,19 @@ void check_can_flash(void) {
 }
 
 void task_1hz(void) {
-    veh_can.Send(TxSyncDbcHash(generated::can::kVehDbcHash));
+    veh_can.Send(TxLvDbcHash(generated::can::kVehDbcHash));
 }
 
 void task_10hz(void) {
+    static uint8_t tx_counter = 0;
+
     suspension::task_10hz(veh_can);
     tssi::task_10hz();
     accumulator::task_10hz(veh_can);
     // check_can_flash(); // unused in 2025
 
-    veh_can.Send(TxLvControllerStatus{
+    veh_can.Send(TxLvStatus{
+        .counter = tx_counter++,
         .lv_state = fsm::state,
         .motor_controller_state = motor_controller::GetState(),
         .motor_controller_switch_closed = motor_controller::GetSwitchClosed(),

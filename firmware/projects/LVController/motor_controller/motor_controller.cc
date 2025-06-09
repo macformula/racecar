@@ -90,9 +90,9 @@ static void StateMachine_100hz(void) {
 }
 
 void HandleSwitch(VehBus& veh_can) {
-    auto msg = veh_can.GetRxInverterSwitch();
+    auto msg = veh_can.GetRxInverterSwitchCommand();
     if (msg.has_value()) {
-        sw = msg->Close();
+        sw = msg->CloseInverterSwitch();
     } else {
         sw = false;
     }

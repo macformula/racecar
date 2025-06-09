@@ -7,7 +7,7 @@ class Display;
 
 class Screen {
 public:
-    using State = generated::can::TxDashboardStatus::DashState_t;
+    using State = generated::can::TxDashStatus::State_t;
 
     Screen(Display* display);
 

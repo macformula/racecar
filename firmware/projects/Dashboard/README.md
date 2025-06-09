@@ -64,7 +64,7 @@ Use the existing screens in `inc/` and `src/` as examples.
 
 3. Add the screen to the high level `Display`:
     1. Add a `DemoScreen` member to the `inc/Display.hpp` class and construct it in the initializer list in the `src/Display.cc` constructor.
-    2. Define an enum value for DemoScreen by adding a new value to the `DashState` enum in `projects/veh.dbc`.
+    2. Define an enum value for DemoScreen by adding a new value to the `State` enum in `projects/veh.dbc`.
     3. Edit the `Display::ChangeState` function in `src/Display.cc` to switch to this screen when the new enum value is passed in.
 
 4. Implement all methods in the `src/*.cc` file.

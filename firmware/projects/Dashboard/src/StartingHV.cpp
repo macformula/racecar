@@ -17,13 +17,13 @@ void StartingHV::CreateGUI() {
 }
 
 void StartingHV::Update() {
-    auto fc_msg = display_->veh_bus.GetRxFCDashboardStatus();
+    auto fc_msg = display_->veh_bus.GetRxDashCommand();
 
     if (!fc_msg.has_value()) return;
 
-    lv_bar_set_value(progress_bar_, fc_msg->hv_charge_percent(), LV_ANIM_OFF);
+    lv_bar_set_value(progress_bar_, fc_msg->HvChargePercent(), LV_ANIM_OFF);
 
-    if (fc_msg->hvStarted()) {
+    if (fc_msg->HvStarted()) {
         display_->ChangeState(State::PRESS_FOR_MOTOR);
     }
 }

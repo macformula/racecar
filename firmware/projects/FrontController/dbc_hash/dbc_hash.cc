@@ -9,10 +9,10 @@ bool IsValid(void) {
 }
 
 void Update_10Hz(generated::can::VehBus& veh_can) {
-    auto msg = veh_can.GetRxSyncDbcHash();
+    auto msg = veh_can.GetRxLvDbcHash();
 
     if (msg.has_value()) {
-        valid = (msg->DbcHash() == generated::can::kVehDbcHash);
+        valid = (msg->Hash() == generated::can::kVehDbcHash);
     }
 }
 

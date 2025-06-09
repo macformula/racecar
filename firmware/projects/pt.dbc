@@ -36,42 +36,42 @@ BS_:
 BU_: INV1 INV2 FC
 
 BO_ 643 Inv1_ActualValues1: 8 INV1
- SG_ bSystemReady : 8|1@1+ (1,0) [0|0] ""  FC
- SG_ bError : 9|1@1+ (1,0) [0|0] ""  FC
- SG_ bWarn : 10|1@1+ (1,0) [0|0] ""  FC
- SG_ bQuitDcOn : 11|1@1+ (1,0) [0|0] ""  FC
- SG_ bDcOn : 12|1@1+ (1,0) [0|0] ""  FC
- SG_ bQuitInverterOn : 13|1@1+ (1,0) [0|0] ""  FC
- SG_ bInverterOn : 14|1@1+ (1,0) [0|0] ""  FC
- SG_ bDerating : 15|1@1+ (1,0) [0|0] ""  FC
- SG_ ActualVelocity : 16|16@1- (1,0) [0|0] "rpm"  FC
- SG_ TorqueCurrent : 32|16@1- (1,0) [0|0] ""  FC
- SG_ MagnetizingCurrent : 48|16@1- (1,0) [0|0] ""  FC
+ SG_ bSystemReady : 8|1@1+ (1,0) [0|0] "" FC
+ SG_ bError : 9|1@1+ (1,0) [0|0] "" FC
+ SG_ bWarn : 10|1@1+ (1,0) [0|0] "" FC
+ SG_ bQuitDcOn : 11|1@1+ (1,0) [0|0] "" FC
+ SG_ bDcOn : 12|1@1+ (1,0) [0|0] "" FC
+ SG_ bQuitInverterOn : 13|1@1+ (1,0) [0|0] "" FC
+ SG_ bInverterOn : 14|1@1+ (1,0) [0|0] "" FC
+ SG_ bDerating : 15|1@1+ (1,0) [0|0] "" FC
+ SG_ ActualVelocity : 16|16@1- (1,0) [0|0] "rpm" FC
+ SG_ TorqueCurrent : 32|16@1- (1,0) [0|0] "" FC
+ SG_ MagnetizingCurrent : 48|16@1- (1,0) [0|0] "" FC
 
 BO_ 644 Inv2_ActualValues1: 8 INV2
- SG_ bSystemReady : 8|1@1+ (1,0) [0|0] ""  FC
- SG_ bError : 9|1@1+ (1,0) [0|0] ""  FC
- SG_ bWarn : 10|1@1+ (1,0) [0|0] ""  FC
- SG_ bQuitDcOn : 11|1@1+ (1,0) [0|0] ""  FCz
- SG_ bDcOn : 12|1@1+ (1,0) [0|0] ""  FC
- SG_ bQuitInverterOn : 13|1@1+ (1,0) [0|0] ""  FC
- SG_ bInverterOn : 14|1@1+ (1,0) [0|0] ""  FC
- SG_ bDerating : 15|1@1+ (1,0) [0|0] ""  FC
- SG_ ActualVelocity : 16|16@1- (1,0) [0|0] "rpm"  FC
- SG_ TorqueCurrent : 32|16@1- (1,0) [0|0] ""  FC
- SG_ MagnetizingCurrent : 48|16@1- (1,0) [0|0] ""  FC
+ SG_ bSystemReady : 8|1@1+ (1,0) [0|0] "" FC
+ SG_ bError : 9|1@1+ (1,0) [0|0] "" FC
+ SG_ bWarn : 10|1@1+ (1,0) [0|0] "" FC
+ SG_ bQuitDcOn : 11|1@1+ (1,0) [0|0] "" FC
+ SG_ bDcOn : 12|1@1+ (1,0) [0|0] "" FC
+ SG_ bQuitInverterOn : 13|1@1+ (1,0) [0|0] "" FC
+ SG_ bInverterOn : 14|1@1+ (1,0) [0|0] "" FC
+ SG_ bDerating : 15|1@1+ (1,0) [0|0] "" FC
+ SG_ ActualVelocity : 16|16@1- (1,0) [0|0] "rpm" FC
+ SG_ TorqueCurrent : 32|16@1- (1,0) [0|0] "" FC
+ SG_ MagnetizingCurrent : 48|16@1- (1,0) [0|0] "" FC
 
 BO_ 645 Inv1_ActualValues2: 8 INV1
- SG_ TempMotor : 0|16@1- (0.1,0) [0|0] "degC"  FC
- SG_ TempInverter : 16|16@1- (0.1,0) [0|0] "degC"  FC
- SG_ ErrorInfo : 32|16@1+ (1,0) [0|0] ""  FC
- SG_ TempIGBT : 48|16@1- (0.1,0) [0|0] "degC"  FC
+ SG_ TempMotor : 0|16@1- (0.1,0) [0|0] "degC" FC
+ SG_ TempInverter : 16|16@1- (0.1,0) [0|0] "degC" FC
+ SG_ ErrorInfo : 32|16@1+ (1,0) [0|0] "" FC
+ SG_ TempIGBT : 48|16@1- (0.1,0) [0|0] "degC" FC
 
 BO_ 646 Inv2_ActualValues2: 8 INV2
- SG_ TempMotor : 0|16@1- (0.1,0) [0|0] "degC"  FC
- SG_ TempInverter : 16|16@1- (0.1,0) [0|0] "degC"  FC
- SG_ ErrorInfo : 32|16@1+ (1,0) [0|0] ""  FC
- SG_ TempIGBT : 48|16@1- (0.1,0) [0|0] "degC"  FC
+ SG_ TempMotor : 0|16@1- (0.1,0) [0|0] "degC" FC
+ SG_ TempInverter : 16|16@1- (0.1,0) [0|0] "degC" FC
+ SG_ ErrorInfo : 32|16@1+ (1,0) [0|0] "" FC
+ SG_ TempIGBT : 48|16@1- (0.1,0) [0|0] "degC" FC
 
 BO_ 388 Inv1_Setpoints1: 8 FC
  SG_ bInverterOn : 8|1@1+ (1,0) [0|0] ""  INV2

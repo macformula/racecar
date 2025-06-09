@@ -17,9 +17,9 @@ void AcknowledgeConfig::CreateGUI() {
 }
 
 void AcknowledgeConfig::Update() {
-    auto fc_msg = display_->veh_bus.GetRxFCDashboardStatus();
+    auto fc_msg = display_->veh_bus.GetRxDashCommand();
 
-    if (fc_msg.has_value() && fc_msg->receiveConfig()) {
+    if (fc_msg.has_value() && fc_msg->ConfigReceived()) {
         display_->ChangeState(State::PRESS_FOR_HV);
     }
 }

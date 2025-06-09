@@ -7,7 +7,7 @@
 namespace motors {
 
 using Request = amk::Request;
-using State = generated::can::TxFC_Status::MiStatus_t;
+using State = generated::can::TxFcStatus::MotorState_t;
 
 enum class Command {
     OFF,

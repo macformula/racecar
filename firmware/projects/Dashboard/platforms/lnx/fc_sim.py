@@ -1,7 +1,7 @@
 """
 Simulate the FrontController interaction with the Dashboard over CAN.
 
-Only sends FCDashboardStatus and receives DashboardStatus
+Only sends DashCommand and receives DashStatus
 """
 
 from __future__ import annotations
@@ -16,8 +16,8 @@ import cantools.database
 import numpy as np
 
 dbc = cantools.database.load_file("../../../veh.dbc")
-fc_msg = dbc.get_message_by_name("FCDashboardStatus")
-dash_msg = dbc.get_message_by_name("DashboardStatus")
+fc_msg = dbc.get_message_by_name("DashCommand")
+dash_msg = dbc.get_message_by_name("DashStatus")
 
 
 class Simulation:
@@ -25,13 +25,13 @@ class Simulation:
         pass
 
     def __init__(self):
-        self.fc_status = {
-            "receiveConfig": False,
-            "hvStarted": False,
-            "motorStarted": False,
-            "driveStarted": False,
-            "hv_charge_percent": 0,
-            "speed": 0,
+        self.FcStatus = {
+            "ConfigReceived": False,
+            "HvStarted": False,
+            "MotorStarted": False,
+            "DriveStarted": False,
+            "HvChargePercent": 0,
+            "Speed": 0,
         }
 
         self.went_past_logo = False
@@ -55,7 +55,7 @@ class Simulation:
         msg = can.Message(
             arbitration_id=fc_msg.frame_id,
             is_extended_id=False,
-            data=fc_msg.encode(self.fc_status),
+            data=fc_msg.encode(self.FcStatus),
         )
 
         # Continuously send the FcStatus from another thread. We can modify the message data
@@ -64,7 +64,7 @@ class Simulation:
             warnings.simplefilter("ignore", UserWarning)
 
             def modify_data(msg):
-                msg.data = fc_msg.encode(self.fc_status)
+                msg.data = fc_msg.encode(self.FcStatus)
 
             self.bus.send_periodic(msg, period=0.1, modifier_callback=modify_data)
 
@@ -75,7 +75,7 @@ class Simulation:
 
         # Automatically restart the simulation when the developer restarts the
         # Dashboard program.
-        if ds["DashState"] == "LOGO":
+        if ds["State"] == "LOGO":
             if self.went_past_logo:
                 raise Simulation.Restart
         else:
@@ -104,38 +104,38 @@ class Simulation:
 
         ds = self.wait_for_dash(
             "Waiting for Profile Selection",
-            lambda ds: ds["DashState"] == "WAIT_SELECTION_ACK",
+            lambda ds: ds["State"] == "WAIT_SELECTION_ACK",
         )
         print(f"Profile:\t{ds['Profile']}")
         sleep(DELAY)
-        self.fc_status["receiveConfig"] = True
+        self.FcStatus["ConfigReceived"] = True
 
         self.wait_for_dash(
             "Waiting for cue to start HV",
-            lambda ds: ds["DashState"] == "STARTING_HV",
+            lambda ds: ds["State"] == "STARTING_HV",
         )
 
         # Simulate precharging
         for i in range(100):
-            self.fc_status["hv_charge_percent"] = i
+            self.FcStatus["HvChargePercent"] = i
             sleep(0.01)
 
-        self.fc_status["hvStarted"] = True
+        self.FcStatus["HvStarted"] = True
 
         self.wait_for_dash(
             "Waiting for cue to start Motor",
-            lambda ds: ds["DashState"] == "STARTING_MOTORS",
+            lambda ds: ds["State"] == "STARTING_MOTORS",
         )
         sleep(DELAY)
-        self.fc_status["motorStarted"] = True
+        self.FcStatus["MotorStarted"] = True
 
         sleep(DELAY)
         print("Brakes pressed")
-        self.fc_status["driveStarted"] = True
+        self.FcStatus["DriveStarted"] = True
 
         print("Speeding up")
         for speed in np.arange(0, 72, 0.1):
-            self.fc_status["speed"] = speed
+            self.FcStatus["Speed"] = speed
             speed += 0.1
             sleep(0.005)
 

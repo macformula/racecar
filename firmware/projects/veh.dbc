@@ -33,171 +33,235 @@ NS_ :
 
 BS_:
 
-BU_: PC_SG BMS FC TMS CANmod LVC RPI
+BU_: FC LVC TMS DASH RPI BMS GPS
 
-BO_ 109 InitiateCanFlash: 1 RPI
- SG_ ECU : 0|8@1+ (1,0) [0|2] "" FC,LVC,TMS
+CM_ "ID Scheme:
+Replace x with the pertinent ECU (not necessarily the sender)
+x=0 Front Controller
+x=1 LV Controller  
+x=2 TMS
+x=3 Dashboard
+x=4 RPI
 
-BO_ 123 SyncDbcHash: 8 LVC
- SG_ DbcHash : 0|64@1+ (1,0) [0|1] "" FC
+Increment n as needed";
 
-BO_ 111 LvControllerStatus: 6 LVC
- SG_ LvState : 0|8@1+ (1,0) [0|1] "" FC,RPI
- SG_ MotorControllerState : 8|8@1+ (1,0) [0|1] "" FC,RPI
- SG_ MotorControllerSwitchClosed : 16|1@1+ (1,0) [0|1] "" FC,RPI
- SG_ ImdFault : 17|1@1+ (1,0) [0|1] "" FC,RPI
- SG_ BmsFault : 18|1@1+ (1,0) [0|1] "" FC,RPI
+CM_ "1xn - Irregular, high importance commands";
 
-BO_ 113 SuspensionTravel34: 2 LVC
- SG_ STP3 : 0|8@1+ (1,0) [0|255] "" FC,RPI
- SG_ STP4 : 8|8@1+ (1,0) [0|255] "" FC,RPI
+BO_ 140 InitiateCanFlash: 1 RPI
+ SG_ ECU : 0|8@1+ (1,0) [0|2] "" FC, LVC, TMS
 
-BO_ 255 FC_Status: 8 FC
- SG_ Inv1Status : 8|4@1+ (1,0) [0|255] "" LVC, PC_SG
- SG_ Inv2Status : 12|4@1+ (1,0) [0|255] "" LVC, PC_SG
- SG_ MiStatus : 16|8@1+ (1,0) [0|255] "" LVC, PC_SG
- SG_ AccStatus : 24|8@1+ (1,0) [0|255] "" LVC, PC_SG
- SG_ FcState : 32|8@1+ (1,0) [0|255] "" LVC, PC_SG
- SG_ BrakeLightEnable : 48|1@1+ (1,0) [0|1] "" LVC, PC_SG
- SG_ DbcValid : 49|1@1+ (1,0) [0|1] "" LVC, PC_SG
- SG_ elapsed : 56|8@1+ (1,0) [0|1] "" LVC, PC_SG
+VAL_ 140 ECU 0 "FrontController" 1 "LvController" 2 "TMS";
 
-BO_ 256 Accumulator_Soc: 8 FC
- SG_ PackVoltage : 0|16@1+ (1,0) [0|255] "" PC_SG
- SG_ PrechargeVoltage : 16|16@1+ (1,0) [0|255] "" PC_SG
- SG_ MaxPackVoltage : 32|16@1+ (1,0) [0|255] "" PC_SG
- SG_ SocPercent : 48|8@1+ (1,0) [0|255] "" PC_SG
- SG_ PrechargePercent : 56|8@1+ (1,0) [0|255] "" PC_SG
+CM_ "Periodic Messages
+2x0 - ECUx Commands
+2x1 - ECUx Statuses
+2x2 - ECUx Alerts
 
-BO_ 110 InverterSwitch: 1 FC
- SG_ Close : 0|1@1+ (1,0) [0|1] "" LVC
+Each 2x1 status should contain an 8-bit counter field which increments
+on each transmission to show that the ECU is alive.";
 
-BO_ 511 FC_apps_debug: 8 FC
- SG_ apps1_raw_volt : 0|16@1+ (0.001,0) [0|0] "volt"  PC_SG
- SG_ apps2_raw_volt : 16|16@1+ (0.001,0) [0|0] "volt"  PC_SG
- SG_ apps1_pos : 32|16@1+ (0.1,0) [0|0] "percent" PC_SG
- SG_ apps2_pos : 48|16@1+ (0.1,0) [0|0] "percent" PC_SG
+BO_ 201 FcStatus: 6 FC
+ SG_ Counter : 0|8@1+ (1,0) [0|255] "" RPI
+ SG_ State :   8|8@1+ (1,0) [0|255] "" RPI
+ SG_ AccumulatorState : 16|8@1+ (1,0) [0|255] "" RPI
+ SG_ MotorState : 24|8@1+ (1,0) [0|255] "" RPI
+ SG_ Inv1State : 32|4@1+ (1,0) [0|255] "" RPI
+ SG_ Inv2State : 36|4@1+ (1,0) [0|255] "" RPI
+ SG_ DbcValid : 40|1@1+ (1,0) [0|1] "" RPI
 
-BO_ 512 FC_bpps_steer_debug: 8 FC
- SG_ bpps_raw_volt : 0|16@1+ (0.001,0) [0|0] "volt"  PC_SG
- SG_ steering_raw_volt : 16|16@1+ (0.001,0) [0|0] "volt"  PC_SG
- SG_ bpps_pos : 32|16@1+ (0.1,0) [0|0] "percent" PC_SG
- SG_ steering_pos : 48|16@1+ (0.01,-1) [0|0] "[-1,+1]" PC_SG
+VAL_ 201 State 0 "START_DASHBOARD" 2 "WAIT_DRIVER_SELECT" 3 "WAIT_START_HV" 4 "STARTUP_HV" 5 "STARTUP_READY_TO_DRIVE" 6 "STARTUP_MOTOR" 7 "STARTUP_SEND_READY_TO_DRIVE" 8 "RUNNING" 9 "SHUTDOWN" 10 "ERR_STARTUP_HV" 11 "ERROR_UNRECOVERABLE";
+VAL_ 201 MotorState 0 "IDLE" 1 "STARTING" 2 "SWITCHING_INVERTER_ON" 3 "RUNNING" 4 "ERROR_STARTUP" 5 "ERROR_RUNNING";
+VAL_ 201 AccumulatorState 0 "IDLE" 1 "STARTUP_ENSURE_OPEN" 2 "STARTUP_CLOSE_NEG" 3 "STARTUP_HOLD_CLOSE_NEG" 4 "STARTUP_CLOSE_PRECHARGE" 5 "STARTUP_HOLD_CLOSE_PRECHARGE" 6 "STARTUP_CLOSE_POS" 7 "STARTUP_HOLD_CLOSE_POS" 8 "STARTUP_OPEN_PRECHARGE" 9 "RUNNING" 10 "LOW_SOC" 11 "ERROR_FEEDBACK" 12 "SHUTDOWN";
+
+BO_ 210 LvCommand: 1 FC
+ SG_ BrakeLightEnable : 1|1@1+ (1,0) [0|1] "" LVC
+
+BO_ 213 InverterSwitchCommand: 1 FC
+ SG_ CloseInverterSwitch : 0|1@1+ (1,0) [0|1] "" LVC 
+
+CM_ BO_ 213 "This should be combined with LvCommand once testing is done.";
+
+BO_ 211 LvStatus: 4 LVC
+ SG_ Counter : 0|8@1+ (1,0) [0|255] "" FC
+ SG_ LvState : 8|8@1+ (1,0) [0|1] "" FC
+ SG_ MotorControllerState : 16|8@1+ (1,0) [0|1] "" FC
+ SG_ MotorControllerSwitchClosed : 24|1@1+ (1,0) [0|1] "" FC
+ SG_ ImdFault : 25|1@1+ (1,0) [0|1] "" FC
+ SG_ BmsFault : 26|1@1+ (1,0) [0|1] "" FC
+
+VAL_ 211 LvState 0 "PWRUP_START" 1 "PWRUP_TSSI_ON" 2 "PWRUP_PERIPHERALS_ON" 3 "PWRUP_ACCUMULATOR_ON" 4 "PWRUP_MOTOR_CONTROLLER_PRECHARGING" 7 "PWRUP_SHUTDOWN_ON" 9 "DCDC_ON" 10 "POWERTRAIN_PUMP_ON" 11 "POWERTRAIN_FAN_ON" 13 "READY_TO_DRIVE" 14 "SHUTDOWN_DRIVER_WARNING" 15 "SHUTDOWN_PUMP_OFF" 16 "SHUTDOWN_FAN_OFF" 17 "SHUTDOWN_COMPLETE";
+VAL_ 211 MotorControllerState 0 "OFF" 1 "PRECHARGING" 2 "PRECHARGING_HANDOFF" 3 "ON";
+
+BO_ 230 DashCommand: 4 FC
+ SG_ ConfigReceived     : 0|1@1+ (1,0) [0|1] "" DASH
+ SG_ HvStarted          : 1|1@1+ (1,0) [0|1] "" DASH
+ SG_ MotorStarted       : 2|1@1+ (1,0) [0|1] "" DASH
+ SG_ DriveStarted       : 3|1@1+ (1,0) [0|1] "" DASH
+ SG_ HvChargePercent  : 8|8@1+ (1,0) [0|100] "" DASH
+ SG_ Speed              : 16|12@1+ (0.1,0) [0|200] "km/h" DASH
+
+BO_ 231 DashStatus: 3 DASH
+ SG_ Counter : 0|8@1+ (1,0) [0|255] "" FC
+ SG_ State   : 8|8@1+ (1,0) [0|1] "" FC
+ SG_ Profile : 16|8@1+ (1,0) [0|15] "" FC
+
+VAL_ 231 State 0 "LOGO" 1 "SELECT_PROFILE" 2 "CONFIRM_SELECTION" 3 "WAIT_SELECTION_ACK" 4 "PRESS_FOR_HV" 5 "STARTING_HV" 6 "PRESS_FOR_MOTOR" 7 "STARTING_MOTORS" 8 "BRAKE_TO_START" 9 "RUNNING";
+VAL_ 231 Profile 0 "Default" 1 "Launch" 2 "Skidpad" 3 "Endurance" 4 "Tuning" 5 "_ENUM_TAIL_";
+
+BO_ 300 Accumulator_Soc: 8 FC
+ SG_ PackVoltage : 0|16@1+ (1,0) [0|255] "" DASH
+ SG_ PrechargeVoltage : 16|16@1+ (1,0) [0|255] "" DASH
+ SG_ MaxPackVoltage : 32|16@1+ (1,0) [0|255] "" DASH
+ SG_ SocPercent : 48|8@1+ (1,0) [0|255] "" DASH
+ SG_ PrechargePercent : 56|8@1+ (1,0) [0|255] "" DASH
+
+CM_ "3xn - Additional sensor readings";
+
+BO_ 310 SuspensionTravel34: 2 LVC
+ SG_ STP3 : 0|8@1+ (1,0) [0|255] "" FC
+ SG_ STP4 : 8|8@1+ (1,0) [0|255] "" FC
+
+BO_ 340 TuningParams: 8 RPI
+ SG_ aggressiveness : 0|8@1+ (1,0) [0|100] "" FC
+
+CM_ "4xn - General / debugging info";
+
+BO_ 400 FcGitHash: 5 FC
+ SG_ Commit : 0|32@1+ (1,0) [0|0] "" RPI
+ SG_ Dirty : 32|1@1+ (1,0) [0|0] "" RPI
+
+BO_ 410 LvGitHash: 5 LVC
+ SG_ Commit : 0|32@1+ (1,0) [0|0] "" RPI
+ SG_ Dirty : 32|1@1+ (1,0) [0|0] "" RPI
+
+BO_ 420 TmsGitHash: 5 LVC
+ SG_ Commit : 0|32@1+ (1,0) [0|0] "" RPI
+ SG_ Dirty : 32|1@1+ (1,0) [0|0] "" RPI
+
+BO_ 430 DashGitHash: 5 DASH
+ SG_ Commit : 0|32@1+ (1,0) [0|0] "" RPI
+ SG_ Dirty : 32|1@1+ (1,0) [0|0] "" RPI
+
+BO_ 401 AppsDebug: 8 FC
+ SG_ Apps1RawVolt : 0|16@1+ (0.001,0) [0|0] "volt" RPI
+ SG_ Apps2RawVolt : 16|16@1+ (0.001,0) [0|0] "volt" RPI
+ SG_ Apps1Percent : 32|16@1+ (0.1,0) [0|0] "percent" RPI
+ SG_ Apps2Percent : 48|16@1+ (0.1,0) [0|0] "percent" RPI
+
+BO_ 402 BppsSteerDebug: 8 FC
+ SG_ BppsRawVolt   : 0|16@1+ (0.001,0) [0|0] "volt" RPI
+ SG_ SteerRawVolt  : 16|16@1+ (0.001,0) [0|0] "volt" RPI
+ SG_ BppsPercent   : 32|16@1+ (0.1,0) [0|0] "percent" RPI
+ SG_ SteerPosition : 48|16@1+ (0.01,-1) [0|0] "[-1,+1]" RPI
+
+BO_ 411 LvDbcHash: 8 LVC
+ SG_ Hash : 0|64@1+ (1,0) [0|1] "" FC
+
+CM_ "Manufacturer specific IDs (do not modify)
+769-777     GPS/IMU
+1570-1574   BMS Command/Status
+2553934720  BMS Temperatures 1
+2566844926  BMS Temperatures 2";
 
 BO_ 1570 ContactorCommand: 3 FC
- SG_ PackPositive : 0|8@1+ (1,0) [0|0] ""  BMS
- SG_ PackPrecharge : 8|8@1+ (1,0) [0|0] ""  BMS
- SG_ PackNegative : 16|8@1+ (1,0) [0|0] ""  BMS
+ SG_ PackPositive : 0|8@1+ (1,0) [0|0] "" BMS
+ SG_ PackPrecharge : 8|8@1+ (1,0) [0|0] "" BMS
+ SG_ PackNegative : 16|8@1+ (1,0) [0|0] "" BMS
 
 BO_ 1572 Pack_State: 7 BMS
- SG_ Pack_Current : 0|16@1+ (0.1,0) [0|0] "Amps"  FC
- SG_ Pack_Inst_Voltage : 16|16@1+ (0.1,0) [0|0] "Volts"  FC
- SG_ Avg_Cell_Voltage : 32|16@1+ (0.0001,0) [0|0] "Volts"  FC
- SG_ Populated_Cells : 48|8@1+ (1,0) [0|0] "Num"  FC
+ SG_ Pack_Current : 0|16@1+ (0.1,0) [0|0] "Amps" FC
+ SG_ Pack_Inst_Voltage : 16|16@1+ (0.1,0) [0|0] "Volts" FC
+ SG_ Avg_Cell_Voltage : 32|16@1+ (0.0001,0) [0|0] "Volts" FC
+ SG_ Populated_Cells : 48|8@1+ (1,0) [0|0] "Num" FC
 
 BO_ 1571 Pack_Current_Limits: 4 BMS
- SG_ Pack_CCL : 0|16@1+ (1,0) [0|0] "Amps"  FC
- SG_ Pack_DCL : 16|16@1+ (1,0) [0|0] "Amps"  FC
+ SG_ Pack_CCL : 0|16@1+ (1,0) [0|0] "Amps" FC
+ SG_ Pack_DCL : 16|16@1+ (1,0) [0|0] "Amps" FC
 
 BO_ 1573 Pack_SOC: 3 BMS
- SG_ Pack_SOC : 0|8@1+ (0.5,0) [0|0] "Percent"  FC
- SG_ Maximum_Pack_Voltage : 8|16@1+ (0.1,0) [0|0] "Volts"  FC
+ SG_ Pack_SOC : 0|8@1+ (0.5,0) [0|0] "Percent" FC
+ SG_ Maximum_Pack_Voltage : 8|16@1+ (0.1,0) [0|0] "Volts" FC
 
 BO_ 1574 Contactor_Feedback: 3 BMS
- SG_ Pack_Positive_Feedback : 0|1@1+ (1,0) [0|1] ""  FC,Dash,LVC
- SG_ Pack_Negative_Feedback : 8|1@1+ (1,0) [0|1] ""  FC,Dash,LVC
- SG_ Pack_Precharge_Feedback : 16|1@1+ (1,0) [0|1] ""  FC,Dash,LVC
+ SG_ Pack_Positive_Feedback : 0|1@1+ (1,0) [0|1] "" FC, DASH, LVC
+ SG_ Pack_Negative_Feedback : 8|1@1+ (1,0) [0|1] "" FC, DASH, LVC
+ SG_ Pack_Precharge_Feedback : 16|1@1+ (1,0) [0|1] "" FC, DASH, LVC
 
 BO_ 2553934720 BmsBroadcast: 8 TMS
- SG_ ThermModuleNum : 0|8@1+ (1,0) [0|0] ""  BMS
- SG_ LowThermValue : 8|8@1- (1,0) [0|0] " C"  BMS
- SG_ HighThermValue : 16|8@1- (1,0) [0|0] " C"  BMS
- SG_ AvgThermValue : 24|8@1- (1,0) [0|0] " C"  BMS
- SG_ NumThermEn : 32|8@1+ (1,0) [0|0] ""  BMS
- SG_ HighThermID : 40|8@1+ (1,0) [0|0] ""  BMS
- SG_ LowThermID : 48|8@1+ (1,0) [0|0] ""  BMS
- SG_ Checksum : 56|8@1+ (1,0) [0|0] ""  BMS
+ SG_ ThermModuleNum : 0|8@1+ (1,0) [0|0] "" BMS
+ SG_ LowThermValue : 8|8@1- (1,0) [0|0] " C" BMS
+ SG_ HighThermValue : 16|8@1- (1,0) [0|0] " C" BMS
+ SG_ AvgThermValue : 24|8@1- (1,0) [0|0] " C" BMS
+ SG_ NumThermEn : 32|8@1+ (1,0) [0|0] "" BMS
+ SG_ HighThermID : 40|8@1+ (1,0) [0|0] "" BMS
+ SG_ LowThermID : 48|8@1+ (1,0) [0|0] "" BMS
+ SG_ Checksum : 56|8@1+ (1,0) [0|0] "" BMS
 
 BO_ 2566844926 ThermistorBroadcast: 8 TMS
- SG_ RelThermID : 0|16@1+ (1,0) [0|0] ""  BMS
- SG_ ThermValue : 16|8@1- (1,0) [0|0] " C"  BMS
- SG_ NumEnTherm : 24|8@1- (1,0) [0|0] ""  BMS
- SG_ LowThermValue : 32|8@1- (1,0) [0|0] " C"  BMS
- SG_ HighThermValue : 40|8@1- (1,0) [0|0] " C"  BMS
- SG_ HighThermID : 48|8@1+ (1,0) [0|0] ""  BMS
- SG_ LowThermID : 56|8@1+ (1,0) [0|0] ""  BMS
+ SG_ RelThermID : 0|16@1+ (1,0) [0|0] "" BMS
+ SG_ ThermValue : 16|8@1- (1,0) [0|0] " C" BMS
+ SG_ NumEnTherm : 24|8@1- (1,0) [0|0] "" BMS
+ SG_ LowThermValue : 32|8@1- (1,0) [0|0] " C" BMS
+ SG_ HighThermValue : 40|8@1- (1,0) [0|0] " C" BMS
+ SG_ HighThermID : 48|8@1+ (1,0) [0|0] "" BMS
+ SG_ LowThermID : 56|8@1+ (1,0) [0|0] "" BMS
 
-BO_ 769 GnssStatus: 1 CANmod
- SG_ FixType : 0|3@1+ (1,0) [0|5] ""  FC
- SG_ Satellites : 3|5@1+ (1,0) [0|31] ""  FC
+BO_ 769 GnssStatus: 1 GPS
+ SG_ FixType : 0|3@1+ (1,0) [0|5] "" RPI
+ SG_ Satellites : 3|5@1+ (1,0) [0|31] "" RPI
 
-BO_ 770 GnssTime: 6 CANmod
- SG_ TimeValid : 0|1@1+ (1,0) [0|1] ""  FC
- SG_ TimeConfirmed : 1|1@1+ (1,0) [0|1] ""  FC
- SG_ Epoch : 8|40@1+ (0.001,1577840400) [0|0] "sec"  FC
+BO_ 770 GnssTime: 6 GPS
+ SG_ TimeValid : 0|1@1+ (1,0) [0|1] "" RPI
+ SG_ TimeConfirmed : 1|1@1+ (1,0) [0|1] "" RPI
+ SG_ Epoch : 8|40@1+ (0.001,1577840400) [0|0] "sec" RPI
 
-BO_ 771 GnssPosition: 8 CANmod
- SG_ PositionValid : 0|1@1+ (1,0) [0|1] ""  FC
- SG_ Latitude : 1|28@1+ (1E-006,-90) [-90|178.435455] "deg"  FC
- SG_ Longitude : 29|29@1+ (1E-006,-180) [-180|356.870911] "deg"  FC
- SG_ PositionAccuracy : 58|6@1+ (1,0) [0|63] "m"  FC
+BO_ 771 GnssPosition: 8 GPS
+ SG_ PositionValid : 0|1@1+ (1,0) [0|1] "" RPI
+ SG_ Latitude : 1|28@1+ (1E-006,-90) [-90|178.435455] "deg" RPI
+ SG_ Longitude : 29|29@1+ (1E-006,-180) [-180|356.870911] "deg" RPI
+ SG_ PositionAccuracy : 58|6@1+ (1,0) [0|63] "m" RPI
 
-BO_ 772 GnssAltitude: 4 CANmod
- SG_ AltitudeValid : 0|1@1+ (1,0) [0|1] ""  FC
- SG_ Altitude : 1|18@1+ (0.1,-6000) [-6000|20000] "m"  FC
- SG_ AltitudeAccuracy : 19|13@1+ (1,0) [0|8000] "m"  FC
+BO_ 772 GnssAltitude: 4 GPS
+ SG_ AltitudeValid : 0|1@1+ (1,0) [0|1] "" RPI
+ SG_ Altitude : 1|18@1+ (0.1,-6000) [-6000|20000] "m" RPI
+ SG_ AltitudeAccuracy : 19|13@1+ (1,0) [0|8000] "m" RPI
 
-BO_ 773 GnssAttitude: 8 CANmod
- SG_ AttitudeValid : 0|1@1+ (1,0) [0|1] ""  FC
- SG_ Roll : 1|12@1+ (0.1,-180) [-180|180] "deg"  FC
- SG_ RollAccuracy : 13|9@1+ (0.1,0) [0|50] "deg"  FC
- SG_ Pitch : 22|12@1+ (0.1,-90) [-90|90] "deg"  FC
- SG_ PitchAccuracy : 34|9@1+ (0.1,0) [0|50] "deg"  FC
- SG_ Heading : 43|12@1+ (0.1,0) [0|360] "deg"  FC
- SG_ HeadingAccuracy : 55|9@1+ (0.1,0) [0|50] "deg"  FC
+BO_ 773 GnssAttitude: 8 GPS
+ SG_ AttitudeValid : 0|1@1+ (1,0) [0|1] "" RPI
+ SG_ Roll : 1|12@1+ (0.1,-180) [-180|180] "deg" RPI
+ SG_ RollAccuracy : 13|9@1+ (0.1,0) [0|50] "deg" RPI
+ SG_ Pitch : 22|12@1+ (0.1,-90) [-90|90] "deg" RPI
+ SG_ PitchAccuracy : 34|9@1+ (0.1,0) [0|50] "deg" RPI
+ SG_ Heading : 43|12@1+ (0.1,0) [0|360] "deg" RPI
+ SG_ HeadingAccuracy : 55|9@1+ (0.1,0) [0|50] "deg" RPI
 
-BO_ 774 GnssOdo: 8 CANmod
- SG_ DistanceValid : 0|1@1+ (1,0) [0|1] ""  FC
- SG_ DistanceTrip : 1|22@1+ (1,0) [0|4194303] "m"  FC
- SG_ DistanceAccuracy : 23|19@1+ (1,0) [0|524287] "m"  FC
- SG_ DistanceTotal : 42|22@1+ (1,0) [0|4194303] "km"  FC
+BO_ 774 GnssOdo: 8 GPS
+ SG_ DistanceValid : 0|1@1+ (1,0) [0|1] "" RPI
+ SG_ DistanceTrip : 1|22@1+ (1,0) [0|4194303] "m" RPI
+ SG_ DistanceAccuracy : 23|19@1+ (1,0) [0|524287] "m" RPI
+ SG_ DistanceTotal : 42|22@1+ (1,0) [0|4194303] "km" RPI
 
-BO_ 775 GnssSpeed: 5 CANmod
- SG_ SpeedValid : 0|1@1+ (1,0) [0|1] ""  FC
- SG_ Speed : 1|20@1+ (0.001,0) [0|1048.575] "m/s"  FC
- SG_ SpeedAccuracy : 21|19@1+ (0.001,0) [0|524.287] "m/s"  FC
+BO_ 775 GnssSpeed: 5 GPS
+ SG_ SpeedValid : 0|1@1+ (1,0) [0|1] "" RPI
+ SG_ Speed : 1|20@1+ (0.001,0) [0|1048.575] "m/s" RPI
+ SG_ SpeedAccuracy : 21|19@1+ (0.001,0) [0|524.287] "m/s" RPI
 
-BO_ 776 GnssGeofence: 2 CANmod
- SG_ FenceValid : 0|1@1+ (1,0) [0|1] ""  FC
- SG_ FenceCombined : 1|2@1+ (1,0) [0|1] ""  FC
- SG_ Fence1 : 8|2@1+ (1,0) [0|1] ""  FC
- SG_ Fence2 : 10|2@1+ (1,0) [0|1] ""  FC
- SG_ Fence3 : 12|2@1+ (1,0) [0|1] ""  FC
- SG_ Fence4 : 14|2@1+ (1,0) [0|1] ""  FC
+BO_ 776 GnssGeofence: 2 GPS
+ SG_ FenceValid : 0|1@1+ (1,0) [0|1] "" RPI
+ SG_ FenceCombined : 1|2@1+ (1,0) [0|1] "" RPI
+ SG_ Fence1 : 8|2@1+ (1,0) [0|1] "" RPI
+ SG_ Fence2 : 10|2@1+ (1,0) [0|1] "" RPI
+ SG_ Fence3 : 12|2@1+ (1,0) [0|1] "" RPI
+ SG_ Fence4 : 14|2@1+ (1,0) [0|1] "" RPI
 
-BO_ 777 GnssImu: 8 CANmod
- SG_ ImuValid : 0|1@1+ (1,0) [0|1] ""  FC
- SG_ AccelerationX : 1|10@1+ (0.125,-64) [-64|63.875] "m/s^2"  FC
- SG_ AccelerationY : 11|10@1+ (0.125,-64) [-64|63.875] "m/s^2"  FC
- SG_ AccelerationZ : 21|10@1+ (0.125,-64) [-64|63.875] "m/s^2"  FC
- SG_ AngularRateX : 31|11@1+ (0.25,-256) [-256|255.75] "deg/s"  FC
- SG_ AngularRateY : 42|11@1+ (0.25,-256) [-256|255.75] "deg/s"  FC
- SG_ AngularRateZ : 53|11@1+ (0.25,-256) [-256|255.75] "deg/s"  FC
-
-BO_ 258 FCDashboardStatus: 4 FC
- SG_ receiveConfig      : 0|1@1+ (1,0) [0|1] "" Dash
- SG_ hvStarted          : 1|1@1+ (1,0) [0|1] ""  Dash
- SG_ motorStarted       : 2|1@1+ (1,0) [0|1] ""  Dash
- SG_ driveStarted       : 3|1@1+ (1,0) [0|1] ""  Dash
- SG_ hv_charge_percent  : 8|8@1+ (1,0) [0|100] ""  Dash
- SG_ speed              : 16|12@1+ (0.1,0) [0|200] "km/h" Dash
-
-BO_ 259 DashboardStatus: 2 Dash
- SG_ DashState          : 0|8@1+ (1,0) [0|1] "" FC
- SG_ Profile            : 8|8@1+ (1,0) [0|15] "" FC
-
-BO_ 260 TuningParams: 8 RPI
- SG_ aggressiveness     : 0|8@1+ (1,0) [0|100] "" FC
+BO_ 777 GnssImu: 8 GPS
+ SG_ ImuValid : 0|1@1+ (1,0) [0|1] "" RPI
+ SG_ AccelerationX : 1|10@1+ (0.125,-64) [-64|63.875] "m/s^2" RPI
+ SG_ AccelerationY : 11|10@1+ (0.125,-64) [-64|63.875] "m/s^2" RPI
+ SG_ AccelerationZ : 21|10@1+ (0.125,-64) [-64|63.875] "m/s^2" RPI
+ SG_ AngularRateX : 31|11@1+ (0.25,-256) [-256|255.75] "deg/s" RPI
+ SG_ AngularRateY : 42|11@1+ (0.25,-256) [-256|255.75] "deg/s" RPI
+ SG_ AngularRateZ : 53|11@1+ (0.25,-256) [-256|255.75] "deg/s" RPI
 
 CM_ BO_ 1572 "This ID Transmits at 8 ms.";
 CM_ BO_ 1571 "This ID Transmits at 8 ms.";
@@ -253,16 +317,7 @@ CM_ SG_ 777 AccelerationZ "Z acceleration with a resolution of 0.125 m/s^2";
 CM_ SG_ 777 AngularRateX "X angular rate with a resolution of 0.25 deg/s";
 CM_ SG_ 777 AngularRateY "Y angular rate with a resolution of 0.25 deg/s";
 CM_ SG_ 777 AngularRateZ "Z angular rate with a resolution of 0.25 deg/s";
-BA_DEF_  "BusType" STRING ;
-BA_DEF_  "MultiplexExtEnabled" ENUM  "No","Yes";
-BA_DEF_DEF_  "BusType" "CAN";
-BA_DEF_DEF_  "MultiplexExtEnabled" "No";
-VAL_ 109 ECU 0 "FrontController" 1 "LvController" 2 "TMS";
-VAL_ 111 LvState 0 "PWRUP_START" 1 "PWRUP_TSSI_ON" 2 "PWRUP_PERIPHERALS_ON" 3 "PWRUP_ACCUMULATOR_ON" 4 "PWRUP_MOTOR_CONTROLLER_PRECHARGING" 7 "PWRUP_SHUTDOWN_ON" 9 "DCDC_ON" 10 "POWERTRAIN_PUMP_ON" 11 "POWERTRAIN_FAN_ON" 13 "READY_TO_DRIVE" 14 "SHUTDOWN_DRIVER_WARNING" 15 "SHUTDOWN_PUMP_OFF" 16 "SHUTDOWN_FAN_OFF" 17 "SHUTDOWN_COMPLETE";
-VAL_ 111 MotorControllerState 0 "OFF" 1 "PRECHARGING" 2 "PRECHARGING_HANDOFF" 3 "ON";
-VAL_ 255 DbcHashStatus 0 "WAITING" 1 "VALID" 2 "INVALID";
-VAL_ 255 FcState 0 "START_DASHBOARD" 2 "WAIT_DRIVER_SELECT" 3 "WAIT_START_HV" 4 "STARTUP_HV" 5 "STARTUP_READY_TO_DRIVE" 6 "STARTUP_MOTOR" 7 "STARTUP_SEND_READY_TO_DRIVE" 8 "RUNNING" 9 "SHUTDOWN" 10 "ERR_STARTUP_HV" 11 "ERROR_UNRECOVERABLE";
-VAL_ 255 MiStatus 0 "IDLE" 1 "STARTING" 2 "SWITCHING_INVERTER_ON" 3 "RUNNING" 4 "ERROR_STARTUP" 5 "ERROR_RUNNING";
-VAL_ 255 AccStatus 0 "IDLE" 1 "STARTUP_ENSURE_OPEN" 2 "STARTUP_CLOSE_NEG" 3 "STARTUP_HOLD_CLOSE_NEG" 4 "STARTUP_CLOSE_PRECHARGE" 5 "STARTUP_HOLD_CLOSE_PRECHARGE" 6 "STARTUP_CLOSE_POS" 7 "STARTUP_HOLD_CLOSE_POS" 8 "STARTUP_OPEN_PRECHARGE" 9 "RUNNING" 10 "LOW_SOC" 11 "ERROR_FEEDBACK" 12 "SHUTDOWN";
-VAL_ 259 Profile 0 "Default" 1 "Launch" 2 "Skidpad" 3 "Endurance" 4 "Tuning" 5 "_ENUM_TAIL_";
-VAL_ 259 DashState 0 "LOGO" 1 "SELECT_PROFILE" 2 "CONFIRM_SELECTION" 3 "WAIT_SELECTION_ACK" 4 "PRESS_FOR_HV" 5 "STARTING_HV" 6 "PRESS_FOR_MOTOR" 7 "STARTING_MOTORS" 8 "BRAKE_TO_START" 9 "RUNNING";
+BA_DEF_ "BusType" STRING ;
+BA_DEF_ "MultiplexExtEnabled" ENUM  "No","Yes";
+BA_DEF_DEF_ "BusType" "CAN";
+BA_DEF_DEF_ "MultiplexExtEnabled" "No";

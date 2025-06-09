@@ -18,6 +18,7 @@ VehBus veh_can{bindings::veh_can_base};
 Display display{btn_enter, btn_scroll, veh_can};
 
 const int kUpdatePeriodMs = 20;
+static uint8_t tx_counter = 0;
 
 int main(void) {
     lv_init();
@@ -30,8 +31,9 @@ int main(void) {
 
         display.Update(time_ms);
 
-        veh_can.Send(TxDashboardStatus{
-            .dash_state = display.GetState(),
+        veh_can.Send(TxDashStatus{
+            .counter = tx_counter++,
+            .state = display.GetState(),
             .profile = display.selected_profile,
         });
 

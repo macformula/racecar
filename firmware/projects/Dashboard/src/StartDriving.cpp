@@ -14,8 +14,8 @@ void StartDriving::CreateGUI() {
 }
 
 void StartDriving::Update() {
-    auto fc_msg = display_->veh_bus.GetRxFCDashboardStatus();
-    if (fc_msg.has_value() && fc_msg->driveStarted()) {
+    auto fc_msg = display_->veh_bus.GetRxDashCommand();
+    if (fc_msg.has_value() && fc_msg->DriveStarted()) {
         display_->ChangeState(State::RUNNING);
     }
 }

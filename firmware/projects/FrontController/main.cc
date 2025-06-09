@@ -23,14 +23,14 @@ VehBus veh_can_bus{bindings::veh_can_base};
 PtBus pt_can_bus{bindings::pt_can_base};
 
 namespace fsm {
-using State = TxFC_Status::FcState_t;
+using State = TxFcStatus::State_t;
 
 static State state = State::START_DASHBOARD;
 static uint32_t elapsed = 0;
 
 static void Update_100Hz(void) {
     using enum State;
-    using DashState = RxDashboardStatus::DashState_t;
+    using DashState = RxDashStatus::State_t;
 
     State new_state = state;
 
@@ -49,7 +49,7 @@ static void Update_100Hz(void) {
             torque_request = 0;
 
             // wait until dashboard comes online
-            auto msg = veh_can_bus.GetRxDashboardStatus();
+            auto msg = veh_can_bus.GetRxDashStatus();
             if (msg.has_value()) {
                 new_state = WAIT_DRIVER_SELECT;
             }
@@ -61,9 +61,9 @@ static void Update_100Hz(void) {
             speaker = false;
             torque_request = 0;
 
-            auto msg = veh_can_bus.GetRxDashboardStatus();
+            auto msg = veh_can_bus.GetRxDashStatus();
             if (msg.has_value()) {
-                if (msg->DashState() == DashState::WAIT_SELECTION_ACK) {
+                if (msg->State() == DashState::WAIT_SELECTION_ACK) {
                     vehicle_dynamics::SetProfile(msg->Profile());
                     new_state = WAIT_START_HV;
                 }
@@ -76,9 +76,9 @@ static void Update_100Hz(void) {
             speaker = false;
             torque_request = 0;
 
-            auto dash = veh_can_bus.GetRxDashboardStatus();
+            auto dash = veh_can_bus.GetRxDashStatus();
             if (dash.has_value()) {
-                if (dash->DashState() == DashState::STARTING_HV) {
+                if (dash->State() == DashState::STARTING_HV) {
                     new_state = STARTUP_HV;
                 }
             }
@@ -101,9 +101,9 @@ static void Update_100Hz(void) {
             speaker = false;
             torque_request = 0;
 
-            auto dash = veh_can_bus.GetRxDashboardStatus();
+            auto dash = veh_can_bus.GetRxDashStatus();
             if (dash.has_value()) {
-                if (dash->DashState() == DashState::STARTING_MOTORS) {
+                if (dash->State() == DashState::STARTING_MOTORS) {
                     new_state = STARTUP_MOTOR;
                 }
             }
@@ -230,7 +230,7 @@ void LogPedalAndSteer() {
 }
 
 void UpdateErrorLeds() {
-    auto error_led = veh_can_bus.GetRxLvControllerStatus();
+    auto error_led = veh_can_bus.GetRxLvStatus();
     if (error_led.has_value()) {
         bindings::imd_fault_led_en.Set(error_led->ImdFault());
         bindings::bms_fault_led_en.Set(error_led->BmsFault());
@@ -243,27 +243,27 @@ void UpdateErrorLeds() {
 
 void task_10hz(void* argument) {
     (void)argument;
+    static uint8_t tx_counter = 0;
 
     ToggleDebugLed();
     UpdateErrorLeds();
     dbc_hash::Update_10Hz(veh_can_bus);
     // CheckCanFlash();  // no CAN flash in 2025
 
-    veh_can_bus.Send(TxFC_Status{
-        .inv1_status = static_cast<uint8_t>(motors::GetLeftState()),
-        .inv2_status = static_cast<uint8_t>(motors::GetRightState()),
-        .mi_status = motors::GetState(),
-        .acc_status = accumulator::GetState(),
-        .fc_state = fsm::state,
-        .brake_light_enable = driver_interface::IsBrakePressed(),
+    veh_can_bus.Send(TxFcStatus{
+        .counter = tx_counter++,
+        .state = fsm::state,
+        .accumulator_state = accumulator::GetState(),
+        .motor_state = motors::GetState(),
+        .inv1_state = static_cast<uint8_t>(motors::GetLeftState()),
+        .inv2_state = static_cast<uint8_t>(motors::GetRightState()),
         .dbc_valid = dbc_hash::IsValid(),
-        .elapsed = static_cast<uint8_t>(fsm::elapsed / 100),
     });
-    veh_can_bus.Send(TxFCDashboardStatus{
-        .receive_config = fsm::state == TxFC_Status::FcState_t::WAIT_START_HV,
+    veh_can_bus.Send(TxDashCommand{
+        .config_received = fsm::state == TxFcStatus::State_t::WAIT_START_HV,
         .hv_started = accumulator::GetState() == accumulator::State::RUNNING,
         .motor_started = motors::GetState() == motors::State::RUNNING,
-        .drive_started = fsm::state == TxFC_Status::FcState_t::RUNNING,
+        .drive_started = fsm::state == TxFcStatus::State_t::RUNNING,
         .hv_charge_percent =
             static_cast<uint8_t>(accumulator::GetPrechargePercent()),
         .speed = 0,  // todo
@@ -287,6 +287,14 @@ void task_100hz(void* argument) {
                          vehicle_dynamics::GetRightMotorRequest());
 
     veh_can_bus.Send(accumulator::GetContactorCommand());
+    veh_can_bus.Send(TxLvCommand{
+        .brake_light_enable = driver_interface::IsBrakePressed(),
+    });
+
+    // Disable Inverter commands for manual debugging
+    // veh_can_bus.Send(TxInverterSwitchCommand{
+    //     .close_inverter_switch = motors::GetInverterEnable(),
+    // });
     // pt_can_bus.Send(motors::GetLeftSetpoints());
     // pt_can_bus.Send(motors::GetRightSetpoints());
 }
