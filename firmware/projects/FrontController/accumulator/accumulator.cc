@@ -1,5 +1,6 @@
 #include "accumulator.hpp"
 
+#include "alerts/alerts.hpp"
 #include "bindings.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
@@ -148,7 +149,9 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = OPEN, .positive = OPEN, .negative = CLOSE};
 
             if (fb.precharge == IS_CLOSED || fb.positive == IS_CLOSED) {
-                new_state = ERROR_FEEDBACK;
+                alerts::Get().accumulator_contactor_wrong_state = true;
+                new_state = ERROR;
+
             } else if (FeedbackMatchesCommand(cmd, fb)) {
                 new_state = STARTUP_HOLD_CLOSE_NEG;
             } else {
@@ -159,7 +162,9 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = OPEN, .positive = OPEN, .negative = CLOSE};
 
             if (!FeedbackMatchesCommand(cmd, fb)) {
-                new_state = ERROR_FEEDBACK;
+                alerts::Get().accumulator_contactor_wrong_state = true;
+                new_state = ERROR;
+
             } else if (elapsed >= 100) {
                 new_state = STARTUP_CLOSE_PRECHARGE;
             } else {
@@ -170,7 +175,9 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = CLOSE, .positive = OPEN, .negative = CLOSE};
 
             if (fb.positive == IS_CLOSED || fb.negative == IS_OPEN) {
-                new_state = ERROR_FEEDBACK;
+                alerts::Get().accumulator_contactor_wrong_state = true;
+                new_state = ERROR;
+
             } else if (FeedbackMatchesCommand(cmd, fb)) {
                 new_state = STARTUP_HOLD_CLOSE_PRECHARGE;
             }
@@ -180,8 +187,9 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = CLOSE, .positive = OPEN, .negative = CLOSE};
 
             if (!FeedbackMatchesCommand(cmd, fb)) {
-                new_state = ERROR_FEEDBACK;
-                break;
+                alerts::Get().accumulator_contactor_wrong_state = true;
+                new_state = ERROR;
+
             } else if (IsPrechargeComplete() &&
                        (elapsed >= timeout::MIN_PRECHARGE_TIME)) {
                 new_state = STARTUP_CLOSE_POS;
@@ -193,7 +201,9 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = CLOSE, .positive = CLOSE, .negative = CLOSE};
 
             if (fb.precharge == IS_OPEN || fb.negative == IS_OPEN) {
-                new_state = ERROR_FEEDBACK;
+                alerts::Get().accumulator_contactor_wrong_state = true;
+                new_state = ERROR;
+
             } else if (FeedbackMatchesCommand(cmd, fb)) {
                 new_state = STARTUP_HOLD_CLOSE_POS;
             } else {
@@ -204,7 +214,9 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = CLOSE, .positive = CLOSE, .negative = CLOSE};
 
             if (!FeedbackMatchesCommand(cmd, fb)) {
-                new_state = ERROR_FEEDBACK;
+                alerts::Get().accumulator_contactor_wrong_state = true;
+                new_state = ERROR;
+
             } else if (elapsed >= 100) {
                 new_state = STARTUP_OPEN_PRECHARGE;
             } else {
@@ -215,7 +227,9 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = OPEN, .positive = CLOSE, .negative = CLOSE};
 
             if (fb.positive == IS_OPEN || fb.negative == IS_OPEN) {
-                new_state = ERROR_FEEDBACK;
+                alerts::Get().accumulator_contactor_wrong_state = true;
+                new_state = ERROR;
+
             } else if (FeedbackMatchesCommand(cmd, fb)) {
                 new_state = RUNNING;
             } else {
@@ -226,24 +240,22 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = OPEN, .positive = CLOSE, .negative = CLOSE};
 
             if (!FeedbackMatchesCommand(cmd, fb)) {
-                new_state = ERROR_FEEDBACK;
+                alerts::Get().accumulator_contactor_wrong_state = true;
+                new_state = ERROR;
             }
-            break;
-
-        case LOW_SOC:
-            cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
-            break;
-
-        case ERROR_FEEDBACK:
-            cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
             break;
 
         case SHUTDOWN:
             cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
 
-            if (GetPrechargePercent() < threshold::PACK_SHUTDOWN_PERCENT) {
+            if ((GetPrechargePercent() < threshold::PACK_SHUTDOWN_PERCENT) &&
+                (elapsed > timeout::SHUTDOWN_RESET_DELAY)) {
                 new_state = IDLE;
             }
+            break;
+
+        case ERROR:
+            cmd = {.precharge = OPEN, .positive = OPEN, .negative = OPEN};
             break;
     }
 
@@ -252,7 +264,8 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
     }
 
     // if (GetSocPercent() < threshold::LOW_VOLTAGE_PERCENT) {
-    //     new_state = LOW_SOC;
+    //     alerts::Get().accumulator_low_soc = true;
+    //     new_state = ERROR;
     // } // bypass until BMS is set up for SOC estimation
 
     contactor_command = cmd;

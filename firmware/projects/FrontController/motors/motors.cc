@@ -1,5 +1,6 @@
 #include "motors.hpp"
 
+#include "alerts/alerts.hpp"
 #include "amk/amk.hpp"
 #include "amk/starter.hpp"
 #include "generated/can/pt_bus.hpp"
@@ -78,9 +79,6 @@ void Init(void) {
     amk_right.Init();
 }
 
-template <amk::ActualValues1 AV1, amk::ActualValues2 AV2, amk::Setpoints1 SP>
-static void TryStartMotor(amk::Amk<AV1, AV2, SP> amk) {}
-
 void Update_100Hz(PtBus& pt_can, VehBus& veh_can, amk::Request req_left,
                   amk::Request req_right) {
     using enum State;
@@ -111,8 +109,14 @@ void Update_100Hz(PtBus& pt_can, VehBus& veh_can, amk::Request req_left,
 
             new_inverter_en = false;
 
-            if (left_starter.HasErroredOut() || right_starter.HasErroredOut()) {
-                new_state = ERROR_STARTUP;
+            if (left_starter.HasErroredOut()) {
+                alerts::Get().left_motor_starting_error = true;
+                new_state = ERROR;
+            }
+
+            if (right_starter.HasErroredOut()) {
+                alerts::Get().right_motor_starting_error = true;
+                new_state = ERROR;
             }
 
             if (left_starter.Success() && right_starter.Success()) {
@@ -141,13 +145,17 @@ void Update_100Hz(PtBus& pt_can, VehBus& veh_can, amk::Request req_left,
             cmd_right = amk::Command::ENABLED;
             new_inverter_en = true;
 
-            if (amk_left.HasError() || amk_right.HasError()) {
-                new_state = ERROR_RUNNING;
+            if (amk_left.HasError()) {
+                alerts::Get().left_motor_running_error = true;
+                new_state = ERROR;
+            }
+            if (amk_right.HasError()) {
+                alerts::Get().right_motor_running_error = true;
+                new_state = ERROR;
             }
             break;
 
-        case ERROR_STARTUP:
-        case ERROR_RUNNING:
+        case ERROR:
             cmd_left = amk::Command::OFF;
             cmd_right = amk::Command::OFF;
             new_inverter_en = false;

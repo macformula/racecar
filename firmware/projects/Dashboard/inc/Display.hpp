@@ -8,8 +8,10 @@
 #include "inc/Button.hpp"
 #include "inc/ConfirmMenu.hpp"
 #include "inc/DriveModeMenu.hpp"
+#include "inc/ErrorScreen.hpp"
 #include "inc/LogoScreen.hpp"
 #include "inc/ProfileSelect.hpp"
+#include "inc/Shutdown.hpp"
 #include "inc/StartDriving.hpp"
 #include "inc/StartHV.hpp"
 #include "inc/StartMotors.hpp"
@@ -53,4 +55,6 @@ private:
     StartingMotors starting_motors;
     StartDriving start_driving;
     DriveModeMenu drive_mode;
+    Shutdown shutdown;
+    ErrorScreen error_screen;
 };

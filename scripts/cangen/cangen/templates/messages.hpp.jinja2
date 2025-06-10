@@ -41,10 +41,14 @@ public:
     inline {{ sig.type }} {{ sig.s.name }}() const { return {{ sig.name }}_; }
     {% endfor %}
 
+    inline const shared::can::RawMessage& Raw(void) { return raw_message; }
+
 private:
     {% for sig in msg.signals %}
     {{ sig.type }} {{ sig.name }}_;
     {% endfor %}
+
+    shared::can::RawMessage raw_message;
 
     // Timestamp is platform dependent. See mcal/PLATFORM/periph/can
     uint32_t timestamp_;
@@ -52,11 +56,10 @@ private:
     constexpr static uint32_t id = {{ msg.m.frame_id }};
     constexpr static uint8_t data_length = {{ msg.m.length }};
 
-
     friend class {{ bus }};
     
     // Only {{ bus }} can construct this class which guarantees the data came from the CAN line.
-    {{ class_name }}(shared::can::RawMessage raw_msg, uint32_t timestamp) : timestamp_(timestamp) {
+    {{ class_name }}(shared::can::RawMessage raw_msg, uint32_t timestamp) :  raw_message(raw_msg), timestamp_(timestamp) {
         {% for sig in msg.signals %}
         {% set T = sig.raw_type %}
         {{ T }} temp_{{ sig.name }} = 0;

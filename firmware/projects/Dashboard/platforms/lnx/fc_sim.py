@@ -25,6 +25,12 @@ class Simulation:
         pass
 
     def __init__(self):
+        self.reset_fcstatus()
+
+        self.went_past_logo = False
+        self.start_bus()
+
+    def reset_fcstatus(self):
         self.FcStatus = {
             "ConfigReceived": False,
             "HvStarted": False,
@@ -32,10 +38,9 @@ class Simulation:
             "DriveStarted": False,
             "HvChargePercent": 0,
             "Speed": 0,
+            "Reset": False,
+            "Errored": False,
         }
-
-        self.went_past_logo = False
-        self.start_bus()
 
     def start_bus(self):
         try:
@@ -102,6 +107,8 @@ class Simulation:
     def run(self):
         DELAY = 0.5  # between screens
 
+        self.reset_fcstatus()
+
         ds = self.wait_for_dash(
             "Waiting for Profile Selection",
             lambda ds: ds["State"] == "WAIT_SELECTION_ACK",
@@ -138,6 +145,23 @@ class Simulation:
             self.FcStatus["Speed"] = speed
             speed += 0.1
             sleep(0.005)
+
+        sleep(1)
+        self.FcStatus["Errored"] = True
+
+        self.wait_for_dash(
+            "Waiting for shutdown signal", lambda ds: ds["State"] == "SHUTDOWN"
+        )
+
+        self.FcStatus["Errored"] = False
+
+        sleep(DELAY)
+        self.FcStatus["Reset"] = True
+
+        self.wait_for_dash(
+            "Waiting for dash to reset", lambda ds: ds["State"] == "LOGO"
+        )
+        self.FcStatus["Reset"] = False
 
         self.wait_for_dash("Sequence complete.", lambda ds: False)
 

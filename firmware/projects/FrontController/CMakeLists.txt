@@ -3,6 +3,7 @@ include("${CMAKE_SOURCE_DIR}/cmake/cangen.cmake")
 target_sources(main
     PRIVATE
     main.cc
+    alerts/alerts.cc
     accumulator/accumulator.cc
     dbc_hash/dbc_hash.cc
     driver_interface/driver_interface.cc
