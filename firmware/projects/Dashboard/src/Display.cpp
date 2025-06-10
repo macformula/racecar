@@ -14,7 +14,9 @@ Display::Display(Button& enter, Button& scroll, generated::can::VehBus& veh)
       start_motors(this),
       starting_motors(this),
       start_driving(this),
-      drive_mode(this) {}
+      drive_mode(this),
+      shutdown(this),
+      error_screen(this) {}
 
 Display::State Display::GetState() const {
     return state_;
@@ -36,6 +38,17 @@ void Display::Update(int time_ms) {
     scroll.Update(time_ms);
 
     screen_->Update();
+
+    auto cmd = veh_bus.GetRxDashCommand();
+    if (cmd.has_value() && cmd->Reset()) {
+        switch (state_) {
+            case State::LOGO:
+                break;  // don't react if already reset
+            default:
+                ChangeState(State::LOGO);
+                break;
+        }
+    }
 
     if (transition_.has_value()) {
         InnerChangeState(transition_.value());
@@ -62,6 +75,8 @@ void Display::InnerChangeState(State new_state_) {
         case STARTING_MOTORS:       screen_ = &starting_motors; break;
         case BRAKE_TO_START:        screen_ = &start_driving; break;
         case RUNNING:               screen_ = &drive_mode; break;
+        case SHUTDOWN:              screen_ = &shutdown; break;
+        case ERROR:                 screen_ = &error_screen; break;
             // clang-format on
     }
 

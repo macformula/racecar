@@ -17,19 +17,28 @@ void DriveModeMenu::CreateGUI() {
     lv_label_set_text(speed_label, "0");
     lv_obj_align(speed_label, LV_ALIGN_CENTER, 0, 0);
     lv_obj_set_style_text_font(speed_label, &lv_font_montserrat_48, 0);
+
+    lv_obj_t* footer = lv_label_create(frame_);
+    lv_label_set_text(footer, "Hold ENTER to shutdown");
+    lv_obj_align(footer, LV_ALIGN_BOTTOM_MID, 0, 0);
+    lv_obj_set_style_text_font(footer, &lv_font_montserrat_24, 0);
 }
 
 void DriveModeMenu::Update() {
+    if (display_->enter.GetHeldDuration() > 3000 &&
+        display_->enter.IsPressed()) {
+        display_->ChangeState(State::SHUTDOWN);
+    }
+
     auto fc_msg = display_->veh_bus.GetRxDashCommand();
 
     if (fc_msg.has_value()) {
         float speed = fc_msg->Speed();
         lv_arc_set_value(speedometer_arc, speed * kArcSpeedResolution);
         lv_label_set_text_fmt(speed_label, "%d", static_cast<int>(speed));
-    }
 
-    if (display_->enter.GetHeldDuration() > 5000 &&
-        display_->enter.IsPressed()) {
-        display_->ChangeState(State::LOGO);
+        if (fc_msg->Errored()) {
+            display_->ChangeState(State::ERROR);
+        }
     }
 }

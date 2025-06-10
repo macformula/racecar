@@ -21,4 +21,13 @@ RawMessage::RawMessage(uint32_t id_, bool is_extended_frame_,
     std::memcpy(data, data_.data(), data_length);
 }
 
+RawMessage::RawMessage(const RawMessage& other)
+    : id(other.id),
+      is_extended_frame(other.is_extended_frame),
+      data_length(other.data_length) {
+    for (size_t i = 0; i < data_length; i++) {
+        data[i] = other.data[i];
+    }
+}
+
 }  // namespace shared::can
