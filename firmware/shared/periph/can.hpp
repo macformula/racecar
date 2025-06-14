@@ -27,4 +27,7 @@ private:
     friend class can::Bus;
 };
 
+// Projects can optionally implement this function
+void CanErrorHandler(CanBase* can_base);
+
 }  // namespace shared::periph
