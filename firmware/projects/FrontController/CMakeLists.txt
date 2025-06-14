@@ -9,7 +9,6 @@ target_sources(main
     driver_interface/driver_interface.cc
     motors/amk/starter.cc
     motors/motors.cc
-    scheduler/scheduler.cc
     sensors/driver/driver.cc
     sensors/dynamics/dynamics.cc
     vehicle_dynamics/vehicle_dynamics_calc.cc
@@ -17,3 +16,5 @@ target_sources(main
 )
 
 target_include_directories(main PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_compile_definitions(main PUBLIC USE_FREERTOS)

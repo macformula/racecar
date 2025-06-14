@@ -12,6 +12,12 @@
 
 #include "can.hpp"
 
+#ifdef USE_FREERTOS
+#include "FreeRTOS.h"
+#include "queue.h"
+#include "semphr.h"
+#endif
+
 using CanBase = mcal::stm32f::CanBase;
 
 namespace interrupt_handler {
@@ -62,6 +68,22 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
         can_base->Receive();
     }
 }
+
+#ifdef USE_FREERTOS
+#define IMPLEMENT_CAN_TX_CB(CALLBACK)                            \
+    void CALLBACK(CAN_HandleTypeDef* hcan) {                     \
+        CanBase* can_base = interrupt_handler::GetCanBase(hcan); \
+        if (can_base != nullptr) {                               \
+            can_base->UnblockTxTask();                           \
+        }                                                        \
+    }
+
+// Identically implement all three callbacks since the message could have gone
+// through any mailbox
+IMPLEMENT_CAN_TX_CB(HAL_CAN_TxMailbox0CompleteCallback);
+IMPLEMENT_CAN_TX_CB(HAL_CAN_TxMailbox1CompleteCallback);
+IMPLEMENT_CAN_TX_CB(HAL_CAN_TxMailbox2CompleteCallback);
+#endif
 }
 
 namespace mcal::stm32f {
@@ -71,11 +93,70 @@ CanBase::CanBase(CAN_HandleTypeDef* hcan) : hcan_{hcan} {}
 void CanBase::Setup() {
     interrupt_handler::RegisterCanBase(hcan_, this);
     ConfigFilters();
+
+#if USE_FREERTOS
+    // Create the FreeRTOS task for CAN transmitting
+    tx_task = xTaskCreateStatic(TxTask, "CanTxTask", TX_TASK_STACK_SIZE, this,
+                                TX_TASK_PRIORITY, tx_task_stack,
+                                &tx_task_control_block);
+    tx_queue =
+        xQueueCreateStatic(TX_QUEUE_SIZE, sizeof(shared::can::RawMessage),
+                           tx_queue_storage, &tx_queue_static);
+
+    // All mailboxes starts empty
+    empty_mailbox = xSemaphoreCreateCountingStatic(
+        NUM_TX_MAILBOXES, NUM_TX_MAILBOXES, &empty_mailbox_static);
+#endif
+
     HAL_CAN_ActivateNotification(hcan_, CAN_IT_RX_FIFO0_MSG_PENDING);
     HAL_CAN_Start(hcan_);
 }
 
+#ifdef USE_FREERTOS
 void CanBase::Send(const shared::can::RawMessage& msg) {
+    if (xQueueSendToBack(tx_queue, &msg, 0) == errQUEUE_FULL) {
+        dropped_tx_frames_++;
+    }
+}
+
+void CanBase::UnblockTxTask(void) {
+    BaseType_t woken_task = pdFALSE;
+    xSemaphoreGiveFromISR(empty_mailbox, &woken_task);
+    portYIELD_FROM_ISR(woken_task);
+}
+
+void CanBase::TxTask(void* _can_base) {
+    CanBase* can_base = (CanBase*)_can_base;
+
+    shared::can::RawMessage msg;
+
+    while (true) {
+        // Wait for a message to arrive
+        if (xQueueReceive(can_base->tx_queue, &msg, portMAX_DELAY) == pdFALSE) {
+            continue;  // should not timeout if messages are being sent
+        }
+
+        // Wait for an empty TX mailbox. Short timeout since messages should
+        // send fast.
+        if (xSemaphoreTake(can_base->empty_mailbox, pdMS_TO_TICKS(10)) ==
+            pdFALSE) {
+            CanErrorHandler(can_base);
+
+            // Still need to wait for a mailbox to come available
+            while (xSemaphoreTake(can_base->empty_mailbox, portMAX_DELAY) ==
+                   pdFALSE) {
+                continue;
+            }
+        }
+        can_base->SendLL(msg);
+    }
+}
+
+void CanBase::SendLL(const shared::can::RawMessage& msg) {
+#else
+
+void CanBase::Send(const shared::can::RawMessage& msg) {
+#endif
     CAN_TxHeaderTypeDef stm_tx_header;
     stm_tx_header.RTR = CAN_RTR_DATA;  // we only support data frames currently
     stm_tx_header.DLC = msg.data_length;
