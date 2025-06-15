@@ -4,35 +4,39 @@ set -euo pipefail
 
 show_help() {
   cat <<EOF
-Usage: $(basename "$0") <aggressiveness 0-100> [iface]
+Usage: $(basename "$0") <aggressiveness 0-100> <dampness 0-100> [iface]
 
-Sends a 2-byte TuningParams message (CAN ID 0x104) with:
-- damping        = 0
-- aggressiveness = provided value
+Arguments
+  aggressiveness   Integer 0–100 (byte 1)
+  dampness         Integer 0–100 (byte 0)
+  iface            CAN interface to use (default: vcan0)
 
-Arguments:
-  value   Integer 0–100 inclusive.
-  iface   CAN interface (default: vcan0).
+The script packs the two values into a 2-byte CAN frame with ID 0x104 and
+sends it via 'cansend'.
 EOF
 }
 
 # --- Parse args -------------------------------------------------------------
 [[ $# -eq 0 || $1 == "-h" || $1 == "--help" ]] && { show_help; exit 0; }
 
-AGGRESSIVENESS=$1
-IFACE=${2:-vcan0}
-
-# --- Validate value ---------------------------------------------------------
-if (( AGGRESSIVENESS < 0 || AGGRESSIVENESS > 100 )); then
-  echo "Error: value must be between 0 and 100." >&2
+if [[ $# -lt 2 || $# -gt 3 ]]; then
+  echo "Error: need 2 or 3 arguments." >&2
+  show_help
   exit 1
 fi
 
-# --- Convert both damping (0) and aggressiveness (user input) to hex --------
-DAMPING_HEX=00
-AGGR_HEX=$(printf '%02X' "$AGGRESSIVENESS")
+AGGR=$1
+DAMP=$2
+IFACE=${3:-vcan0}
 
-echo "Sending TuningParams on $IFACE: damping=0, aggressiveness=$AGGRESSIVENESS (0x$AGGR_HEX)"
-cansend "$IFACE" 104#${DAMPING_HEX}${AGGR_HEX}
+for val in "$AGGR" "$DAMP"; do
+  [[ $val =~ ^[0-9]+$ ]] || { echo "Error: values must be integers." >&2; exit 1; }
+  (( val >= 0 && val <= 100 )) || { echo "Error: values must be 0-100." >&2; exit 1; }
+done
 
+AGGR_HEX=$(printf '%02X' "$AGGR")
+DAMP_HEX=$(printf '%02X' "$DAMP")
+
+echo "Sending TuningParams on $IFACE: dampness=$DAMP, aggressiveness=$AGGR (0x${DAMP_HEX}${AGGR_HEX})"
+cansend "$IFACE" 104#${DAMP_HEX}${AGGR_HEX}
 echo "Message sent!"

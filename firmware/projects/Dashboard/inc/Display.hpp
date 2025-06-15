@@ -53,5 +53,4 @@ private:
     StartingMotors starting_motors;
     StartDriving start_driving;
     DriveModeMenu drive_mode;
-    Tuning tuning;
 };

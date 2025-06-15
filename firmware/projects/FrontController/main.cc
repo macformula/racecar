@@ -263,12 +263,8 @@ void FrontController::Update(int time_ms) {
                             profile = tuning::Profile{
                                 .aggressiveness =
                                     float(profile_msg->aggressiveness()),
-                                .damping = float(profile_msg->damping())
-                                // fill in other fields
-                            };
+                                .damping = float(profile_msg->damping())};
                         }
-
-                        break;
                     } else {
                         profile = tuning::GetProfile(msg->Profile());
                     }

@@ -1,42 +1,87 @@
 from nicegui import ui, events
 import subprocess
+
+
 class LiveTuning:
-    def __init__(self) -> None:
-        self.value1 = 0          
-        self.build_ui()
 
-    def build_ui(self) -> None:
-        with ui.column().classes('items-center justify-center h-screen'):
-            # Slider + numeric input side‑by‑side
-            with ui.row().classes('items-center'):
-                slider = (
-                    ui.slider(min=0, max=100, value=0, on_change=self.on_slider_change)
-                    .props('step=1')
-                    .classes('w-64')          # narrow the slider a bit
-                )
-                number = (
-                    ui.number(value=0, min=0, max=100)
-                    .props('style="width:80px height:20px"')  # small input box
-                )
+    def __init__(self, iface: str = "vcan0") -> None:
+        self.iface = iface                    
+        self.aggressiveness = 0
+        self.dampness = 0
+        self._build_ui()
 
-                # keep both widgets in sync
-                number.bind_value_from(slider, 'value').bind_value_to(slider, 'value')
+    def _slider_row(
+        self,
+        title: str,
+        field_name: str,
+        init_val: int = 0,
+        *,
+        on_change_cb,
+    ):
+        with ui.row().classes("items-center gap-4 w-full"):
+            ui.label(title).classes("w-32 text-right")
 
-            # Submit button (placeholder)
-            ui.button('Submit', on_click=self.submit)
+            slider = (
+                ui.slider(min=0, max=100, value=init_val, on_change=on_change_cb)
+                .props("step=1")
+                .classes("flex-1")            
+            )
 
-    def on_slider_change(self, e : events.ValueChangeEventArguments) -> None:
-        self.value1 = e.value 
-        if type(e.value) != int and type(e.value) != float:
-            self.value1 = 0
-            e.value = 0
-        if self.value1 > 100:
-            self.value1 = 100
-        if self.value1 < 0:
-            self.value1 = 0
-        print(f'Slider changed to {self.value1}')
+            number = (
+                ui.number(value=init_val, min=0, max=100)
+                .props("style='width:80px'")
+            )
 
-    def submit(self, _=None, iface = 'vcan0') -> None:
+            number.bind_value_from(slider, "value").bind_value_to(slider, "value")
 
-        print(f'Submit pressed (current value: {self.value1})')
-        subprocess.run(["bash", "./scripts/tune.sh", str(self.value1), iface], check=True)
+            setattr(self, f"{field_name}_slider", slider)
+            setattr(self, f"{field_name}_number", number)
+
+    def _build_ui(self) -> None:
+        """Compose the entire visible UI."""
+        with ui.card().classes("w-full max-w-md mx-auto mt-14 p-6 shadow-lg"):
+            ui.label("Live Tuning").classes("text-2xl font-semibold mb-6 text-center")
+
+            # Aggressiveness row 
+            self._slider_row(
+                "Aggressiveness",
+                "aggressiveness",
+                init_val=self.aggressiveness,
+                on_change_cb=lambda e: self._on_change("aggressiveness", e),
+            )
+
+            ui.separator()
+
+            # Dampness row 
+            self._slider_row(
+                "Dampness",
+                "dampness",
+                init_val=self.dampness,
+                on_change_cb=lambda e: self._on_change("dampness", e),
+            )
+
+            ui.button(
+                "Submit",
+                icon="send",
+                on_click=self._submit,
+            ).classes("w-full bg-primary text-white mt-6")
+
+    def _on_change(self, field: str, e: events.ValueChangeEventArguments) -> None:
+        # Clamp, validate, and store slider changes
+        value = e.value or 0
+        value = max(0, min(100, int(value)))
+        setattr(self, field, value)
+        print(f"{field.capitalize()} set to {value}")
+
+    def _submit(self, _=None) -> None:
+        print(f"Submit pressed (agg={self.aggressiveness}, damp={self.dampness})")
+        subprocess.run(
+            ["bash", "./scripts/tune.sh",
+             str(self.aggressiveness), str(self.dampness), self.iface],
+            check=True,
+        )
+
+
+if __name__ in {"__mp_main__", "__main__"}:
+    LiveTuning()          
+    ui.run()

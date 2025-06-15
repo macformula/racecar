@@ -104,11 +104,11 @@ class Simulation:
 
         ds = self.wait_for_dash(
             "Waiting for Profile Selection",
-            lambda ds: ds["DashState"] == "WAIT_SELECTION_ACK" or ds["DashState"] == "TUNING",
+            lambda ds: ds["DashState"] == "WAIT_SELECTION_ACK",
         )
         print(f"Profile:\t{ds['Profile']}")
 
-        if (ds["DashState"] == "TUNING"):
+        if (ds["Profile"] == "Tuning"):
             while True:
                 self.bus.set_filters(
             [{"can_id": dash_msg.frame_id, "can_mask": 0x7FF, "extended": False}, {"can_id": rberry_msg.frame_id, "can_mask": 0x7FF, "extended" : False}])
@@ -118,6 +118,7 @@ class Simulation:
                 tune = dbc.decode_message(tune_msg.arbitration_id, tune_msg.data) 
                 if (tune_msg.arbitration_id == 260):
                     print(tune)
+                    break
                 # print(tune)
 
                 
