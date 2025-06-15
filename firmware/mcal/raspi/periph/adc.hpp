@@ -10,7 +10,7 @@
 #include "shared/util/mappers/linear_map.hpp"
 #include "validation/sil/sil_client.h"
 
-namespace mcal::raspi::periph {
+namespace mcal::raspi {
 
 class ADCInput : public shared::periph::ADCInput {
 public:
@@ -43,4 +43,4 @@ private:
     val::sil::SilClient& sil_client_;
 };
 
-}  // namespace mcal::raspi::periph
+}  // namespace mcal::raspi

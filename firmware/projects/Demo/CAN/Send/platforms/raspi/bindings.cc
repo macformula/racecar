@@ -4,11 +4,11 @@
 #include <chrono>
 #include <thread>
 
-#include "mcal/raspi/periph/can.hpp"
+#include "mcal/raspi/can.hpp"
 #include "shared/periph/can.hpp"
 
 namespace mcal {
-using namespace raspi::periph;
+using namespace raspi;
 
 CanBase veh_can_base{"vcan0"};
 }  // namespace mcal

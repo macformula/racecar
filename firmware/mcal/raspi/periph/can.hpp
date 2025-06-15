@@ -25,7 +25,7 @@
 #include "shared/periph/can.hpp"
 #include "third-party/etl/include/etl/queue.h"
 
-namespace mcal::raspi::periph {
+namespace mcal::raspi {
 
 class CanBase : public shared::periph::CanBase {
 public:
@@ -136,4 +136,4 @@ private:
     }
 };
 
-}  // namespace mcal::raspi::periph
+}  // namespace mcal::raspi
