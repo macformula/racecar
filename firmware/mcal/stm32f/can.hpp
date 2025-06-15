@@ -16,7 +16,7 @@
 #include "shared/comms/can/msg.hpp"
 #include "shared/periph/can.hpp"
 
-namespace mcal::stm32f::periph {
+namespace mcal::stm32f {
 
 class CanBase : public shared::periph::CanBase {
 public:
@@ -37,6 +37,6 @@ private:
     uint32_t tx_mailbox_addr_;
 };
 
-}  // namespace mcal::stm32f::periph
+}  // namespace mcal::stm32f
 
 #endif  // HAL_CAN_MODULE_ENABLED

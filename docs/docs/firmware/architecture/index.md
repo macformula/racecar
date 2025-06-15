@@ -124,7 +124,7 @@ The peripheral implementations are in the MCAL (Microcontroller Abstraction Laye
         #include "shared/periph/gpio.hpp"
         #include "stm32f7xx_hal.h"
 
-        namespace mcal::stm32f::periph {
+        namespace mcal::stm32f {
 
         class DigitalInput : public shared::periph::DigitalInput {
         public:
@@ -139,7 +139,7 @@ The peripheral implementations are in the MCAL (Microcontroller Abstraction Laye
             GPIO_TypeDef* port_;
             uint16_t pin_;
         };
-        }  // namespace mcal::stm32f::periph
+        }  // namespace mcal::stm32f
         ```
 
     === "CLI Platform"

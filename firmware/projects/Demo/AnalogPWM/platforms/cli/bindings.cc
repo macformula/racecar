@@ -4,7 +4,6 @@
 
 #include <iostream>
 
-#include "../../bindings.hpp"
 #include "mcal/cli/analog_output.hpp"
 #include "mcal/cli/pwm.hpp"
 #include "shared/periph/analog_output.hpp"

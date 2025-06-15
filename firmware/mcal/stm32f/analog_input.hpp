@@ -15,7 +15,7 @@
 
 #ifdef HAL_ADC_MODULE_ENABLED
 
-namespace mcal::stm32f::periph {
+namespace mcal::stm32f {
 
 class AnalogInput : public shared::periph::AnalogInput {
 public:
@@ -66,6 +66,6 @@ private:
     };
 };
 
-}  // namespace mcal::stm32f::periph
+}  // namespace mcal::stm32f
 
 #endif  // HAL_ADC_MODULE_ENABLED

@@ -7,7 +7,7 @@
 
 // fw includes
 #include "../../bindings.hpp"
-#include "mcal/stm32f/periph/gpio.hpp"
+#include "mcal/stm32f/gpio.hpp"
 #include "shared/periph/gpio.hpp"
 
 extern "C" {
@@ -25,7 +25,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_PIN) {
 }
 
 namespace mcal {
-using namespace stm32f::periph;
+using namespace stm32f;
 
 DigitalOutput indicator{Led_GPIO_Port, Led_Pin};
 }  // namespace mcal

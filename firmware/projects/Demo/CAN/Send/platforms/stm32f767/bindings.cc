@@ -8,8 +8,8 @@
 
 // fw includes
 #include "../../bindings.hpp"
-#include "mcal/stm32f/periph/can.hpp"
-#include "mcal/stm32f/periph/gpio.hpp"
+#include "mcal/stm32f/can.hpp"
+#include "mcal/stm32f/gpio.hpp"
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
 
@@ -22,7 +22,7 @@ void SystemClock_Config();
 }
 
 namespace mcal {
-using namespace stm32f::periph;
+using namespace stm32f;
 
 CanBase demo_can_base{&hcan3};
 DigitalInput button{ButtonPin_GPIO_Port, ButtonPin_Pin};

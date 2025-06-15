@@ -17,7 +17,7 @@
 
 #ifdef HAL_DAC_MODULE_ENABLED
 
-namespace mcal::stm32f::periph {
+namespace mcal::stm32f {
 
 class AnalogOutputPWM : public shared::periph::AnalogOutput {
 public:
@@ -37,6 +37,6 @@ private:
     uint32_t channel_;
 };
 
-}  // namespace mcal::stm32f::periph
+}  // namespace mcal::stm32f
 
 #endif  // HAL_DAC_MODULE_ENABLED

@@ -1,6 +1,5 @@
 add_library(mcal-stm32f INTERFACE)
-
-add_subdirectory(periph)
+target_sources(mcal-stm32f INTERFACE can.cc)
 
 target_include_directories(mcal-stm32f INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 

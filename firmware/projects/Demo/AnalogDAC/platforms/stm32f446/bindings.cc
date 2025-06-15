@@ -7,8 +7,8 @@
 
 // fw includes
 #include "../../bindings.hpp"
-#include "mcal/stm32f/periph/analog_output_dac.hpp"
-#include "mcal/stm32f/periph/gpio.hpp"
+#include "mcal/stm32f/analog_output_dac.hpp"
+#include "mcal/stm32f/gpio.hpp"
 #include "shared/periph/analog_output.hpp"
 #include "shared/periph/gpio.hpp"
 
@@ -20,7 +20,7 @@ extern "C" {
 void SystemClock_Config();
 }
 namespace mcal {
-using namespace stm32f::periph;
+using namespace stm32f;
 
 AnalogOutputDAC analog_out_dac{&hdac, DAC_CHANNEL_1};  // using PA4
 

@@ -7,7 +7,7 @@
 
 // fw includes
 #include "../../bindings.hpp"
-#include "mcal/stm32f/periph/gpio.hpp"
+#include "mcal/stm32f/gpio.hpp"
 #include "shared/periph/gpio.hpp"
 
 extern "C" {
@@ -19,7 +19,7 @@ void SystemClock_Config();
 }
 
 namespace mcal {
-using namespace stm32f::periph;
+using namespace stm32f;
 
 DigitalInput button{BUTTON_GPIO_Port, BUTTON_Pin};
 DigitalOutput blue_led{BLUE_LED_GPIO_Port, BLUE_LED_Pin};
