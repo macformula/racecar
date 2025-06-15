@@ -92,7 +92,7 @@ static bool FeedbackMatchesCommand(ContactorCommands cmd,
 static void MeasureVoltages(VehBus& veh_can) {
     // Precharge
     const float HV_SCALE = (6e6 + 20e3) / (20e3);
-    static shared::util::MovingAverage<50, float> ma;
+    static shared::util::MovingAverage<50> ma;
 
     ma.LoadValue(bindings::precharge_monitor.ReadVoltage() * HV_SCALE);
     precharge_voltage = ma.GetValue();

@@ -4,14 +4,12 @@
 #pragma once
 
 #include <cstddef>
-#include <type_traits>
 
 #include "etl/circular_buffer.h"
 
 namespace shared::util {
 
-template <size_t length, typename T = float>
-    requires(std::is_floating_point_v<T>) && (length > 0)
+template <size_t length>
 class MovingAverage {
 public:
     MovingAverage() : sum_(0) {
@@ -22,20 +20,21 @@ public:
     }
 
     /// @brief Updates the moving average with a new value.
-    void LoadValue(T new_value) {
+    void LoadValue(float new_value) {
         sum_ -= buffer_.front();  // safe since buffer is preloaded with 0
         sum_ += new_value;
         buffer_.push(new_value);
     }
 
     /// @brief Get the average of the last `length` values.
-    T GetValue() {
-        return sum_ / static_cast<T>(length);
+    float GetValue() {
+        return sum_ * INV_LENGTH;
     }
 
 private:
-    etl::circular_buffer<T, length> buffer_;
-    T sum_;
+    etl::circular_buffer<float, length> buffer_;
+    float sum_;
+    const float INV_LENGTH = 1.f / length;
 };
 
 }  // namespace shared::util

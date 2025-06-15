@@ -1,3 +1,7 @@
-# Front Controller
+# FrontController
 
-Based on [FC Gen2](https://github.com/macformula/front_controller/tree/main/FC_GEN2).
+The brain of the car, handling:
+
+- Accumulator sequencing
+- Motor control
+- Dashboard commands
