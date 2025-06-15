@@ -3,9 +3,7 @@
 
 #include "../../bindings.hpp"
 
-#include <chrono>
 #include <iostream>
-#include <thread>
 
 #include "mcal/cli/can.hpp"
 #include "mcal/cli/gpio.hpp"
