@@ -2,12 +2,12 @@
 
 #include <unistd.h>
 
-#include "mcal/linux/periph/digital_output.hpp"
+#include "mcal/linux/digital_output.hpp"
 #include "shared/periph/gpio.hpp"
 
 namespace mcal {
 
-using namespace lnx::periph;
+using namespace lnx;
 
 DigitalOutput indicator{"Indicator"};
 

@@ -1,13 +1,13 @@
 #include "../../bindings.hpp"
 
-#include "mcal/linux/periph/analog_input.hpp"
-#include "mcal/linux/periph/can.hpp"
-#include "mcal/linux/periph/digital_input.hpp"
-#include "mcal/linux/periph/digital_output.hpp"
-#include "mcal/linux/periph/pwm_output.hpp"
+#include "mcal/linux/analog_input.hpp"
+#include "mcal/linux/can.hpp"
+#include "mcal/linux/digital_input.hpp"
+#include "mcal/linux/digital_output.hpp"
+#include "mcal/linux/pwm_output.hpp"
 
 namespace mcal {
-using namespace lnx::periph;
+using namespace lnx;
 // Tractive System Status Indicator (2025 Rule EV.5.11.5)
 DigitalOutput tssi_en{"TSSI_EN"};
 DigitalOutput tssi_red_signal{"TSSI_RED_SIGNAL"};

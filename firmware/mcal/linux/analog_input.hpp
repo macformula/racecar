@@ -7,7 +7,7 @@
 
 #include "shared/periph/analog_input.hpp"
 
-namespace mcal::lnx::periph {
+namespace mcal::lnx {
 
 class AnalogInput : public shared::periph::AnalogInput {
 public:
@@ -19,4 +19,4 @@ private:
     std::string name_;
 };
 
-}  // namespace mcal::lnx::periph
+}  // namespace mcal::lnx

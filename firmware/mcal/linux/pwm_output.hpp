@@ -2,7 +2,7 @@
 
 #include "shared/periph/pwm.hpp"
 
-namespace mcal::lnx::periph {
+namespace mcal::lnx {
 
 class PWMOutput : public shared::periph::PWMOutput {
 public:
@@ -21,4 +21,4 @@ private:
     std::string name_;
 };
 
-}  // namespace mcal::lnx::periph
+}  // namespace mcal::lnx

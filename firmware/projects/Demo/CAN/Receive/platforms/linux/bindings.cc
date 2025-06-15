@@ -4,11 +4,11 @@
 
 #include <iostream>
 
-#include "mcal/linux/periph/can.hpp"
-#include "mcal/linux/periph/digital_output.hpp"
+#include "mcal/linux/can.hpp"
+#include "mcal/linux/digital_output.hpp"
 
 namespace mcal {
-using namespace lnx::periph;
+using namespace lnx;
 
 CanBase demo_can_base{"vcan0"};
 DigitalOutput indicator{"Indicator"};

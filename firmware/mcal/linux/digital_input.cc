@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-namespace mcal::lnx::periph {
+namespace mcal::lnx {
 
 DigitalInput::DigitalInput(std::string name) : name_(name) {};
 
@@ -20,4 +20,4 @@ bool DigitalInput::Read() {
     return value;
 }
 
-}  // namespace mcal::lnx::periph
+}  // namespace mcal::lnx

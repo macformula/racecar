@@ -5,7 +5,7 @@
 
 #include "shared/periph/gpio.hpp"
 
-namespace mcal::lnx::periph {
+namespace mcal::lnx {
 class DigitalOutput : public shared::periph::DigitalOutput {
 public:
     DigitalOutput(std::string name);
@@ -18,4 +18,4 @@ private:
     std::string name_;
 };
 
-}  // namespace mcal::lnx::periph
+}  // namespace mcal::lnx

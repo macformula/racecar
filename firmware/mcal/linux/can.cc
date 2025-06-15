@@ -20,7 +20,7 @@ static can_frame to_can_frame(const shared::can::RawMessage& msg) {
     return frame;
 }
 
-namespace mcal::lnx::periph {
+namespace mcal::lnx {
 
 CanBase::CanBase(std::string iface, bool log_rx)
     : socket_(iface), log_rx_(log_rx) {}
@@ -73,4 +73,4 @@ uint32_t CanBase::GetTimestamp() const {
     return ms;
 }
 
-}  // namespace mcal::lnx::periph
+}  // namespace mcal::lnx

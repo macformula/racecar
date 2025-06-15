@@ -6,7 +6,7 @@
 
 #include "etl/algorithm.h"
 
-namespace mcal::lnx::periph {
+namespace mcal::lnx {
 
 PWMOutput::PWMOutput(std::string name) {}
 
@@ -46,4 +46,4 @@ float PWMOutput::GetFrequency() {
               << std::endl;
     return frequency_;
 }
-}  // namespace mcal::lnx::periph
+}  // namespace mcal::lnx
