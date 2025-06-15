@@ -1,9 +1,10 @@
 /// @author Blake Freer
 /// @date 2023-12-25
 
+#include "../../bindings.hpp"
+
 #include <iostream>
 
-#include "../../bindings.hpp"
 #include "mcal/cli/periph/gpio.hpp"
 #include "shared/periph/gpio.hpp"
 

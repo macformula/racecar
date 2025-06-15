@@ -1,10 +1,11 @@
 /// @author Samuel Parent
 /// @date 2024-01-16
 
+#include "../../bindings.hpp"
+
 #include <chrono>
 #include <thread>
 
-#include "../../bindings.hpp"
 #include "mcal/cli/periph/can.hpp"
 #include "mcal/cli/periph/gpio.hpp"
 #include "shared/periph/can.hpp"

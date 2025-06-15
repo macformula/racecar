@@ -18,7 +18,7 @@ namespace mcal::cli::periph {
 
 class CanBase : public shared::periph::CanBase {
 public:
-    CanBase(std::string can_iface) : iface_(can_iface){};
+    CanBase(std::string can_iface) : iface_(can_iface) {};
 
     void Setup() {
         std::cout << std::format("can interface: {}", iface_) << std::endl;

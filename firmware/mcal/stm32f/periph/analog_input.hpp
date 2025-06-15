@@ -21,7 +21,9 @@ class AnalogInput : public shared::periph::AnalogInput {
 public:
     AnalogInput(ADC_HandleTypeDef* hadc, uint32_t adc_channel,
                 float system_volts = 3.3f)
-        : hadc_(hadc), adc_channel_(adc_channel), system_volts_(system_volts){};
+        : hadc_(hadc),
+          adc_channel_(adc_channel),
+          system_volts_(system_volts) {};
 
     float ReadVoltage() override {
         Start();
