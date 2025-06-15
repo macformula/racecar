@@ -3,12 +3,12 @@
 #include <iostream>
 
 #include "../../bindings.hpp"
-#include "mcal/cli/periph/gpio.hpp"
+#include "mcal/cli/gpio.hpp"
 #include "shared/periph/gpio.hpp"
 
 namespace mcal {
 
-cli::periph::DigitalOutput indicator{"Indicator"};
+cli::DigitalOutput indicator{"Indicator"};
 
 }  // namespace mcal
 

@@ -9,7 +9,6 @@
 #include "generated/can/veh_messages.hpp"
 #include "inc/fan_controller.hpp"
 #include "inc/temp_sensor.hpp"
-#include "shared/os/tick.hpp"
 #include "shared/periph/gpio.hpp"
 
 using namespace generated::can;

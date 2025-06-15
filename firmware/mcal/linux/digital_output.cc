@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-namespace mcal::lnx::periph {
+namespace mcal::lnx {
 
 DigitalOutput::DigitalOutput(std::string name) : name_(name) {}
 
@@ -22,4 +22,4 @@ void DigitalOutput::SetLow() {
     Set(false);
 }
 
-}  // namespace mcal::lnx::periph
+}  // namespace mcal::lnx

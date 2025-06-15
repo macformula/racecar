@@ -2,13 +2,13 @@
 
 #include <iostream>
 
-#include "mcal/cli/periph/analog_input.hpp"
-#include "mcal/cli/periph/can.hpp"
-#include "mcal/cli/periph/gpio.hpp"
-#include "mcal/cli/periph/pwm.hpp"
+#include "mcal/cli/analog_input.hpp"
+#include "mcal/cli/can.hpp"
+#include "mcal/cli/gpio.hpp"
+#include "mcal/cli/pwm.hpp"
 
 namespace mcal {
-using namespace cli::periph;
+using namespace cli;
 
 AnalogInput temp_sensor_adc_1("Temp Sensor 1");
 AnalogInput temp_sensor_adc_2("Temp Sensor 2");

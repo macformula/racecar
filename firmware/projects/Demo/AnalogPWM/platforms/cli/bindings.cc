@@ -4,15 +4,15 @@
 
 #include <iostream>
 
-#include "mcal/cli/periph/analog_output.hpp"
-#include "mcal/cli/periph/pwm.hpp"
+#include "mcal/cli/analog_output.hpp"
+#include "mcal/cli/pwm.hpp"
 #include "shared/periph/analog_output.hpp"
 #include "shared/periph/pwm.hpp"
 
 namespace mcal {
 
-cli::periph::PWMOutput pwm{"test"};
-cli::periph::AnalogOutput analog_out{"test"};
+cli::PWMOutput pwm{"test"};
+cli::AnalogOutput analog_out{"test"};
 
 }  // namespace mcal
 

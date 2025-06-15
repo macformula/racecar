@@ -10,7 +10,7 @@
 #include "shared/periph/gpio.hpp"
 #include "validation/sil/sil_client.h"
 
-namespace mcal::raspi::periph {
+namespace mcal::raspi {
 
 class DigitalInput : public shared::periph::DigitalInput {
 public:
@@ -63,4 +63,4 @@ private:
     val::sil::SilClient& sil_client_;
 };
 
-}  // namespace mcal::raspi::periph
+}  // namespace mcal::raspi

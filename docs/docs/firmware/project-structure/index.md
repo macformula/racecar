@@ -158,7 +158,7 @@ We will create a platform implementation for the command line interface and the 
 
 Create a `cli` subfolder of `MyBlink/platforms`. We will satisfy the bindings contract in a `bindings.cc` file.
 
-1. Configure the `indicator` output. The concrete peripheral implementation is provided by `mcal/cli/periph/gpio.hpp`. Include this header and create a peripheral.
+1. Configure the `indicator` output. The concrete peripheral implementation is provided by `mcal/cli/gpio.hpp`. Include this header and create a peripheral.
 
     ```c++ title="projects/MyBlink/platforms/cli/bindings.cc"
     --8<--

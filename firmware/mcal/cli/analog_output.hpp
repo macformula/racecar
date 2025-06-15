@@ -9,7 +9,7 @@
 
 #include "shared/periph/analog_output.hpp"
 
-namespace mcal::cli::periph {
+namespace mcal::cli {
 
 class AnalogOutput : public shared::periph::AnalogOutput {
 public:
@@ -25,4 +25,4 @@ private:
     std::string name_;
 };
 
-}  // namespace mcal::cli::periph
+}  // namespace mcal::cli

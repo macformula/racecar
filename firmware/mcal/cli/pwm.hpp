@@ -10,7 +10,7 @@
 #include "etl/algorithm.h"
 #include "shared/periph/pwm.hpp"
 
-namespace mcal::cli::periph {
+namespace mcal::cli {
 
 class PWMOutput : public shared::periph::PWMOutput {
 public:
@@ -60,4 +60,4 @@ private:
     float frequency_;
 };
 
-}  // namespace mcal::cli::periph
+}  // namespace mcal::cli

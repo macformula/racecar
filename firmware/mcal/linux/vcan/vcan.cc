@@ -13,7 +13,7 @@
 #include <iostream>
 #include <string>
 
-namespace mcal::lnx::periph::vcan {
+namespace mcal::lnx::vcan {
 
 VcanSocket::VcanSocket(std::string iface) : iface_(iface) {}
 
@@ -57,4 +57,4 @@ std::string VcanSocket::GetIface() const {
     return iface_;
 }
 
-}  // namespace mcal::lnx::periph::vcan
+}  // namespace mcal::lnx::vcan

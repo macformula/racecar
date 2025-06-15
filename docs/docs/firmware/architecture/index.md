@@ -124,7 +124,7 @@ The peripheral implementations are in the MCAL (Microcontroller Abstraction Laye
         #include "shared/periph/gpio.hpp"
         #include "stm32f7xx_hal.h"
 
-        namespace mcal::stm32f::periph {
+        namespace mcal::stm32f {
 
         class DigitalInput : public shared::periph::DigitalInput {
         public:
@@ -139,21 +139,21 @@ The peripheral implementations are in the MCAL (Microcontroller Abstraction Laye
             GPIO_TypeDef* port_;
             uint16_t pin_;
         };
-        }  // namespace mcal::stm32f::periph
+        }  // namespace mcal::stm32f
         ```
 
     === "CLI Platform"
 
         A command line interface does not have physical pins to read but the digital input behaviour can be implemented by prompting the user for a boolean input.
 
-        ```c++ title="mcal/cli/periph/gpio.hpp"
+        ```c++ title="mcal/cli/gpio.hpp"
         #pragma once
 
         #include <iostream>
         #include <string>
         #include "shared/periph/gpio.hpp"
 
-        namespace mcal::cli::periph {
+        namespace mcal::cli {
 
         class DigitalInput : public shared::periph::DigitalInput {
         public:
@@ -172,7 +172,7 @@ The peripheral implementations are in the MCAL (Microcontroller Abstraction Laye
             std::string name_;
         };
 
-        }  // namespace mcal::cli::periph
+        }  // namespace mcal::cli
         ```
 
         We allow the developer to give a name to each digital input during construction. This name is included in the input prompt.

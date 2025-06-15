@@ -6,7 +6,7 @@
 
 #include <string>
 
-namespace mcal::lnx::periph::vcan {
+namespace mcal::lnx::vcan {
 
 class VcanSocket {
 public:
@@ -25,4 +25,4 @@ private:
     struct ifreq ifr_;
 };
 
-}  // namespace mcal::lnx::periph::vcan
+}  // namespace mcal::lnx::vcan

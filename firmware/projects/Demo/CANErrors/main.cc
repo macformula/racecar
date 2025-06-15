@@ -4,16 +4,14 @@
 #include <cstdint>
 
 #include "bindings.hpp"
-#include "generated/can/error_msg_registry.hpp"
+#include "generated/can/error_bus.hpp"
+#include "generated/can/error_messages.hpp"
 #include "inc/app.hpp"
-#include "shared/comms/can/can_bus.hpp"
+
+using namespace generated::can;
 
 // Initializing can bus that sends the error message
-generated::can::ErrorMsgRegistry error_can_registry{};
-shared::can::CanBus error_can_bus{
-    bindings::error_can_base,
-    error_can_registry,
-};
+ErrorBus error_can_bus{bindings::error_can_base};
 
 int main(void) {
     // Initialize the CLI and milliseconds to repeat by
@@ -24,8 +22,6 @@ int main(void) {
     ErrorHandler error_message{};
 
     while (true) {
-        error_can_bus.Update();
-
         // Test #1: Iterate through each error, setting it and sending it
         for (int i = 0; i < 64; i++) {
             Error error = static_cast<Error>(i);

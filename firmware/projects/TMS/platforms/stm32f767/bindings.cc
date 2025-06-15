@@ -10,10 +10,10 @@
 
 // fw imports
 #include "../../bindings.hpp"
-#include "mcal/stm32f/periph/analog_input.hpp"
-#include "mcal/stm32f/periph/can.hpp"
-#include "mcal/stm32f/periph/gpio.hpp"
-#include "mcal/stm32f/periph/pwm.hpp"
+#include "mcal/stm32f/analog_input.hpp"
+#include "mcal/stm32f/can.hpp"
+#include "mcal/stm32f/gpio.hpp"
+#include "mcal/stm32f/pwm.hpp"
 #include "shared/periph/analog_input.hpp"
 #include "shared/periph/gpio.hpp"
 #include "shared/periph/pwm.hpp"
@@ -27,7 +27,7 @@ void SystemClock_Config();
 }
 
 namespace mcal {
-using namespace stm32f::periph;
+using namespace stm32f;
 
 AnalogInput temp_sensor_adc_1{&hadc1, SENS_1_UC_IN_CHANNEL};
 AnalogInput temp_sensor_adc_2{&hadc1, SENS_2_UC_IN_CHANNEL};

@@ -6,13 +6,13 @@
 #include <chrono>
 #include <thread>
 
-#include "mcal/cli/periph/can.hpp"
-#include "mcal/cli/periph/gpio.hpp"
+#include "mcal/cli/can.hpp"
+#include "mcal/cli/gpio.hpp"
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
 
 namespace mcal {
-using namespace cli::periph;
+using namespace cli;
 
 CanBase demo_can_base{"vcan0"};
 DigitalInput button{"Button"};

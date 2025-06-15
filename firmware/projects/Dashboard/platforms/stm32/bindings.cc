@@ -11,8 +11,8 @@
 #include "usart.h"
 
 // firmware includes
-#include "mcal/stm32f/periph/can.hpp"
-#include "mcal/stm32f/periph/gpio.hpp"
+#include "mcal/stm32f/can.hpp"
+#include "mcal/stm32f/gpio.hpp"
 
 extern "C" {
 #include "BSP/32f469idiscovery-bsp/stm32469i_discovery_sdram.h"
@@ -26,7 +26,7 @@ extern void SystemClock_Config(void);
 #define SDRAM_TIMEOUT ((uint32_t)0xFFFF)
 
 namespace mcal {
-using namespace stm32f::periph;
+using namespace stm32f;
 
 CanBase veh_can_base{&hcan1};
 DigitalInput button_scroll_n{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};

@@ -6,7 +6,7 @@
 #include <format>
 #include <iostream>
 
-namespace mcal::lnx::periph {
+namespace mcal::lnx {
 
 AnalogInput::AnalogInput(std::string name) : name_(name) {}
 
@@ -20,4 +20,4 @@ float AnalogInput::ReadVoltage() {
     return voltage;
 }
 
-};  // namespace mcal::lnx::periph
+};  // namespace mcal::lnx

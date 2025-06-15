@@ -3,7 +3,7 @@
 #include <iostream>
 #include <unordered_map>
 
-#include "mcal/linux/periph/can.hpp"
+#include "mcal/linux/can.hpp"
 #include "shared/periph/gpio.hpp"
 
 #define SDL_MAIN_HANDLED /*To fix SDL's "undefined reference to WinMain" \
@@ -49,7 +49,7 @@ private:
 };
 
 namespace mcal {
-using namespace mcal::lnx::periph;
+using namespace mcal::lnx;
 
 CanBase veh_can_base{"vcan0"};
 KeyboardInput button_scroll{SDLK_TAB};

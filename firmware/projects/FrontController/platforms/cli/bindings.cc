@@ -4,12 +4,12 @@
 #include <iostream>
 #include <thread>
 
-#include "mcal/cli/periph/analog_input.hpp"
-#include "mcal/cli/periph/can.hpp"
-#include "mcal/cli/periph/gpio.hpp"
+#include "mcal/cli/analog_input.hpp"
+#include "mcal/cli/can.hpp"
+#include "mcal/cli/gpio.hpp"
 
 namespace mcal {
-using namespace cli::periph;
+using namespace cli;
 
 // =========== CAN =========================================
 CanBase veh_can_base{"VEH_CAN_BASE"};

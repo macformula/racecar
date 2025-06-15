@@ -1,6 +1,8 @@
 #pragma once
 
-#include "shared/comms/can/can_bus.hpp"
+#include <cstdint>
+
+#include "shared/periph/can.hpp"
 
 namespace bindings {
 extern shared::periph::CanBase& error_can_base;

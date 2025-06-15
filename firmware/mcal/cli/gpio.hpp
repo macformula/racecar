@@ -9,7 +9,7 @@
 
 #include "shared/periph/gpio.hpp"
 
-namespace mcal::cli::periph {
+namespace mcal::cli {
 
 class DigitalInput : public shared::periph::DigitalInput {
 private:
@@ -50,4 +50,4 @@ public:
     }
 };
 
-}  // namespace mcal::cli::periph
+}  // namespace mcal::cli

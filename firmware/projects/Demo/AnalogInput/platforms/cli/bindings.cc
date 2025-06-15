@@ -2,17 +2,17 @@
 
 #include <iostream>
 
-#include "mcal/cli/periph/analog_input.hpp"
-#include "mcal/cli/periph/gpio.hpp"
+#include "mcal/cli/analog_input.hpp"
+#include "mcal/cli/gpio.hpp"
 #include "shared/periph/analog_input.hpp"
 #include "shared/periph/gpio.hpp"
 
 namespace mcal {
 
-cli::periph::AnalogInput analog_input{"analog input"};
-cli::periph::DigitalOutput green_led{"green_led"};
-cli::periph::DigitalOutput red_led{"red_led"};
-cli::periph::DigitalOutput blue_led{"blue_led"};
+cli::AnalogInput analog_input{"analog input"};
+cli::DigitalOutput green_led{"green_led"};
+cli::DigitalOutput red_led{"red_led"};
+cli::DigitalOutput blue_led{"blue_led"};
 
 }  // namespace mcal
 

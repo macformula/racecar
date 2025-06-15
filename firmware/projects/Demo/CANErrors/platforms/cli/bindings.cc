@@ -4,13 +4,11 @@
 #include <chrono>
 #include <thread>
 
-#include "../../generated/can/error_can_messages.hpp"
-#include "mcal/cli/periph/can.hpp"
-#include "shared/comms/can/can_bus.hpp"
+#include "mcal/cli/can.hpp"
 #include "shared/periph/can.hpp"
 
 namespace mcal {
-using namespace cli::periph;
+using namespace cli;
 
 CanBase error_can_base{"vcan0"};
 }  // namespace mcal

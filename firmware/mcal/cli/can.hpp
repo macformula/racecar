@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <string.h>
 #include <unistd.h>
 
 #include <chrono>
@@ -14,7 +13,7 @@
 #include "shared/comms/can/msg.hpp"
 #include "shared/periph/can.hpp"
 
-namespace mcal::cli::periph {
+namespace mcal::cli {
 
 class CanBase : public shared::periph::CanBase {
 public:
@@ -40,4 +39,4 @@ private:
     }
 };
 
-}  // namespace mcal::cli::periph
+}  // namespace mcal::cli

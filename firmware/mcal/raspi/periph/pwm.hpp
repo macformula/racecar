@@ -10,7 +10,7 @@
 #include "shared/periph/pwm.hpp"
 #include "shared/util/mappers/clamper.hpp"
 
-namespace mcal::raspi::periph {
+namespace mcal::raspi {
 
 class PWMOutput : public shared::periph::PWMOutput {
 public:
@@ -44,4 +44,4 @@ private:
     float duty_cycle_;
 };
 
-}  // namespace mcal::raspi::periph
+}  // namespace mcal::raspi

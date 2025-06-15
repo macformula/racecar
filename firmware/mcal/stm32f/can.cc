@@ -12,7 +12,7 @@
 
 #include "can.hpp"
 
-using CanBase = mcal::stm32f::periph::CanBase;
+using CanBase = mcal::stm32f::CanBase;
 
 namespace interrupt_handler {
 
@@ -64,7 +64,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
 }
 }
 
-namespace mcal::stm32f::periph {
+namespace mcal::stm32f {
 
 CanBase::CanBase(CAN_HandleTypeDef* hcan) : hcan_{hcan} {}
 
@@ -142,6 +142,6 @@ void CanBase::ConfigFilters() {
     HAL_CAN_ConfigFilter(hcan_, &filter_config);
 }
 
-}  // namespace mcal::stm32f::periph
+}  // namespace mcal::stm32f
 
 #endif  // HAL_CAN_MODULE_ENABLED

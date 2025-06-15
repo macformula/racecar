@@ -2,11 +2,11 @@
 
 #include <thread>
 
-#include "mcal/linux/periph/vcan/vcan.hpp"
+#include "mcal/linux/vcan/vcan.hpp"
 #include "shared/periph/can.hpp"
 #include "vcan/vcan.hpp"
 
-namespace mcal::lnx::periph {
+namespace mcal::lnx {
 
 class CanBase : public shared::periph::CanBase {
 public:
@@ -24,4 +24,4 @@ private:
     std::thread reader_thread_;
     void StartReading();
 };
-}  // namespace mcal::lnx::periph
+}  // namespace mcal::lnx

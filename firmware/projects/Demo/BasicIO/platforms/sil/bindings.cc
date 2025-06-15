@@ -1,7 +1,7 @@
 /// @author Samuel Parent
 /// @date 2024-05-01
 
-#include "mcal/raspi/periph/gpio.hpp"
+#include "mcal/raspi/gpio.hpp"
 #include "shared/periph/gpio.hpp"
 #include "validation/sil/sil_client.h"
 
@@ -15,7 +15,7 @@ SilClient sil_client(server_addr);
 }  // namespace val
 
 namespace mcal {
-using namespace raspi::periph;
+using namespace raspi;
 
 DigitalInput button_di{ecu_name, "IndicatorButton", val::sil_client};
 DigitalOutput indicator_do{ecu_name, "IndicatorLed", val::sil_client};
