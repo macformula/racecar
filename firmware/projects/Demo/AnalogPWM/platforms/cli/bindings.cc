@@ -1,8 +1,9 @@
+#include "../../bindings.hpp"
+
 #include <unistd.h>
 
 #include <iostream>
 
-#include "../../bindings.hpp"
 #include "mcal/cli/periph/analog_output.hpp"
 #include "mcal/cli/periph/pwm.hpp"
 #include "shared/periph/analog_output.hpp"

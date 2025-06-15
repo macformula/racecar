@@ -11,24 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      - name: clang-format Check
+        uses: jidicula/clang-format-action@v4.15.0
         with:
-          fetch-depth: 0
-
-      - name: Set up clang-format
-        run: sudo apt-get install clang-format -y
-
-      - name: Fetch main branch
-        run: git fetch origin main:main
-
-      - name: Check code formatting
-        id: check_formatting
-        run: |
-          if git clang-format --style=file:firmware/.clang-format --diff $(git merge-base HEAD main) -v > clang_format_output.txt; then
-            echo "Code formatting is already correct."
-          else
-            echo "Code formatting changes detected."
-            cat clang_format_output.txt
-            exit 1
-          fi
+          check-path: firmware
+          clang-format-version: 19

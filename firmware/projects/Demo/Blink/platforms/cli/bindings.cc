@@ -1,8 +1,9 @@
+#include "../../bindings.hpp"
+
 #include <unistd.h>
 
 #include <iostream>
 
-#include "../../bindings.hpp"
 #include "mcal/cli/periph/gpio.hpp"
 #include "shared/periph/gpio.hpp"
 

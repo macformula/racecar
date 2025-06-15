@@ -1,8 +1,9 @@
+#include "../../bindings.hpp"
+
 #include <unistd.h>
 
 #include <iostream>
 
-#include "../../bindings.hpp"
 #include "mcal/linux/periph/can.hpp"
 #include "mcal/linux/periph/digital_output.hpp"
 

@@ -6,20 +6,24 @@ option go_package = ".sil";
 
 service Signals {
     rpc EnumerateRegisteredSignals(EnumerateRegisteredSignalsRequest)
-        returns(EnumerateRegisteredSignalsResponse) {}
-    rpc WriteSignal(WriteSignalRequest) returns(WriteSignalResponse) {}
-    rpc ReadSignal(ReadSignalRequest) returns(ReadSignalResponse) {}
-    rpc RegisterSignal(RegisterSignalRequest) returns(RegisterSignalResponse) {}
+        returns (EnumerateRegisteredSignalsResponse) {}
+    rpc WriteSignal(WriteSignalRequest) returns (WriteSignalResponse) {}
+    rpc ReadSignal(ReadSignalRequest) returns (ReadSignalResponse) {}
+    rpc RegisterSignal(RegisterSignalRequest) returns (RegisterSignalResponse) {
+    }
 }
 
 enum SignalType {
-    SIGNAL_TYPE_UNKNOWN = 0; SIGNAL_TYPE_ANALOG = 1; SIGNAL_TYPE_DIGITAL = 2;
-        SIGNAL_TYPE_PWM = 3;
+    SIGNAL_TYPE_UNKNOWN = 0;
+    SIGNAL_TYPE_ANALOG = 1;
+    SIGNAL_TYPE_DIGITAL = 2;
+    SIGNAL_TYPE_PWM = 3;
 }
 
 enum SignalDirection {
-    SIGNAL_DIRECTION_UNKNOWN = 0; SIGNAL_DIRECTION_INPUT = 1;
-        SIGNAL_DIRECTION_OUTPUT = 2;
+    SIGNAL_DIRECTION_UNKNOWN = 0;
+    SIGNAL_DIRECTION_INPUT = 1;
+    SIGNAL_DIRECTION_OUTPUT = 2;
 }
 
 message AnalogSignal {

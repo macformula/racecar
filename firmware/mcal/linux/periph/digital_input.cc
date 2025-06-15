@@ -6,7 +6,7 @@
 
 namespace mcal::lnx::periph {
 
-DigitalInput::DigitalInput(std::string name) : name_(name){};
+DigitalInput::DigitalInput(std::string name) : name_(name) {};
 
 bool DigitalInput::Read() {
     int value;
