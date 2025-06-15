@@ -21,15 +21,15 @@ void SystemClock_Config();
 namespace mcal {
 using namespace stm32f::periph;
 
-DigitalInput button_di{ButtonPin_GPIO_Port, ButtonPin_Pin};
-DigitalOutput indicator_do{LedPin_GPIO_Port, LedPin_Pin};
-DigitalOutput indicator2_do{LedPin2_GPIO_Port, LedPin2_Pin};
+DigitalInput button{BUTTON_GPIO_Port, BUTTON_Pin};
+DigitalOutput blue_led{BLUE_LED_GPIO_Port, BLUE_LED_Pin};
+DigitalOutput red_led{RED_LED_GPIO_Port, RED_LED_Pin};
 }  // namespace mcal
 
 namespace bindings {
-shared::periph::DigitalInput& button_di = mcal::button_di;
-shared::periph::DigitalOutput& indicator_do = mcal::indicator_do;
-shared::periph::DigitalOutput& indicator2_do = mcal::indicator2_do;
+shared::periph::DigitalInput& button = mcal::button;
+shared::periph::DigitalOutput& blue_led = mcal::blue_led;
+shared::periph::DigitalOutput& red_led = mcal::red_led;
 
 void Initialize() {
     SystemClock_Config();
