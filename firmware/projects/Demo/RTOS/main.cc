@@ -1,118 +1,90 @@
-/// @author Blake Freer, Matteo Tullo
-/// @date 2023-12-25
-
-#include <cstdint>
-#include <cstring>
+/// The Demo runs two FreeRTOS tasks in parallel. Designed for a NUCLEO-F767
+/// board.
+/// 1. LedTask: Toggles the red LED at regular intervals
+/// 2. ButtonTask: Controls the blue led with the button.
 
 #include "bindings.hpp"
-#include "inc/app.hpp"
-#include "shared/os/fifo.hpp"
-#include "shared/os/mutex.hpp"
-#include "shared/os/os.hpp"
-#include "shared/os/timer.hpp"
 
-namespace bindings {
-extern shared::periph::DigitalInput& button_di;
-extern shared::periph::DigitalOutput& indicator_do;
-extern shared::periph::DigitalOutput& indicator2_do;
-extern void Initialize();
-}  // namespace bindings
+// Set up FreeRTOS objects. Everything is statically allocated which means we
+// must explicitly define the memory. Dynamic allocation would require less
+// code, but it is less predictable and should not be used in embeded systems.
 
-namespace os {
-extern shared::os::Semaphore& sem_test;
-extern shared::os::Fifo& message_queue_test;
-extern shared::os::Timer& timer_test;
-extern void Tick(uint32_t ticks);
-extern void TickUntil(uint32_t ticks);
-extern uint32_t GetTickCount();
-extern void InitializeKernel();
-extern void StartKernel();
-}  // namespace os
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include "task.h"
 
-extern "C" {
-void TestTask(void* argument);
-void LedTask(void* argument);
-void MessageSendTask(void* argument);
-void MessageTimerCallback(void* argument);
+// Tasks
+// How much memory does each task get to use?
+static const size_t STACK_NUM_WORDS = 256;
+
+TaskHandle_t led_task;  // reference to the task
+StackType_t led_task_stack_allocation[STACK_NUM_WORDS];  // memory allocation
+StaticTask_t led_task_control_block;  // task management storage
+
+TaskHandle_t button_task;
+StackType_t button_task_stack_allocation[STACK_NUM_WORDS];
+StaticTask_t button_task_control_block;
+
+// Task Priorities. High number = higher priority
+// More frequent tasks should generally have a higher priority
+uint32_t TASK_PRIORITY_BUTTON = 2;
+uint32_t TASK_PRIORITY_LED = 1;
+
+// Define the task functions.
+
+// Blink the red LED at 5Hz (10Hz toggle = 5Hz blink)
+void LedTask(void* argument) {
+    // We don't need the argument. This silences the compiler warning.
+    (void)argument;
+
+    // Remembers the last time this task loop ran
+    TickType_t last_wake_time = xTaskGetTickCount();
+
+    bool toggle_value = true;
+    while (true) {
+        // Toggle the LED
+        bindings::red_led.Set(toggle_value);
+        toggle_value = !toggle_value;
+
+        // Pause the loop until 100ms have elapsed since the last run.
+        // This is better than a regular delay since it ensures the loop runs
+        // onces every 100ms, regardless of how long the logic takes.
+        vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(100));
+    }
 }
 
-Button button{bindings::button_di};
-Indicator indicator{bindings::indicator_do};
-Indicator indicator2{bindings::indicator2_do};
+// Control the blue LED with the button
+void ButtonTask(void* argument) {
+    (void)argument;
 
-bool btn_value;
+    TickType_t last_wake_time;
 
-const char msg[] = "Hello World!";
+    while (true) {
+        bool button_pressed = bindings::button.Read();
+        bindings::blue_led.Set(button_pressed);
+
+        // Delays are measured in ticks, but we usually think in milliseconds
+        // Fortunately, FreeRTOS defines a macro to convert between them.
+        vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(1));
+    }
+}
 
 int main(void) {
     bindings::Initialize();
-    os::InitializeKernel();
 
-    os::StartKernel();
+    // Create the tasks. They will NOT start running yet
+    button_task = xTaskCreateStatic(
+        ButtonTask, "button task", STACK_NUM_WORDS, NULL, TASK_PRIORITY_BUTTON,
+        button_task_stack_allocation, &button_task_control_block);
 
-    while (true) continue;  // logic is handled by OS tasks
+    led_task = xTaskCreateStatic(LedTask, "led task", STACK_NUM_WORDS, NULL,
+                                 TASK_PRIORITY_LED, led_task_stack_allocation,
+                                 &led_task_control_block);
 
+    // Run the scheduler
+    vTaskStartScheduler();
+
+    // the program will never reach this line
+    while (true) continue;
     return 0;
-}
-
-// Poll the button and, when pressed, signal the semaphore
-// and sleep for half a second
-void TestTask(void* argument) {
-    uint32_t delay_time = os::GetTickCount();
-    while (true) {
-        if (button.Read() == true) {
-            os::sem_test.Release();
-            delay_time += 500;
-            os::TickUntil(delay_time);
-        }
-        os::Tick(1);
-    }
-}
-
-// Blink the red LED once a signal is received from the semaphore
-void LedTask(void* argument) {
-    bool val = false;
-    indicator2.Set(val);
-    while (true) {
-        os::sem_test.Acquire();
-        indicator2.Set(val);
-        val = !val;
-    }
-}
-
-// Start the oneshot timer and check for the message to be received
-// After 3 seconds, the blue LED turns on to signal the message is received
-// The task then terminates
-void MessageSendTask(void* argument) {
-    char buf[16] = {0};
-    uint8_t buf_index = 0;
-    indicator.Set(false);
-    os::timer_test.Start(3000);
-    while (true) {
-        shared::os::OsStatus get_status = os::message_queue_test.Get(
-            static_cast<void*>(&buf[buf_index]), nullptr);
-        if (get_status == shared::os::OsStatus::kOk) {
-            buf_index++;
-        }
-
-        if (buf_index >= sizeof(msg)) {
-            if (strcmp(const_cast<const char*>(buf), msg) == 0) {
-                // Received Hello World!
-                indicator.Set(true);
-                // TODO: Create task terminate
-                os::Tick(60000);
-            }
-        }
-        os::Tick(1);
-    }
-}
-
-// Oneshot timer callback
-// Write message to the FIFO
-void MessageTimerCallback(void* argument) {
-    if (os::message_queue_test.GetSpaceAvailable() >= sizeof(msg)) {
-        for (unsigned i = 0; i < sizeof(msg); i++) {
-            os::message_queue_test.Put(static_cast<const void*>(&msg[i]), 0);
-        }
-    }
 }
