@@ -5,11 +5,11 @@
 
 #include <iostream>
 
-#include "mcal/cli/periph/gpio.hpp"
+#include "mcal/cli/gpio.hpp"
 #include "shared/periph/gpio.hpp"
 
 namespace mcal {
-using namespace cli::periph;
+using namespace cli;
 
 DigitalInput button_di{"Button"};
 DigitalOutput indicator_do{"Indicator"};

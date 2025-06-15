@@ -9,17 +9,17 @@
 #include <string>
 #include <thread>
 
-#include "mcal/cli/periph/analog_input.hpp"
-#include "mcal/cli/periph/can.hpp"
-#include "mcal/cli/periph/gpio.hpp"
-#include "mcal/cli/periph/pwm.hpp"
+#include "mcal/cli/analog_input.hpp"
+#include "mcal/cli/can.hpp"
+#include "mcal/cli/gpio.hpp"
+#include "mcal/cli/pwm.hpp"
 #include "shared/periph/analog_input.hpp"
 #include "shared/periph/can.hpp"
 #include "shared/periph/gpio.hpp"
 
 // clang-format off
 namespace mcal {
-using namespace mcal::cli::periph;
+using namespace mcal::cli;
 
 // Tractive System Status Indicator
 DigitalOutput tssi_en{"TSSI_EN"} ;
