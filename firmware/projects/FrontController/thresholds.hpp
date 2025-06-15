@@ -10,8 +10,10 @@ const float LOW_VOLTAGE_PERCENT = 30.f;
 const float PACK_SHUTDOWN_PERCENT = 10.f;
 
 // driver
-const float BRAKES_PRESSED_PERCENT = 10.f;
+const float BRAKES_PRESSED_PERCENT = 20.f;
 const float PEDAL_IMPLAUSIBLE_PERCENT = 10.f;
+const float EV_4_7_APPS_ACTIVATE = 25.0f;   // rule EV.4.7
+const float EV_4_7_APPS_DEACTIVATE = 5.0f;  // rule EV.4.7
 
 }  // namespace threshold
 

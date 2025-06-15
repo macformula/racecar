@@ -27,7 +27,6 @@ static motors::Request right_request;
 static Profile_t profile;
 static float target_slip_ratio;
 static TractionControl traction_ctrl;
-static TorqueRequest torque_request_machine;
 static bool torque_vector_enable;
 
 static shared::util::MovingAverage<10, float> torque_ma{};
@@ -91,16 +90,14 @@ void Update_100Hz(void) {
         tv = AdjustTorqueVectoring(sensors::driver::GetSteeringWheel());
     }
 
-    float motor_torque_request = torque_request_machine.Update(
-        driver_torque_request, sensors::driver::GetBrakePercent());
-
     float torque = LUT::Evaluate(tuning::pedal_to_torque,
-                                 motor_torque_request * tc_scale_factor);
+                                 driver_torque_request * tc_scale_factor);
     torque_ma.LoadValue(torque);
     float smoothed_torque = torque_ma.GetValue();
 
     left_request.torque_limit_positive = smoothed_torque * tv.left;
     right_request.torque_limit_positive = smoothed_torque * tv.right;
+
     // negative limit fields fixed at 0 in simulink model
 }
 

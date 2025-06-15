@@ -9,18 +9,6 @@ struct TorqueVector {
     float right;
 };
 
-class TorqueRequest {
-public:
-    float Update(float driver_torque_request, float brake_pedal_position);
-
-private:
-    enum class State {
-        Run,
-        Stop,
-    };
-    State current_state_ = State::Stop;
-};
-
 float CreateTorqueVectoringFactor(float steering_angle);
 
 TorqueVector AdjustTorqueVectoring(float steering_angle);
