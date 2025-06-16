@@ -12,11 +12,30 @@
 #include "generated/can/veh_messages.hpp"
 #include "motors/motors.hpp"
 #include "physical.hpp"
-#include "scheduler/scheduler.h"
 #include "sensors/driver/driver.hpp"
 #include "sensors/dynamics/dynamics.hpp"
 #include "thresholds.hpp"
 #include "vehicle_dynamics/vehicle_dynamics.hpp"
+
+// FreeRTOS
+#include "FreeRTOS.h"
+#include "task.h"
+
+static const size_t STACK_SIZE_WORDS = 2048;
+
+// higher number = higher priority
+static const uint32_t PRIORITY_100HZ = 3;
+static const uint32_t PRIORITY_10HZ = 2;
+static const uint32_t PRIORITY_1HZ = 1;
+
+StaticTask_t t100hz_control_block;
+StackType_t t100hz_buffer[STACK_SIZE_WORDS];
+
+StaticTask_t t10hz_control_block;
+StackType_t t10hz_buffer[STACK_SIZE_WORDS];
+
+StaticTask_t t1hz_control_block;
+StackType_t t1hz_buffer[STACK_SIZE_WORDS];
 
 using namespace generated::can;
 
@@ -245,66 +264,90 @@ void UpdateErrorLeds() {
     }
 }
 
+void task_1hz(void* argument) {
+    (void)argument;
+
+    TickType_t wake_time = xTaskGetTickCount();
+
+    while (true) {
+        vTaskDelayUntil(&wake_time, pdMS_TO_TICKS(1000));
+    }
+}
+
 void task_10hz(void* argument) {
     (void)argument;
     static uint8_t tx_counter = 0;
 
-    ToggleDebugLed();
-    UpdateErrorLeds();
-    dbc_hash::Update_10Hz(veh_can_bus);
-    // CheckCanFlash();  // no CAN flash in 2025. pcb needs an external
-    // oscillator
+    TickType_t wake_time = xTaskGetTickCount();
 
-    veh_can_bus.Send(TxFcStatus{
-        .counter = tx_counter++,
-        .state = fsm::state,
-        .accumulator_state = accumulator::GetState(),
-        .motor_state = motors::GetState(),
-        .inv1_state = static_cast<uint8_t>(motors::GetLeftState()),
-        .inv2_state = static_cast<uint8_t>(motors::GetRightState()),
-        .dbc_valid = dbc_hash::IsValid(),
-    });
-    veh_can_bus.Send(TxDashCommand{
-        .config_received = fsm::state == fsm::State::WAIT_START_HV,
-        .hv_started = accumulator::GetState() == accumulator::State::RUNNING,
-        .motor_started = motors::GetState() == motors::State::RUNNING,
-        .drive_started = fsm::state == fsm::State::RUNNING,
-        .reset = fsm::state == fsm::State::START_DASHBOARD,
-        .errored = fsm::state == fsm::State::ERROR,
-        .hv_charge_percent =
-            static_cast<uint8_t>(accumulator::GetPrechargePercent()),
-        .speed = 0,  // todo
-    });
-    veh_can_bus.Send(accumulator::GetDebugMsg());
-    // LogPedalAndSteer();  // temporary, reduce bus load for testing
-    veh_can_bus.Send(alerts::Get());
+    while (true) {
+        ToggleDebugLed();
+        UpdateErrorLeds();
+        dbc_hash::Update_10Hz(veh_can_bus);
+        // CheckCanFlash();  // no CAN flash in 2025. pcb needs an external
+        // oscillator
+
+        veh_can_bus.Send(TxFcStatus{
+            .counter = tx_counter++,
+            .state = fsm::state,
+            .accumulator_state = accumulator::GetState(),
+            .motor_state = motors::GetState(),
+            .inv1_state = static_cast<uint8_t>(motors::GetLeftState()),
+            .inv2_state = static_cast<uint8_t>(motors::GetRightState()),
+            .dbc_valid = dbc_hash::IsValid(),
+        });
+        veh_can_bus.Send(TxDashCommand{
+            .config_received = fsm::state == fsm::State::WAIT_START_HV,
+            .hv_started =
+                accumulator::GetState() == accumulator::State::RUNNING,
+            .motor_started = motors::GetState() == motors::State::RUNNING,
+            .drive_started = fsm::state == fsm::State::RUNNING,
+            .reset = fsm::state == fsm::State::START_DASHBOARD,
+            .errored = fsm::state == fsm::State::ERROR,
+            .hv_charge_percent =
+                static_cast<uint8_t>(accumulator::GetPrechargePercent()),
+            .speed = 0,  // todo
+        });
+
+        veh_can_bus.Send(accumulator::GetDebugMsg());
+        LogPedalAndSteer();
+        veh_can_bus.Send(alerts::Get());
+
+        vTaskDelayUntil(&wake_time, pdMS_TO_TICKS(100));
+    }
 }
 
 void task_100hz(void* argument) {
     (void)argument;
 
-    sensors::driver::Update_100Hz();
-    sensors::dynamics::Update_100Hz();
+    TickType_t wake_time = xTaskGetTickCount();
 
-    fsm::Update_100Hz();
+    while (true) {
+        sensors::driver::Update_100Hz();
+        sensors::dynamics::Update_100Hz();
 
-    accumulator::Update_100Hz(veh_can_bus);
-    vehicle_dynamics::Update_100Hz();
-    motors::Update_100Hz(pt_can_bus, veh_can_bus,
-                         vehicle_dynamics::GetLeftMotorRequest(),
-                         vehicle_dynamics::GetRightMotorRequest());
+        fsm::Update_100Hz();
 
-    veh_can_bus.Send(accumulator::GetContactorCommand());
-    veh_can_bus.Send(TxLvCommand{
-        .brake_light_enable = driver_interface::IsBrakePressed(),
-    });
+        accumulator::Update_100Hz(veh_can_bus);
+        vehicle_dynamics::Update_100Hz();
+        motors::Update_100Hz(pt_can_bus, veh_can_bus,
+                             vehicle_dynamics::GetLeftMotorRequest(),
+                             vehicle_dynamics::GetRightMotorRequest());
 
-    // Disable Inverter commands for manual debugging
-    // veh_can_bus.Send(TxInverterSwitchCommand{
-    //     .close_inverter_switch = motors::GetInverterEnable(),
-    // });
-    // pt_can_bus.Send(motors::GetLeftSetpoints());
-    // pt_can_bus.Send(motors::GetRightSetpoints());
+        veh_can_bus.Send(accumulator::GetContactorCommand());
+        veh_can_bus.Send(TxLvCommand{
+            .brake_light_enable = driver_interface::IsBrakePressed(),
+        });
+
+        // Disable Inverter commands for manual debugging
+        // veh_can_bus.Send(TxInverterSwitchCommand{
+        //     .close_inverter_switch = motors::GetInverterEnable(),
+        // });
+        // pt_can_bus.Send(motors::GetLeftSetpoints());
+        // pt_can_bus.Send(motors::GetRightSetpoints());
+
+        vTaskDelayUntil(&wake_time, pdMS_TO_TICKS(10));
+    }
 }
 
 int main(void) {
@@ -318,10 +361,16 @@ int main(void) {
     // todo (2026): this is always on. just tie high on PCB
     bindings::dashboard_power_en.SetHigh();
 
-    scheduler_register_task(task_10hz, 100, nullptr);
-    scheduler_register_task(task_100hz, 10, nullptr);
+    xTaskCreateStatic(task_100hz, "100HZ", STACK_SIZE_WORDS, NULL,
+                      PRIORITY_100HZ, t100hz_buffer, &t100hz_control_block);
 
-    scheduler_run();
+    xTaskCreateStatic(task_10hz, "10HZ", STACK_SIZE_WORDS, NULL, PRIORITY_10HZ,
+                      t10hz_buffer, &t10hz_control_block);
+
+    xTaskCreateStatic(task_1hz, "1HZ", STACK_SIZE_WORDS, NULL, PRIORITY_1HZ,
+                      t1hz_buffer, &t1hz_control_block);
+
+    vTaskStartScheduler();
 
     while (true) continue;
 

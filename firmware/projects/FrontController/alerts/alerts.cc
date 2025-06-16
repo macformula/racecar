@@ -17,3 +17,8 @@ void Reset(void) {
 }
 
 }  // namespace alerts
+
+// from shared/perip/can
+void CanErrorHandler(void) {
+    alerts::Get().can_tx_error = true;
+}

@@ -83,6 +83,7 @@ BO_ 202 FcAlerts: 2 FC
  SG_ LeftMotorRunningError : 6|1@1+ (1,0) [0|1] "" RPI, DASH
  SG_ RightMotorRunningError : 7|1@1+ (1,0) [0|1] "" RPI, DASH
  SG_ DashboardBootTimeout : 8|1@1+ (1,0) [0|1] "" RPI, DASH
+ SG_ CanTxError : 9|1@1+ (1,0) [0|1] "" RPI, DASH
 
 BO_ 210 LvCommand: 1 FC
  SG_ BrakeLightEnable : 1|1@1+ (1,0) [0|1] "" LVC
