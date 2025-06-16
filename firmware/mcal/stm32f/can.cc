@@ -175,10 +175,14 @@ void CanBase::Send(const shared::can::RawMessage& msg) {
         // Attempt to send the message for up to 3ms (blocking)
         // This is bad code.
         // See description at https://github.com/macformula/racecar/pull/480
+#if USE_FREERTOS
+        dropped_tx_frames_++;
+#else
         if (HAL_GetTick() - tick >= 3) {
             dropped_tx_frames_ += 1;
             return;
         }
+#endif
     }
 }
 
