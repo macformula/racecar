@@ -106,6 +106,7 @@ void CanBase::Setup() {
     // All mailboxes starts empty
     empty_mailbox = xSemaphoreCreateCountingStatic(
         NUM_TX_MAILBOXES, NUM_TX_MAILBOXES, &empty_mailbox_static);
+    HAL_CAN_ActivateNotification(hcan_, CAN_IT_TX_MAILBOX_EMPTY);
 #endif
 
     HAL_CAN_ActivateNotification(hcan_, CAN_IT_RX_FIFO0_MSG_PENDING);

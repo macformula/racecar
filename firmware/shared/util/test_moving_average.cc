@@ -22,18 +22,19 @@ TEST(SharedUtil, MovingAverage) {
 
     MovingAverage<LENGTH> ma;
 
-    EXPECT_EQ(ma.GetValue(), 0);
+    EXPECT_FLOAT_EQ(ma.GetValue(), 0);
 
     for (int i = 1; i <= LENGTH; i++) {
         ma.LoadValue(1.f);
-        EXPECT_EQ(ma.GetValue(), i / LENGTHf);
+        EXPECT_FLOAT_EQ(ma.GetValue(), i / LENGTHf);
     }
 
     ma.LoadValue(1.f);
-    EXPECT_EQ(ma.GetValue(), 1.f) << "MovingAverage should be saturated now.";
+    EXPECT_FLOAT_EQ(ma.GetValue(), 1.f)
+        << "MovingAverage should be saturated now.";
 
     ma.LoadValue(LENGTH + 1);
-    EXPECT_EQ(ma.GetValue(), 2.f);
+    EXPECT_FLOAT_EQ(ma.GetValue(), 2.f);
 }
 
 TEST(SharedUtil, MovingAverage1) {

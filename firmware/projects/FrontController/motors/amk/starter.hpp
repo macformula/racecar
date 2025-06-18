@@ -21,6 +21,9 @@ public:
     // ---------- Accessors ----------
     bool HasErroredOut(void) const;
     bool Success(void) const;
+    StarterState GetState(void) const;
+
+    uint8_t counter;
 
 private:
     static const uint32_t RETRY_ATTEMPTS = 5;

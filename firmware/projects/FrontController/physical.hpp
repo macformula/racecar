@@ -17,13 +17,13 @@ is released and 100.0 when fully depressed. +- 0.5% is acceptable.
 */
 constexpr float apps1_volt_pos_0 = 2.781;  // aim for 2.8V
 constexpr float apps1_volt_pos_100 = 1.809;
-constexpr float apps2_volt_pos_0 = 0.536;  // aim for 0.55V
+constexpr float apps2_volt_pos_0 = 0.544;  // aim for 0.55V
 constexpr float apps2_volt_pos_100 = 1.480;
 
 // See datasheets/race_grade/RG_SPEC-0030_M_APT_G2_DTM.pdf
 // Needs to be tuned
-constexpr float bpps_volt_pos_0 = 0.5;
-constexpr float bpps_volt_pos_100 = 4.5;
+constexpr float bpps_volt_pos_0 = 0.32;
+constexpr float bpps_volt_pos_100 = 0.64;  // 250 PSI
 
 // Steering angle is based off of straight position to guarantee correct
 // straightaway behaviour. Assumes that `full_left` is symmetric about

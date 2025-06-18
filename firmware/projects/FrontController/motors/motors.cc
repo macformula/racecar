@@ -20,6 +20,15 @@ amk::Amk<RxInv2_ActualValues1, RxInv2_ActualValues2, TxInv2_Setpoints1>
 
 amk::Starter left_starter;
 amk::Starter right_starter;
+static uint8_t counter;
+
+amk::StarterState GetLeftStarterState(void) {
+    return left_starter.GetState();
+}
+
+amk::StarterState GetRightStarterState(void) {
+    return right_starter.GetState();
+}
 
 static Command command;
 
@@ -66,6 +75,16 @@ amk::State GetLeftState(void) {
 
 amk::State GetRightState(void) {
     return amk_right.GetState();
+}
+
+generated::can::TxFcCounters GetCounters(void) {
+    return TxFcCounters{
+        .motor = counter,
+        .amk1 = amk_left.counter,
+        .amk2 = amk_right.counter,
+        .starter1 = left_starter.counter,
+        .starter2 = right_starter.counter,
+    };
 }
 
 // ---------- Behaviour ----------
@@ -178,12 +197,18 @@ void Update_100Hz(PtBus& pt_can, VehBus& veh_can, amk::Request req_left,
     auto l_av2 = pt_can.GetRxInv1_ActualValues2();
     if (l_av1.has_value() && l_av2.has_value()) {
         amk_left.Update_100Hz(l_av1.value(), l_av2.value());
+        alerts::Get().no_inv1_can = false;
+    } else {
+        alerts::Get().no_inv1_can = true;
     }
 
     auto r_av1 = pt_can.GetRxInv2_ActualValues1();
     auto r_av2 = pt_can.GetRxInv2_ActualValues2();
     if (r_av1.has_value() && r_av2.has_value()) {
         amk_right.Update_100Hz(r_av1.value(), r_av2.value());
+        alerts::Get().no_inv2_can = false;
+    } else {
+        alerts::Get().no_inv2_can = true;
     }
 
     if (new_state != state) {
@@ -192,6 +217,7 @@ void Update_100Hz(PtBus& pt_can, VehBus& veh_can, amk::Request req_left,
     } else {
         elapsed += 10;
     }
+    counter++;
 }
 
 }  // namespace motors
