@@ -21,21 +21,17 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-static const size_t STACK_SIZE_WORDS = 2048;
+static const size_t STACK_SIZE_WORDS = 2048 * 16;
 
 // higher number = higher priority
 static const uint32_t PRIORITY_100HZ = 3;
 static const uint32_t PRIORITY_10HZ = 2;
-static const uint32_t PRIORITY_1HZ = 1;
 
 StaticTask_t t100hz_control_block;
 StackType_t t100hz_buffer[STACK_SIZE_WORDS];
 
 StaticTask_t t10hz_control_block;
 StackType_t t10hz_buffer[STACK_SIZE_WORDS];
-
-StaticTask_t t1hz_control_block;
-StackType_t t1hz_buffer[STACK_SIZE_WORDS];
 
 using namespace generated::can;
 
@@ -231,9 +227,9 @@ static void Update_100Hz(void) {
 
 // Shows that the ECU is alive
 void ToggleDebugLed() {
-    static bool state = false;
-    state = !state;
-    bindings::debug_led.Set(state);
+    static bool toggle = true;
+    bindings::debug_led.Set(toggle);
+    toggle = !toggle;
 }
 
 // Reboot the ECU. Assumes that the Rasberry Pi has pulled the BOOT pin high
@@ -245,11 +241,6 @@ void CheckCanFlash() {
         msg->ECU() == RxInitiateCanFlash::ECU_t::FrontController) {
         bindings::SoftwareReset();
     }
-}
-
-void LogPedalAndSteer() {
-    veh_can_bus.Send(sensors::driver::GetAppsDebugMsg());
-    veh_can_bus.Send(sensors::driver::GetBppsSteerDebugMsg());
 }
 
 void UpdateErrorLeds() {
@@ -292,9 +283,13 @@ void task_10hz(void* argument) {
             .state = fsm::state,
             .accumulator_state = accumulator::GetState(),
             .motor_state = motors::GetState(),
-            .inv1_state = static_cast<uint8_t>(motors::GetLeftState()),
-            .inv2_state = static_cast<uint8_t>(motors::GetRightState()),
+            .inv1_state = motors::GetLeftState(),
+            .inv2_state =
+                static_cast<TxFcStatus::Inv2State_t>(motors::GetRightState()),
             .dbc_valid = dbc_hash::IsValid(),
+            .inv1_starter = static_cast<uint8_t>(motors::GetLeftStarterState()),
+            .inv2_starter =
+                static_cast<uint8_t>(motors::GetRightStarterState()),
         });
         veh_can_bus.Send(TxDashCommand{
             .config_received = fsm::state == fsm::State::WAIT_START_HV,
@@ -310,8 +305,11 @@ void task_10hz(void* argument) {
         });
 
         veh_can_bus.Send(accumulator::GetDebugMsg());
-        LogPedalAndSteer();
         veh_can_bus.Send(alerts::Get());
+
+        veh_can_bus.Send(sensors::driver::GetAppsDebugMsg());
+        veh_can_bus.Send(sensors::driver::GetBppsSteerDebugMsg());
+        veh_can_bus.Send(motors::GetCounters());
 
         vTaskDelayUntil(&wake_time, pdMS_TO_TICKS(100));
     }
@@ -325,6 +323,7 @@ void task_100hz(void* argument) {
     while (true) {
         sensors::driver::Update_100Hz();
         sensors::dynamics::Update_100Hz();
+        driver_interface::Update_100Hz();
 
         fsm::Update_100Hz();
 
@@ -340,11 +339,11 @@ void task_100hz(void* argument) {
         });
 
         // Disable Inverter commands for manual debugging
-        // veh_can_bus.Send(TxInverterSwitchCommand{
-        //     .close_inverter_switch = motors::GetInverterEnable(),
-        // });
-        // pt_can_bus.Send(motors::GetLeftSetpoints());
-        // pt_can_bus.Send(motors::GetRightSetpoints());
+        veh_can_bus.Send(TxInverterSwitchCommand{
+            .close_inverter_switch = motors::GetInverterEnable(),
+        });
+        pt_can_bus.Send(motors::GetLeftSetpoints());
+        pt_can_bus.Send(motors::GetRightSetpoints());
 
         vTaskDelayUntil(&wake_time, pdMS_TO_TICKS(10));
     }
@@ -367,12 +366,24 @@ int main(void) {
     xTaskCreateStatic(task_10hz, "10HZ", STACK_SIZE_WORDS, NULL, PRIORITY_10HZ,
                       t10hz_buffer, &t10hz_control_block);
 
-    xTaskCreateStatic(task_1hz, "1HZ", STACK_SIZE_WORDS, NULL, PRIORITY_1HZ,
-                      t1hz_buffer, &t1hz_control_block);
-
     vTaskStartScheduler();
 
     while (true) continue;
 
     return 0;
+}
+
+extern "C" void vApplicationStackOverflowHook(TaskHandle_t xTask,
+                                              char* pcTaskName);
+
+// Optional: call this periodically, e.g., from task_10hz or task_1hz
+
+extern "C" void vApplicationStackOverflowHook(TaskHandle_t xTask,
+                                              char* pcTaskName) {
+    // Handle stack overflow (e.g., light an LED, halt, etc.)
+    bindings::debug_led.SetHigh();
+    shared::periph::CanErrorHandler(&bindings::veh_can_base);
+    while (1) {
+        // Trap CPU here
+    }
 }

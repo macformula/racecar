@@ -1,6 +1,8 @@
 #pragma once
 
 #include "amk.hpp"
+#include "etl/algorithm.h"
+#include "thresholds.hpp"
 
 namespace amk {
 
@@ -49,8 +51,18 @@ void Amk<AV1, AV2, SP>::SetCommand(Command _command) {
 }
 
 template <ActualValues1 AV1, ActualValues2 AV2, Setpoints1 SP>
-void Amk<AV1, AV2, SP>::SetRequest(Request _request) {
-    request = _request;
+void Amk<AV1, AV2, SP>::SetRequest(Request r) {
+    request = {
+        .speed_request =
+            etl::clamp(r.speed_request, -threshold::MOTOR_SPEED_LIMIT_RPM,
+                       threshold::MOTOR_SPEED_LIMIT_RPM),
+        .torque_limit_positive =
+            etl::clamp(r.torque_limit_positive, 0.f,
+                       threshold::MOTOR_TORQUE_LIMIT_PERCENT),
+        .torque_limit_negative =
+            etl::clamp(r.torque_limit_negative,
+                       -threshold::MOTOR_TORQUE_LIMIT_PERCENT, 0.f),
+    };
 }
 
 template <ActualValues1 AV1, ActualValues2 AV2, Setpoints1 SP>
@@ -100,7 +112,7 @@ void Amk<AV1, AV2, SP>::Update_100Hz(AV1 av1, AV2 av2) {
             };
             new_ready_for_inverter = false;
 
-            if (av1.bSystemReady() && (elapsed > 100)) {
+            if (av1.bSystemReady()) {
                 new_state = SYSTEM_READY;
             }
             break;
@@ -170,7 +182,7 @@ void Amk<AV1, AV2, SP>::Update_100Hz(AV1 av1, AV2 av2) {
             };
             new_ready_for_inverter = false;
 
-            if (av1.bQuitInverterOn() && (elapsed > 100)) {
+            if (elapsed > 100) {
                 new_state = STARTUP_X140;
                 // ensure we wait on an external signal
                 inverter_is_set_flag = false;
@@ -203,10 +215,11 @@ void Amk<AV1, AV2, SP>::Update_100Hz(AV1 av1, AV2 av2) {
                 .b_enable = true,
                 .b_error_reset = false,
                 .target_velocity = static_cast<int16_t>(request.speed_request),
+                // AMK expects torque in 0.1% units, so scale by 10
                 .torque_limit_positiv =
-                    static_cast<int16_t>(request.torque_limit_positive),
+                    static_cast<int16_t>(request.torque_limit_positive * 10.f),
                 .torque_limit_negativ =
-                    static_cast<int16_t>(request.torque_limit_negative),
+                    static_cast<int16_t>(request.torque_limit_negative * 10.f),
             };
             new_ready_for_inverter = true;
 
@@ -265,6 +278,7 @@ void Amk<AV1, AV2, SP>::Update_100Hz(AV1 av1, AV2 av2) {
     } else {
         elapsed += 10;
     }
+    counter++;
 }
 
 }  // namespace amk

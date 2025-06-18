@@ -7,6 +7,10 @@ void Starter::Reset(void) {
     state = StarterState::OFF;
 }
 
+StarterState Starter::GetState(void) const {
+    return state;
+}
+
 bool Starter::HasErroredOut(void) const {
     return state == StarterState::FAILED;
 }
@@ -21,7 +25,7 @@ Command Starter::Update(State amk_state) {
 
     switch (state) {
         case StarterState::OFF:
-            command = Command::OFF;
+            command = Command::ENABLED;
 
             if (amk_state == State::ERROR) {
                 // don't increment counter here. only want to count errors after
@@ -80,6 +84,7 @@ Command Starter::Update(State amk_state) {
     }
 
     state = new_state;
+    counter++;
     return command;
 }
 

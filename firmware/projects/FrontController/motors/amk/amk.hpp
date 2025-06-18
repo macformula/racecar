@@ -3,6 +3,8 @@
 #include <concepts>
 #include <cstdint>
 
+#include "generated/can/veh_messages.hpp"
+
 namespace amk {
 
 template <typename MsgType>
@@ -39,17 +41,7 @@ concept Setpoints1 = requires(MsgType msg) {
     { msg.torque_limit_negativ } -> std::convertible_to<int16_t>;
 };
 
-enum class State {
-    OFF,
-    SYSTEM_READY,
-    STARTUP_bDCON,
-    STARTUP_bENABLE,
-    STARTUP_bINVERTER,
-    STARTUP_X140,
-    RUNNING,
-    ERROR,
-    ERROR_RESET,
-};
+using State = generated::can::TxFcStatus::Inv1State_t;
 
 enum class Command {
     OFF,
@@ -86,6 +78,8 @@ public:
     // ---------- Behaviour ----------
     void Init(void);
     void Update_100Hz(AV1 av1, AV2 av2);
+
+    uint8_t counter;
 
 private:
     State state;

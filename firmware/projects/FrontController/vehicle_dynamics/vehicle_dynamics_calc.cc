@@ -8,34 +8,6 @@
 
 namespace ctrl {
 
-float TorqueRequest::Update(float driver_torque_request,
-                            float brake_pedal_position) {
-    bool brake_on = brake_pedal_position > 10.f;
-
-    bool both_pedals_pressed = (driver_torque_request >= 25.f && brake_on);
-    bool neither_pedal_pressed = driver_torque_request < 5.f && !brake_on;
-
-    if (both_pedals_pressed) {
-        current_state_ = State::Stop;
-    }
-    if (neither_pedal_pressed) {
-        current_state_ = State::Run;
-    }
-
-    float driver_torque;
-
-    switch (current_state_) {
-        case State::Run:
-            driver_torque = driver_torque_request;
-            break;
-        case State::Stop:
-            driver_torque = 0.f;
-            break;
-    }
-
-    return driver_torque;
-}
-
 float CreateTorqueVectoringFactor(float steering_angle) {
     using LUT = shared::util::LookupTable<float>;
     float absolute_steering_angle = std::abs(steering_angle);

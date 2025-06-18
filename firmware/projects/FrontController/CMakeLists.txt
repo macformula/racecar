@@ -17,4 +17,4 @@ target_sources(main
 
 target_include_directories(main PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_compile_definitions(main PUBLIC USE_FREERTOS)
+# target_compile_definitions(main PUBLIC USE_FREERTOS) # disable until CAN peripheral is debugged

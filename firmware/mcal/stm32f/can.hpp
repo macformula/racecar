@@ -66,7 +66,7 @@ private:
 
     // Buffer messages in a queue so the app can send many at once without
     // overflowing the mailboxes
-    static const size_t TX_QUEUE_SIZE = 12;
+    static const size_t TX_QUEUE_SIZE = 30;
     QueueHandle_t tx_queue;
     StaticQueue_t tx_queue_static;
     uint8_t tx_queue_storage[sizeof(shared::can::RawMessage) * TX_QUEUE_SIZE];

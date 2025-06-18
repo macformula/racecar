@@ -92,14 +92,15 @@ static bool FeedbackMatchesCommand(ContactorCommands cmd,
 static void MeasureVoltages(VehBus& veh_can) {
     // Precharge
     const float HV_SCALE = (6e6 + 20e3) / (20e3);
-    static shared::util::MovingAverage<50, float> ma;
+    static shared::util::MovingAverage<50> ma;
 
     ma.LoadValue(bindings::precharge_monitor.ReadVoltage() * HV_SCALE);
     precharge_voltage = ma.GetValue();
 
     auto msg = veh_can.PopRxPack_SOC();
-    if (msg.has_value()) {
-        pack_voltage = msg->Pack_SOC();
+    auto pack_state = veh_can.PopRxPack_State();
+    if (msg.has_value() && pack_state.has_value()) {
+        pack_voltage = pack_state->Pack_Inst_Voltage();
         max_pack_voltage = msg->Maximum_Pack_Voltage();
         pack_voltage_valid = true;
         pack_voltage_timeout = 0;
@@ -259,7 +260,7 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             break;
     }
 
-    if (command == Command::OFF && state != IDLE) {
+    if (command == Command::OFF && state != IDLE && state != SHUTDOWN) {
         new_state = SHUTDOWN;
     }
 

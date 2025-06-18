@@ -9,7 +9,7 @@
 #include "sensors/driver/driver.hpp"
 #include "sensors/dynamics/dynamics.hpp"
 #include "shared/util/lookup_table.hpp"
-#include "shared/util/moving_average.hpp"
+#include "thresholds.hpp"
 #include "tuning.hpp"
 #include "vehicle_dynamics_calc.hpp"
 
@@ -27,10 +27,7 @@ static motors::Request right_request;
 static Profile_t profile;
 static float target_slip_ratio;
 static TractionControl traction_ctrl;
-static TorqueRequest torque_request_machine;
 static bool torque_vector_enable;
-
-static shared::util::MovingAverage<10, float> torque_ma{};
 
 amk::Request GetLeftMotorRequest(void) {
     return left_request;
@@ -63,14 +60,14 @@ void Init(void) {
 
     // Fix speed request and control the torque limits
     left_request = {
-        .speed_request = 1000.f,
-        .torque_limit_positive = 0,
-        .torque_limit_negative = 0,
+        .speed_request = 0.f,
+        .torque_limit_positive = 0.f,
+        .torque_limit_negative = 0.f,
     };
     right_request = {
-        .speed_request = 1000.f,
-        .torque_limit_positive = 0,
-        .torque_limit_negative = 0,
+        .speed_request = 0.f,
+        .torque_limit_positive = 0.f,
+        .torque_limit_negative = 0.f,
     };
 
     driver_torque_request = 0;
@@ -78,30 +75,34 @@ void Init(void) {
 }
 
 void Update_100Hz(void) {
-    int time_ms = bindings::GetTickMs();
+    // int time_ms = bindings::GetTickMs();
 
-    float actual_slip =
-        CalculateActualSlip(sensors::dynamics::GetWheelSpeeds());
-
-    float tc_scale_factor = traction_ctrl.UpdateScaleFactor(
-        actual_slip, target_slip_ratio, time_ms);
+    // float actual_slip =
+    //     CalculateActualSlip(sensors::dynamics::GetWheelSpeeds());
+    //
+    // float tc_scale_factor = traction_ctrl.UpdateScaleFactor(
+    //     actual_slip, target_slip_ratio, time_ms);
+    //
+    float tc_scale_factor = 1.f;
 
     TorqueVector tv = {.left = 1.0, .right = 1.0};
     if (torque_vector_enable) {
         tv = AdjustTorqueVectoring(sensors::driver::GetSteeringWheel());
     }
 
-    float motor_torque_request = torque_request_machine.Update(
-        driver_torque_request, sensors::driver::GetBrakePercent());
+    float torque =
+        LUT::Evaluate(tuning::pedal_to_torque, driver_torque_request);
 
-    float torque = LUT::Evaluate(tuning::pedal_to_torque,
-                                 motor_torque_request * tc_scale_factor);
-    torque_ma.LoadValue(torque);
-    float smoothed_torque = torque_ma.GetValue();
-
-    left_request.torque_limit_positive = smoothed_torque * tv.left;
-    right_request.torque_limit_positive = smoothed_torque * tv.right;
-    // negative limit fields fixed at 0 in simulink model
+    left_request = {
+        .speed_request = -threshold::MOTOR_SPEED_LIMIT_RPM,
+        .torque_limit_positive = 0.f,
+        .torque_limit_negative = -torque * tv.left * tc_scale_factor,
+    };
+    right_request = {
+        .speed_request = threshold::MOTOR_SPEED_LIMIT_RPM,
+        .torque_limit_positive = torque * tv.right * tc_scale_factor,
+        .torque_limit_negative = 0.f,
+    };
 }
 
 }  // namespace vehicle_dynamics

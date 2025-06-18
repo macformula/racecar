@@ -1,6 +1,7 @@
 #pragma once
 
 #include "amk/amk.hpp"
+#include "amk/starter.hpp"
 #include "generated/can/pt_messages.hpp"
 #include "generated/can/veh_messages.hpp"
 
@@ -28,6 +29,11 @@ amk::State GetRightState(void);
 
 generated::can::TxInv1_Setpoints1 GetLeftSetpoints(void);
 generated::can::TxInv2_Setpoints1 GetRightSetpoints(void);
+
+amk::StarterState GetLeftStarterState(void);
+amk::StarterState GetRightStarterState(void);
+
+generated::can::TxFcCounters GetCounters(void);
 
 // ---------- Behaviour ----------
 void Init(void);
