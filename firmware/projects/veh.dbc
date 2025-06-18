@@ -118,15 +118,16 @@ BO_ 211 LvStatus: 4 LVC
 VAL_ 211 LvState 0 "PWRUP_START" 1 "PWRUP_TSSI_ON" 2 "PWRUP_PERIPHERALS_ON" 3 "PWRUP_ACCUMULATOR_ON" 4 "PWRUP_MOTOR_CONTROLLER_PRECHARGING" 7 "PWRUP_SHUTDOWN_ON" 9 "DCDC_ON" 10 "POWERTRAIN_PUMP_ON" 11 "POWERTRAIN_FAN_ON" 13 "READY_TO_DRIVE" 14 "SHUTDOWN_DRIVER_WARNING" 15 "SHUTDOWN_PUMP_OFF" 16 "SHUTDOWN_FAN_OFF" 17 "SHUTDOWN_COMPLETE";
 VAL_ 211 MotorControllerState 0 "OFF" 1 "PRECHARGING" 2 "PRECHARGING_HANDOFF" 3 "ON";
 
-BO_ 230 DashCommand: 4 FC
+BO_ 230 DashCommand: 5 FC
  SG_ ConfigReceived     : 0|1@1+ (1,0) [0|1] "" DASH
  SG_ HvStarted          : 1|1@1+ (1,0) [0|1] "" DASH
  SG_ MotorStarted       : 2|1@1+ (1,0) [0|1] "" DASH
  SG_ DriveStarted       : 3|1@1+ (1,0) [0|1] "" DASH
  SG_ Reset              : 4|1@1+ (1,0) [0|1] "" DASH
  SG_ Errored            : 5|1@1+ (1,0) [0|1] "" DASH
- SG_ HvChargePercent    : 8|8@1+ (1,0) [0|100] "" DASH
- SG_ Speed              : 16|12@1+ (0.1,0) [0|200] "km/h" DASH
+ SG_ HvPrechargePercent : 8|8@1+ (1,0) [0|100] "" DASH
+ SG_ Speed              : 16|12@1+ (0.1,0) [0|100] "mph" DASH
+ SG_ HvSocPercent       : 32|8@1+ (1,0) [0|100] "" DASH
 
 BO_ 231 DashStatus: 3 DASH
  SG_ Counter : 0|8@1+ (1,0) [0|255] "" FC

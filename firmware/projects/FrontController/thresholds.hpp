@@ -8,6 +8,8 @@ namespace threshold {
 const float PRECHARGE_COMPLETE_PERCENT = 90.f;
 const float LOW_VOLTAGE_PERCENT = 30.f;
 const float PACK_SHUTDOWN_PERCENT = 10.f;
+const float HV_MAX_VOLTAGE = 600.f;
+const float HV_MIN_VOLTAGE = 250.f;
 
 // driver
 const float BRAKES_PRESSED_PERCENT = 10.f;

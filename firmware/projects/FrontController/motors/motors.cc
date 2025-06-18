@@ -7,6 +7,7 @@
 #include "generated/can/pt_messages.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "physical.hpp"
 
 using namespace generated::can;
 
@@ -75,6 +76,19 @@ amk::State GetLeftState(void) {
 
 amk::State GetRightState(void) {
     return amk_right.GetState();
+}
+
+float GetMph(void) {
+    constexpr float PI = 3.1415926;
+    constexpr float in_per_rev = PI * tuning::motor_diam_inch;
+    constexpr float in_per_mile = 12 * 5280;
+    constexpr float min_per_hr = 60;
+
+    float avg_rpm =
+        (std::abs(amk_left.GetRpm()) + std::abs(amk_right.GetRpm())) / 2.f;
+
+    float motor_rpm = avg_rpm / tuning::gearbox_ratio;
+    return (motor_rpm * in_per_rev * min_per_hr) / in_per_mile;
 }
 
 generated::can::TxFcCounters GetCounters(void) {

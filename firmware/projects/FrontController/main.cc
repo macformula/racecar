@@ -299,9 +299,11 @@ void task_10hz(void* argument) {
             .drive_started = fsm::state == fsm::State::RUNNING,
             .reset = fsm::state == fsm::State::START_DASHBOARD,
             .errored = fsm::state == fsm::State::ERROR,
-            .hv_charge_percent =
+            .hv_precharge_percent =
                 static_cast<uint8_t>(accumulator::GetPrechargePercent()),
-            .speed = 0,  // todo
+            .speed = motors::GetMph(),
+            .hv_soc_percent =
+                static_cast<uint8_t>(accumulator::GetSocPercent()),
         });
 
         veh_can_bus.Send(accumulator::GetDebugMsg());

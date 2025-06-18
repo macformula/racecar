@@ -36,7 +36,8 @@ class Simulation:
             "HvStarted": False,
             "MotorStarted": False,
             "DriveStarted": False,
-            "HvChargePercent": 0,
+            "HvPrechargePercent": 0,
+            "HvSocPercent": 0,
             "Speed": 0,
             "Reset": False,
             "Errored": False,
@@ -105,7 +106,7 @@ class Simulation:
         return ds
 
     def run(self):
-        DELAY = 0.5  # between screens
+        DELAY = 0.1  # between screens
 
         self.reset_fcstatus()
 
@@ -123,8 +124,8 @@ class Simulation:
         )
 
         # Simulate precharging
-        for i in range(100):
-            self.FcStatus["HvChargePercent"] = i
+        for i in range(0, 100, 5):
+            self.FcStatus["HvPrechargePercent"] = i
             sleep(0.01)
 
         self.FcStatus["HvStarted"] = True
@@ -141,12 +142,14 @@ class Simulation:
         self.FcStatus["DriveStarted"] = True
 
         print("Speeding up")
+        hv_soc = 0
         for speed in np.arange(0, 72, 0.1):
             self.FcStatus["Speed"] = speed
-            speed += 0.1
+            self.FcStatus["HvSocPercent"] = hv_soc
+            hv_soc = min(100, hv_soc + 0.5)
             sleep(0.005)
 
-        sleep(1)
+        sleep(5)
         self.FcStatus["Errored"] = True
 
         self.wait_for_dash(

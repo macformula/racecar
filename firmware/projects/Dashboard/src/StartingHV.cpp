@@ -21,7 +21,7 @@ void StartingHV::Update() {
 
     if (!fc_msg.has_value()) return;
 
-    lv_bar_set_value(progress_bar_, fc_msg->HvChargePercent(), LV_ANIM_OFF);
+    lv_bar_set_value(progress_bar_, fc_msg->HvPrechargePercent(), LV_ANIM_OFF);
 
     if (fc_msg->HvStarted()) {
         display_->ChangeState(State::PRESS_FOR_MOTOR);
