@@ -23,6 +23,7 @@ void SetRightRequest(Request request);
 // ---------- Accessors ----------
 State GetState(void);
 bool GetInverterEnable(void);
+float GetMph(void);
 
 amk::State GetLeftState(void);
 amk::State GetRightState(void);

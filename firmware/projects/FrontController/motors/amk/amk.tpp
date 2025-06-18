@@ -43,6 +43,11 @@ State Amk<AV1, AV2, SP>::GetState(void) const {
     return state;
 }
 
+template <ActualValues1 AV1, ActualValues2 AV2, Setpoints1 SP>
+float Amk<AV1, AV2, SP>::GetRpm(void) const {
+    return rpm;
+}
+
 // ---------- Modifiers ----------
 
 template <ActualValues1 AV1, ActualValues2 AV2, Setpoints1 SP>
@@ -95,6 +100,7 @@ template <ActualValues1 AV1, ActualValues2 AV2, Setpoints1 SP>
 void Amk<AV1, AV2, SP>::Update_100Hz(AV1 av1, AV2 av2) {
     using enum State;
     State new_state = state;
+    rpm = av1.ActualVelocity();
 
     SP new_sp{};
     bool new_ready_for_inverter = false;

@@ -67,6 +67,7 @@ public:
     bool IsReadyForInverter(void) const;
     bool IsRunning(void) const;
     State GetState(void) const;
+    float GetRpm(void) const;
 
     // ---------- Modifiers ----------
     void SetRequest(Request request);
@@ -92,6 +93,7 @@ private:
     uint16_t error_code;
     bool ready_for_inverter;
     SP setpoints;
+    float rpm;
 };
 
 }  // namespace amk

@@ -32,4 +32,8 @@ constexpr float bpps_volt_pos_100 = 0.64;  // 250 PSI
 constexpr float steer_volt_straight = 1.6;
 constexpr float steer_volt_full_right = 2.5;
 
+// Powertrain
+constexpr float gearbox_ratio = 12.9;
+constexpr float motor_diam_inch = 16;
+
 }  // namespace tuning

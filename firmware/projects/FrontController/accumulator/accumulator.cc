@@ -49,7 +49,8 @@ TxAccumulator_Soc GetDebugMsg(void) {
 }
 
 float GetSocPercent(void) {
-    return 100.f * pack_voltage / max_pack_voltage;
+    return (pack_voltage - threshold::HV_MIN_VOLTAGE) * 100.f /
+           (threshold::HV_MAX_VOLTAGE - threshold::HV_MIN_VOLTAGE);
 }
 
 float GetPrechargePercent(void) {
