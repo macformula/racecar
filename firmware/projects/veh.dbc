@@ -33,7 +33,7 @@ NS_ :
 
 BS_:
 
-BU_: FC LVC TMS DASH RPI BMS GPS
+BU_: FC LVC TMS DASH RPI IMD BMS GPS
 
 CM_ "ID Scheme:
 Replace x with the pertinent ECU (not necessarily the sender)
@@ -186,10 +186,61 @@ BO_ 411 LvDbcHash: 8 LVC
  SG_ Hash : 0|64@1+ (1,0) [0|1] "" FC
 
 CM_ "Manufacturer specific IDs (do not modify)
-769-777     GPS/IMU
-1570-1574   BMS Command/Status
-2553934720  BMS Temperatures 1
-2566844926  BMS Temperatures 2";
+55		IMD
+769-777     	GPS/IMU
+1570-1574   	BMS Command/Status
+2553934720  	BMS Temperatures 1
+2566844926  	BMS Temperatures 2";
+
+BO_ 55 IMD_Info_General: 8 IMD
+ SG_ rIsoCorrected : 0|16@1+ (1,0) [0|0] "" RPI
+ SG_ rIsoStatus : 16|8@1+ (1,0) [0|0] "" RPI
+ SG_ MeasurementCounter : 24|8@1+ (1,0) [0|0] "" RPI
+ SG_ WarningsAlarms : 32|16@1+ (1,0) [0|0] "" RPI
+ SG_ DeviceActivity : 48|8@1+ (1,0) [0|0] "" RPI
+ SG_ Reserved : 56|8@1+ (1,0) [0|0] "" RPI
+
+BO_ 56 IMD_InfoIsolationDetail: 8 IMD
+ SG_ rIsoNeg : 0|16@1+ (1,0) [0|0] "" RPI
+ SG_ rIsoPos : 16|16@1+ (1,0) [0|0] "" RPI
+ SG_ rIsoOriginal : 32|16@1+ (1,0) [0|0] "" RPI
+ SG_ isolationMeasurementCounter : 48|8@1+ (1,0) [0|0] "" RPI
+ SG_ isolationQuality : 56|8@1+ (1,0) [0|0] "" RPI
+
+BO_ 57 IMD_Info_Voltage: 8 IMD
+ SG_ hvSystem : 0|16@1+ (1,0) [0|0] "" RPI
+ SG_ hvNegToEarth : 16|16@1+ (1,0) [0|0] "" RPI
+ SG_ hvPosToEarth : 32|16@1+ (1,0) [0|0] "" RPI
+ SG_ voltageMeasurementCounter : 48|8@1+ (1,0) [0|0] "" RPI
+ SG_ Reserved : 56|8@1+ (1,0) [0|0] "" RPI
+
+BO_ 58 IMD_InfoItSystem: 8 IMD
+ SG_ capacityMeasuredValue : 0|16@1+ (1,0) [0|0] "" RPI
+ SG_ capacityMeasurementCounter : 16|8@1+ (1,0) [0|0] "" RPI
+ SG_ unbalanceMeasuredValue : 24|8@1+ (1,0) [0|0] "" RPI
+ SG_ unbalanceMeasurement : 32|8@1+ (1,0) [0|0] "" RPI
+ SG_ voltageMeasuredFrequency : 40|16@1+ (1,0) [0|0] "" RPI
+ SG_ Reserved : 56|8@1+ (1,0) [0|0] "" RPI
+
+BO_ 34 IMD_Request: 8 RPI
+ SG_ index : 0|8@1+ (1,0) [0|0] "" IMD
+ SG_ data0 : 8|8@1+ (1,0) [0|0] "" IMD
+ SG_ data1 : 16|8@1+ (1,0) [0|0] "" IMD
+ SG_ data2 : 24|8@1+ (1,0) [0|0] "" IMD
+ SG_ data3 : 32|8@1+ (1,0) [0|0] "" IMD
+ SG_ data4 : 40|8@1+ (1,0) [0|0] "" IMD
+ SG_ data5 : 48|8@1+ (1,0) [0|0] "" IMD
+ SG_ data6 : 56|8@1+ (1,0) [0|0] "" IMD
+
+BO_ 35 ID_Response: 8 IMD
+ SG_ index : 0|8@1+ (1,0) [0|0] "" RPI
+ SG_ d1 : 8|8@1+ (1,0) [0|0] "" RPI
+ SG_ d2 : 16|8@1+ (1,0) [0|0] "" RPI
+ SG_ d3 : 24|8@1+ (1,0) [0|0] "" RPI
+ SG_ d4 : 32|8@1+ (1,0) [0|0] "" RPI
+ SG_ d5 : 40|8@1+ (1,0) [0|0] "" RPI
+ SG_ d6 : 48|8@1+ (1,0) [0|0] "" RPI
+ SG_ d7 : 56|8@1+ (1,0) [0|0] "" RPI
 
 BO_ 1570 ContactorCommand: 3 FC
  SG_ PackPositive : 0|8@1+ (1,0) [0|0] "" BMS
