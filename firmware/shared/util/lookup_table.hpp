@@ -33,8 +33,8 @@ struct LookupTable {
         size_t least_greater_idx = 0;
 
         // Find next greatest element in keys_, assumes keys_ is sorted
-        while (table[least_greater_idx].key < key &&
-               least_greater_idx < table.size()) {
+        while (least_greater_idx < table.size() &&
+               table[least_greater_idx].key < key) {
             least_greater_idx += 1;
         }
 
