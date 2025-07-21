@@ -6,7 +6,7 @@
 #include "bindings.hpp"
 #include "generated/can/demobus_bus.hpp"
 #include "generated/can/demobus_messages.hpp"
-#include "shared/comms/can/bus.hpp"
+#include "lib/can/bus.hpp"
 
 using namespace generated::can;
 

@@ -14,7 +14,7 @@ Power management board. Handles bootup and shutdown. Enables power to all subsys
 
 Displays driver/event profile selection and runtime information like speed and accumulator state of charge. Primarily communicates with FrontController.
 
-## [TMS](TMS/)
+## [TMS](tms/)
 
 Our simplest ECU, reads thermistors inside the accumulator to report temperatures to our off-the-shelf battery management system.
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "shared/periph/gpio.hpp"
+#include "lib/periph/gpio.hpp"
 
 namespace bindings {
 
-extern shared::periph::DigitalInput& button_di;
-extern shared::periph::DigitalOutput& indicator_do;
+extern macfe::periph::DigitalInput& button_di;
+extern macfe::periph::DigitalOutput& indicator_do;
 
 extern void Initialize();
 

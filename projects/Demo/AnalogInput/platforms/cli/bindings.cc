@@ -2,10 +2,10 @@
 
 #include <iostream>
 
+#include "lib/periph/analog_input.hpp"
+#include "lib/periph/gpio.hpp"
 #include "mcal/cli/analog_input.hpp"
 #include "mcal/cli/gpio.hpp"
-#include "shared/periph/analog_input.hpp"
-#include "shared/periph/gpio.hpp"
 
 namespace mcal {
 
@@ -18,10 +18,10 @@ cli::DigitalOutput blue_led{"blue_led"};
 
 namespace bindings {
 
-shared::periph::AnalogInput& analog_input = mcal::analog_input;
-shared::periph::DigitalOutput& green_led = mcal::green_led;
-shared::periph::DigitalOutput& red_led = mcal::red_led;
-shared::periph::DigitalOutput& blue_led = mcal::blue_led;
+macfe::periph::AnalogInput& analog_input = mcal::analog_input;
+macfe::periph::DigitalOutput& green_led = mcal::green_led;
+macfe::periph::DigitalOutput& red_led = mcal::red_led;
+macfe::periph::DigitalOutput& blue_led = mcal::blue_led;
 
 void Init() {
     std::cout << "Initializing the CLI..." << std::endl;

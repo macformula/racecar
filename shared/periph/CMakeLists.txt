@@ -1,1 +1,0 @@
-target_sources(shared INTERFACE can.cc)

@@ -1,6 +1,6 @@
 #include "../generated/can/test_rx_bus.hpp"
 #include "gtest/gtest.h"
-#include "shared/periph/can.hpp"
+#include "lib/periph/can.hpp"
 
 #define EXPECT_MSG_EQ(x, y)                                      \
     ASSERT_EQ((x).data_length, (y).data_length);                 \
@@ -11,12 +11,12 @@
     }
 
 using namespace generated::can;
-using shared::can::RawMessage;
+using macfe::can::RawMessage;
 
 class Bus : public testing::Test {
-    class DummyCanBase : public shared::periph::CanBase {
+    class DummyCanBase : public macfe::periph::CanBase {
     public:
-        void Send(const shared::can::RawMessage& m) override {
+        void Send(const macfe::can::RawMessage& m) override {
             throw std::runtime_error(
                 "Dummy bus is only for receiving, not sending.");
         }

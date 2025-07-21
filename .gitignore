@@ -13,3 +13,6 @@ __pycache__/
 .clangd
 .cache
 *.log
+
+.pio
+generated/

@@ -4,10 +4,10 @@
 
 #include <iostream>
 
+#include "lib/periph/analog_output.hpp"
+#include "lib/periph/pwm.hpp"
 #include "mcal/cli/analog_output.hpp"
 #include "mcal/cli/pwm.hpp"
-#include "shared/periph/analog_output.hpp"
-#include "shared/periph/pwm.hpp"
 
 namespace mcal {
 
@@ -18,8 +18,8 @@ cli::AnalogOutput analog_out{"test"};
 
 namespace bindings {
 
-shared::periph::PWMOutput& pwm = mcal::pwm;
-shared::periph::AnalogOutput& analog_out = mcal::analog_out;
+macfe::periph::PWMOutput& pwm = mcal::pwm;
+macfe::periph::AnalogOutput& analog_out = mcal::analog_out;
 
 void DelayMS(unsigned int ms) {
     usleep(ms * 1000);

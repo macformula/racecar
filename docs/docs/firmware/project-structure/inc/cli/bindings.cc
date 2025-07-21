@@ -1,8 +1,9 @@
+#include "../../bindings.hpp"
+
 #include <unistd.h>
 
 #include <iostream>
 
-#include "../../bindings.hpp"
 #include "mcal/cli/gpio.hpp"
 #include "shared/periph/gpio.hpp"
 
@@ -14,7 +15,7 @@ cli::DigitalOutput indicator{"Indicator"};
 
 namespace bindings {
 
-shared::periph::DigitalOutput& indicator = mcal::indicator;
+macfe::periph::DigitalOutput& indicator = mcal::indicator;
 
 void DelayMS(unsigned int ms) {
     usleep(ms * 1000);

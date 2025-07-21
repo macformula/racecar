@@ -4,8 +4,8 @@
 #include <chrono>
 #include <thread>
 
+#include "lib/periph/can.hpp"
 #include "mcal/raspi/can.hpp"
-#include "shared/periph/can.hpp"
 
 namespace mcal {
 using namespace raspi;
@@ -14,7 +14,7 @@ CanBase veh_can_base{"vcan0"};
 }  // namespace mcal
 
 namespace bindings {
-shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
+macfe::periph::CanBase& veh_can_base = mcal::veh_can_base;
 
 void Initialize() {
     mcal::veh_can_base.Setup();

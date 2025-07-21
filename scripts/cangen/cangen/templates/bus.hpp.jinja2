@@ -9,18 +9,18 @@
 
 #include <optional>
 
-#include "shared/comms/can/bus.hpp"
-#include "shared/comms/can/msg.hpp"
-#include "shared/periph/can.hpp"
-#include "shared/util/buffer.hpp"
+#include "can/bus.hpp"
+#include "can/msg.hpp"
+#include "periph/can.hpp"
+#include "atomic_buffer.hpp"
 #include "{{bus_name | lower}}_messages.hpp"
 
 namespace generated::can {
 
 {% set bus = bus_name+"Bus" %}
-class {{ bus }} : public shared::can::Bus {
+class {{ bus }} : public macfe  ::can::Bus {
 public:
-    {{ bus }}(shared::periph::CanBase& can_base) : shared::can::Bus(can_base) {}
+    {{ bus }}(macfe::periph::CanBase& can_base) : macfe::can::Bus(can_base) {}
 
     {% for msg in rx_msgs %}
     {% set msg_title = "Rx"+msg.m.name %}
@@ -36,7 +36,7 @@ public:
     {% endfor %}
 
 private:
-    void AddMessage(const shared::can::RawMessage& msg, uint32_t timestamp) override {
+    void AddMessage(const macfe::can::RawMessage& msg, uint32_t timestamp) override {
         {% if rx_msgs %}
         switch(msg.id) {
             {% for msg in rx_msgs %}
@@ -60,7 +60,7 @@ private:
     {% if rx_msgs %}
     // All messages start empty and will be filled when the first instance arrives.
     {% for msg in rx_msgs %}
-    shared::util::AtomicBuffer<Rx{{ msg.m.name }}> {{msg.m.name | camel_to_snake}}_buffer_;
+    macfe::AtomicBuffer<Rx{{ msg.m.name }}> {{msg.m.name | camel_to_snake}}_buffer_;
     {% endfor %}
     {% endif %}
 };

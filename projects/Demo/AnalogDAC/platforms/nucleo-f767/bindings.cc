@@ -19,7 +19,7 @@ AnalogOutputDAC analog_out_dac{&hdac, DAC_CHANNEL_1};
 }  // namespace mcal
 
 namespace bindings {
-shared::periph::AnalogOutput& analog_out_dac = mcal::analog_out_dac;
+macfe::periph::AnalogOutput& analog_out_dac = mcal::analog_out_dac;
 
 void Initialize() {
     SystemClock_Config();

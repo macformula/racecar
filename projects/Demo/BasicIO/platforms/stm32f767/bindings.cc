@@ -7,8 +7,8 @@
 
 // fw includes
 #include "../../bindings.hpp"
+#include "lib/periph/gpio.hpp"
 #include "mcal/stm32f/gpio.hpp"
-#include "shared/periph/gpio.hpp"
 
 extern "C" {
 /**
@@ -26,8 +26,8 @@ DigitalOutput indicator_do{LedPin_GPIO_Port, LedPin_Pin};
 }  // namespace mcal
 
 namespace bindings {
-shared::periph::DigitalInput& button_di = mcal::button_di;
-shared::periph::DigitalOutput& indicator_do = mcal::indicator_do;
+macfe::periph::DigitalInput& button_di = mcal::button_di;
+macfe::periph::DigitalOutput& indicator_do = mcal::indicator_do;
 
 void Initialize() {
     SystemClock_Config();

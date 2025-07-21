@@ -12,7 +12,7 @@
 
 #include <cmath>
 #include <cstdint>
-#include "shared/comms/can/msg.hpp"
+#include "can/msg.hpp"
 
 namespace generated::can {
 
@@ -41,14 +41,14 @@ public:
     inline {{ sig.type }} {{ sig.s.name }}() const { return {{ sig.name }}_; }
     {% endfor %}
 
-    inline const shared::can::RawMessage& Raw(void) { return raw_message; }
+    inline const macfe::can::RawMessage& Raw(void) { return raw_message; }
 
 private:
     {% for sig in msg.signals %}
     {{ sig.type }} {{ sig.name }}_;
     {% endfor %}
 
-    shared::can::RawMessage raw_message;
+    macfe::can::RawMessage raw_message;
 
     // Timestamp is platform dependent. See mcal/PLATFORM/periph/can
     uint32_t timestamp_;
@@ -59,7 +59,7 @@ private:
     friend class {{ bus }};
     
     // Only {{ bus }} can construct this class which guarantees the data came from the CAN line.
-    {{ class_name }}(shared::can::RawMessage raw_msg, uint32_t timestamp) :  raw_message(raw_msg), timestamp_(timestamp) {
+    {{ class_name }}(macfe::can::RawMessage raw_msg, uint32_t timestamp) :  raw_message(raw_msg), timestamp_(timestamp) {
         {% for sig in msg.signals %}
         {% set T = sig.raw_type %}
         {{ T }} temp_{{ sig.name }} = 0;
@@ -105,7 +105,7 @@ public:
     {{ sig.type }} {{ sig.name }};
     {% endfor %}
 
-    shared::can::RawMessage pack() const {
+    macfe::can::RawMessage pack() const {
         uint8_t data[{{msg.m.length}}] = {};
 
         // @todo clamp data
@@ -127,7 +127,7 @@ public:
 
         {% endfor %}
 
-        return shared::can::RawMessage(id, extended_frame, data_length, data);
+        return macfe::can::RawMessage(id, extended_frame, data_length, data);
     }
 
 private:

@@ -1,6 +1,6 @@
 # Demo/Mapper
 
-Examples from [shared/util/mappers/README.md](../../../shared/util/mappers/README.md). See that file for more details.
+Examples from [lib/util/mappers/README.md](../../../lib/util/mappers/README.md). See that file for more details.
 
 ## Usage
 

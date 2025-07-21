@@ -1,9 +1,9 @@
 #include "../../bindings.hpp"
 
 #include "gpio.h"
+#include "lib/periph/gpio.hpp"
 #include "main.h"
 #include "mcal/stm32f/gpio.hpp"
-#include "shared/periph/gpio.hpp"
 #include "stm32f7xx_hal.h"
 
 namespace mcal {
@@ -25,10 +25,10 @@ void SystemClock_Config();
 
 namespace bindings {
 
-shared::periph::DigitalOutput& red_led = mcal::red_led;
-shared::periph::DigitalOutput& blue_led = mcal::blue_led;
-shared::periph::DigitalOutput& green_led = mcal::green_led;
-shared::periph::DigitalInput& reset_button = mcal::reset_button;
+macfe::periph::DigitalOutput& red_led = mcal::red_led;
+macfe::periph::DigitalOutput& blue_led = mcal::blue_led;
+macfe::periph::DigitalOutput& green_led = mcal::green_led;
+macfe::periph::DigitalInput& reset_button = mcal::reset_button;
 
 void Init() {
     SystemClock_Config();

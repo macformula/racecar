@@ -2,8 +2,8 @@
 
 #include <unistd.h>
 
+#include "lib/periph/gpio.hpp"
 #include "mcal/linux/digital_output.hpp"
-#include "shared/periph/gpio.hpp"
 
 namespace mcal {
 
@@ -15,7 +15,7 @@ DigitalOutput indicator{"Indicator"};
 
 namespace bindings {
 
-shared::periph::DigitalOutput& indicator = mcal::indicator;
+macfe::periph::DigitalOutput& indicator = mcal::indicator;
 
 void DelayMS(unsigned int ms) {
     usleep(1000 * ms);

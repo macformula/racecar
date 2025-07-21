@@ -8,10 +8,10 @@
 
 // fw includes
 #include "../../bindings.hpp"
+#include "lib/periph/can.hpp"
+#include "lib/periph/gpio.hpp"
 #include "mcal/stm32f/can.hpp"
 #include "mcal/stm32f/gpio.hpp"
-#include "shared/periph/can.hpp"
-#include "shared/periph/gpio.hpp"
 
 extern "C" {
 /**
@@ -29,8 +29,8 @@ DigitalOutput indicator{LedPin_GPIO_Port, LedPin_Pin};
 }  // namespace mcal
 
 namespace bindings {
-shared::periph::CanBase& demo_can_base = mcal::demo_can_base;
-shared::periph::DigitalOutput& indicator = mcal::indicator;
+macfe::periph::CanBase& demo_can_base = mcal::demo_can_base;
+macfe::periph::DigitalOutput& indicator = mcal::indicator;
 
 void Initialize() {
     SystemClock_Config();
