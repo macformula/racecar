@@ -5,8 +5,8 @@
 
 #include <iostream>
 
+#include "lib/periph/gpio.hpp"
 #include "mcal/cli/gpio.hpp"
-#include "shared/periph/gpio.hpp"
 
 namespace mcal {
 using namespace cli;
@@ -17,8 +17,8 @@ DigitalOutput indicator_do{"Indicator"};
 
 namespace bindings {
 
-shared::periph::DigitalInput& button_di = mcal::button_di;
-shared::periph::DigitalOutput& indicator_do = mcal::indicator_do;
+macfe::periph::DigitalInput& button_di = mcal::button_di;
+macfe::periph::DigitalOutput& indicator_do = mcal::indicator_do;
 
 void Initialize() {
     std::cout << "Initializing CLI..." << std::endl;

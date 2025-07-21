@@ -1,0 +1,10 @@
+{
+    "name": "cangen",
+    "version": "0.3.1",
+    "description": "Converts .dbc files into C++ files for a CAN bus system",
+    "platforms": "*",
+    "frameworks": "*",
+    "build": {
+        "extraScript": "pio_integration.py"
+    }
+}

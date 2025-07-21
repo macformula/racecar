@@ -1,0 +1,6 @@
+canGen:
+  outputPath: include/generated/can
+  busses:
+    - name: veh
+      node: LVC
+      dbcFile: "../veh.dbc"

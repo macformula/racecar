@@ -39,14 +39,14 @@ CanBase veh_can_base{&hcan2};
 // ============================ Bindings Namespace =============================
 namespace bindings {
 // ------------- Bind mcal peripherals to the bindings.hpp handles -------------
-shared::periph::DigitalOutput& tssi_red_en = mcal::tssi_red_en;
-shared::periph::DigitalOutput& tssi_green_en = mcal::tssi_green_en;
+macfe::periph::DigitalOutput& tssi_red_en = mcal::tssi_red_en;
+macfe::periph::DigitalOutput& tssi_green_en = mcal::tssi_green_en;
 
-shared::periph::AnalogInput& dcdc_sense = mcal::dcdc_sense;
-shared::periph::AnalogInput& suspension_travel3 = mcal::suspension_travel3;
-shared::periph::AnalogInput& suspension_travel4 = mcal::suspension_travel4;
+macfe::periph::AnalogInput& dcdc_sense = mcal::dcdc_sense;
+macfe::periph::AnalogInput& suspension_travel3 = mcal::suspension_travel3;
+macfe::periph::AnalogInput& suspension_travel4 = mcal::suspension_travel4;
 
-shared::periph::CanBase& veh_can_base = mcal::veh_can_base;
+macfe::periph::CanBase& veh_can_base = mcal::veh_can_base;
 
 // ---------------- Implement other platform-specific functions ----------------
 void Initialize() {

@@ -1,0 +1,6 @@
+canGen:
+  outputPath: include/generated/can
+  busses:
+    - name: veh
+      node: TMS
+      dbcFile: "../veh.dbc"

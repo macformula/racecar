@@ -17,8 +17,8 @@ DigitalOutput indicator{"Indicator"};
 
 namespace bindings {
 
-shared::periph::CanBase& demo_can_base = mcal::demo_can_base;
-shared::periph::DigitalOutput& indicator = mcal::indicator;
+macfe::periph::CanBase& demo_can_base = mcal::demo_can_base;
+macfe::periph::DigitalOutput& indicator = mcal::indicator;
 
 void Initialize() {
     std::cout << "Initializing Linux" << std::endl;

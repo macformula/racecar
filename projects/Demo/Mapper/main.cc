@@ -4,7 +4,7 @@
 #include <format>
 #include <iostream>  // for demo only, will not work on other platforms
 
-#include "shared/util/lookup_table.hpp"
+#include "lib/util/lookup_table.hpp"
 
 void expect_eq(double actual, double expected) {
     std::cout << std::format("Expected {:.2f}, got: {:.2f}", expected, actual);
@@ -15,7 +15,7 @@ void expect_eq(double actual, double expected) {
 }
 
 int main(void) {
-    using LUT = shared::util::LookupTable<float>;
+    using LUT = macfe::util::LookupTable<float>;
 
     std::cout << "Lookup Table" << std::endl;
     auto data = std::to_array<LUT::Entry>({

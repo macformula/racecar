@@ -5,9 +5,9 @@
 
 #include <iostream>
 
+#include "lib/periph/can.hpp"
 #include "mcal/cli/can.hpp"
 #include "mcal/cli/gpio.hpp"
-#include "shared/periph/can.hpp"
 
 namespace mcal {
 using namespace cli;
@@ -17,8 +17,8 @@ DigitalOutput indicator{"Indicator"};
 }  // namespace mcal
 
 namespace bindings {
-shared::periph::CanBase& demo_can_base = mcal::demo_can_base;
-shared::periph::DigitalOutput& indicator = mcal::indicator;
+macfe::periph::CanBase& demo_can_base = mcal::demo_can_base;
+macfe::periph::DigitalOutput& indicator = mcal::indicator;
 
 void Initialize() {
     std::cout << "Initializing CLI..." << std::endl;

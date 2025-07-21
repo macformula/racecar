@@ -4,8 +4,8 @@
 #include <chrono>
 #include <thread>
 
+#include "lib/periph/can.hpp"
 #include "mcal/cli/can.hpp"
-#include "shared/periph/can.hpp"
 
 namespace mcal {
 using namespace cli;
@@ -14,7 +14,7 @@ CanBase error_can_base{"vcan0"};
 }  // namespace mcal
 
 namespace bindings {
-shared::periph::CanBase& error_can_base = mcal::error_can_base;
+macfe::periph::CanBase& error_can_base = mcal::error_can_base;
 
 // Simulates a sleep, waiting for inputted ticks ms
 void TickBlocking(uint32_t ticks) {

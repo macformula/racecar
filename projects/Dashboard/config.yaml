@@ -1,5 +1,0 @@
-canGen:
-  busses:
-    - name: veh
-      node: DASH
-      dbcFile: "../veh.dbc"

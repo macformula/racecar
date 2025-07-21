@@ -7,18 +7,12 @@
 [submodule "firmware/projects/Dashboard/platforms/stm32/third-party/32f469idiscovery-bsp"]
 	path = firmware/projects/Dashboard/platforms/stm32/third-party/32f469idiscovery-bsp
 	url = https://github.com/STMicroelectronics/32f469idiscovery-bsp.git
-[submodule "firmware/projects/lv_port_stm32f469_disco/Drivers/lvgl"]
-	path = projects/Dashboard/lvgl
-	url = https://github.com/lvgl/lvgl.git
 [submodule "firmware/projects/Dashboard/platforms/lnx/lv_drivers"]
-	path = projects/Dashboard/platforms/lnx/lv_drivers
+	path = projects/dashboard/src/platforms/lnx/lv_drivers
 	url = https://github.com/lvgl/lv_drivers.git
-[submodule "firmware/projects/Dashboard/platforms/stm32/stm32-nt35510"]
-	path = projects/Dashboard/platforms/stm32/BSP/Components/nt35510
-	url = https://github.com/STMicroelectronics/stm32-nt35510.git
-[submodule "firmware/projects/Dashboard/platforms/stm32/BSP/Components/stm32-otm8009a"]
-	path = projects/Dashboard/platforms/stm32/BSP/Components/otm8009a
-	url = https://github.com/STMicroelectronics/stm32-otm8009a.git
 [submodule "firmware/projects/Dashboard/platforms/stm32/BSP/32f469idiscovery-bsp"]
-	path = projects/Dashboard/platforms/stm32/BSP/32f469idiscovery-bsp
+	path = projects/dashboard/src/platforms/stm32/BSP/32f469idiscovery-bsp
 	url = https://github.com/STMicroelectronics/32f469idiscovery-bsp.git
+[submodule "projects/dashboard/src/platforms/lnx/lv_drivers"]
+	path = projects/dashboard/src/platforms/lnx/lv_drivers
+	url = https://github.com/lvgl/lv_drivers.git

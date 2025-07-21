@@ -7,14 +7,14 @@
 
 namespace bindings {
 
-extern shared::periph::DigitalOutput& tssi_red_en;
-extern shared::periph::DigitalOutput& tssi_green_en;
+extern macfe::periph::DigitalOutput& tssi_red_en;
+extern macfe::periph::DigitalOutput& tssi_green_en;
 
-extern shared::periph::AnalogInput& dcdc_sense;
-extern shared::periph::AnalogInput& suspension_travel3;
-extern shared::periph::AnalogInput& suspension_travel4;
+extern macfe::periph::AnalogInput& dcdc_sense;
+extern macfe::periph::AnalogInput& suspension_travel3;
+extern macfe::periph::AnalogInput& suspension_travel4;
 
-extern shared::periph::CanBase& veh_can_base;
+extern macfe::periph::CanBase& veh_can_base;
 
 // Note: JTAG isn't used in any of our code, but the CubeMX pin configuration is
 // still necessary.

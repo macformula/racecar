@@ -5,8 +5,8 @@
 
 // project includes
 #include "../../bindings.hpp"
+#include "lib/periph/gpio.hpp"
 #include "mcal/stm32f/gpio.hpp"
-#include "shared/periph/gpio.hpp"
 
 extern "C" {
 /**
@@ -24,7 +24,7 @@ DigitalOutput indicator{LedPin_GPIO_Port, LedPin_Pin};
 
 namespace bindings {
 
-shared::periph::DigitalOutput& indicator = mcal::indicator;
+macfe::periph::DigitalOutput& indicator = mcal::indicator;
 
 void DelayMS(unsigned int ms) {
     HAL_Delay(ms);

@@ -1,1 +1,0 @@
-add_library(vcan STATIC vcan.cc)

@@ -17,8 +17,8 @@ DigitalInput button{"Button"};
 
 namespace bindings {
 
-shared::periph::CanBase& demo_can_base = mcal::demo_can_base;
-shared::periph::DigitalInput& button = mcal::button;
+macfe::periph::CanBase& demo_can_base = mcal::demo_can_base;
+macfe::periph::DigitalInput& button = mcal::button;
 
 void TickBlocking(uint32_t ms) {
     usleep(1000 * ms);
