@@ -17,7 +17,7 @@
 #include "tim.h"
 
 // Firmware
-#include "../../bindings.hpp"
+#include "inc/bindings.hpp"
 #include "mcal/stm32f/gpio.hpp"
 #include "mcal/stm32f/pwm.hpp"
 #include "shared/periph/gpio.hpp"

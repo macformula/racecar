@@ -1,7 +1,7 @@
 /// @author Blake Freer
 /// @date 2023-12-25
 
-#include "../../bindings.hpp"
+#include "inc/bindings.hpp"
 
 #include <chrono>
 #include <cstdint>
