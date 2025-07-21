@@ -9,7 +9,7 @@
 #include "tim.h"
 
 // fw imports
-#include "../../bindings.hpp"
+#include "inc/bindings.hpp"
 #include "mcal/stm32f/analog_input.hpp"
 #include "mcal/stm32f/can.hpp"
 #include "mcal/stm32f/gpio.hpp"

@@ -1,4 +1,4 @@
-#include "../../bindings.hpp"
+#include "inc/bindings.hpp"
 
 #include <iostream>
 

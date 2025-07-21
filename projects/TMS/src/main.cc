@@ -3,10 +3,10 @@
 
 #include <cstdint>
 
-#include "bindings.hpp"
 #include "etl/array.h"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "inc/bindings.hpp"
 #include "inc/fan_controller.hpp"
 #include "inc/temp_sensor.hpp"
 #include "shared/periph/gpio.hpp"
