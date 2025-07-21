@@ -19,4 +19,4 @@ repos:
         require_serial: true
         stages: [pre-commit]
         additional_dependencies:
-          - clang-format~=19.0
+          - clang-format~=20.0
