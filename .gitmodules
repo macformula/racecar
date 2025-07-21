@@ -1,9 +1,3 @@
-[submodule "firmware/tests/googletest"]
-	path = firmware/third-party/googletest
-	url = https://github.com/google/googletest.git
-[submodule "firmware/third-party/etl"]
-	path = firmware/third-party/etl
-	url = https://github.com/ETLCPP/etl.git
 [submodule "firmware/projects/Dashboard/third-party/lv_drivers"]
 	path = firmware/projects/Dashboard/platforms/linux/third-party/lv_drivers
 	url = https://github.com/lvgl/lv_drivers.git
@@ -14,17 +8,17 @@
 	path = firmware/projects/Dashboard/platforms/stm32/third-party/32f469idiscovery-bsp
 	url = https://github.com/STMicroelectronics/32f469idiscovery-bsp.git
 [submodule "firmware/projects/lv_port_stm32f469_disco/Drivers/lvgl"]
-	path = firmware/projects/Dashboard/lvgl
+	path = projects/Dashboard/lvgl
 	url = https://github.com/lvgl/lvgl.git
 [submodule "firmware/projects/Dashboard/platforms/lnx/lv_drivers"]
-	path = firmware/projects/Dashboard/platforms/lnx/lv_drivers
+	path = projects/Dashboard/platforms/lnx/lv_drivers
 	url = https://github.com/lvgl/lv_drivers.git
 [submodule "firmware/projects/Dashboard/platforms/stm32/stm32-nt35510"]
-	path = firmware/projects/Dashboard/platforms/stm32/BSP/Components/nt35510
+	path = projects/Dashboard/platforms/stm32/BSP/Components/nt35510
 	url = https://github.com/STMicroelectronics/stm32-nt35510.git
 [submodule "firmware/projects/Dashboard/platforms/stm32/BSP/Components/stm32-otm8009a"]
-	path = firmware/projects/Dashboard/platforms/stm32/BSP/Components/otm8009a
+	path = projects/Dashboard/platforms/stm32/BSP/Components/otm8009a
 	url = https://github.com/STMicroelectronics/stm32-otm8009a.git
 [submodule "firmware/projects/Dashboard/platforms/stm32/BSP/32f469idiscovery-bsp"]
-	path = firmware/projects/Dashboard/platforms/stm32/BSP/32f469idiscovery-bsp
+	path = projects/Dashboard/platforms/stm32/BSP/32f469idiscovery-bsp
 	url = https://github.com/STMicroelectronics/32f469idiscovery-bsp.git

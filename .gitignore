@@ -9,3 +9,7 @@ __pycache__/
 
 # Busmaster dbf files. If you need one, convert it from a dbc
 *.dbf
+
+.clangd
+.cache
+*.log
