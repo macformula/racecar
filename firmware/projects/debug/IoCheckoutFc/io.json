@@ -1,0 +1,237 @@
+{
+  "name": "io",
+  "baud_rate": null,
+  "nodes": [
+    {
+      "name": "FC"
+    },
+    {
+      "name": "PI"
+    }
+  ],
+  "enum_types": {},
+  "messages": [
+    {
+      "name": "PedalSensors",
+      "id": 454,
+      "is_extended_id": false,
+      "length": 6,
+      "sender": "FC",
+      "receivers": [
+        "PI"
+      ],
+      "frequency": 100,
+      "signals": [
+        {
+          "name": "Apps1",
+          "start_bit": 0,
+          "length": 12,
+          "endianness": "LITTLE",
+          "signal_type": "integral",
+          "value_range": [
+            0,
+            3
+          ],
+          "is_signed": false
+        },
+        {
+          "name": "Apps2",
+          "start_bit": 12,
+          "length": 12,
+          "endianness": "LITTLE",
+          "signal_type": "integral",
+          "value_range": [
+            0,
+            3
+          ],
+          "is_signed": false
+        },
+        {
+          "name": "Bpps1",
+          "start_bit": 24,
+          "length": 12,
+          "endianness": "LITTLE",
+          "signal_type": "integral",
+          "value_range": [
+            0,
+            3
+          ],
+          "is_signed": false
+        },
+        {
+          "name": "Bpps2",
+          "start_bit": 36,
+          "length": 12,
+          "endianness": "LITTLE",
+          "signal_type": "integral",
+          "value_range": [
+            0,
+            3
+          ],
+          "is_signed": false
+        }
+      ]
+    },
+    {
+      "name": "Wheels",
+      "id": 898,
+      "is_extended_id": false,
+      "length": 2,
+      "sender": "FC",
+      "receivers": [
+        "PI"
+      ],
+      "frequency": 100,
+      "signals": [
+        {
+          "name": "WheelSpeedRightA",
+          "start_bit": 0,
+          "length": 1,
+          "endianness": "LITTLE",
+          "signal_type": "boolean"
+        },
+        {
+          "name": "WheelSpeedRightB",
+          "start_bit": 1,
+          "length": 1,
+          "endianness": "LITTLE",
+          "signal_type": "boolean"
+        },
+        {
+          "name": "WheelSpeedLeftA",
+          "start_bit": 2,
+          "length": 1,
+          "endianness": "LITTLE",
+          "signal_type": "boolean"
+        },
+        {
+          "name": "WheelSpeedLeftB",
+          "start_bit": 3,
+          "length": 1,
+          "endianness": "LITTLE",
+          "signal_type": "boolean"
+        },
+        {
+          "name": "SteeringAngle",
+          "start_bit": 4,
+          "length": 12,
+          "endianness": "LITTLE",
+          "signal_type": "floating",
+          "is_signed": false,
+          "value_range": [
+            0.0,
+            3.3
+          ],
+          "scale": 1.0000001,
+          "offset": 0.0,
+          "unit": "V"
+        }
+      ]
+    },
+    {
+      "name": "VehicleInfo",
+      "id": 983,
+      "is_extended_id": false,
+      "length": 4,
+      "sender": "FC",
+      "receivers": [
+        "PI"
+      ],
+      "frequency": 100,
+      "signals": [
+        {
+          "name": "HvilFeedback",
+          "start_bit": 0,
+          "length": 12,
+          "endianness": "LITTLE",
+          "signal_type": "floating",
+          "is_signed": false,
+          "value_range": [
+            0.0,
+            3.3
+          ],
+          "scale": 1.0000001,
+          "offset": 0.0,
+          "unit": "V"
+        },
+        {
+          "name": "StartButton",
+          "start_bit": 24,
+          "length": 1,
+          "endianness": "LITTLE",
+          "signal_type": "boolean"
+        }
+      ]
+    },
+    {
+      "name": "Suspension",
+      "id": 1032,
+      "is_extended_id": false,
+      "length": 3,
+      "sender": "FC",
+      "receivers": [
+        "PI"
+      ],
+      "frequency": 100,
+      "signals": [
+        {
+          "name": "SuspensionTravel1",
+          "start_bit": 0,
+          "length": 12,
+          "endianness": "LITTLE",
+          "signal_type": "floating",
+          "is_signed": false,
+          "value_range": [
+            0.0,
+            3.3
+          ],
+          "scale": 1.0000001,
+          "offset": 0.0,
+          "unit": "V"
+        },
+        {
+          "name": "SuspensionTravel2",
+          "start_bit": 12,
+          "length": 12,
+          "endianness": "LITTLE",
+          "signal_type": "floating",
+          "is_signed": false,
+          "value_range": [
+            0.0,
+            3.3
+          ],
+          "scale": 1.0000001,
+          "offset": 0.0,
+          "unit": "V"
+        }
+      ]
+    },
+    {
+      "name": "RequiredRxMessage",
+      "id": 634,
+      "is_extended_id": false,
+      "length": 1,
+      "sender": "PI",
+      "receivers": [
+        "FC"
+      ],
+      "frequency": 100,
+      "signals": [
+        {
+          "name": "DoNotUseMe",
+          "start_bit": 0,
+          "length": 1,
+          "endianness": "LITTLE",
+          "signal_type": "boolean"
+        },
+        {
+          "name": "ThisWillBeRemovedSoon",
+          "start_bit": 1,
+          "length": 1,
+          "endianness": "LITTLE",
+          "signal_type": "boolean"
+        }
+      ]
+    }
+  ]
+}
