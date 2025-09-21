@@ -6,9 +6,8 @@
 #include <cstdint>
 #include <string>
 
-#include "lib/util/mappers/linear_map.hpp"
+#include "client.h"
 #include "periph/adc.hpp"
-#include "validation/sil/sil_client.h"
 
 namespace mcal::raspi {
 
