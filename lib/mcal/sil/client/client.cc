@@ -1,7 +1,7 @@
 /// @author Samuel Parent
 /// @date 2024-05-01
 
-#include "sil_client.h"
+#include "client.h"
 
 #include <google/protobuf/stubs/port.h>
 #include <grpcpp/grpcpp.h>
