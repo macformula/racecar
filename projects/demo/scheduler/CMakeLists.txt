@@ -1,1 +1,0 @@
-target_sources(main PUBLIC main.cc scheduler/scheduler.cc)

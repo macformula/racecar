@@ -1,6 +1,6 @@
-#include "../generated/can/test_rx_bus.hpp"
+#include "generated/can/test_rx_bus.hpp"
 #include "gtest/gtest.h"
-#include "lib/periph/can.hpp"
+#include "periph/can.hpp"
 
 #define EXPECT_MSG_EQ(x, y)                                      \
     ASSERT_EQ((x).data_length, (y).data_length);                 \
