@@ -192,8 +192,7 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
                 alerts::Get().accumulator_contactor_wrong_state = true;
                 new_state = ERROR;
 
-            } else if (IsPrechargeComplete() &&
-                       (elapsed >= timeout::MIN_PRECHARGE_TIME)) {
+            } else if ((elapsed >= timeout::MIN_PRECHARGE_TIME)) {
                 new_state = STARTUP_CLOSE_POS;
             } else {
             }
