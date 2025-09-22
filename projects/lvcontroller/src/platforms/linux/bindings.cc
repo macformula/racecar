@@ -1,4 +1,4 @@
-#include "../../bindings.hpp"
+#include "bindings.hpp"
 
 #include "mcal/linux/analog_input.hpp"
 #include "mcal/linux/can.hpp"

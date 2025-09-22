@@ -1,6 +1,6 @@
-#include "../generated/can/test_rx_messages.hpp"
-#include "../generated/can/test_tx_messages.hpp"
 #include "cantest.hpp"
+#include "generated/can/test_rx_messages.hpp"
+#include "generated/can/test_tx_messages.hpp"
 
 using SignedLittle = CanTest<TxSignedLittle>;
 TEST_P(SignedLittle, HandleCases) {

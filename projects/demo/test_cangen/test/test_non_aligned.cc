@@ -1,6 +1,6 @@
-#include "../generated/can/test_rx_messages.hpp"
-#include "../generated/can/test_tx_messages.hpp"
 #include "cantest.hpp"
+#include "generated/can/test_rx_messages.hpp"
+#include "generated/can/test_tx_messages.hpp"
 
 using NonAlignedSignal = CanTest<TxNonAligned>;
 TEST_P(NonAlignedSignal, HandleCases) {

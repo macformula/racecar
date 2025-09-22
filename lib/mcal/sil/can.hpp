@@ -21,7 +21,7 @@
 #include <queue>
 #include <thread>
 
-#include "lib/can/raw_can_msg.hpp"
+#include "can/raw_can_msg.hpp"
 #include "periph/can.hpp"
 #include "third-party/etl/include/etl/queue.h"
 

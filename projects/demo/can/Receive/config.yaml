@@ -1,5 +1,0 @@
-canGen:
-  busses:
-    - name: demobus
-      node: RECV
-      dbcFile: "../demo.dbc"

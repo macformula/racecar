@@ -1,4 +1,5 @@
 canGen:
+  outputPath: include/generated/can
   busses:
     - name: error
       node: tms

@@ -1,6 +1,6 @@
-#include "../generated/can/test_rx_messages.hpp"
-#include "../generated/can/test_tx_messages.hpp"
 #include "cantest.hpp"
+#include "generated/can/test_rx_messages.hpp"
+#include "generated/can/test_tx_messages.hpp"
 
 using LongField = CanTest<TxLongFields>;
 TEST_P(LongField, LongField) {
