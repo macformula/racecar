@@ -25,8 +25,6 @@ error_handler.SetError(Error48);
 error_handler.SendError(error_can_bus);
 ```
 
-## Building the Project
-- To build the project, run the following in the firmware directory `make PROJECT=Demo/CANErrors PLATFORM=cli`
-   - This should create a build file with no errors!
-   - This will also generate the dbc files automatically, but if you want to generate them seperately, run `cangen projects/Demo/CANErrors`
-- To execute the new build, run `./build/Demo/CANErrors/cli/main.exe`
+## Running the Project with PlatformIO
+
+Select the CLI environment then click Upload.

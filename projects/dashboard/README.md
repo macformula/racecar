@@ -34,18 +34,17 @@ If you are using WSL2, you will also need to install X11 to show the SDL2 screen
 Then, compile with
 
 ```bash
-make PROJECT=Dashboard PLATFORM=lnx
+pio run -e linux
 ```
 
-The platform name is `lnx` (not `linux`) because C/C++ consider `linux` a keyword which breaks imports.
-
-Enable the SocketCAN interface then run the executable. In another terminal, run the FrontController mock script to provide replies to the Dashbaord's CAN messages.
+Enable the SocketCAN interface then run the executable. In another terminal, run the FrontController mock script to provide replies to the Dashboard's CAN messages.
 
 ```bash
-source platforms/lnx/socketcan_setup.sh
-./build/Dashboard/lnx/main
+source platforms/linux/socketcan_setup.sh
+pio run -t upload -e linux
+
 # In a separate terminal
-python3 platforms/lnx/fc_sim.py
+python3 platforms/linux/fc_sim.py
 ```
 
 ## Development

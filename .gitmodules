@@ -14,5 +14,5 @@
 	path = projects/dashboard/src/platforms/stm32/BSP/32f469idiscovery-bsp
 	url = https://github.com/STMicroelectronics/32f469idiscovery-bsp.git
 [submodule "projects/dashboard/src/platforms/lnx/lv_drivers"]
-	path = projects/dashboard/src/platforms/lnx/lv_drivers
+	path = projects/dashboard/src/platforms/linux/lv_drivers
 	url = https://github.com/lvgl/lv_drivers.git
