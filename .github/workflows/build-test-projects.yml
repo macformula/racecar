@@ -4,16 +4,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: true
-      matrix:
-        project:
-          - demo/blink
-          - demo/test_cangen
-          - tms
-          - frontcontroller
-          - lvcontroller
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
