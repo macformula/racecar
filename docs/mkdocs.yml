@@ -86,7 +86,11 @@ markdown_extensions:
   - md_in_html
   - pymdownx.details
   - pymdownx.keys
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.inlinehilite
   - pymdownx.tabbed:
       alternate_style: true
@@ -123,29 +127,27 @@ extra:
 nav:
   - Home:
     - index.md
+  - Firmware:
+    - firmware/index.md
+    - firmware/dev-setup/index.md
+    - firmware/using-vscode-pio/index.md
+    - firmware/flashing/index.md
+    # # The following documents need to be updated for PlatformIO
+    # - firmware/architecture/index.md
+    # - firmware/project-structure/index.md
+    # - STM32 Platform:
+    #   - firmware/stm32/start-cubemx-project.md
+    #   - firmware/stm32/configure.md
+    #   - firmware/stm32/bindings.md
+    - firmware/can-traffic/index.md
   - Tutorials:
     - tutorials/index.md
     # - tutorials/git.md
-    - tutorials/site-dev.md
     - tutorials/wsl-can/index.md
     - tutorials/ssh-signing/index.md
     - tutorials/busmaster/index.md
     - tutorials/orion-bms/index.md
-  - Firmware:
-    - firmware/index.md
-    - Development Environment Setup:
-      - firmware/dev-setup/index.md
-      - firmware/dev-setup/vscode.md
-    - firmware/architecture/index.md
-    - firmware/project-structure/index.md
-    - STM32 Platform:
-      - firmware/stm32/start-cubemx-project.md
-      - firmware/stm32/configure.md
-      - firmware/stm32/bindings.md
-    - firmware/compile-project.md
-    - firmware/flashing/index.md
-    - firmware/hw-debug.md
-    - firmware/can-traffic/index.md
+    - tutorials/site-dev.md
   - Glossary: glossary.md
 
 watch:

@@ -9,3 +9,7 @@ Check out our docs → <https://macformula.github.io/racecar>
 - [firmware/](firmware/) - C++ code that runs on our ECUs.
 - [scripts/](scripts/) - Internal software tools for development and testing.
 - [docs/](docs/) - Source files for generating our [documentation website](https://macformula.github.io/racecar).
+
+## Want to contribute?
+
+We have a guide for that! <https://macformula.github.io/racecar/firmware/dev-setup/>
