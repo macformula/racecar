@@ -1,50 +1,63 @@
 name: Build and Test Projects
-on:
-  pull_request:
-    paths:
-      - firmware/**
-      - scripts/cangen/**
-  workflow_dispatch:
+on: [pull_request]
 jobs:
-  setup-python:
+  build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '>=3.10'
-          cache: pip
-      - name: Install Dependencies
-        run: pip install -e scripts/cangen
-  build-test:
-    needs: setup-python
-    runs-on: ubuntu-latest
+
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         project:
-        #   - FrontController
-          - LVController
-          - TMS
-          - Demo/TestCangen
-        platform:
-          - cli
+          - demo/blink
+          - demo/test_cangen
+          - tms
+          - frontcontroller
+          - lvcontroller
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
         with:
-          submodules: true
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '>=3.10'
-          cache: pip
-      - name: Install Dependencies
-        run: pip install -e scripts/cangen # Will always result in cache hit due to setup-python
-      - name: Build and Test ${{ matrix.project }} for ${{ matrix.platform }}
+          python-version: '3.13'
+
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+        
+      - name: Test PlatformIO Libaries and Projects
         shell: bash
         run: |
-          cd firmware
-          make PROJECT=${{ matrix.project }} PLATFORM=${{ matrix.platform }}
+          git ls-files -z '**/platformio.ini' | while IFS= read -r -d '' ini; do
+              dir=$(dirname "$ini")
+              if [ -d "$dir/test" ]; then
+                  echo "Testing $dir"
+                  pio test -d "$dir" || exit 1
+              else
+                  echo "No tests found in $dir"
+              fi
+          done
+
+      - name: Build PlatformIO Projects
+        shell: bash
+        run: |
+          git ls-files -z 'projects/**/platformio.ini' | while IFS= read -r -d '' ini; do
+              dir=$(dirname "$ini")
+              echo "Building project in $dir"
+
+                if [ "$dir" = "projects/dashboard" ]; then
+                  # Don't build for Linux since it requires SDL2
+                  pio run -d "$dir" -e vehicle || exit 1
+                  continue
+                fi
+
+              pio run -d "$dir" || exit 1
+          done
