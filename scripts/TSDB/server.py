@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 
-from influxgarbage import write_row_to_test_bucket
+from scripts.TSDB.influx import write_row_to_test_bucket
 
 app = FastAPI()
 

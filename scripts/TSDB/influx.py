@@ -52,26 +52,12 @@ def write_row_to_test_bucket(measurement, tags=None, fields=None, timestamp=None
 
 # Example usage - write some test data
 if __name__ == "__main__":
-    # Example 1: Car telemetry data
-    write_row_to_test_bucket(
-        measurement="car_telemetry",
-        tags={"car_id": "racecar_01", "driver": "samuel", "track": "silverstone"},
-        fields={"speed": 85.5, "rpm": 7200, "throttle": 0.8, "brake_pressure": 0.2}
-    )
-    
-    # Example 2: Sensor data
-    write_row_to_test_bucket(
-        measurement="sensors",
-        tags={"sensor_type": "temperature", "location": "engine"},
-        fields={"value": 95.6, "status": "normal"}
-    )
-    
-    # Example 3: Simple counter
-    write_row_to_test_bucket(
-        measurement="lap_counter",
-        tags={"session": "practice"},
-        fields={"lap_number": 1, "lap_time": 87.234}
-    )
-    
+    import random
+    randomValue1 = random.randint(1, 100)
+    write_row_to_test_bucket("test1" , fields ={"value": randomValue1})  
+    write_row_to_test_bucket("test2" , fields ={"value": random.randint(1, 100)})
+    write_row_to_test_bucket("test3" , fields ={"value": random.randint(1, 100)})
+
     print(f"🏁 Test data written to bucket: {bucket}")
 
+    
