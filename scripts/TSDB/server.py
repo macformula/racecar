@@ -1,15 +1,29 @@
 from fastapi import FastAPI, HTTPException          
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 
-from scripts.TSDB.influx import write_row_to_test_bucket
+from influx import write_row_to_test_bucket
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 class DataPoint(BaseModel):
     measurement: str
     tags: Optional[Dict[str, str]] = None
     fields: Optional[Dict[str, Any]] = None
+
+class GraphData(BaseModel):
+    timestamp: int
+    value: float
 
 @app.post("/write")
 def write_data(data_point: DataPoint):
@@ -21,6 +35,21 @@ def write_data(data_point: DataPoint):
             measurement=data_point.measurement,
             tags=data_point.tags,
             fields=data_point.fields
+        )
+        return {"status": "success", "written": success}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/write-graph")
+def write_graph_data(data: GraphData):
+    """
+    Endpoint to write GraphData point to InfluxDB.
+    """
+    try:
+        success = write_row_to_test_bucket(
+            measurement="graph_data",
+            tags={"source": "frontend"},
+            fields={"value": data.value, "timestamp": data.timestamp}
         )
         return {"status": "success", "written": success}
     except Exception as e:
