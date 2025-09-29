@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "cangen"
-version = "0.3.0"
+version = "0.4.0"
 description = "Converts .dbc files into C++ files for a CAN bus system."
-authors = ["Andrew Iammancini"]
+authors = ["Andrew Iammancini", "Samuel Parent", "Blake Freer"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -12,9 +12,8 @@ Jinja2 = "3.1.5"
 numpy = "1.26.4"
 PyYAML = "6.0.1"
 
-
 [tool.poetry.scripts]
-cangen = "cangen.main:main"
+cangen = "cangen.__main__:main"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.6.9"

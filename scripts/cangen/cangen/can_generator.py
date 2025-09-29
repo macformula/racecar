@@ -41,7 +41,7 @@ class CppSignal:
     name: str
     type: str
     raw_type: str
-    raw_type_bits: str
+    raw_type_bits: int
     masks_shifts: List[MaskShift]
     is_enum: bool
 
@@ -52,14 +52,12 @@ class CppSignal:
         self.name = _camel_to_snake(self.s.name)
         self.is_enum = self.s.choices is not None
 
-        self.choose_datatypes()
-        self.masks_shifts = self.choose_masks_shifts()
-
-    def choose_datatypes(self) -> None:
         # Raw datatype is based on CAN layout
         self.raw_type_bits, self.raw_type = self.get_raw_type()
         # Actual datatype depends on more information
         self.type = self.get_datatype()
+
+        self.masks_shifts = self.choose_masks_shifts()
 
     def get_raw_type(self) -> Tuple[int, str]:
         for size in [8, 16, 32, 64]:
@@ -226,7 +224,7 @@ def _generate_code(bus: Bus, output_dir: str):
     templates (not included here) to create the final code.
     """
 
-    logger.info("Generating code")
+    logger.info(f"Generating code for bus {bus.name}")
 
     can_db = _parse_dbc_files(bus.dbc_file_path)
     raw_rx_msgs, raw_tx_msgs = _filter_messages_by_node(can_db.messages, bus.node)
@@ -238,7 +236,7 @@ def _generate_code(bus: Bus, output_dir: str):
         "date": time.strftime("%Y-%m-%d"),
         "rx_msgs": rx_msgs,
         "tx_msgs": tx_msgs,
-        "bus_name": bus.bus_name,
+        "bus_name": bus.name,
         "node_name": bus.node,
         "dbc_hash": _extract_dbc_hash(bus.dbc_file_path),
     }
@@ -256,13 +254,13 @@ def _generate_code(bus: Bus, output_dir: str):
         rendered_code = template.render(**context)
 
         output_file_name = _create_output_file_name(
-            output_dir, bus.bus_name, template_file_name
+            output_dir, bus.name, template_file_name
         )
         with open(output_file_name, "w") as output_file:
             output_file.write(rendered_code)
         logger.info(f"Rendered code written to '{os.path.abspath(output_file_name)}'")
 
-        logger.info("Code generation complete")
+    logger.info(f"Code generation complete for bus {bus.name}")
 
 
 def _prepare_output_directory(output_dir: str):

@@ -1,6 +1,6 @@
 {
     "name": "cangen",
-    "version": "0.3.1",
+    "version": "0.4.0",
     "description": "Converts .dbc files into C++ files for a CAN bus system",
     "platforms": "*",
     "frameworks": "*",

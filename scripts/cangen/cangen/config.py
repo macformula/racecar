@@ -7,12 +7,12 @@ DEFAULT_OUTPUT_DIR = "generated/can"
 class Bus:
     def __init__(self, bus: dict):
         self.dbc_file_path: str = bus.pop("dbcFile")
-        self.bus_name: str = bus.pop("name").capitalize()
+        self.name: str = bus.pop("name").capitalize()
         self.node = bus.pop("node")
 
         if bus:
             raise ValueError(
-                f"{bus.keys()} field/s not expected in configuration file for bus {self.bus_name}."
+                f"{bus.keys()} field(s) not expected in configuration file for bus {self.name}."
             )
 
 
@@ -29,5 +29,5 @@ class Config:
 
         if config:
             raise ValueError(
-                f"{config.keys()} field/s not expected in configuration file from node."
+                f"{config.keys()} field(s) not expected in configuration file from node."
             )

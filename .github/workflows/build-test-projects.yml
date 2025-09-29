@@ -1,5 +1,5 @@
 name: Build and Test Projects
-on: [pull_request]
+on: [pull_request, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,8 +29,10 @@ jobs:
           git ls-files -z '**/platformio.ini' | while IFS= read -r -d '' ini; do
               dir=$(dirname "$ini")
               if [ -d "$dir/test" ]; then
-                  echo "Testing $dir"
-                  pio test -d "$dir" || exit 1
+                  echo "============================================================"
+                  echo "==== Testing $dir"
+                  echo "============================================================"
+                  pio test --project-dir "$dir" -vvv || exit 1
               else
                   echo "No tests found in $dir"
               fi
@@ -41,13 +43,8 @@ jobs:
         run: |
           git ls-files -z 'projects/**/platformio.ini' | while IFS= read -r -d '' ini; do
               dir=$(dirname "$ini")
-              echo "Building project in $dir"
-
-                if [ "$dir" = "projects/dashboard" ]; then
-                  # Don't build for Linux since it requires SDL2
-                  pio run -d "$dir" -e vehicle || exit 1
-                  continue
-                fi
-
-              pio run -d "$dir" || exit 1
+              echo "============================================================"
+              echo "==== Building $dir"
+              echo "============================================================"
+              pio run --project-dir "$dir" -vvv || exit 1
           done
