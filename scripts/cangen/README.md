@@ -2,13 +2,16 @@
 
 Generates C++ files from a corresponding dbc file. Ensures repeatable generation between all projects.
 
-## Installation
+## PlatformIO Integration
 
-From the `racecar/` directory, run
+Add this to each `env` section. Adjust the relative path as necessary.
 
-```bash
-pip install scripts/cangen
+```ini
+lib_deps =
+    cangen=file://../../scripts/cangen
 ```
+
+This will keep `cangen` updated and running for that project.
 
 ## Usage
 
