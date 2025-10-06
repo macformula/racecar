@@ -7,8 +7,8 @@ namespace suspension {
 
 static float v3 = 0;
 static float v4 = 0;
-static float = travel3;
-static float = travel4;
+static float travel3 = 0;
+static float travel4 = 0;
 inline constexpr float sensorSupply_V =
     5.0f;  // set to 5V, change depending on what the sensor runs at
 
