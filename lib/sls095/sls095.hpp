@@ -17,8 +17,6 @@ namespace macfe {
         if (supplyVoltage <= 0 ){ 
             return 0.0f;
         }
-        // range from 0 -> 1
-        float voltage_ratio = inputVoltage / supplyVoltage;
         
         return stroke_mm * inputVoltage / supplyVoltage; //
     }
