@@ -10,13 +10,9 @@ repos:
         args: [--branch, main]
         stages: [pre-commit]
     
-  - repo: local
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v20.1.8
     hooks:
-      - id: clang-format
-        name: Run git-clang-format
-        entry: git clang-format --style=file --staged
-        language: python
-        require_serial: true
-        stages: [pre-commit]
-        additional_dependencies:
-          - clang-format~=20.0
+    - id: clang-format
+      require_serial: true
+      stages: [pre-commit]
