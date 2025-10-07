@@ -1,7 +1,8 @@
+#include "suspension.hpp"
+
 #include "bindings.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "sls095.hpp"
-#include "suspension.hpp"
 
 namespace suspension {
 
