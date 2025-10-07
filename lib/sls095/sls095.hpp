@@ -1,21 +1,22 @@
 /// @author Manush Patel
 /// @date 2025-10
 
-#pragma once
+/*
+ https://www.cw-industrial.com/sites/default/files/home/industrial-sensors/linear-position/SLS095-Technical-Information.pdf
+*/
 
-#include <span>
-#include <type_traits>
+#pragma once
 
 namespace macfe {
 
-inline constexpr float stroke_mm =
-    75.0f;  // Physical stroke length in millimeters
+inline constexpr float STROKE_MM = 75.0f;
 
-float positionFromVoltage(float inputVoltage, float supplyVoltage) {
-    if (supplyVoltage <= 0) {
+float VoltToMillimeter(float input_voltage, float supply_voltage) {
+    if (supply_voltage <= 0) {
         return 0.0f;
     }
 
-    return stroke_mm * inputVoltage / supplyVoltage;  //
+    return STROKE_MM * input_voltage / supply_voltage;  //
 }
+
 };  // namespace macfe

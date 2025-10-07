@@ -5,20 +5,14 @@
 
 namespace suspension {
 
-static float v3 = 0;
-static float v4 = 0;
-static float travel3 = 0;
-static float travel4 = 0;
-inline constexpr float sensorSupply_V =
-    5.0f;  // set to 5V, change depending on what the sensor runs at
+static const float SENSOR_SUPPLY_V = = 3.3f;
 
 static void Measure(void) {
-    v3 = bindings::suspension_travel3.ReadVoltage();
-    v4 = bindings::suspension_travel4.ReadVoltage();
+    float v3 = bindings::suspension_travel3.ReadVoltage();
+    float v4 = bindings::suspension_travel4.ReadVoltage();
 
-    // Map v3, v4 to position (mm)
-    travel3 = macfe::positionFromVoltage(v3, sensorSupply_V);
-    travel4 = macfe::positionFromVoltage(v4, sensorSupply_V);
+    float travel3 = macfe::VoltToMillimeter(v3, sensorSupply_V);
+    float travel4 = macfe::VoltToMillimeter(v4, sensorSupply_V);
 }
 
 void task_10hz(generated::can::VehBus& veh_can) {
