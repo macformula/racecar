@@ -17,6 +17,7 @@
 #include "StartingMotors.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "inc/Tuning.hpp"
 
 class Display {
 public:
@@ -44,7 +45,6 @@ private:
     std::optional<State> transition_;
     State state_ = State::LOGO;
     Screen* screen_;
-
     LogoScreen logo_screen;
     ProfileSelect profile_select;
     ConfirmMenu confirm_menu;

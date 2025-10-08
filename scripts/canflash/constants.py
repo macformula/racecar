@@ -2,9 +2,6 @@
 UPLOAD_DIR = "uploads"
 
 # ECU Configuration with GPIO pins and CAN message IDs
-
-# WARNING: These GPIO pins are not correct and need to be fixed. They correspond to
-# the Raspberry PI gpio pin which connects to each ECU's boot pin.
 ECU_CONFIG = {
     "FrontController": {
         "gpio_pin": 8,
