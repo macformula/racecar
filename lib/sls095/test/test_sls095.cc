@@ -3,12 +3,12 @@
 #include "sls095.hpp"
 
 TEST(VoltageToPosition, ZeroVoltage) {
-    EXPECT_FLOAT_EQ(0, macfe::sls095::VoltToMillimeter(0, 5.0f));
+    EXPECT_FLOAT_EQ(75, macfe::sls095::VoltToMillimeter(0, 5.0f));
 }
 
 TEST(VoltageToPosition, MaxVoltage) {
-    EXPECT_FLOAT_EQ(75, macfe::sls095::VoltToMillimeter(
-                            5.0f, 5.0f));  // maximum position of 75mm
+    EXPECT_FLOAT_EQ(0, macfe::sls095::VoltToMillimeter(
+                           5.0f, 5.0f));  // maximum position of 75mm
 }
 
 TEST(VoltageToPosition, MiddleVoltage) {
@@ -16,7 +16,7 @@ TEST(VoltageToPosition, MiddleVoltage) {
 }
 
 TEST(VoltageToPosition, NegativeSupplyReturnsZero) {
-    EXPECT_FLOAT_EQ(0.0f, macfe::sls095::VoltToMillimeter(2.0f, -5.0f));
+    EXPECT_FLOAT_EQ(75.0f, macfe::sls095::VoltToMillimeter(2.0f, -5.0f));
 }
 
 TEST(VoltageToPosition, MidWith33vSupply) {
