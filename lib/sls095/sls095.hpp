@@ -7,7 +7,7 @@
 
 #pragma once
 
-namespace macfe {
+namespace macfe::sls095 {
 
 inline constexpr float STROKE_MM = 75.0f;
 
@@ -16,7 +16,7 @@ float VoltToMillimeter(float input_voltage, float supply_voltage) {
         return 0.0f;
     }
 
-    return STROKE_MM * input_voltage / supply_voltage;
+    return STROKE_MM * (1.f - input_voltage / supply_voltage);
 }
 
-};  // namespace macfe
+};  // namespace macfe::sls095
