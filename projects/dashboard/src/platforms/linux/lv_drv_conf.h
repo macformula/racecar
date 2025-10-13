@@ -371,7 +371,7 @@
  * Mouse or touchpad on PC (using SDL)
  *-------------------------------------*/
 #ifndef USE_MOUSE
-#define USE_MOUSE 1
+#define USE_MOUSE 0
 #endif
 
 #if USE_MOUSE
@@ -382,7 +382,7 @@
  * Mousewheel as encoder on PC (using SDL)
  *------------------------------------------*/
 #ifndef USE_MOUSEWHEEL
-#define USE_MOUSEWHEEL 1
+#define USE_MOUSEWHEEL 0
 #endif
 
 #if USE_MOUSEWHEEL
@@ -437,7 +437,7 @@
  *   Keyboard of a PC (using SDL)
  *------------------------------*/
 #ifndef USE_KEYBOARD
-#define USE_KEYBOARD 1
+#define USE_KEYBOARD 0
 #endif
 
 #if USE_KEYBOARD

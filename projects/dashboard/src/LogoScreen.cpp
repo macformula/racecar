@@ -1,21 +1,22 @@
 #include "LogoScreen.hpp"
 
 #include "Display.hpp"
+
+// Include the logo image data (defined in FE_Logo.cpp)
 #include "FE_Logo.cpp"  // don't open this file! it's big and will crash your IDE
 
 LogoScreen::LogoScreen(Display* display) : Screen(display) {}
 
 void LogoScreen::CreateGUI() {
-    LV_IMG_DECLARE(FE_Logo);
+    // Create and display the Formula Electric logo
+    lv_obj_t* logo = lv_image_create(frame_);
+    lv_image_set_src(logo, &FE_Logo);
+    lv_obj_align(logo, LV_ALIGN_CENTER, 0, -20);
 
-    lv_obj_t* img = lv_img_create(frame_);
-    lv_img_set_src(img, &FE_Logo);
-    lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
-
+    // Help message at the bottom
     lv_obj_t* help_msg = lv_label_create(frame_);
-    lv_label_set_text(help_msg, "Press any button to continue");
-    lv_obj_set_style_text_font(help_msg, &lv_font_montserrat_24, 0);
-    lv_obj_align(help_msg, LV_ALIGN_BOTTOM_MID, 0, 0);
+    lv_label_set_text(help_msg, "Press Tab or Space to continue");
+    lv_obj_align(help_msg, LV_ALIGN_BOTTOM_MID, 0, -20);
 }
 
 void LogoScreen::Update() {

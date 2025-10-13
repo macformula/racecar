@@ -5,8 +5,10 @@
 #include "generated/can/veh_messages.hpp"
 #include "lvgl.h"
 
+#include <iostream>
+
 extern "C" {
-extern lv_disp_drv_t lv_display_driver;
+extern lv_display_t* lv_display;
 }
 
 using namespace generated::can;
@@ -26,17 +28,34 @@ int main(void) {
 
     display.Start();
 
-    while (true) {
-        int time_ms = lv_tick_get();
+    while (!bindings::ShouldQuit()) {
+        try {
+            int time_ms = lv_tick_get();
 
-        display.Update(time_ms);
+            display.Update(time_ms);
 
-        veh_can.Send(TxDashStatus{
-            .counter = tx_counter++,
-            .state = display.GetState(),
-            .profile = display.selected_profile,
-        });
+            veh_can.Send(TxDashStatus{
+                .counter = tx_counter++,
+                .state = display.GetState(),
+                .profile = display.selected_profile,
+            });
 
-        bindings::DelayMS(kUpdatePeriodMs);
+            bindings::DelayMS(kUpdatePeriodMs);
+        } catch (const std::exception& e) {
+            std::cerr << "Exception in main loop: " << e.what() << std::endl;
+            break;
+        } catch (...) {
+            std::cerr << "Unknown exception in main loop" << std::endl;
+            break;
+        }
     }
+    
+    std::cout << "Shutting down dashboard..." << std::endl;
+    
+    // Clean shutdown
+    bindings::Shutdown();
+    lv_deinit();
+    
+    // Force immediate exit to avoid any remaining cleanup issues
+    _exit(0);
 }

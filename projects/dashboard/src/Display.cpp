@@ -1,5 +1,7 @@
 ﻿#include "Display.hpp"
 
+#include <iostream>
+
 Display::Display(Button& enter, Button& scroll, generated::can::VehBus& veh)
     : enter(enter),
       scroll(scroll),
@@ -59,7 +61,6 @@ void Display::Update(int time_ms) {
 }
 
 void Display::InnerChangeState(State new_state_) {
-    lv_obj_t* old_screen = lv_scr_act();
     state_ = new_state_;
 
     switch (state_) {
@@ -81,5 +82,4 @@ void Display::InnerChangeState(State new_state_) {
     }
 
     screen_->Create();
-    lv_obj_del(old_screen);
 }
