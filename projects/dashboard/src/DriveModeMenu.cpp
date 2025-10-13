@@ -48,20 +48,18 @@ void Battery::SetPercent(float soc) {
     lv_label_set_text_fmt(label, "%d %%", static_cast<int>(soc));
 }
 
-DriveModeMenu::DriveModeMenu(Display* display) 
-    : Screen(display), 
-      last_warning_time_(0),
-      warning_cycle_index_(0) {}
+DriveModeMenu::DriveModeMenu(Display* display)
+    : Screen(display), last_warning_time_(0), warning_cycle_index_(0) {}
 
 void DriveModeMenu::CreateGUI() {
     // Reset demo state
     last_warning_time_ = lv_tick_get();
     warning_cycle_index_ = 0;
     active_warning_ids_.clear();
-    
+
     // Status bar is always visible (even when empty)
     status_bar_.SetAlwaysVisible(true);
-    
+
     speedometer_.Draw(frame_, LV_ALIGN_LEFT_MID, 100, 0);
     battery_.Draw(frame_, LV_ALIGN_RIGHT_MID, -100, 0);
 
@@ -87,10 +85,10 @@ void DriveModeMenu::Update() {
             display_->ChangeState(State::ERROR);
         }
     }
-    
+
     // Demo: Cycle warnings every 4 seconds
     uint32_t current_time = lv_tick_get();
-    
+
     // Add a new warning every 4 seconds
     if (current_time - last_warning_time_ >= 1000) {
         // Remove all previous warnings that are 4+ seconds old
@@ -98,20 +96,14 @@ void DriveModeMenu::Update() {
             status_bar_.RemoveWarning(id);
         }
         active_warning_ids_.clear();
-        
+
         // Add a new warning based on cycle index
-        const char* warnings[] = {
-            LV_SYMBOL_WARNING,
-            "TEMP",
-            LV_SYMBOL_CHARGE,
-            LV_SYMBOL_POWER,
-            "CHECK",
-            LV_SYMBOL_STOP
-        };
-        
+        const char* warnings[] = {LV_SYMBOL_WARNING, "TEMP",  LV_SYMBOL_CHARGE,
+                                  LV_SYMBOL_POWER,   "CHECK", LV_SYMBOL_STOP};
+
         int warning_id = status_bar_.AddWarning(warnings[warning_cycle_index_]);
         active_warning_ids_.push_back(warning_id);
-        
+
         // Cycle to next warning
         warning_cycle_index_ = (warning_cycle_index_ + 1) % 6;
         last_warning_time_ = current_time;

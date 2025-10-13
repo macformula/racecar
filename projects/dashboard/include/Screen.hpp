@@ -1,8 +1,8 @@
 #pragma once
 
+#include "StatusBar.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "lvgl.h"
-#include "StatusBar.hpp"
 
 class Display;
 

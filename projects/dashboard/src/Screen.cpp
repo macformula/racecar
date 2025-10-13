@@ -15,7 +15,7 @@ void Screen::Create() {
         frame_ = lv_obj_create(NULL);
         lv_scr_load(frame_);
     }
-    
+
     lv_obj_set_style_bg_color(frame_, lv_color_hex(0xd3d3d3), LV_PART_MAIN);
 
     // Create the persistent status bar (appears on all screens)

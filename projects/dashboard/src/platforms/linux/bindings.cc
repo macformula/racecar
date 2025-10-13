@@ -12,8 +12,9 @@
 
 #include <immintrin.h>
 extern "C" {
-#include "lvgl.h"
 #include <SDL2/SDL.h>
+
+#include "lvgl.h"
 
 lv_display_t* lv_display;
 lv_indev_t* kb_indev;
@@ -92,11 +93,11 @@ int tick_thread(void* _data) {
 
 void Initialize() {
     std::cout << "Starting Linux Platform" << std::endl;
-    
+
     // Set up signal handlers for clean shutdown
     std::signal(SIGINT, signal_handler);   // Ctrl+C
     std::signal(SIGTERM, signal_handler);  // Termination signal
-    
+
     mcal::veh_can_base.Setup();
 
     /* Create SDL window with LVGL 9.3 native driver */

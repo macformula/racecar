@@ -1,11 +1,11 @@
+#include <iostream>
+
 #include "Button.hpp"
 #include "Display.hpp"
 #include "bindings.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "lvgl.h"
-
-#include <iostream>
 
 extern "C" {
 extern lv_display_t* lv_display;
@@ -49,13 +49,13 @@ int main(void) {
             break;
         }
     }
-    
+
     std::cout << "Shutting down dashboard..." << std::endl;
-    
+
     // Clean shutdown
     bindings::Shutdown();
     lv_deinit();
-    
+
     // Force immediate exit to avoid any remaining cleanup issues
     _exit(0);
 }

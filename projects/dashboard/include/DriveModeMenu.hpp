@@ -2,9 +2,10 @@
 
 #include <src/misc/lv_area.h>
 
+#include <vector>
+
 #include "Screen.hpp"
 #include "lvgl.h"
-#include <vector>
 
 class Speedometer {
 public:
@@ -41,7 +42,7 @@ public:
 private:
     Battery battery_;
     Speedometer speedometer_;
-    
+
     // Demo: cycling warnings
     uint32_t last_warning_time_;
     std::vector<int> active_warning_ids_;
