@@ -69,4 +69,13 @@ void DelayMS(uint32_t ms) {
     HAL_Delay(ms);
 }
 
+bool ShouldQuit() {
+    // STM32 runs forever, never quits
+    return false;
+}
+
+void Shutdown() {
+    // No-op on STM32, hardware doesn't shutdown via software
+}
+
 }  // namespace bindings

@@ -33,7 +33,7 @@ extern DMA2D_HandleTypeDef hdma2d;
 /*
  * Global variables
  */
-lv_disp_drv_t lv_display_driver;
+lv_display_t* lv_display_driver;
 __attribute__((
     section(".framebuffer"))) lv_color_t framebuffer_1[FRAMEBUFFER_SIZE];
 __attribute__((
@@ -42,8 +42,8 @@ __attribute__((
 /*
  * Private functions prototypes
  */
-void stm32_flush_cb(lv_disp_drv_t* disp_drv, const lv_area_t* area,
-                    lv_color_t* color_p);
+void stm32_flush_cb(lv_display_t* disp_drv, const lv_area_t* area,
+                    uint8_t* color_p);
 void dma2d_copy_area(lv_area_t area, uint32_t src_buffer, uint32_t dst_buffer);
 
 /*
@@ -54,30 +54,22 @@ void screen_driver_init() {
     BSP_LCD_Init();
     BSP_LCD_LayerDefaultInit(0, (uint32_t)framebuffer_1);
 
-    static lv_disp_draw_buf_t draw_buf;
-    lv_disp_draw_buf_init(&draw_buf, framebuffer_1, framebuffer_2,
-                          FRAMEBUFFER_SIZE);
-    lv_disp_drv_init(&lv_display_driver);
-    lv_display_driver.direct_mode = true;
-    lv_display_driver.hor_res = NT35510_480X800_HEIGHT;
-    lv_display_driver.ver_res = NT35510_480X800_WIDTH;
-    lv_display_driver.flush_cb = stm32_flush_cb;
-    lv_display_driver.draw_buf = &draw_buf;
-
-    lv_disp_drv_register(&lv_display_driver);
+    // LVGL 9.3 display API
+    lv_display_driver =
+        lv_display_create(NT35510_480X800_HEIGHT, NT35510_480X800_WIDTH);
+    lv_display_set_flush_cb(lv_display_driver, stm32_flush_cb);
+    lv_display_set_buffers(lv_display_driver, framebuffer_1, framebuffer_2,
+                           FRAMEBUFFER_SIZE * sizeof(lv_color_t),
+                           LV_DISPLAY_RENDER_MODE_DIRECT);
 }
 
 /*
  * Private functions definitions
  */
-void stm32_flush_cb(lv_disp_drv_t* disp_drv, const lv_area_t* area,
-                    lv_color_t* color_p) {
-    lv_disp_t* disp = _lv_refr_get_disp_refreshing();
+void stm32_flush_cb(lv_display_t* disp, const lv_area_t* area,
+                    uint8_t* px_map) {
+    lv_color_t* color_p = (lv_color_t*)px_map;
     uint16_t *dma_xfer_src, *dma_xfer_dst;
-    if (!lv_disp_flush_is_last(disp_drv)) {
-        lv_disp_flush_ready(disp_drv);
-        return;
-    }
 
     // Swap the buffer for the one to display and reload the screen at the next
     // vertical blanking
@@ -92,15 +84,10 @@ void stm32_flush_cb(lv_disp_drv_t* disp_drv, const lv_area_t* area,
         dma_xfer_dst = (uint16_t*)framebuffer_1;
     }
 
-    for (size_t i = 0; i < disp->inv_p; i++) {
-        // If the area was not joined (and thus should not be ignored)
-        if (!disp->inv_area_joined[i]) {
-            dma2d_copy_area(disp->inv_areas[i], (uint32_t)dma_xfer_src,
-                            (uint32_t)dma_xfer_dst);
-        }
-    }
+    // Copy the dirty area (in LVGL 9.3, area is already provided)
+    dma2d_copy_area(*area, (uint32_t)dma_xfer_src, (uint32_t)dma_xfer_dst);
 
-    lv_disp_flush_ready(disp_drv);
+    lv_display_flush_ready(disp);
 }
 
 void dma2d_copy_area(lv_area_t area, uint32_t src_buffer, uint32_t dst_buffer) {

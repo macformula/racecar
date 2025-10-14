@@ -179,6 +179,10 @@
 /*Use Arm's 2D acceleration library Arm-2D */
 #define LV_USE_GPU_ARM2D 0
 
+/* Disable ARM Helium and NEON SIMD - Cortex-M4 doesn't support them */
+#define LV_USE_DRAW_SW_ASM_HELIUM 0
+#define LV_USE_DRAW_SW_ASM_NEON 0
+
 /*Use STM32's DMA2D (aka Chrom Art) GPU*/
 #define LV_USE_GPU_STM32_DMA2D 1
 #if LV_USE_GPU_STM32_DMA2D

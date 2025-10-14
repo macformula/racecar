@@ -1,5 +1,6 @@
 #include <unistd.h>
 
+#include <csignal>
 #include <iostream>
 #include <unordered_map>
 
@@ -13,13 +14,21 @@
 extern "C" {
 #include <SDL2/SDL.h>
 
-#include "lv_drivers/display/monitor.h"
 #include "lvgl.h"
 
-lv_disp_drv_t lv_display_driver;
+lv_display_t* lv_display;
+lv_indev_t* kb_indev;
 }
 
 void hal_init(void);
+
+// Signal handler for Ctrl+C
+static volatile bool signal_received = false;
+void signal_handler(int signum) {
+    (void)signum;
+    signal_received = true;
+    std::cout << "\n🛑 Ctrl+C detected, shutting down...\n" << std::flush;
+}
 
 /// Use SDL inputs to determine if keys are pressed or not
 /// Better than the mcal linux DigitalInput for project since it is non-blocking
@@ -39,13 +48,20 @@ public:
                 keyStates_[event.key.keysym.sym] = true;
             } else if (event.type == SDL_KEYUP) {
                 keyStates_[event.key.keysym.sym] = false;
+            } else if (event.type == SDL_QUIT) {
+                quit_requested_ = true;
             }
         }
+    }
+
+    static bool IsQuitRequested() {
+        return quit_requested_ || signal_received;
     }
 
 private:
     SDL_Keycode key_;
     static inline std::unordered_map<SDL_Keycode, bool> keyStates_;
+    static inline bool quit_requested_ = false;
 };
 
 namespace mcal {
@@ -77,32 +93,32 @@ int tick_thread(void* _data) {
 
 void Initialize() {
     std::cout << "Starting Linux Platform" << std::endl;
+
+    // Set up signal handlers for clean shutdown
+    std::signal(SIGINT, signal_handler);   // Ctrl+C
+    std::signal(SIGTERM, signal_handler);  // Termination signal
+
     mcal::veh_can_base.Setup();
 
-    // LVGL Init
-    monitor_init();
+    /* Create SDL window with LVGL 9.3 native driver */
+    lv_display = lv_sdl_window_create(800, 480);
 
-    /* Create a display buffer */
-    static lv_disp_draw_buf_t disp_buf1;
-    static lv_color_t buf1_1[MONITOR_HOR_RES * 100];
-    static lv_color_t buf1_2[MONITOR_HOR_RES * 100];
-    lv_disp_draw_buf_init(&disp_buf1, buf1_1, buf1_2, MONITOR_HOR_RES * 100);
-
-    /* Create a display */
-    lv_disp_drv_init(&lv_display_driver);
-    lv_display_driver.draw_buf = &disp_buf1;
-    lv_display_driver.flush_cb = monitor_flush;
-    lv_display_driver.hor_res = 800;
-    lv_display_driver.ver_res = 480;
-    lv_display_driver.antialiasing = 1;
-
-    lv_disp_t* disp = lv_disp_drv_register(&lv_display_driver);
-
+    /* Create tick thread */
     SDL_CreateThread(tick_thread, "tick", NULL);
+}
+
+void Shutdown() {
+    std::cout << "Cleaning up CAN and SDL resources..." << std::endl;
+    // CAN cleanup happens automatically via destructors
+    SDL_Quit();
 }
 
 void DelayMS(uint32_t ms) {
     SDL_Delay(ms);
+}
+
+bool ShouldQuit() {
+    return KeyboardInput::IsQuitRequested();
 }
 
 }  // namespace bindings

@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "Button.hpp"
 #include "Display.hpp"
 #include "bindings.hpp"
@@ -6,7 +8,7 @@
 #include "lvgl.h"
 
 extern "C" {
-extern lv_disp_drv_t lv_display_driver;
+extern lv_display_t* lv_display;
 }
 
 using namespace generated::can;
@@ -26,17 +28,43 @@ int main(void) {
 
     display.Start();
 
-    while (true) {
-        int time_ms = lv_tick_get();
+    while (!bindings::ShouldQuit()) {
+#ifdef __linux__
+        try {
+#endif
+            int time_ms = lv_tick_get();
 
-        display.Update(time_ms);
+            display.Update(time_ms);
 
-        veh_can.Send(TxDashStatus{
-            .counter = tx_counter++,
-            .state = display.GetState(),
-            .profile = display.selected_profile,
-        });
+            veh_can.Send(TxDashStatus{
+                .counter = tx_counter++,
+                .state = display.GetState(),
+                .profile = display.selected_profile,
+            });
 
-        bindings::DelayMS(kUpdatePeriodMs);
+            bindings::DelayMS(kUpdatePeriodMs);
+#ifdef __linux__
+        } catch (const std::exception& e) {
+            std::cerr << "Exception in main loop: " << e.what() << std::endl;
+            break;
+        } catch (...) {
+            std::cerr << "Unknown exception in main loop" << std::endl;
+            break;
+        }
+#endif
     }
+
+    std::cout << "Shutting down dashboard..." << std::endl;
+
+    // Clean shutdown
+    bindings::Shutdown();
+    lv_deinit();
+
+#ifdef __linux__
+    // Force immediate exit to avoid any remaining cleanup issues (Linux only)
+    _exit(0);
+#else
+    // On embedded, just return
+    return 0;
+#endif
 }

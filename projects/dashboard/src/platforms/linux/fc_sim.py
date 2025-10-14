@@ -15,7 +15,7 @@ import cantools
 import cantools.database
 import numpy as np
 
-dbc = cantools.database.load_file("../../../../veh.dbc")
+dbc = cantools.database.load_file("../../projects/veh.dbc")
 fc_msg = dbc.get_message_by_name("DashCommand")
 dash_msg = dbc.get_message_by_name("DashStatus")
 
