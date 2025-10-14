@@ -45,8 +45,16 @@ func (d *DataAcquisitionHandler) Handle(broadcastChan chan canlink.TimestampedFr
 			 */
 
 			fmt.Printf("daq: received frame at %s\n", receivedFrame.Time.String())
-			// add to queue
+			d.Enqueue(receivedFrame)
 		default:
 		}
 	}
+}
+
+func (d *DataAcquisitionHandler) Enqueue(frame canlink.TimestampedFrame) error {
+	return nil
+}
+
+func (d *DataAcquisitionHandler) Send() error {
+	return nil
 }
