@@ -1,7 +1,5 @@
 ﻿#include "Display.hpp"
 
-#include <iostream>
-
 Display::Display(Button& enter, Button& scroll, generated::can::VehBus& veh)
     : enter(enter),
       scroll(scroll),

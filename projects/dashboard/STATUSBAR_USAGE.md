@@ -4,11 +4,11 @@ The StatusBar is a persistent red/orange warning bar that appears at the top of 
 
 ## Features
 
-- 🔴 Red/orange background (`#FF4500` - OrangeRed)
-- ⚡ Appears on all screens automatically
-- 🎯 Completely separate from screen logic
-- 🔄 Auto-hides when empty, auto-shows when warnings are added
-- 📍 50px tall bar at the top of the screen
+- Red/orange background (`#FF4500` - OrangeRed)
+- Appears on all screens automatically
+- Completely separate from screen logic
+- Auto-hides when empty, auto-shows when warnings are added
+- 50px tall bar at the top of the screen
 
 ## How to Use
 
@@ -69,15 +69,15 @@ void StartDriving::Update() {
 
 You can use these built-in symbols as icons:
 
-- `LV_SYMBOL_WARNING` - ⚠️ Warning triangle
-- `LV_SYMBOL_STOP` - 🛑 Stop sign
-- `LV_SYMBOL_CHARGE` - 🔋 Battery/charging
-- `LV_SYMBOL_POWER` - ⚡ Power/lightning
-- `LV_SYMBOL_SETTINGS` - ⚙️ Gear/settings
-- `LV_SYMBOL_CLOSE` - ✖️ X/close
-- `LV_SYMBOL_BELL` - 🔔 Alert bell
+- `LV_SYMBOL_WARNING` - Warning triangle
+- `LV_SYMBOL_STOP` - Stop sign
+- `LV_SYMBOL_CHARGE` - Battery/charging
+- `LV_SYMBOL_POWER` - Power/lightning
+- `LV_SYMBOL_SETTINGS` - Gear/settings
+- `LV_SYMBOL_CLOSE` - X/close
+- `LV_SYMBOL_BELL` - Alert bell
 
-Or use any text/emoji you want!
+Or use any text you want!
 
 ## API Reference
 
@@ -102,8 +102,8 @@ void SetVisible(bool visible);
 
 ```
 ┌─────────────────────────────────────────────┐
-│ 🔴 RED/ORANGE BAR (50px tall)              │
-│ ⚠️ 🛑 TEMP! (icons appear here)             │
+│ RED/ORANGE BAR (50px tall)                  │
+│ [WARNING] [STOP] TEMP! (icons appear here)  │
 ├─────────────────────────────────────────────┤
 │                                             │
 │         Your Screen Content Here           │
@@ -152,4 +152,3 @@ void DriveModeMenu::Update() {
     }
 }
 ```
-

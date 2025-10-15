@@ -2,6 +2,10 @@
 Simulate the FrontController interaction with the Dashboard over CAN.
 
 Only sends DashCommand and receives DashStatus
+
+NOTE: This script must be run from the projects/dashboard directory.
+      Use ./run_simulator.sh or ./run.sh to run it correctly.
+      Running it directly from this directory will fail due to incorrect relative paths.
 """
 
 from __future__ import annotations
@@ -15,7 +19,7 @@ import cantools
 import cantools.database
 import numpy as np
 
-dbc = cantools.database.load_file("../../projects/veh.dbc")
+dbc = cantools.database.load_file("../veh.dbc")
 fc_msg = dbc.get_message_by_name("DashCommand")
 dash_msg = dbc.get_message_by_name("DashStatus")
 

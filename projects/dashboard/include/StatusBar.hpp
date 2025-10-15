@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
+#include "etl/vector.h"
 #include "lvgl.h"
 
 /**
@@ -44,30 +44,7 @@ public:
      */
     void ClearAllWarnings();
 
-    /**
-     * Check if the status bar is visible.
-     */
-    bool IsVisible() const;
-
-    /**
-     * Manually show/hide the status bar.
-     * By default, it auto-hides when empty and auto-shows when warnings are
-     * added.
-     */
-    void SetVisible(bool visible);
-
-    /**
-     * Set whether the bar should always be visible (even when empty).
-     * Useful for maintaining consistent UI layout.
-     *
-     * @param always_visible If true, bar stays visible even with no warnings
-     */
-    void SetAlwaysVisible(bool always_visible);
-
 private:
-    void UpdateLayout();
-    void UpdateVisibility();
-
     lv_obj_t* bar_container_;   // The red/orange background bar
     lv_obj_t* icon_container_;  // Container for warning icons
 
@@ -77,7 +54,6 @@ private:
         std::string text;
     };
 
-    std::vector<Warning> warnings_;
+    etl::vector<Warning, 20> warnings_;
     int next_warning_id_;
-    bool always_visible_;
 };

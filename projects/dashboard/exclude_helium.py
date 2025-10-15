@@ -17,11 +17,11 @@ def skip_helium_neon(node):
     # Exclude any file in helium/ or neon/ directories
     if '/helium/' in filepath or '/neon/' in filepath:
         if filepath.endswith(('.S', '.s', '.c')):
-            print(f"⊗ Excluding: {os.path.basename(filepath)}")
+            print(f"[exclude] Excluding: {os.path.basename(filepath)}")
             return None
     return node
 
 # Apply filter to source files
 env.AddBuildMiddleware(skip_helium_neon, "*")
 
-print("[exclude_helium] ✓ Build filter installed")
+print("[exclude_helium] Build filter installed")

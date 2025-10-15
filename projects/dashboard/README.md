@@ -1,6 +1,6 @@
 # Formula Electric Dashboard
 
-A racing dashboard built with **LVGL 9.4** for STM32 hardware and Linux development.
+A racing dashboard built with **LVGL 9.3** for STM32 hardware and Linux development.
 
 ---
 
@@ -14,17 +14,28 @@ Enter your password when asked. Wait ~2 minutes.
 
 **What this installs:**
 
+- Git submodules (lv_drivers)
+- Python3, pip3, and python3-venv
+- Build tools (gcc, make, etc.)
+- PlatformIO (build system)
+- X11 development headers (for Linux display)
+- CAN utilities (for SocketCAN interface)
 - SDL2 (needed for displaying the GUI on Linux)
-- Python CAN libraries (for the simulator)
+- Python CAN libraries (numpy, cantools, python-can)
 - Virtual CAN network interface
 
 ---
 
 ### Running the Dashboard (Every Time)
 
-**Open TWO terminals** in this folder:
+## Option 1: Single Command (Recommended)
+
+./run.sh
+
+## Option 2: Two Terminals (Manual)**
 
 ```text
+
 ┌─────────────────────────────┐  ┌─────────────────────────────┐
 │   TERMINAL 1: Simulator     │  │   TERMINAL 2: Dashboard     │
 ├─────────────────────────────┤  ├─────────────────────────────┤
@@ -33,34 +44,22 @@ Enter your password when asked. Wait ~2 minutes.
 │                             │  │                             │
 │ Waiting for Profile         │  │ [GUI Window Opens]          │
 │ Selection...                │  │                             │
-│                             │  │ Use Tab and Space keys      │
-│ (Leave this running)        │  │ to control the dashboard    │
+│                             │  │ (See Keyboard Controls      │
+│ (Leave this running)        │  │  section below)             │
 │                             │  │                             │
 └─────────────────────────────┘  └─────────────────────────────┘
 ```
 
-**That's it!** The GUI window will appear in Terminal 2.
+**That's it!** The GUI window will appear.
 
----
+### Keyboard Controls
 
-## How to Use the Dashboard
+When the dashboard GUI window is open:
 
-**Controls:**
-
-- `Tab` key = Scroll through menu options
-- `Space` key = Select/Confirm/Enter
-- `X` button = Close window
-
-**Step-by-Step Flow:**
-
-1. Logo screen → Press `Space`
-2. Select drive profile → `Tab` to scroll, `Space` to select
-3. Confirm selection → `Space`
-4. Start HV system → `Space`
-5. Wait for precharge (automatic progress bar)
-6. Start motors → `Space`
-7. Ready to drive → `Space`
-8. **🏁 Driving mode with speedometer!**
+- **Tab** - Scroll through options
+- **Space** - Select/Confirm/Enter
+- **Ctrl+C** (in terminal) - Quit the dashboard
+- **X button** (on window) - Close the dashboard window
 
 ---
 
@@ -190,10 +189,10 @@ Use the existing screens in `include/` and `src/` as examples.
 
 ### Files Overview
 
-- `setup.sh` - One-time setup script
-- `run_simulator.sh` - Start the FrontController simulator
-- `run_dashboard.sh` - Build and run the dashboard
-- `run.sh` - Run both in one terminal (not recommended for debugging)
+- `setup.sh` - One-time setup script (installs all dependencies)
+- `run.sh` - Run both simulator and dashboard (recommended)
+- `run_simulator.sh` - Start only the FrontController simulator
+- `run_dashboard.sh` - Build and run only the dashboard
 - `src/main.cc` - Main entry point
 - `src/Display.cpp` - State machine and screen management
 - `src/Screen.cpp` - Base class for all screens

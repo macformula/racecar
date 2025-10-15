@@ -57,9 +57,7 @@ void DriveModeMenu::CreateGUI() {
     warning_cycle_index_ = 0;
     active_warning_ids_.clear();
 
-    // Status bar is always visible (even when empty)
-    status_bar_.SetAlwaysVisible(true);
-
+    // Status bar is always visible
     speedometer_.Draw(frame_, LV_ALIGN_LEFT_MID, 100, 0);
     battery_.Draw(frame_, LV_ALIGN_RIGHT_MID, -100, 0);
 

@@ -1,10 +1,7 @@
 #pragma once
 
-#include <src/misc/lv_area.h>
-
-#include <vector>
-
 #include "Screen.hpp"
+#include "etl/vector.h"
 #include "lvgl.h"
 
 class Speedometer {
@@ -45,6 +42,6 @@ private:
 
     // Demo: cycling warnings
     uint32_t last_warning_time_;
-    std::vector<int> active_warning_ids_;
+    etl::vector<int, 10> active_warning_ids_;
     int warning_cycle_index_;
 };

@@ -27,7 +27,7 @@ static volatile bool signal_received = false;
 void signal_handler(int signum) {
     (void)signum;
     signal_received = true;
-    std::cout << "\n🛑 Ctrl+C detected, shutting down...\n" << std::flush;
+    std::cout << "\nCtrl+C detected, shutting down...\n" << std::flush;
 }
 
 /// Use SDL inputs to determine if keys are pressed or not
@@ -108,9 +108,14 @@ void Initialize() {
 }
 
 void Shutdown() {
+    std::cout << "Shutting down dashboard..." << std::endl;
     std::cout << "Cleaning up CAN and SDL resources..." << std::endl;
     // CAN cleanup happens automatically via destructors
     SDL_Quit();
+
+    // Force immediate exit to avoid any remaining cleanup issues
+    // This is called after lv_deinit() in main()
+    _exit(0);
 }
 
 void DelayMS(uint32_t ms) {

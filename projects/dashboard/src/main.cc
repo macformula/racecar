@@ -1,4 +1,6 @@
+#ifdef __linux__
 #include <iostream>
+#endif
 
 #include "Button.hpp"
 #include "Display.hpp"
@@ -54,17 +56,10 @@ int main(void) {
 #endif
     }
 
-    std::cout << "Shutting down dashboard..." << std::endl;
-
     // Clean shutdown
-    bindings::Shutdown();
     lv_deinit();
+    bindings::Shutdown();  // Note: On Linux, this calls _exit(0) and never
+                           // returns
 
-#ifdef __linux__
-    // Force immediate exit to avoid any remaining cleanup issues (Linux only)
-    _exit(0);
-#else
-    // On embedded, just return
-    return 0;
-#endif
+    return 0;  // Only reached on STM32
 }

@@ -1,10 +1,7 @@
 #include "StatusBar.hpp"
 
 StatusBar::StatusBar()
-    : bar_container_(nullptr),
-      icon_container_(nullptr),
-      next_warning_id_(1),
-      always_visible_(true) {}  // Default: always visible
+    : bar_container_(nullptr), icon_container_(nullptr), next_warning_id_(1) {}
 
 void StatusBar::Create(lv_obj_t* parent) {
     // Reset state in case Create() is called multiple times
@@ -37,8 +34,7 @@ void StatusBar::Create(lv_obj_t* parent) {
     lv_obj_set_style_pad_column(icon_container_, 10, LV_PART_MAIN);
     lv_obj_set_style_pad_all(icon_container_, 5, LV_PART_MAIN);
 
-    // Visibility based on always_visible_ setting
-    UpdateVisibility();
+    // Status bar is always visible
 }
 
 int StatusBar::AddWarning(const char* icon_text) {
@@ -59,9 +55,6 @@ int StatusBar::AddWarning(const char* icon_text) {
     warning.text = icon_text;
     warnings_.push_back(warning);
 
-    // Update visibility
-    UpdateVisibility();
-
     return warning.id;
 }
 
@@ -73,9 +66,6 @@ void StatusBar::RemoveWarning(int warning_id) {
 
             // Remove from vector
             warnings_.erase(it);
-
-            // Update visibility
-            UpdateVisibility();
 
             return;
         }
@@ -90,45 +80,4 @@ void StatusBar::ClearAllWarnings() {
 
     // Clear the vector
     warnings_.clear();
-
-    // Update visibility
-    UpdateVisibility();
-}
-
-bool StatusBar::IsVisible() const {
-    if (!bar_container_) return false;
-    return !lv_obj_has_flag(bar_container_, LV_OBJ_FLAG_HIDDEN);
-}
-
-void StatusBar::SetVisible(bool visible) {
-    if (!bar_container_) return;
-
-    if (visible) {
-        lv_obj_clear_flag(bar_container_, LV_OBJ_FLAG_HIDDEN);
-    } else {
-        lv_obj_add_flag(bar_container_, LV_OBJ_FLAG_HIDDEN);
-    }
-}
-
-void StatusBar::SetAlwaysVisible(bool always_visible) {
-    always_visible_ = always_visible;
-    UpdateVisibility();
-}
-
-void StatusBar::UpdateVisibility() {
-    if (!bar_container_) return;
-
-    // Show if: always_visible OR has warnings
-    bool should_show = always_visible_ || !warnings_.empty();
-
-    if (should_show) {
-        lv_obj_clear_flag(bar_container_, LV_OBJ_FLAG_HIDDEN);
-    } else {
-        lv_obj_add_flag(bar_container_, LV_OBJ_FLAG_HIDDEN);
-    }
-}
-
-void StatusBar::UpdateLayout() {
-    // Currently layout is automatic via flex
-    // This method can be used for future customization
 }

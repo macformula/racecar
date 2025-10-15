@@ -1,7 +1,5 @@
 #include "ProfileSelect.hpp"
 
-#include <cstring>
-
 #include "Display.hpp"
 #include "generated/can/veh_bus.hpp"
 
