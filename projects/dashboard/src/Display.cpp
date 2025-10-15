@@ -4,8 +4,7 @@ Display::Display(Button& enter, Button& scroll, generated::can::VehBus& veh)
     : enter(enter),
       scroll(scroll),
       veh_bus(veh),
-      screen_(&logo_screen),
-      logo_screen(this),
+      screen_(&profile_select),
       profile_select(this),
       confirm_menu(this),
       acknowledge_config(this),
@@ -42,10 +41,10 @@ void Display::Update(int time_ms) {
     auto cmd = veh_bus.GetRxDashCommand();
     if (cmd.has_value() && cmd->Reset()) {
         switch (state_) {
-            case State::LOGO:
-                break;  // don't react if already reset
+            case State::SELECT_PROFILE:
+                break;  // don't react if already at initial state
             default:
-                ChangeState(State::LOGO);
+                ChangeState(State::SELECT_PROFILE);
                 break;
         }
     }
@@ -64,7 +63,6 @@ void Display::InnerChangeState(State new_state_) {
     switch (state_) {
         using enum State;
             // clang-format off
-        case LOGO:                  screen_ = &logo_screen; break;
         case SELECT_PROFILE:        screen_ = &profile_select; break;
         case CONFIRM_SELECTION:     screen_ = &confirm_menu; break;
         case WAIT_SELECTION_ACK:    screen_ = &acknowledge_config; break;

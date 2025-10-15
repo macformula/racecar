@@ -7,7 +7,6 @@
 #include "ConfirmMenu.hpp"
 #include "DriveModeMenu.hpp"
 #include "ErrorScreen.hpp"
-#include "LogoScreen.hpp"
 #include "ProfileSelect.hpp"
 #include "Shutdown.hpp"
 #include "StartDriving.hpp"
@@ -42,10 +41,9 @@ private:
     void InnerChangeState(State new_state);
 
     std::optional<State> transition_;
-    State state_ = State::LOGO;
+    State state_ = State::SELECT_PROFILE;
     Screen* screen_;
 
-    LogoScreen logo_screen;
     ProfileSelect profile_select;
     ConfirmMenu confirm_menu;
     AcknowledgeConfig acknowledge_config;

@@ -85,7 +85,7 @@ class Simulation:
 
         # Automatically restart the simulation when the developer restarts the
         # Dashboard program.
-        if ds["State"] == "LOGO":
+        if ds["State"] == "SELECT_PROFILE":
             if self.went_past_logo:
                 raise Simulation.Restart
         else:
@@ -166,7 +166,7 @@ class Simulation:
         self.FcStatus["Reset"] = True
 
         self.wait_for_dash(
-            "Waiting for dash to reset", lambda ds: ds["State"] == "LOGO"
+            "Waiting for dash to reset", lambda ds: ds["State"] == "SELECT_PROFILE"
         )
         self.FcStatus["Reset"] = False
 
