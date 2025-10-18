@@ -21,10 +21,7 @@ static void Measure(void) {
 void task_10hz(generated::can::VehBus& veh_can) {
     Measure();
 
-    generated::can::TxSuspensionTravel34 suspension_msg{
-        .stp3 = travel3,
-        .stp4 = travel4,
-    };
+    generated::can::TxSuspensionTravel34 suspension_msg{travel3, travel4};
     veh_can.Send(suspension_msg);
 }
 
