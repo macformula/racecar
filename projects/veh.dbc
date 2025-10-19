@@ -146,9 +146,9 @@ BO_ 300 Accumulator_Soc: 8 FC
 
 CM_ "3xn - Additional sensor readings";
 
-BO_ 310 SuspensionTravel34: 2 LVC
- SG_ STP3 : 0|8@1+ (1,0) [0|255] "" FC
- SG_ STP4 : 8|8@1+ (1,0) [0|255] "" FC
+BO_ 310 SuspensionTravel34: 4 LVC
+ SG_ STP3_mm : 0|16@1+ (0.1,0) [0|255] "" FC
+ SG_ STP4_mm : 16|16@1+ (0.1,0) [0|255] "" FC
 
 BO_ 340 TuningParams: 8 RPI
  SG_ aggressiveness : 0|8@1+ (1,0) [0|100] "" FC
