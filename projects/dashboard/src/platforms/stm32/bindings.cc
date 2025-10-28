@@ -14,6 +14,12 @@
 #include "mcal/stm32f/can.hpp"
 #include "mcal/stm32f/gpio.hpp"
 
+// drivers
+#include "hal_stm_lvgl/screen_driver.h"
+#include "lvgl.h"
+#include "stm32469i_discovery_lcd.h"
+#include "stm32469i_discovery_sdram.h"
+
 extern "C" {
 #include "hal_stm_lvgl/screen_driver.h"
 #include "stm32469i_discovery_sdram.h"
@@ -62,7 +68,29 @@ void Initialize() {
 
     mcal::veh_can_base.Setup();
 
-    screen_driver_init();
+    BSP_LCD_Init();
+    BSP_LCD_LayerDefaultInit(0, (uint32_t)SDRAM_DEVICE_ADDR);
+    BSP_LCD_Clear(LCD_COLOR_BLACK);
+
+    lv_init();
+
+    // init display
+    uint32_t ltdc_layer_index = 0; /* typically 0 or 1 */
+#if 0
+  // note: direct mode with the LV_USE_DRAW_DMA2D enabled results in glitches on the screen
+  void *framebuffer1_address = (void *)SDRAM_DEVICE_ADDR;
+  void *framebuffer2_address = (void *)(SDRAM_DEVICE_ADDR + 3 * 1024 * 1024 / 2);
+  lv_st_ltdc_create_direct(framebuffer1_address, framebuffer2_address, ltdc_layer_index);
+#else
+// note: partial mode works fine with the LV_USE_DRAW_DMA2D enabled
+#define BUF_SIZE 800 * 48 * 4
+    static uint8_t partial_buf1[BUF_SIZE];
+    // static uint8_t optional_partial_buf2[BUF_SIZE];
+    create_disp(partial_buf1, 0 /*optional_partial_buf2*/, BUF_SIZE,
+                ltdc_layer_index);
+#endif
+
+    // screen_driver_init();
 }
 
 void DelayMS(uint32_t ms) {
