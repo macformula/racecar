@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/macformula/hil/canlink"
 	"go.einride.tech/can"
 	"go.einride.tech/can/pkg/generated"
@@ -13,14 +14,16 @@ type DbcMessagesDescriptor interface {
 }
 
 type DataAcquisitionHandler struct {
-	md DbcMessagesDescriptor
-	l  *zap.Logger
+	md        DbcMessagesDescriptor
+	l         *zap.Logger
+	telemetry *TelemetryHandler
 }
 
-func NewDaqHandler(md DbcMessagesDescriptor, l *zap.Logger) *DataAcquisitionHandler {
+func NewDaqHandler(md DbcMessagesDescriptor, telemetry *TelemetryHandler, l *zap.Logger) *DataAcquisitionHandler {
 	return &DataAcquisitionHandler{
-		md: md,
-		l:  l,
+		md:        md,
+		l:         l,
+		telemetry: telemetry,
 	}
 }
 
@@ -45,16 +48,11 @@ func (d *DataAcquisitionHandler) Handle(broadcastChan chan canlink.TimestampedFr
 			 */
 
 			fmt.Printf("daq: received frame at %s\n", receivedFrame.Time.String())
-			d.Enqueue(receivedFrame)
+			err := d.telemetry.Enqueue(receivedFrame)
+			if err != nil {
+				fmt.Printf("daq: failed to enqueue frame: %s\n", err.Error())
+			}
 		default:
 		}
 	}
-}
-
-func (d *DataAcquisitionHandler) Enqueue(frame canlink.TimestampedFrame) error {
-	return nil
-}
-
-func (d *DataAcquisitionHandler) Send() error {
-	return nil
 }
