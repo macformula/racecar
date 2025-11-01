@@ -9,10 +9,34 @@
 #include "mcal/stm32f/gpio.hpp"
 #include "stm32f7xx_hal.h"
 
+int32_t left_wheel_tick_count = 0;
+int32_t right_wheel_tick_count = 0;
+bool right_wheel_forward = 0;
+bool left_wheel_forward = 0;
+
 extern "C" {
 // This requires extern since it is not declared in a header, only defined in
 // cubemx/../main.c
 void SystemClock_Config();
+
+// on rise edge if B line is low we are forward
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+    if (GPIO_Pin == WHEEL_SPEED_LEFT_A_BUFFERED_Pin) {
+        left_wheel_tick_count += 1;
+        // on rising edge, if B line is low we are forward
+        left_wheel_forward =
+            !HAL_GPIO_ReadPin(WHEEL_SPEED_LEFT_B_BUFFERED_GPIO_Port,
+                              WHEEL_SPEED_RIGHT_B_BUFFERED_Pin);
+
+    } else if (GPIO_Pin == WHEEL_SPEED_RIGHT_A_BUFFERED_Pin) {
+        right_wheel_tick_count += 1;
+        // on rising edge, if B line is low we are forward
+        right_wheel_forward =
+            !HAL_GPIO_ReadPin(WHEEL_SPEED_LEFT_B_BUFFERED_GPIO_Port,
+                              WHEEL_SPEED_RIGHT_B_BUFFERED_Pin);
+    }
+}
 }
 
 namespace mcal {
@@ -111,6 +135,22 @@ void DelayMs(int ms) {
 void SoftwareReset() {
     NVIC_SystemReset();
     Error_Handler();
+}
+
+int32_t GetLeftWheelTick() {
+    return left_wheel_tick_count;
+}
+
+int32_t GetRightWheelTick() {
+    return right_wheel_tick_count;
+}
+
+bool GetLeftWheelForward() {
+    return left_wheel_forward;
+}
+
+bool GetRightWheelForward() {
+    return right_wheel_forward;
 }
 
 }  // namespace bindings

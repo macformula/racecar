@@ -46,4 +46,9 @@ extern void DelayMs(int ms);
 
 extern void SoftwareReset();
 
+extern int32_t GetLeftWheelTick();
+extern int32_t GetRightWheelTick();
+
+extern bool GetRightWheelForward();
+extern bool GetLeftWheelForward();
 }  // namespace bindings

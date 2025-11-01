@@ -273,6 +273,8 @@ void task_10hz(void* argument) {
     TickType_t wake_time = xTaskGetTickCount();
 
     while (true) {
+        sensors::dynamics::Update_10Hz();
+
         ToggleDebugLed();
         UpdateErrorLeds();
         dbc_hash::Update_10Hz(veh_can_bus);
@@ -313,6 +315,15 @@ void task_10hz(void* argument) {
         veh_can_bus.Send(sensors::driver::GetAppsDebugMsg());
         veh_can_bus.Send(sensors::driver::GetBppsSteerDebugMsg());
         veh_can_bus.Send(motors::GetCounters());
+        veh_can_bus.Send(TxFrontWheelSpeed{
+            .left_wheel_speed =
+                static_cast<uint16_t>(sensors::dynamics::GetLeftWheelRPM()),
+            .right_wheel_speed =
+                static_cast<uint16_t>(sensors::dynamics::GetRightWheelRPM()),
+            .left_forward = bindings::GetRightWheelForward(),
+            .right_forward = bindings::GetRightWheelForward(),
+
+        });
 
         vTaskDelayUntil(&wake_time, pdMS_TO_TICKS(100));
     }
@@ -325,7 +336,6 @@ void task_100hz(void* argument) {
 
     while (true) {
         sensors::driver::Update_100Hz();
-        sensors::dynamics::Update_100Hz();
         driver_interface::Update_100Hz();
 
         fsm::Update_100Hz();

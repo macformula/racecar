@@ -4,26 +4,37 @@
 
 namespace sensors::dynamics {
 
-static WheelSpeed wheel_speed = {0, 0, 0, 0};
+const int32_t TICKS_PER_REVOLUTION = 30;  // the wheel has 30 ticks on it
 
-const WheelSpeed& GetWheelSpeeds(void) {
-    return wheel_speed;
+int32_t prev_right_wheel_tick_count = 0;
+int32_t prev_left_wheel_tick_count = 0;
+float right_wheel_speed_rpm = 0;
+float left_wheel_speed_rpm = 0;
+
+void Update_10Hz(void) {
+    // calculate right wheel speed
+    int32_t cur_right_wheel_tick_count = bindings::GetRightWheelTick();
+
+    right_wheel_speed_rpm =
+        (float)(cur_right_wheel_tick_count - prev_right_wheel_tick_count) *
+        10.f * 60.f / TICKS_PER_REVOLUTION;
+    prev_right_wheel_tick_count = cur_right_wheel_tick_count;
+
+    // calculate left wheel speed
+    int32_t cur_left_wheel_tick_count = bindings::GetLeftWheelTick();
+
+    left_wheel_speed_rpm =
+        (float)(cur_left_wheel_tick_count - prev_left_wheel_tick_count) * 10.f *
+        60.f / TICKS_PER_REVOLUTION;
+    prev_left_wheel_tick_count = cur_left_wheel_tick_count;
 }
 
-static float VoltageToRpm(float voltage) {
-    (void)voltage;
-    return 0;  // todo. are they analog sensors or tachometers?
+float GetRightWheelRPM() {
+    return right_wheel_speed_rpm;
 }
 
-void Update_100Hz(void) {
-    wheel_speed.front_left =
-        VoltageToRpm(bindings::wheel_speed_front_left.ReadVoltage());
-    wheel_speed.front_right =
-        VoltageToRpm(bindings::wheel_speed_front_right.ReadVoltage());
-    wheel_speed.rear_left =
-        VoltageToRpm(bindings::wheel_speed_rear_left.ReadVoltage());
-    wheel_speed.rear_right =
-        VoltageToRpm(bindings::wheel_speed_rear_right.ReadVoltage());
+float GetLeftWheelRPM() {
+    return left_wheel_speed_rpm;
 }
 
 }  // namespace sensors::dynamics
