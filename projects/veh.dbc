@@ -146,6 +146,12 @@ BO_ 300 Accumulator_Soc: 8 FC
 
 CM_ "3xn - Additional sensor readings";
 
+BO_ 301 FrontWheelSpeed: 5 FC
+ SG_ LeftWheelSpeed : 0|16@1+ (1,0) [0|0] "rpm" RPI
+ SG_ RightWheelSpeed : 16|16@1+ (1,0) [0|0] "rpm" RPI
+ SG_ LeftForward : 32|1@1+ (1,0) [0|0] "" RPI
+ SG_ RightForward : 33|1@1+ (1,0) [0|0] "" RPI
+
 BO_ 310 SuspensionTravel34: 4 LVC
  SG_ STP3_mm : 0|16@1+ (0.1,0) [0|255] "" FC
  SG_ STP4_mm : 16|16@1+ (0.1,0) [0|255] "" FC
