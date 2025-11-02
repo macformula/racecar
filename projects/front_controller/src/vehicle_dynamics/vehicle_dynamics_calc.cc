@@ -37,16 +37,16 @@ TorqueVector AdjustTorqueVectoring(float steering_angle) {
 
 // Note: The CalculateActualSlip function has Div-by-Zero error if left front
 // and right front wheel speeds = 0.
-float CalculateActualSlip(const sensors::dynamics::WheelSpeed& ws) {
-    float idle_wheel_spd = (ws.front_left + ws.front_right) / 2.0;
-    float actual_slip =
-        std::max(ws.rear_left, +ws.rear_right) / idle_wheel_spd - 1;
+// float CalculateActualSlip(const sensors::dynamics::WheelSpeed& ws) {
+//     float idle_wheel_spd = (ws.front_left + ws.front_right) / 2.0;
+//     float actual_slip =
+//         std::max(ws.rear_left, +ws.rear_right) / idle_wheel_spd - 1;
 
-    if (actual_slip < 0) {
-        actual_slip = 0;
-    }
-    return actual_slip;
-}
+//     if (actual_slip < 0) {
+//         actual_slip = 0;
+//     }
+//     return actual_slip;
+// }
 
 void TractionControl::Init(int time_ms) {
     is_slipping_.Init(time_ms, false);

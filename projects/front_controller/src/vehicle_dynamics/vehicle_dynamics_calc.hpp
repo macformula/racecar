@@ -13,7 +13,7 @@ float CreateTorqueVectoringFactor(float steering_angle);
 
 TorqueVector AdjustTorqueVectoring(float steering_angle);
 
-float CalculateActualSlip(const sensors::dynamics::WheelSpeed& wheel_speed);
+// float CalculateActualSlip(const sensors::dynamics::WheelSpeed& wheel_speed);
 
 /// @brief Measures the time for which a boolean condition has been continuously
 /// held.
