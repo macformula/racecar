@@ -14,6 +14,7 @@
 #include "physical.hpp"
 #include "sensors/driver/driver.hpp"
 #include "sensors/dynamics/dynamics.hpp"
+#include "suspension/suspension.hpp"
 #include "thresholds.hpp"
 #include "vehicle_dynamics/vehicle_dynamics.hpp"
 
@@ -269,6 +270,8 @@ void task_1hz(void* argument) {
 void task_10hz(void* argument) {
     (void)argument;
     static uint8_t tx_counter = 0;
+
+    suspension::task_10hz(veh_can_bus);
 
     TickType_t wake_time = xTaskGetTickCount();
 

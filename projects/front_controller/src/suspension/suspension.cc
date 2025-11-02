@@ -1,6 +1,6 @@
 #include "suspension.hpp"
 
-#include "../../front_controller/include/bindings.hpp"
+#include "bindings.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "sls095.hpp"
 
