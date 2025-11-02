@@ -3,6 +3,7 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  min-height: 100vh;
 }
 
 .logo {
@@ -39,4 +40,15 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Inverted dot pattern background */
+.container {
+  width: 100%;
+  height: 100vh;
+  /* Inverted colors: white background with black dots */
+  background-color: #ffffff;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.171) 2px, transparent 0);
+  background-size: 30px 30px;
+  background-position: -5px -5px;
 }

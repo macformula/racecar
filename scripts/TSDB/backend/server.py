@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 
-from influx import write_row_to_test_bucket
+from influx import write_row_to_test_bucket 
 
 app = FastAPI()
 
