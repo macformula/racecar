@@ -7,6 +7,7 @@ import (
 
 	"github.com/macformula/hil/canlink"
 	"go.einride.tech/can"
+	"go.uber.org/zap"
 	_ "modernc.org/sqlite"
 )
 
@@ -20,12 +21,14 @@ type TelemetryPacket struct {
 }
 
 type TelemetryHandler struct {
-	buf *list.List
-	db  *sql.DB
+	buf    *list.List
+	db     *sql.DB
+	l      *zap.Logger
+	dbFile string
 }
 
-func NewTelemetryHandler() (*TelemetryHandler, error) {
-	db, err := sql.Open("sqlite", "./can_cache.sqlite")
+func NewTelemetryHandler(dbFile string) (*TelemetryHandler, error) {
+	db, err := sql.Open("sqlite", dbFile)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +38,8 @@ func NewTelemetryHandler() (*TelemetryHandler, error) {
 			id INTEGER PRIMARY KEY,
 			timestamp INTEGER,
 			frame_id INTEGER,
-			frame_data INTEGER
+			frame_data INTEGER,
+			bus_name TEXT
 		)
 	`)
 	if err != nil {
@@ -60,18 +64,20 @@ func NewTelemetryHandler() (*TelemetryHandler, error) {
 		return nil, err
 	}
 
+	fmt.Printf("Initial buffer size: %v\n", t.buf.Len())
+
 	return &t, nil
 }
 
-func (t *TelemetryHandler) Enqueue(frame canlink.TimestampedFrame) error {
+func (t *TelemetryHandler) Enqueue(frame canlink.TimestampedFrame, busName string) error {
 	query, err := t.db.Prepare(`
-		INSERT INTO can_cache (timestamp, frame_id, frame_data) VALUES (?, ?, ?)
+		INSERT INTO can_cache (timestamp, frame_id, frame_data, bus_name) VALUES (?, ?, ?, ?)
 	`)
 	if err != nil {
 		return err
 	}
 
-	res, err := query.Exec(frame.Time.UnixMilli(), frame.Frame.ID, frame.Frame.Data.PackBigEndian())
+	res, err := query.Exec(frame.Time.UnixMilli(), frame.Frame.ID, frame.Frame.Data.PackBigEndian(), busName)
 	if err != nil {
 		return err
 	}
@@ -89,6 +95,7 @@ func (t *TelemetryHandler) Enqueue(frame canlink.TimestampedFrame) error {
 	}
 
 	if t.buf.Len() >= BufferSize {
+		// go upload ?
 		t.buf.Remove(t.buf.Back())
 	}
 	t.buf.MoveToFront(&elem)
@@ -99,7 +106,62 @@ func (t *TelemetryHandler) Enqueue(frame canlink.TimestampedFrame) error {
 func (t *TelemetryHandler) Upload() error {
 	// pop from front of buffer and write to backend
 
+	// Ignore for now ...
+	/*buf := t.emptyBuffer()
+
+	type temp struct {
+		Value     []byte `json:"value"`
+		Timestamp int64  `json:"timestamp"`
+	}
+
+	for i := range len(buf) {
+		frame := can.Frame{
+			ID:     buf[i].FrameId,
+			Data:   buf[i].FrameData,
+			Length: 8,
+		}
+		rawFrame, _ := json.Marshal(frame)
+
+		toWrite := temp{
+			Timestamp: buf[i].Timestamp,
+			Value:     rawFrame,
+		}
+
+		data, err := json.Marshal(toWrite)
+		if err != nil {
+			return err
+		}
+		if i == 0 {
+			fmt.Printf("payload: %s\n", string(data))
+		}
+
+		// If this fails then we should re-queue the entire buffer to not lose anything
+		_, err = http.Post("http://localhost:5000/write-graph", "application/json", bytes.NewBuffer(data))
+		if err != nil {
+			fmt.Printf("telemetry/upload: failed to post frame data: %v\n", err)
+			return err
+		}
+	}
+
+	// In case of an error here, just log and keep going, we still need to upload our data
+	err := t.fillBufferFromDisk()
+	if err != nil {
+		fmt.Printf("telemetry/upload: failed to fill buffer: %v\n", err)
+	}*/
+
 	return nil
+}
+
+func (t *TelemetryHandler) emptyBuffer() []TelemetryPacket {
+	packets := make([]TelemetryPacket, t.buf.Len())
+	next := t.buf.Front()
+
+	for range t.buf.Len() {
+		packets = append(packets, next.Value.(TelemetryPacket))
+		next = next.Next()
+	}
+
+	return packets
 }
 
 func (t *TelemetryHandler) fillBufferFromDisk() error {
