@@ -1,8 +1,10 @@
 from nicegui import ui
 from nicegui.events import UploadEventArguments
 from flash_logic import save_uploaded_file, flash_file
+from metadata import load_metadata, save_metadata
 from constants import ECU_CONFIG
 import os
+import json
 
 
 class CanFlashApp:
@@ -35,6 +37,21 @@ class CanFlashApp:
         else:
             ui.notify(str(exception), type="negative")
 
+    def save_notes(self, notes: str, file_name: str):
+        try:
+            with open("metadata.json", 'r') as f:
+                content = f.read().strip()
+                metadata = json.loads(content) if content else {}
+        except FileNotFoundError:
+            metadata = {}
+
+        # Update or add the notes for this file
+        if file_name not in metadata:
+            metadata[file_name] = {}
+        metadata[file_name]["notes"] = notes
+
+        with open("metadata.json", 'w') as f:
+            json.dump(metadata, f, indent=2)
 
     def build_ui(self):
         ui.colors(primary="#AA1F26")
@@ -57,6 +74,19 @@ class CanFlashApp:
         # Flash Button
         self.flash_button = ui.button("Flash", on_click=self.handle_flash)
         self.flash_button.disable()
+
+        file_dropdown = ui.select(
+        label='Select file',
+        options=list(load_metadata().keys())
+)
+
+        self.textbox = ui.input(label='Enter Metadata Notes')
+
+        ui.button('Submit', on_click=lambda: (
+            self.save_notes(self.textbox.value, file_dropdown.value), 
+            setattr(self.textbox, 'value', '')))
+        
+        
 
 
 @ui.page("/")
