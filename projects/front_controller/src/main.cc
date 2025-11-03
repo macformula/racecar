@@ -271,8 +271,6 @@ void task_10hz(void* argument) {
     (void)argument;
     static uint8_t tx_counter = 0;
 
-    suspension::task_10hz(veh_can_bus);
-
     TickType_t wake_time = xTaskGetTickCount();
 
     while (true) {
@@ -281,6 +279,7 @@ void task_10hz(void* argument) {
         dbc_hash::Update_10Hz(veh_can_bus);
         // CheckCanFlash();  // no CAN flash in 2025. pcb needs an external
         // oscillator
+        suspension::task_10hz(veh_can_bus);
 
         veh_can_bus.Send(TxFcStatus{
             .counter = tx_counter++,
