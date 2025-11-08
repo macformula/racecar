@@ -14,6 +14,7 @@
 #include "physical.hpp"
 #include "sensors/driver/driver.hpp"
 #include "sensors/dynamics/dynamics.hpp"
+#include "suspension/suspension.hpp"
 #include "thresholds.hpp"
 #include "vehicle_dynamics/vehicle_dynamics.hpp"
 
@@ -278,6 +279,7 @@ void task_10hz(void* argument) {
         dbc_hash::Update_10Hz(veh_can_bus);
         // CheckCanFlash();  // no CAN flash in 2025. pcb needs an external
         // oscillator
+        suspension::task_10hz(veh_can_bus);
 
         veh_can_bus.Send(TxFcStatus{
             .counter = tx_counter++,
