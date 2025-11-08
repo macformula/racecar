@@ -16,6 +16,7 @@ def save_metadata(file_name: str, notes: str, timestamp: str, ecu: str, upload_n
 
     metadata[upload_name] = {
         "file name": file_name,
+        "upload name": upload_name,
         "ecu": ecu,
         "notes": notes,
         "uploaded_at": timestamp,
