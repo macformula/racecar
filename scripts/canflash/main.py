@@ -16,7 +16,7 @@ class home_page:
         ui.label('Select to flash a new binary file')
         ui.button('Upload a new binary file', on_click=lambda e: ui.navigate.to('/upload_new_bin'))
         ui.label('Select to flash an existing binary file or update its notes')
-        ui.button('Flash an existing binary file', on_click=lambda e: ui.navigate.to('/upload_new_bin'))
+        ui.button('Flash an existing binary file', on_click=lambda e: ui.navigate.to('/upload_old_bin'))
 
 # Upload new binary file and flash
 class CanFlashApp:
