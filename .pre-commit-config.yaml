@@ -16,3 +16,11 @@ repos:
     - id: clang-format
       require_serial: true
       stages: [pre-commit]
+
+  - repo: local
+    hooks:
+    - id: pio-check
+      name: Platform IO Static Analysis
+      entry: bash scripts/static_analysis/static_analysis.sh
+      language: system
+      stages: [pre-commit]

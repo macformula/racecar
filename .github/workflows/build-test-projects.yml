@@ -48,3 +48,14 @@ jobs:
               echo "============================================================"
               pio run --project-dir "$dir" -vvv || exit 1
           done
+
+      - name: Perform Static Code Analysis on PlatformIO Projects
+        shell: bash
+        run: |
+          git ls-files -z 'projects/**/platformio.ini' | while IFS= read -r -d '' ini; do
+              dir=$(dirname "$ini")
+              echo "============================================================"
+              echo "==== Performing Static Code Analysis on $dir"
+              echo "============================================================"
+              pio check --project-dir "$dir" --fail-on-defect=high || exit 1
+          done
