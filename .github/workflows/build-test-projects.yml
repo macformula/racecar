@@ -7,6 +7,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/cache@v4
         with:
@@ -62,7 +64,7 @@ jobs:
               EXCLUDE_PREFIX="stm*"
 
               # Check for changes in $dir/src and $dir/include, excluding files within $dir/src/platforms/stm*
-              if git diff --name-only origin/${{ github.base_ref }}...${{ github.head_ref }} -- "${SUBDIRS[@]}" ":!$dir/src/platforms/$EXCLUDE_PREFIX" | grep -q .; then
+              if git diff --name-only origin/main...HEAD -- "${SUBDIRS[@]}" ":!$dir/src/platforms/$EXCLUDE_PREFIX" | grep -q .; then
                   echo "Changes detected in $dir → running pio check"
                   pio check --project-dir "$dir" --fail-on-defect=high || exit 1
               else
