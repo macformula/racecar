@@ -1,4 +1,5 @@
 fastapi
-influxdb
+influxdb-client
 uvicorn
 python-dotenv
+-r auth/requirements.txt

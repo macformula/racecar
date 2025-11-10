@@ -33,6 +33,56 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
     restart: unless-stopped
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: racecar-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - INFLUXDB_TOKEN=my-super-secret-auth-token
+      - INFLUX_ORG=racecar
+      - INFLUX_URL=http://influxdb:8086
+      - INFLUX_BUCKET=telemetry
+    depends_on:
+      - influxdb
+    restart: unless-stopped
+    command: uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+
+  auth:
+    build: ./backend/auth
+    container_name: racecar-auth
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./backend/auth/data:/app/data
+    environment:
+      - SECRET_KEY=test
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - ADMIN_PASSWORD=test
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: racecar-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000
+      - VITE_AUTH_URL=http://localhost:8001
+    depends_on:
+      - backend
+      - auth
+    restart: unless-stopped
+
 volumes:
   influxdb-storage:
   influxdb-config:
