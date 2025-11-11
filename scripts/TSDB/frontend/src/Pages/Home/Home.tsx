@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import GrafanaChart from "../../components/Grafana";
 import Navbar from "../../components/Navbar/Navbar";
 import { writeGraphPoint } from "../../Network/Graph/updateGraph";
+// import { useAuth } from "../../contexts/AuthContext";
 import styles from "./Home.module.css";
 
 const Home: React.FC = () => {
+  // const { user } = useAuth();
   const [timestamp, setTimestamp] = useState<string>("");
   const [value, setValue] = useState<string>("");
 

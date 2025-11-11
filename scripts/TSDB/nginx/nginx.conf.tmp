@@ -1,0 +1,19 @@
+events {
+    worker_connections 1024;
+}
+
+http {
+    server {
+        listen 80;
+        server_name sokosam.com;
+
+        location /.well-known/acme-challenge/ {
+            root /var/www/certbot;
+        }
+
+        location / {
+            return 200 "Server is being configured...";
+            add_header Content-Type text/plain;
+        }
+    }
+}

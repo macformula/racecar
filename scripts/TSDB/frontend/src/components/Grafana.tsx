@@ -2,7 +2,7 @@
 function GrafanaChart() {
   return (
     <iframe
-      src="http://localhost:3000/public-dashboards/e3ef192b990a49e8bcf5325aa62c8268"
+      src="/grafana/public-dashboards/986fe1bddd004c149460b9d6cdcb5e54"
       width="800"
       height="500"
       frameBorder={0}

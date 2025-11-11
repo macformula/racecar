@@ -32,7 +32,7 @@ VALUES (
 );
 EOF
 
-echo "✓ Admin user initialized with authorization level 5"
+echo "Admin user initialized with authorization level 5"
 
 # Start the server
 exec uvicorn app:app --host 0.0.0.0 --port 8001

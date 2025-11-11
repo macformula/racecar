@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -9,6 +10,15 @@ from utils import get_password_hash, verify_password, create_access_token, get_c
 init_db()
 
 app = FastAPI(title="Auth Service")
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 
 class RegisterIn(BaseModel):
@@ -38,7 +48,7 @@ def register(payload: RegisterIn, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
-    token = create_access_token({"sub": user.username})
+    token = create_access_token({"sub": user.username, "auth_level": user.authorization})
     return {"access_token": token}
 
 
@@ -47,7 +57,7 @@ def login(payload: RegisterIn, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.username == payload.username).first()
     if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    token = create_access_token({"sub": user.username})
+    token = create_access_token({"sub": user.username, "auth_level": user.authorization})
     return {"access_token": token}
 
 

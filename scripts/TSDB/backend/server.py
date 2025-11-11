@@ -1,9 +1,10 @@
-from fastapi import FastAPI, HTTPException          
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 
-from influx import write_row_to_test_bucket 
+from influx import write_row_to_test_bucket
+from auth_utils import require_level_5, TokenUser 
 
 app = FastAPI()
 
@@ -26,9 +27,10 @@ class GraphData(BaseModel):
     value: float
 
 @app.post("/write")
-def write_data(data_point: DataPoint):
+def write_data(data_point: DataPoint, user: TokenUser = Depends(require_level_5)):
     """
     Endpoint to write data to InfluxDB test bucket.
+    Requires authentication and authorization level 5.
     """
     try:
         success = write_row_to_test_bucket(
@@ -41,9 +43,10 @@ def write_data(data_point: DataPoint):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/write-graph")
-def write_graph_data(data: GraphData):
+def write_graph_data(data: GraphData, user: TokenUser = Depends(require_level_5)):
     """
     Endpoint to write GraphData point to InfluxDB.
+    Requires authentication and authorization level 5.
     """
     try:
         success = write_row_to_test_bucket(
@@ -56,9 +59,10 @@ def write_graph_data(data: GraphData):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/write-simple")
-def write_simple(query: str):
+def write_simple(query: str, user: TokenUser = Depends(require_level_5)):
     """
     Simple endpoint that writes a test measurement with the query as a field.
+    Requires authentication and authorization level 5.
     """
     try:
         success = write_row_to_test_bucket(
