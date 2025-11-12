@@ -2,7 +2,7 @@ import subprocess
 from pathlib import Path
 
 # Repository root is two levels up from this script
-repo_root = Path(__file__).resolve().parents[2]
+repo_root = Path.cwd().resolve().parents[1]
 
 def get_git_hash():
     try:
@@ -40,8 +40,8 @@ def generate_git_hash_file():
 
 namespace macfe::generated {{
 
-constexpr uint32_t GIT_HASH = 0x{git_hash:07x};
-constexpr bool GIT_DIRTY = {'true' if is_dirty else 'false'};
+const uint32_t GIT_HASH = 0x{git_hash:08x};
+const bool GIT_DIRTY = {'true' if is_dirty else 'false'};
 
 }} // namespace macfe::generated
 """

@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <optional>
 
+#include "../../../include/generated/githash.hpp"
 #include "bindings.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
@@ -210,6 +211,10 @@ void check_can_flash(void) {
 
 void task_1hz(void) {
     veh_can.Send(TxLvDbcHash(generated::can::kVehDbcHash));
+    veh_can.Send(TxLvGitHash{
+        .commit = macfe::generated::GIT_HASH,
+        .dirty = macfe::generated::GIT_DIRTY,
+    });
 }
 
 void task_10hz(void) {
