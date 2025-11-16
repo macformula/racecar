@@ -119,7 +119,15 @@ void task_10hz(void* argument) {
 
         // Check for CAN Flash
         auto msg = veh_can_bus.PopRxInitiateCanFlash();
-        if (msg.has_value() && msg->ECU() == RxInitiateCanFlash::ECU_t::TMS) {
+        auto fc_status = veh_can_bus.GetRxFcStatus();
+
+        bool can_flash_allowed = false;
+        if (fc_status.has_value()) {
+            can_flash_allowed = fc_status->CanFlashAllowed();
+        }
+
+        if (msg.has_value() && msg->ECU() == RxInitiateCanFlash::ECU_t::TMS &&
+            can_flash_allowed) {
             bindings::SoftwareReset();
         }
 

@@ -239,8 +239,13 @@ void ToggleDebugLed() {
 void CheckCanFlash() {
     auto msg = veh_can_bus.GetRxInitiateCanFlash();
 
+    // Only allow CAN flash when fc in startup or waiting states
+    bool in_safe_state = (fsm::state == fsm::State::START_DASHBOARD ||
+                          fsm::state == fsm::State::WAIT_DRIVER_SELECT);
+
     if (msg.has_value() &&
-        msg->ECU() == RxInitiateCanFlash::ECU_t::FrontController) {
+        msg->ECU() == RxInitiateCanFlash::ECU_t::FrontController &&
+        in_safe_state) {
         bindings::SoftwareReset();
     }
 }
@@ -277,8 +282,7 @@ void task_10hz(void* argument) {
         ToggleDebugLed();
         UpdateErrorLeds();
         dbc_hash::Update_10Hz(veh_can_bus);
-        // CheckCanFlash();  // no CAN flash in 2025. pcb needs an external
-        // oscillator
+        CheckCanFlash();
         suspension::task_10hz(veh_can_bus);
 
         veh_can_bus.Send(TxFcStatus{
@@ -290,6 +294,8 @@ void task_10hz(void* argument) {
             .inv2_state =
                 static_cast<TxFcStatus::Inv2State_t>(motors::GetRightState()),
             .dbc_valid = dbc_hash::IsValid(),
+            .can_flash_allowed = (fsm::state == fsm::State::START_DASHBOARD ||
+                                  fsm::state == fsm::State::WAIT_DRIVER_SELECT),
             .inv1_starter = static_cast<uint8_t>(motors::GetLeftStarterState()),
             .inv2_starter =
                 static_cast<uint8_t>(motors::GetRightStarterState()),

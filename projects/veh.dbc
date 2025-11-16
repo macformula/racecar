@@ -68,6 +68,7 @@ BO_ 201 FcStatus: 8 FC
  SG_ Inv1State : 32|4@1+ (1,0) [0|255] "" RPI
  SG_ Inv2State : 36|4@1+ (1,0) [0|255] "" RPI
  SG_ DbcValid : 40|1@1+ (1,0) [0|1] "" RPI
+ SG_ CanFlashAllowed : 41|1@1+ (1,0) [0|1] "" LVC, TMS
  SG_ Inv1Starter : 48|4@1+ (1,0) [0|255] "" RPI
  SG_ Inv2Starter : 52|4@1+ (1,0) [0|255] "" RPI
 
