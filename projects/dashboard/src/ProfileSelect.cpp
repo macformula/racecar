@@ -54,6 +54,7 @@ const char* GetProfileName(Display::Profile e) {
         case Skidpad:       return "Skidpad";
         case Endurance:     return "Endurance";
         case Tuning:        return "TUNING";
+        case Calibration:   return "Calibration";
         // clang-format on
         case _ENUM_TAIL_:
         default:
