@@ -3,6 +3,7 @@
 
 #include <cstdint>
 
+#include "../../../include/generated/githash.hpp"
 #include "bindings.hpp"
 #include "etl/array.h"
 #include "fan_controller/fan_controller.hpp"
@@ -16,10 +17,14 @@
 #include "task.h"
 
 static const size_t STACK_SIZE_WORDS = 2048 * 16;
-static const uint32_t PRIORITY_10HZ = 1;
+static const uint32_t PRIORITY_10HZ = 2;
+static const uint32_t PRIORITY_1HZ = 1;
 
 StaticTask_t t10hz_control_block;
 StackType_t t10hz_buffer[STACK_SIZE_WORDS];
+
+StaticTask_t t1hz_control_block;
+StackType_t t1hz_buffer[STACK_SIZE_WORDS];
 
 using namespace generated::can;
 
@@ -108,6 +113,22 @@ void Update(float update_period_ms) {
     toggle = !toggle;
 }
 
+void task_1hz(void* argument) {
+    (void)argument;
+
+    const uint32_t kUpdatePeriodMs = 1000;
+    TickType_t wake_time = xTaskGetTickCount();
+
+    while (true) {
+        veh_can_bus.Send(TxTmsGitHash{
+            .commit = macfe::generated::GIT_HASH,
+            .dirty = macfe::generated::GIT_DIRTY,
+        });
+
+        vTaskDelayUntil(&wake_time, pdMS_TO_TICKS(kUpdatePeriodMs));
+    }
+}
+
 void task_10hz(void* argument) {
     (void)argument;
 
@@ -132,6 +153,9 @@ int main(void) {
 
     xTaskCreateStatic(task_10hz, "10HZ", STACK_SIZE_WORDS, NULL, PRIORITY_10HZ,
                       t10hz_buffer, &t10hz_control_block);
+
+    xTaskCreateStatic(task_1hz, "1HZ", STACK_SIZE_WORDS, NULL, PRIORITY_1HZ,
+                      t1hz_buffer, &t1hz_control_block);
 
     vTaskStartScheduler();
 
