@@ -4,10 +4,10 @@
 #include <cstdint>
 #include <optional>
 
-#include "../../../include/generated/githash.hpp"
 #include "bindings.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "generated/githash.hpp"
 #include "periph/gpio.hpp"
 
 // LV Modules

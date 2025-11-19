@@ -1,7 +1,6 @@
 /// @author Blake Freer
 /// @date 2025-06
 
-#include "../../../include/generated/githash.hpp"
 #include "accumulator/accumulator.hpp"
 #include "alerts/alerts.hpp"
 #include "bindings.hpp"
@@ -11,6 +10,7 @@
 #include "generated/can/pt_messages.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "generated/githash.hpp"
 #include "motors/motors.hpp"
 #include "physical.hpp"
 #include "sensors/driver/driver.hpp"

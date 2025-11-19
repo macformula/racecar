@@ -3,12 +3,12 @@
 
 #include <cstdint>
 
-#include "../../../include/generated/githash.hpp"
 #include "bindings.hpp"
 #include "etl/array.h"
 #include "fan_controller/fan_controller.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "generated/githash.hpp"
 #include "periph/gpio.hpp"
 #include "temp_sensor/temp_sensor.hpp"
 
