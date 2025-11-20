@@ -10,6 +10,7 @@
 #include "generated/can/pt_messages.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "generated/githash.hpp"
 #include "motors/motors.hpp"
 #include "physical.hpp"
 #include "sensors/driver/driver.hpp"
@@ -28,12 +29,16 @@ static const size_t STACK_SIZE_WORDS =
 // higher number = higher priority
 static const uint32_t PRIORITY_100HZ = 3;
 static const uint32_t PRIORITY_10HZ = 2;
+static const uint32_t PRIORITY_1HZ = 1;
 
 StaticTask_t t100hz_control_block;
 StackType_t t100hz_buffer[STACK_SIZE_WORDS];
 
 StaticTask_t t10hz_control_block;
 StackType_t t10hz_buffer[STACK_SIZE_WORDS];
+
+StaticTask_t t1hz_control_block;
+StackType_t t1hz_buffer[STACK_SIZE_WORDS];
 
 using namespace generated::can;
 
@@ -263,6 +268,11 @@ void task_1hz(void* argument) {
     TickType_t wake_time = xTaskGetTickCount();
 
     while (true) {
+        veh_can_bus.Send(TxFcGitHash{
+            .commit = macfe::generated::GIT_HASH,
+            .dirty = macfe::generated::GIT_DIRTY,
+        });
+
         vTaskDelayUntil(&wake_time, pdMS_TO_TICKS(1000));
     }
 }
@@ -370,6 +380,9 @@ int main(void) {
 
     xTaskCreateStatic(task_10hz, "10HZ", STACK_SIZE_WORDS, NULL, PRIORITY_10HZ,
                       t10hz_buffer, &t10hz_control_block);
+
+    xTaskCreateStatic(task_1hz, "1HZ", STACK_SIZE_WORDS, NULL, PRIORITY_1HZ,
+                      t1hz_buffer, &t1hz_control_block);
 
     vTaskStartScheduler();
 
