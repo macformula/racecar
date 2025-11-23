@@ -2,6 +2,7 @@
 
 #include "lvbms.hpp"
 
+// #include <array>
 #include <cstring>
 #include <iostream>
 
@@ -14,6 +15,13 @@ macfe::lv::LvBms::LvBms(macfe::periph::SpiMaster& spi) : spi_(spi) {}
  * @note The ADI codes are a little more intricate, and need to be looked into
  * @note ADI1, ADI2, ADV have dummy values, so this will need to change
  */
+
+/**
+ * @note everytime we utilize a read command, we should check for the CCNT
+ * frames, and check them with our count. This will tell us if any commands may
+ * have been ignored. Increment expected CCNT each time a write function is
+ * called
+ **/
 
 enum class commandCode : uint16_t {
     SRST = 0x27,
@@ -71,12 +79,27 @@ enum class commandCode : uint16_t {
     RDALLC = 0x10,
 };
 
-bool LvBms::resetCommandCounter() {
-    uint16_t cmd = static_cast<uint16_t>(commandCode::RSTCC);
-    uint8_t hi = (cmd >> 8) & 0xFF;  // RSTCC command (top half)
-    uint8_t lo = cmd & 0xFF;         // low half
-    uint8_t data[6];
-    return sendReadCmd(hi, lo, data);
+// Helper Functions -----------------------------------------------------
+std::array<uint8_t, 2> LvBms::splitMessage(uint16_t cmd) {
+    uint8_t hi = (cmd >> 8) & 0xFF;
+    uint8_t lo = cmd & 0xFF;
+
+    std::array<uint8_t, 2> split = {hi, lo};
+    return split;
+}
+
+void LvBms::sendControlCmd(std::array<uint8_t, 2> cmd) {
+    uint8_t tx[4] = {0};
+    tx[0] = cmd[0];  // HI
+    tx[1] = cmd[1];  // LO
+    // Command PEC for transmit
+    uint16_t pec = commandPec15(tx, 2);
+    tx[2] = (pec >> 8) & 0xFF;
+    tx[3] = pec & 0xFF;
+
+    spi_.Transmit(tx, 4);
+
+    expectedCCNT = (expectedCCNT % 63) + 1;
 }
 
 bool LvBms::sendReadCmd(uint8_t hi, uint8_t lo, uint8_t out[6]) {
@@ -100,13 +123,19 @@ bool LvBms::sendReadCmd(uint8_t hi, uint8_t lo, uint8_t out[6]) {
 
     spi_.TransmitReceive(tx, rx, 12);
 
-    // Copy recieved data bytes
-    std::memcpy(out, &rx[4], 6);
+    expectedCCNT = (expectedCCNT % 63) + 1;  // update after every transmit
 
     // Check returned PEC10
     uint16_t rxPec = (rx[10] << 8) | rx[11];
+
+    // CCNT and PEC must be identical
+    actualCCNT = (rx[10] >> 2) & 0x3F;
+
     uint16_t calcPec = dataPec10(&rx[4], 6);
 
+    if (actualCCNT != expectedCCNT) {
+        // maybe define a special message back to lv controller
+    }
     // return true if dpec matches
     return (rxPec == calcPec);
 }
@@ -172,4 +201,36 @@ uint16_t LvBms::dataPec10(const uint8_t* data, int len) const {
     }
     return rem;
 }
+
+// ------------------------------------------------------------------------------------
+
+void LvBms::resetCommandCounter() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RSTCC));
+    expectedCCNT = 0;  // reset
+    sendControlCmd(cmd);
+}
+
+void LvBms::freezeResultRegisters() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::SNAP));
+
+    sendControlCmd(cmd);
+}
+
+void LvBms::unfreezeResultRegisters() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::UNSNAP));
+
+    uint8_t tx[4] = {0};
+    tx[0] = cmd[0];  // HI
+    tx[1] = cmd[1];  // LO
+    // Command PEC for transmit
+    uint16_t pec = commandPec15(tx, 2);
+    tx[2] = (pec >> 8) & 0xFF;
+    tx[3] = pec & 0xFF;
+
+    spi_.Transmit(tx, 4);
+}
+
 }  // namespace macfe::lv
