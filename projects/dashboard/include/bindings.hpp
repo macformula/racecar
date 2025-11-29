@@ -11,6 +11,10 @@ extern macfe::periph::DigitalInput& button_enter;
 
 extern void Initialize();
 
+extern void Shutdown();
+
 extern void DelayMS(uint32_t ms);
+
+extern bool ShouldQuit();
 
 }  // namespace bindings
