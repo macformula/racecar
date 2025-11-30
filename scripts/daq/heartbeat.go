@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -53,4 +56,39 @@ func NewHeartbeatHandler(can0, can1 *socketcan.Receiver, logger *zap.Logger) *He
 		can1:      can1,
 		logger:    logger,
 	}
+}
+
+func (h *HeartbeatHandler) SendHeartbeat() error {
+	can0Active, can1Active := h.checkCAN()
+
+	payload := map[string]interface{}{
+		"timestamp":  time.Now().UnixMilli(),
+		"vehicle_id": h.vehicleID,
+		"session_id": h.sessionID,
+		"can_status": map[string]bool{
+			"can0": can0Active,
+			"can1": can1Active,
+		},
+	}
+
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		h.logger.Error("Failed to convert heartbeat payload to JSON", zap.Error(err))
+		return err
+	}
+
+	response, err := http.Post(h.serverURL, "application/json", bytes.NewBuffer(jsonPayload))
+	if err != nil {
+		h.logger.Error("Failed to send heartbeat", zap.Error(err))
+		return err
+	}
+	defer response.Body.Close()
+
+	return nil
+}
+
+func (h *HeartbeatHandler) checkCAN() (bool, bool) {
+	can0Active := h.can0 != nil
+	can1Active := h.can1 != nil
+	return can0Active, can1Active
 }
