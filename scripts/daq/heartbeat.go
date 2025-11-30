@@ -6,11 +6,11 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"time"
 
-	"go.einride.tech/can/pkg/socketcan"
 	"go.uber.org/zap"
 )
 
@@ -18,12 +18,12 @@ type HeartbeatHandler struct {
 	serverURL string
 	vehicleID string
 	sessionID string
-	can0      *socketcan.Receiver
-	can1      *socketcan.Receiver
+	can0      net.Conn
+	can1      net.Conn
 	logger    *zap.Logger
 }
 
-func NewHeartbeatHandler(can0, can1 *socketcan.Receiver, logger *zap.Logger) *HeartbeatHandler {
+func NewHeartbeatHandler(can0, can1 net.Conn, logger *zap.Logger) *HeartbeatHandler {
 
 	// Configuring Vehicle ID
 	vehicleID := os.Getenv("VEHICLE_ID")
