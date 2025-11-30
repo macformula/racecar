@@ -24,6 +24,8 @@ func main() {
 
 	logger, _ := zap.NewDevelopment()
 
+	heartbeat := NewHeartbeatHandler(can0, can1, logger)
+
 	telemetry, err := NewTelemetryHandler("./can_cache.sqlite")
 	if err != nil {
 		panic(err)
@@ -41,12 +43,21 @@ func main() {
 	manager1.Start(context.Background())
 
 	uploadTimer := time.NewTimer(time.Second)
+
+	heartbeatInterval := time.NewTicker(3 * time.Second)
+	defer heartbeatInterval.Stop()
+
 	for {
 		select {
 		case <-uploadTimer.C:
 			err = telemetry.Upload()
 			if err != nil {
 				fmt.Printf("failed to upload telemetry data: %v\n", err)
+			}
+		case <-heartbeatInterval.C:
+			err = heartbeat.SendHeartbeat()
+			if err != nil {
+				logger.Error("Failed to send heartbeat", zap.Error(err))
 			}
 		}
 	}
