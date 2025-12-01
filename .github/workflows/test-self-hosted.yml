@@ -1,0 +1,73 @@
+name: Test Self-Hosted Runner
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: self-hosted
+    outputs:
+      matrix_all_projects: ${{ steps.projects.outputs.matrix_all_projects }}
+      matrix_modified_projects: ${{ steps.projects.outputs.matrix_modified_projects }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        run: |
+          python3 -m venv .venv
+
+      - name: Get projects
+        id: projects
+        run: |
+          source .venv/bin/activate
+          BASE_REF="${{ github.base_ref }}" # Target branch of the PR
+          BASE_REF="${BASE_REF:-HEAD^}" # Previous commit on push to main
+          python3 .github/scripts/get_projects_matrix.py $BASE_REF
+          echo "matrix_all_projects=$(cat all_projects_matrix.json)" >> $GITHUB_OUTPUT
+          echo "matrix_modified_projects=$(cat modified_projects_matrix.json)" >> $GITHUB_OUTPUT
+
+  build-all-projects:
+    if: false
+    needs: setup
+    strategy:
+      fail-fast: false
+      matrix: 
+        include: ${{ fromJson(needs.setup.outputs.matrix_all_projects) }}
+    uses: ./.github/workflows/reusable-build-project.yml
+    with:
+      project: ${{ matrix.project }}
+      platform: ${{ matrix.platform }}
+
+  build-modified-projects:
+    needs: setup
+    strategy:
+      fail-fast: false
+      matrix: 
+        include: ${{ fromJson(needs.setup.outputs.matrix_modified_projects) }}
+    uses: ./.github/workflows/reusable-build-project.yml
+    with:
+      project: ${{ matrix.project }}
+      platform: ${{ matrix.platform }}
+
+  manual-test-self-hosted:
+    if: false
+    needs: [setup, build-modified-projects]
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.setup.outputs.matrix_modified_projects) }}
+    uses: ./.github/workflows/manual-test-self-hosted.yml
+    with:
+      project: ${{ matrix.project }}
+      platform: ${{ matrix.platform }}
+      commit: ''
