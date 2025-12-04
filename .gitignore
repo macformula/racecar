@@ -16,3 +16,13 @@ __pycache__/
 
 .pio
 generated/
+
+# Let's Encrypt certificates (generated at runtime)
+scripts/TSDB/nginx/certbot/conf/accounts/
+scripts/TSDB/nginx/certbot/conf/live/
+scripts/TSDB/nginx/certbot/conf/archive/
+scripts/TSDB/nginx/certbot/conf/renewal/
+scripts/TSDB/nginx/certbot/www/
+
+# SQLite database
+scripts/TSDB/backend/auth/data/
