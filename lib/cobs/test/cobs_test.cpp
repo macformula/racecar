@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace amber::cobs;
+using namespace macfe::cobs;
 
 void EXPECT_ARRAY_EQUAL(uint8_t* expected, size_t expected_len, uint8_t* actual,
                         size_t actual_len) {

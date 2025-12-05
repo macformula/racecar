@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-namespace amber::cobs {
+namespace macfe::cobs {
 
 class Decoder {
 public:
@@ -22,4 +22,4 @@ constexpr size_t MaxEncodedLength(size_t raw_length);
 
 size_t Encode(const uint8_t* raw, size_t length, uint8_t* output);
 
-}  // namespace amber::cobs
+}  // namespace macfe::cobs
