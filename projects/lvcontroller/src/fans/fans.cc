@@ -21,11 +21,11 @@ bool IsAtSetpoint(void) {
 }
 
 void Init(void) {
-    bindings::powertrain_fan_pwm.Start();
+    // bindings::powertrain_fan_pwm.Start();
 
     power_setpoint = 0;
     current_power = 0;
-    bindings::powertrain_fan_pwm.SetDutyCycle(power_setpoint);
+    // bindings::powertrain_fan_pwm.SetDutyCycle(power_setpoint);
 }
 
 static void UpdateEnabled(void) {
@@ -50,7 +50,7 @@ static void UpdateStep(void) {
     current_power += step;
 
     // TODO: should the duty be inverted?
-    bindings::powertrain_fan_pwm.SetDutyCycle(current_power);
+    // bindings::powertrain_fan_pwm.SetDutyCycle(current_power);
 }
 
 void Update_100Hz(void) {

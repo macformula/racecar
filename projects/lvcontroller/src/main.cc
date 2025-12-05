@@ -1,7 +1,7 @@
 /// @author Blake Freer
 /// @date 2023-12-25
-
 #include <cstdint>
+#include <iostream>
 #include <optional>
 
 #include "bindings.hpp"
@@ -246,16 +246,13 @@ void task_100hz(void) {
 
 int main(void) {
     bindings::Initialize();
-
     accumulator::Init();
     fans::Init();
     fsm::Init();
     motor_controller::Init();
-
     scheduler::register_task(task_100hz, 10);
     scheduler::register_task(task_10hz, 100);
     scheduler::register_task(task_1hz, 1000);
-
     scheduler::run();
 
     while (true) continue;

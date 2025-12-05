@@ -1,0 +1,45 @@
+syntax = "proto3";
+option go_package = "./gotobuf";
+
+message Output {
+    // Tractive system status indicator
+    bool tssi_en = 1;
+    bool tssi_red_signal = 2;
+    bool tssi_green_signal = 3;
+
+    // Powertrain cooling
+    bool powertrain_pump1_en = 4;
+    bool powertrain_pump2_en = 5;
+    bool powertrain_fan1_en = 6;
+    bool powertrain_fan2_en = 7;
+    float powertrain_fan_pwm = 8;
+
+    // Motor Controller
+    bool motor_controller_en = 9;
+    bool motor_ctrl_precharge_en = 10;
+    bool motor_ctrl_switch_en = 11;
+
+    // Subsystems
+    bool accumulator_en = 12;
+    bool front_controller_en = 13;
+    bool imu_gps_en = 14;
+    bool shutdown_circuit_en = 15;
+
+    // DCDC System & measurement
+    bool dcdc_en = 16;
+    bool dcdc_sense_select = 17;
+
+    // Other
+    bool brake_light_en = 18;
+}
+
+message Input {
+    // Tractive system status indicator
+    bool imd_fault = 1;
+    bool bms_fault = 2;
+
+    // DCDC System & Measurement
+    float dcdc_sense = 3;
+    float suspension_travel3 = 4;
+    float suspension_travel4 = 5;
+}
