@@ -1,4 +1,5 @@
 syntax = "proto3";
+package lvcontroller;
 option go_package = "./gotobuf";
 
 message Output {

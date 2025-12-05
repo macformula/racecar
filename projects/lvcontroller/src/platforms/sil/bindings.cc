@@ -15,6 +15,7 @@
 #include <chrono>
 #include <thread>
 
+#include "cobs.hpp"
 #include "lvcontroller.pb.h"
 #include "mcal/sil/analog_input.hpp"
 #include "mcal/sil/analog_output.hpp"
@@ -23,10 +24,9 @@
 #include "pb_decode.h"
 #include "pb_encode.h"
 #include "periph/gpio.hpp"
+lvcontroller_Output outputs = lvcontroller_Output_init_zero;
 
-Output outputs = Output_init_zero;
-
-Input inputs = Input_init_zero;
+lvcontroller_Input inputs = lvcontroller_Input_init_zero;
 std::thread wt;
 std::thread rt;
 std::thread ct;
@@ -111,7 +111,7 @@ void writerThread(int sockfd) {
         // TODO until this
 
         send(sockfd, &msg_start, sizeof(msg_start), 0);
-        if (pb_encode(&ostream, &Output_msg, &outputs) != 0) {
+        if (pb_encode(&ostream, &lvcontroller_Output_msg, &outputs) == 0) {
             std::cout << "Error with the writer encoding: "
                       << PB_GET_ERROR(&ostream) << std::strerror(errno)
                       << std::endl;
@@ -124,6 +124,9 @@ void writerThread(int sockfd) {
     close(sockfd);
 }
 void readerThread(int sockfd) {
+    uint8_t cobsBuffer[2048] = {0};
+    // Input_size is a useful thing to know about
+    macfe::cobs::Decoder decoder(cobsBuffer);
     while (true) {
         std::cout << "Reading" << std::endl;
         /*pb_istream_t istream = {
@@ -131,21 +134,21 @@ void readerThread(int sockfd) {
             .state = (void*)(intptr_t)sockfd,
             .bytes_left = SIZE_MAX,
         };*/
-        // uint8_t biggerbuffer[1024];
-        uint8_t buffer[2];
-        ssize_t result = recv(sockfd, buffer, sizeof(buffer), 0);
-        std::cout << "Read bytes" << result << std::endl;
-        for (int i = 0; i < result; i++) {
-            std::cout << (int)buffer[i] << std::endl;
+        uint8_t byte;
+        ssize_t result = recv(sockfd, &byte, 1, 0);
+        if (decoder.Decode(&byte, result)) {
+            lvcontroller_Input inputs_temp;
+            pb_istream_t istream =
+                pb_istream_from_buffer(decoder.buffer, decoder.length);
+            if (pb_decode(&istream, &lvcontroller_Input_msg, &inputs_temp)) {
+                inputs = inputs_temp;
+            } else {
+                std::cerr << "Failed to decode inputs" << std::endl;
+            }
+            decoder = macfe::cobs::Decoder(cobsBuffer);
+            std::cout << "imd_fault" << inputs.imd_fault << std::endl;
+            std::cout << "bms_fault" << inputs.bms_fault << std::endl;
         }
-        /*if (pb_decode(&istream, &Input_msg, &inputs) != 0) {
-            std::cout << "Error to follow" << std::endl;
-            std::cout << "Error in the reader decode" << PB_GET_ERROR(&istream)
-                      << std::endl;
-        }*/
-        std::cout << "imd_fault" << inputs.imd_fault << std::endl;
-        std::cout << "bms_fault" << inputs.bms_fault << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
     std::cout << "This shouldn't print in the reader" << std::endl;
     close(sockfd);
