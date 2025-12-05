@@ -5,5 +5,5 @@ Script to convert json lines output from tracer to mdf file; used for visualizat
 # Usage
 
 ```bash
-uv run ./jsonl_to_mdf.py ./trace.jsonl
+python ./jsonl_to_mdf.py ./trace.jsonl
 ```
