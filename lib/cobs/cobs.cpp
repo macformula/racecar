@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <cstdlib>
 
-namespace amber::cobs {
+namespace macfe::cobs {
 
 Decoder::Decoder(uint8_t* buffer)
     : buffer(buffer), length(0), block_remaining_(0), code_(0xff) {}
@@ -66,4 +66,4 @@ size_t Encode(const uint8_t* raw, size_t length, uint8_t* output) {
     return size_t(encode_cursor - output);
 }
 
-}  // namespace amber::cobs
+}  // namespace macfe::cobs
