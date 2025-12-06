@@ -155,7 +155,8 @@ BO_ 301 SuspensionTravel12: 4 FC
  SG_ STP2_mm : 16|16@1+ (0.1,0) [0|255] "" FC
 
 BO_ 340 TuningParams: 8 RPI
- SG_ aggressiveness : 0|8@1+ (1,0) [0|100] "" FC
+ SG_ damping            : 0|8@1+ (1,0) [0|100] "" FC
+ SG_ aggressiveness     : 8|8@1+ (1,0) [0|100] "" FC
 
 CM_ "4xn - General / debugging info";
 

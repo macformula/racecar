@@ -1,5 +1,7 @@
 #include "ProfileSelect.hpp"
 
+#include <string>
+
 #include "Display.hpp"
 #include "generated/can/veh_bus.hpp"
 
@@ -35,7 +37,12 @@ void ProfileSelect::Update() {
     if (display_->enter.PosEdge()) {
         display_->selected_profile =
             static_cast<Profile>(lv_roller_get_selected(roller));
+        // if (static_cast<std::string>(
+        //         GetProfileName(display_->selected_profile)) == "TUNING") {
+        //     display_->ChangeState(State::TUNING);
+        // } else {
         display_->ChangeState(State::CONFIRM_SELECTION);
+        // }
 
     } else if (display_->scroll.PosEdge()) {
         int new_position = lv_roller_get_selected(roller) + 1;
