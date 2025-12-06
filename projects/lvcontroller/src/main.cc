@@ -202,9 +202,16 @@ void Update_100hz(void) {
 
 void check_can_flash(void) {
     auto msg = veh_can.GetRxInitiateCanFlash();
+    auto fc_status = veh_can.GetRxFcStatus();
+
+    bool can_flash_allowed = false;
+    if (fc_status.has_value()) {
+        can_flash_allowed = fc_status->CanFlashAllowed();
+    }
 
     if (msg.has_value() &&
-        msg->ECU() == RxInitiateCanFlash::ECU_t::LvController) {
+        msg->ECU() == RxInitiateCanFlash::ECU_t::LvController &&
+        can_flash_allowed) {
         bindings::SoftwareReset();
     }
 }
@@ -223,7 +230,7 @@ void task_10hz(void) {
     suspension::task_10hz(veh_can);
     tssi::task_10hz();
     accumulator::task_10hz(veh_can);
-    // check_can_flash(); // unused in 2025
+    check_can_flash();
 
     veh_can.Send(TxLvStatus{
         .counter = tx_counter++,
