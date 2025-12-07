@@ -70,37 +70,10 @@ CanBase veh_can_base{"vcan0"};
 
 }  // namespace mcal
 int port = 11001;
-static bool write_callback(pb_ostream_t* stream, const uint8_t* buf,
-                           size_t count) {
-    int fd = (intptr_t)stream->state;
-    bool result = send(fd, buf, count, 0) == count;
-    return result;
-}
 
-static bool read_callback(pb_istream_t* stream, uint8_t* buf, size_t count) {
-    int fd = (intptr_t)stream->state;
-    int result;
-
-    if (count == 0) return true;
-
-    result = recv(fd, buf, count, 0);
-    std::cout << "Buffer: " << buf << std::endl;
-    std::cout << "Result: " << result << std::endl;
-    if (result == 0) stream->bytes_left = 0; /* EOF */
-    std::cout << "Bytes left: " << stream->bytes_left << std::endl;
-    return result == count;
-}
-
-void writerThread(int sockfd) {
+void writerThread(int fd) {
     while (true) {
-        pb_ostream_t ostream = {
-            .callback = &write_callback,
-            .state = (void*)(intptr_t)sockfd,
-            .max_size = SIZE_MAX,
-            .bytes_written = 0,
-        };
         // transmit that the message has started
-        int msg_start[1] = {1};
 
         // TODO rm this
         static bool flipper = true;
@@ -109,33 +82,34 @@ void writerThread(int sockfd) {
         mcal::imu_gps_en.Set(flipper);
         flipper = !flipper;
         // TODO until this
-
-        send(sockfd, &msg_start, sizeof(msg_start), 0);
+        uint8_t cobsBuffer[2048] = {0};
+        pb_ostream_t ostream =
+            pb_ostream_from_buffer(cobsBuffer, sizeof(cobsBuffer));
         if (pb_encode(&ostream, &lvcontroller_Output_msg, &outputs) == 0) {
             std::cout << "Error with the writer encoding: "
                       << PB_GET_ERROR(&ostream) << std::strerror(errno)
                       << std::endl;
         }
-        // transmit that the message has ended
-        int msg_end[1] = {2};
-        send(sockfd, &msg_end, sizeof(msg_end), 0);
+        uint8_t encodedBuffer[2048] = {0};
+        int msg_size = macfe::cobs::Encode(cobsBuffer, ostream.bytes_written,
+                                           encodedBuffer);
+        std::cout << "ENCB: " << std::endl;
+        for (int i = 0; i < 100; i++) {
+            std::cout << " " << (int)encodedBuffer[i];
+        }
+        std::cout << std::endl;
+        send(fd, encodedBuffer, msg_size, 0);
         std::this_thread::sleep_for(std::chrono::milliseconds(3000));
     }
-    close(sockfd);
+    close(fd);
 }
-void readerThread(int sockfd) {
+void readerThread(int fd) {
     uint8_t cobsBuffer[2048] = {0};
     // Input_size is a useful thing to know about
     macfe::cobs::Decoder decoder(cobsBuffer);
     while (true) {
-        std::cout << "Reading" << std::endl;
-        /*pb_istream_t istream = {
-            .callback = &read_callback,
-            .state = (void*)(intptr_t)sockfd,
-            .bytes_left = SIZE_MAX,
-        };*/
         uint8_t byte;
-        ssize_t result = recv(sockfd, &byte, 1, 0);
+        ssize_t result = recv(fd, &byte, 1, 0);
         if (decoder.Decode(&byte, result)) {
             lvcontroller_Input inputs_temp;
             pb_istream_t istream =
@@ -150,8 +124,7 @@ void readerThread(int sockfd) {
             std::cout << "bms_fault" << inputs.bms_fault << std::endl;
         }
     }
-    std::cout << "This shouldn't print in the reader" << std::endl;
-    close(sockfd);
+    close(fd);
 }
 void connectServer() {
     int sockfd = 0;
@@ -173,7 +146,7 @@ void connectServer() {
             std::this_thread::sleep_for(std::chrono::milliseconds(250));
         }
     }
-    // wt = std::thread(writerThread, sockfd);
+    wt = std::thread(writerThread, sockfd);
     rt = std::thread(readerThread, sockfd);
 }
 namespace bindings {
