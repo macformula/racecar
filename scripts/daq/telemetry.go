@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"database/sql"
 	"fmt"
+	"sync"
 
 	"github.com/macformula/hil/canlink"
 	"go.einride.tech/can"
@@ -18,6 +19,7 @@ type TelemetryPacket struct {
 	Timestamp int64    `db:"timestamp"`
 	FrameId   uint32   `db:"frame_id"`
 	FrameData can.Data `db:"frame_data"`
+	CanBus	 string   `db:"bus_name"` 
 }
 
 type TelemetryHandler struct {
@@ -25,6 +27,8 @@ type TelemetryHandler struct {
 	db     *sql.DB
 	l      *zap.Logger
 	dbFile string
+
+	mu sync.Mutex
 }
 
 func NewTelemetryHandler(dbFile string) (*TelemetryHandler, error) {
@@ -70,12 +74,18 @@ func NewTelemetryHandler(dbFile string) (*TelemetryHandler, error) {
 }
 
 func (t *TelemetryHandler) Enqueue(frame canlink.TimestampedFrame, busName string) error {
+
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	query, err := t.db.Prepare(`
 		INSERT INTO can_cache (timestamp, frame_id, frame_data, bus_name) VALUES (?, ?, ?, ?)
 	`)
 	if err != nil {
 		return err
 	}
+
+	defer query.Close()
 
 	res, err := query.Exec(frame.Time.UnixMilli(), frame.Frame.ID, frame.Frame.Data.PackBigEndian(), busName)
 	if err != nil {
@@ -85,25 +95,26 @@ func (t *TelemetryHandler) Enqueue(frame canlink.TimestampedFrame, busName strin
 	// Ignore the error since the schema enforces an auto-incrementing primary key
 	id, _ := res.LastInsertId()
 
-	elem := list.Element{
-		Value: TelemetryPacket{
-			Id:        id,
-			Timestamp: frame.Time.UnixMilli(),
-			FrameId:   frame.Frame.ID,
-			FrameData: frame.Frame.Data,
-		},
+	packet :=TelemetryPacket{
+		Id:        id,
+		Timestamp: frame.Time.UnixMilli(),
+		FrameId:   frame.Frame.ID,
+		FrameData: frame.Frame.Data,
+		CanBus:    busName,
 	}
 
-	if t.buf.Len() >= BufferSize {
+	t.buf.PushFront(packet)
+
+	if t.buf.Len() > BufferSize {
 		// go upload ?
 		t.buf.Remove(t.buf.Back())
 	}
-	t.buf.MoveToFront(&elem)
 
 	return nil
 }
 
 func (t *TelemetryHandler) Upload() error {
+
 	// pop from front of buffer and write to backend
 
 	// Ignore for now ...
@@ -153,37 +164,61 @@ func (t *TelemetryHandler) Upload() error {
 }
 
 func (t *TelemetryHandler) emptyBuffer() []TelemetryPacket {
-	packets := make([]TelemetryPacket, t.buf.Len())
-	next := t.buf.Front()
 
-	for range t.buf.Len() {
-		packets = append(packets, next.Value.(TelemetryPacket))
-		next = next.Next()
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	packets := make([]TelemetryPacket, 0, t.buf.Len())
+
+	for e := t.buf.Front(); e != nil; {
+		next := e.Next()
+		packet := e.Value.(TelemetryPacket)
+		packets = append(packets, packet)
+
+		// Remove this element
+		t.buf.Remove(e)
+
+		// Move to next
+		e = next
 	}
 
 	return packets
 }
 
 func (t *TelemetryHandler) fillBufferFromDisk() error {
+
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	t.buf.Init()
 
 	query, err := t.db.Prepare(`
-		SELECT id, timestamp, frame_id, frame_data FROM can_cache ORDER BY timestamp DESC LIMIT ?
+		SELECT id, timestamp, frame_id, frame_data, bus_name FROM can_cache ORDER BY timestamp DESC LIMIT ?
 	`)
 	if err != nil {
 		return err
 	}
 
+	defer query.Close()
+
 	rows, err := query.Query(BufferSize)
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var packet TelemetryPacket
 		var packedFrameData uint64
 
-		err = rows.Scan(&packet.Id, &packet.Id, &packet.FrameId, &packedFrameData)
+		err = rows.Scan(
+			&packet.Id,
+			&packet.Timestamp,
+			&packet.FrameId,
+			&packedFrameData,
+			&packet.CanBus,
+		)
+
 		if err != nil {
 			fmt.Printf("Failed to scan packet: %v\n", err)
 			continue
@@ -196,6 +231,5 @@ func (t *TelemetryHandler) fillBufferFromDisk() error {
 		t.buf.PushBack(packet)
 	}
 
-	rows.Close()
-	return nil
+	return rows.Err()
 }
