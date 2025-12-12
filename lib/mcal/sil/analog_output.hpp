@@ -1,10 +1,5 @@
 #pragma once
 
-#include <iostream>
-#include <map>
-#include <string>
-
-#include "lvcontroller.pb.h"
 #include "periph/analog_output.hpp"
 
 namespace mcal::sil {

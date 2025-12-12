@@ -3,14 +3,8 @@
 
 #include "bindings.hpp"
 
-#include <dirent.h>
 #include <netinet/in.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <string.h>
 #include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 #include <chrono>
 #include <thread>
@@ -21,15 +15,13 @@
 #include "mcal/sil/analog_output.hpp"
 #include "mcal/sil/can.hpp"
 #include "mcal/sil/gpio.hpp"
+#include "mcal/sil/pwm.hpp"
 #include "pb_decode.h"
 #include "pb_encode.h"
-#include "periph/gpio.hpp"
 lvcontroller_Output outputs = lvcontroller_Output_init_zero;
-
 lvcontroller_Input inputs = lvcontroller_Input_init_zero;
 std::thread wt;
 std::thread rt;
-std::thread ct;
 
 namespace mcal {
 using namespace mcal::sil;
@@ -45,6 +37,7 @@ DigitalOutput powertrain_pump1_en{&outputs.powertrain_pump1_en};
 DigitalOutput powertrain_pump2_en{&outputs.powertrain_pump2_en};
 DigitalOutput powertrain_fan1_en{&outputs.powertrain_fan1_en};
 DigitalOutput powertrain_fan2_en{&outputs.powertrain_fan2_en};
+PWMOutput powertrain_fan_pwm{&outputs.powertrain_fan_pwm};
 
 // Motor Controller (i.e. Inverters)
 DigitalOutput motor_controller_en{&outputs.motor_controller_en};
@@ -73,39 +66,23 @@ int port = 11001;
 
 void writerThread(int fd) {
     while (true) {
-        // transmit that the message has started
-
-        // TODO rm this
-        static bool flipper = true;
-        mcal::tssi_green_signal.Set(flipper);
-        mcal::front_controller_en.Set(!flipper);
-        mcal::imu_gps_en.Set(flipper);
-        flipper = !flipper;
-        // TODO until this
         uint8_t cobsBuffer[2048] = {0};
         pb_ostream_t ostream =
             pb_ostream_from_buffer(cobsBuffer, sizeof(cobsBuffer));
         if (pb_encode(&ostream, &lvcontroller_Output_msg, &outputs) == 0) {
-            std::cout << "Error with the writer encoding: "
+            std::cout << "Error with the outputs encoding: "
                       << PB_GET_ERROR(&ostream) << std::strerror(errno)
                       << std::endl;
         }
         uint8_t encodedBuffer[2048] = {0};
         int msg_size = macfe::cobs::Encode(cobsBuffer, ostream.bytes_written,
                                            encodedBuffer);
-        std::cout << "ENCB: " << std::endl;
-        for (int i = 0; i < 100; i++) {
-            std::cout << " " << (int)encodedBuffer[i];
-        }
-        std::cout << std::endl;
         send(fd, encodedBuffer, msg_size, 0);
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
     }
     close(fd);
 }
 void readerThread(int fd) {
     uint8_t cobsBuffer[2048] = {0};
-    // Input_size is a useful thing to know about
     macfe::cobs::Decoder decoder(cobsBuffer);
     while (true) {
         uint8_t byte;
@@ -120,8 +97,6 @@ void readerThread(int fd) {
                 std::cerr << "Failed to decode inputs" << std::endl;
             }
             decoder = macfe::cobs::Decoder(cobsBuffer);
-            std::cout << "imd_fault" << inputs.imd_fault << std::endl;
-            std::cout << "bms_fault" << inputs.bms_fault << std::endl;
         }
     }
     close(fd);
@@ -139,7 +114,6 @@ void connectServer() {
             0) {
             has_connected = true;
         } else {
-            std::cerr << "Error to follow" << std::endl;
             std::cerr << "Error with the connection: " << std::strerror(errno)
                       << std::endl;
             close(sockfd);
@@ -164,6 +138,7 @@ DigitalOutput& powertrain_pump1_en = mcal::powertrain_pump1_en;
 DigitalOutput& powertrain_pump2_en = mcal::powertrain_pump2_en;
 DigitalOutput& powertrain_fan1_en = mcal::powertrain_fan1_en;
 DigitalOutput& powertrain_fan2_en = mcal::powertrain_fan2_en;
+PWMOutput& powertrain_fan_pwm = mcal::powertrain_fan_pwm;
 
 // Motor Controller (Inverters)
 DigitalOutput& motor_controller_en = mcal::motor_controller_en;
@@ -192,28 +167,23 @@ void Initialize() {
     connectServer();
 }
 
-// copied luai
 int GetTick() {
     using namespace std::chrono;
-    long now =
+    static long start =
         duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-            .count();
-    static long start = now;  // only set on first call
-
-    return now - start;
+            .count();  // only set on first call
+    return duration_cast<milliseconds>(system_clock::now().time_since_epoch())
+               .count() -
+           start;
 }
-
+// TODO Send PWM over threads, finish conversion
 void DelayMS(int ms) {
     std::this_thread::sleep_for(std::chrono::milliseconds(ms));
 }
 
-// copied luai
 void SoftwareReset() {
     std::cout << "Performing software reset. Will not proceed." << std::endl;
     while (true) continue;
 }
-
-// ask for most recent struct from outer program
-//  https://pubs.opengroup.org/onlinepubs/009695199/basedefs/sys/select.h.html
 
 }  // namespace bindings

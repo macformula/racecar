@@ -2,6 +2,11 @@ syntax = "proto3";
 package lvcontroller;
 option go_package = "./gotobuf";
 
+message PWM {
+    float frequency_hz = 1;
+    float duty_cycle = 2;
+}
+
 message Output {
     // Tractive system status indicator
     bool tssi_en = 1;
@@ -13,7 +18,8 @@ message Output {
     bool powertrain_pump2_en = 5;
     bool powertrain_fan1_en = 6;
     bool powertrain_fan2_en = 7;
-    float powertrain_fan_pwm = 8;
+
+    PWM powertrain_fan_pwm = 8;
 
     // Motor Controller
     bool motor_controller_en = 9;
