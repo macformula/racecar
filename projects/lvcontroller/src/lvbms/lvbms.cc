@@ -102,7 +102,8 @@ void LvBms::sendControlCmd(std::array<uint8_t, 2> cmd) {
     expectedCCNT = (expectedCCNT % 63) + 1;
 }
 
-bool LvBms::sendReadCmd(uint8_t hi, uint8_t lo, uint8_t out[6]) {
+bool LvBms::sendReadCmd(uint8_t hi, uint8_t lo, uint8_t out[6],
+                        bool measurementRead) {
     // Read Command: Command Bytes + Command PEC
 
     // Frame 1: Sends Read Command
@@ -123,8 +124,6 @@ bool LvBms::sendReadCmd(uint8_t hi, uint8_t lo, uint8_t out[6]) {
 
     spi_.TransmitReceive(tx, rx, 12);
 
-    expectedCCNT = (expectedCCNT % 63) + 1;  // update after every transmit
-
     // Check returned PEC10
     uint16_t rxPec = (rx[10] << 8) | rx[11];
 
@@ -136,6 +135,17 @@ bool LvBms::sendReadCmd(uint8_t hi, uint8_t lo, uint8_t out[6]) {
     if (actualCCNT != expectedCCNT) {
         // maybe define a special message back to lv controller
     }
+
+    if (measurementRead) {  // CCNT check
+        if (expectedCCNT != actualCCNT) {
+            return false;
+        }
+        if (rxPec != calcPec) {
+            return false;
+        }
+        expectedCCNT = (expectedCCNT % 63) + 1;
+    }
+
     // return true if dpec matches
     return (rxPec == calcPec);
 }
@@ -204,6 +214,14 @@ uint16_t LvBms::dataPec10(const uint8_t* data, int len) const {
 
 // ------------------------------------------------------------------------------------
 
+//  Command Codes
+void LvBms::softwareReset() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::SRST));
+    // Look for expected CCNT Reset
+    sendControlCmd(cmd);
+}
+
 void LvBms::resetCommandCounter() {
     std::array<uint8_t, 2> cmd =
         LvBms::splitMessage(uint16_t(commandCode::RSTCC));
@@ -221,16 +239,77 @@ void LvBms::freezeResultRegisters() {
 void LvBms::unfreezeResultRegisters() {
     std::array<uint8_t, 2> cmd =
         LvBms::splitMessage(uint16_t(commandCode::UNSNAP));
+    sendControlCmd(cmd);
+}
 
-    uint8_t tx[4] = {0};
-    tx[0] = cmd[0];  // HI
-    tx[1] = cmd[1];  // LO
-    // Command PEC for transmit
-    uint16_t pec = commandPec15(tx, 2);
-    tx[2] = (pec >> 8) & 0xFF;
-    tx[3] = pec & 0xFF;
+void LvBms::clearIxVBxADCResults() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::CLRI));
 
-    spi_.Transmit(tx, 4);
+    sendControlCmd(cmd);
+}
+
+void LvBms::clearAccumalators() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::CLRA));
+
+    sendControlCmd(cmd);
+}
+
+void LvBms::clearVxADCResults() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::CLRVX));
+
+    sendControlCmd(cmd);
+}
+
+void LvBms::clearOCxADCResults() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::CLRO));
+
+    sendControlCmd(cmd);
+}
+// --------------------------------------------------------
+
+// Write Functions
+void LvBms::CLRFLAG() {
+    /*
+    Used to reset individual bits in the flag register. This write function,
+   like all, require 6 bytes sent back. Any bit of the data that is set to 1
+   clears the related flag
+    */
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::CLRFLAG));
+    uint8_t output[6];
+    sendWriteCmd(cmd[0], cmd[1], output);
+}
+
+// Read Functions
+
+// non measurement read will pass in false -> will not increment CCNT
+
+void LvBms::RDFLAG() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::CLRFLAG));
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output, false);
+
+    // Fault and Status Information is read from this command
+}
+
+void LvBms::RDSTAT() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDSTAT));
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output, false);
+}
+
+void LvBms::RDI() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDI));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output, false);
 }
 
 }  // namespace macfe::lv
