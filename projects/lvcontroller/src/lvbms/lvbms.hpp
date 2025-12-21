@@ -57,18 +57,21 @@ public:
     void RDSID();
     void RDCFGA();
     void RDCFGB();
+    void RDCOMM();
 
     // Write Commands
     // -----------------------
     void CLRFLAG();
+    void WRCFGA();
+    void WRCFGB();
+    void WRCOMM();
 
 private:
     macfe::periph::SpiMaster& spi_;
     uint8_t expectedCCNT = 0;  // tracks expected command counter
     uint8_t actualCCNT = 0;
 
-    bool sendReadCmd(uint8_t hi, uint8_t lo, uint8_t out[6],
-                     bool measurementRead);
+    bool sendReadCmd(uint8_t hi, uint8_t lo, uint8_t out[6]);
     bool sendWriteCmd(uint8_t hi, uint8_t lo, const uint8_t data[6]);
     void sendControlCmd(std::array<uint8_t, 2> cmd);
     std::array<uint8_t, 2> splitMessage(uint16_t cmd);

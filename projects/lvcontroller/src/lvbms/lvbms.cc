@@ -19,8 +19,8 @@ macfe::lv::LvBms::LvBms(macfe::periph::SpiMaster& spi) : spi_(spi) {}
 /**
  * @note everytime we utilize a read command, we should check for the CCNT
  * frames, and check them with our count. This will tell us if any commands may
- * have been ignored. Increment expected CCNT each time a write function is
- * called
+ * have been ignored. Increment expected CCNT each time a write or command
+ * function has been called
  **/
 
 enum class commandCode : uint16_t {
@@ -98,12 +98,11 @@ void LvBms::sendControlCmd(std::array<uint8_t, 2> cmd) {
     tx[3] = pec & 0xFF;
 
     spi_.Transmit(tx, 4);
-
-    expectedCCNT = (expectedCCNT % 63) + 1;
+    expectedCCNT =
+        (expectedCCNT % 63) + 1;  // Increment CCNT for Command Functions
 }
 
-bool LvBms::sendReadCmd(uint8_t hi, uint8_t lo, uint8_t out[6],
-                        bool measurementRead) {
+bool LvBms::sendReadCmd(uint8_t hi, uint8_t lo, uint8_t out[6]) {
     // Read Command: Command Bytes + Command PEC
 
     // Frame 1: Sends Read Command
@@ -134,16 +133,12 @@ bool LvBms::sendReadCmd(uint8_t hi, uint8_t lo, uint8_t out[6],
 
     if (actualCCNT != expectedCCNT) {
         // maybe define a special message back to lv controller
+        // From now on, these values won't be the same... this could flood our
+        // can bus
     }
-
-    if (measurementRead) {  // CCNT check
-        if (expectedCCNT != actualCCNT) {
-            return false;
-        }
-        if (rxPec != calcPec) {
-            return false;
-        }
-        expectedCCNT = (expectedCCNT % 63) + 1;
+    if (rxPec != calcPec) {
+        // send back a specific message that the message was not sent through,
+        // this would be a rare instance since PEC is pretty good
     }
 
     // return true if dpec matches
@@ -173,6 +168,10 @@ bool LvBms::sendWriteCmd(uint8_t hi, uint8_t lo, const uint8_t data[6]) {
 
     // Sends all 12 bytes
     spi_.Transmit(tx, 12);
+
+    expectedCCNT = (expectedCCNT % 63) + 1;  // Increment CCNT for Write
+                                             // Commands
+
     return true;
 }
 
@@ -290,9 +289,9 @@ void LvBms::CLRFLAG() {
 
 void LvBms::RDFLAG() {
     std::array<uint8_t, 2> cmd =
-        LvBms::splitMessage(uint16_t(commandCode::CLRFLAG));
+        LvBms::splitMessage(uint16_t(commandCode::RDFLAG));
     uint8_t output[6];
-    sendReadCmd(cmd[0], cmd[1], output, false);
+    sendReadCmd(cmd[0], cmd[1], output);
 
     // Fault and Status Information is read from this command
 }
@@ -301,7 +300,7 @@ void LvBms::RDSTAT() {
     std::array<uint8_t, 2> cmd =
         LvBms::splitMessage(uint16_t(commandCode::RDSTAT));
     uint8_t output[6];
-    sendReadCmd(cmd[0], cmd[1], output, false);
+    sendReadCmd(cmd[0], cmd[1], output);
 }
 
 void LvBms::RDI() {
@@ -309,7 +308,15 @@ void LvBms::RDI() {
         LvBms::splitMessage(uint16_t(commandCode::RDI));
 
     uint8_t output[6];
-    sendReadCmd(cmd[0], cmd[1], output, false);
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDV8() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDI));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
 }
 
 }  // namespace macfe::lv
