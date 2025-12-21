@@ -30,11 +30,11 @@ public:
     void RDFLAG();
     void RDSTAT();
     void RDI();
-    void RDV8();
+    void RDVB();
     void RDIACC();
     void RDVBACC();
     void RDIVB1();
-    void RDIB1ACC();
+    void RDIVB1ACC();
 
     // ADCV1
     void RDV1A();
@@ -53,6 +53,7 @@ public:
     void RDXA();
     void RDXB();
     void RDXC();
+    void RDOC();
 
     void RDSID();
     void RDCFGA();
