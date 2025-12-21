@@ -311,9 +311,177 @@ void LvBms::RDI() {
     sendReadCmd(cmd[0], cmd[1], output);
 }
 
-void LvBms::RDV8() {
+void LvBms::RDVB() {
     std::array<uint8_t, 2> cmd =
-        LvBms::splitMessage(uint16_t(commandCode::RDI));
+        LvBms::splitMessage(uint16_t(commandCode::RDVB));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDIACC() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDIACC));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDVBACC() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDIACC));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDIVB1() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDIVB1));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDIVB1ACC() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDIVB1ACC));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDV1A() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDV1A));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDV1B() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDV1B));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDV1C() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDV1C));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDV1D() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDV1D));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDV2A() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDV2A));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDV2B() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDV2B));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDV2C() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDV2C));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDV2D() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDV2D));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDV2E() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDV2E));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDXA() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDXA));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDXB() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDXB));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDXC() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDXC));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDOC() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDOC));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDSID() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDSID));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDCFGA() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDCFGA));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDCFGB() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDCFGB));
+
+    uint8_t output[6];
+    sendReadCmd(cmd[0], cmd[1], output);
+}
+
+void LvBms::RDCOMM() {
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDCOMM));
 
     uint8_t output[6];
     sendReadCmd(cmd[0], cmd[1], output);
