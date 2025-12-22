@@ -20,6 +20,7 @@ public:
     void resetCommandCounter();      // RSTCC
     void freezeResultRegisters();    // SNAP
     void unfreezeResultRegisters();  // UNSNAP
+
     void clearIxVBxADCResults();     // CLRI
     void clearAccumalators();        // CLRA
     void clearVxADCResults();        // CLRVX
@@ -60,12 +61,24 @@ public:
     void RDCFGB();
     void RDCOMM();
 
+    void readAllConfigFlags(uint8_t input[6]);  // RDALLC
+    void readAllAUXADC(uint8_t input[6]);       // RDALLX
+    void readAllExternalinputV2ADCResults(uint8_t input[6]);  // RDALLR
+    void readAllExternalinputV1ADCResults(uint8_t input[6]);  // RDALLV
+    void readIxADCandVbADCaccumulators(uint8_t input[6]);    // RDALLA
+    void readIxADCandVbADCresults(uint8_t input[6]);      // RDALLI
+
+    
+
     // Write Commands
     // -----------------------
     void CLRFLAG();
     void WRCFGA();
     void WRCFGB();
     void WRCOMM();
+
+
+
 
 private:
     macfe::periph::SpiMaster& spi_;

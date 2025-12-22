@@ -103,7 +103,7 @@ void LvBms::sendControlCmd(std::array<uint8_t, 2> cmd) {
 }
 
 bool LvBms::sendReadCmd(uint8_t hi, uint8_t lo, uint8_t out[6]) {
-    // Read Command: Command Bytes + Command PEC
+    // Read Command: Comand Bytes + Command PEC
 
     // Frame 1: Sends Read Command
     uint8_t tx[12] = {0};
@@ -486,5 +486,70 @@ void LvBms::RDCOMM() {
     uint8_t output[6];
     sendReadCmd(cmd[0], cmd[1], output);
 }
+
+void LvBms::readAllConfigFlags(uint8_t input[6]) {
+
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDALLC));
+
+    sendReadCmd(cmd[0], cmd[1], input);
+
+
+}
+
+void LvBms::readAllAUXADC(uint8_t input[6]) {
+
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDALLX));
+
+    sendReadCmd(cmd[0], cmd[1], input);
+
+}
+
+void LvBms::readAllExternalinputV2ADCResults(uint8_t input[6]) {
+
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDALLR));
+
+    sendReadCmd(cmd[0], cmd[1], input);
+
+}
+
+
+void LvBms::readAllExternalinputV1ADCResults(uint8_t input[6]) {
+
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDALLV));
+
+    sendReadCmd(cmd[0], cmd[1], input);
+
+}
+
+
+void LvBms::readIxADCandVbADCaccumulators(uint8_t input[6]) {
+    freezeResultRegisters();
+
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDALLA));
+
+    sendReadCmd(cmd[0], cmd[1], input);
+
+    unfreezeResultRegisters();
+
+}
+
+void LvBms::readIxADCandVbADCresults(uint8_t input[6]) {
+    freezeResultRegisters();
+
+    std::array<uint8_t, 2> cmd =
+        LvBms::splitMessage(uint16_t(commandCode::RDALLI));
+
+    sendReadCmd(cmd[0], cmd[1], input);
+
+    unfreezeResultRegisters();
+
+}
+
+
 
 }  // namespace macfe::lv
