@@ -4,6 +4,7 @@
 #include "accumulator/accumulator.hpp"
 #include "alerts/alerts.hpp"
 #include "bindings.hpp"
+#include "calibration/calibration.hpp"
 #include "dbc_hash/dbc_hash.hpp"
 #include "driver_interface/driver_interface.hpp"
 #include "generated/can/pt_bus.hpp"
@@ -86,8 +87,29 @@ static void Update_100Hz(void) {
             if (msg.has_value()) {
                 if (msg->State() == DashState::WAIT_SELECTION_ACK) {
                     vehicle_dynamics::SetProfile(msg->Profile());
+                    if (msg->Profile() ==
+                        RxDashStatus::Profile_t::Calibration) {
+                        calibration::SetCommand(calibration::Command::START);
+                        new_state = CALIBRATION_MODE;  // Go to calibration mode
+                    } else {
+                        new_state = WAIT_START_HV;  // Normal startup
+                    }
+
                     new_state = WAIT_START_HV;
                 }
+            }
+        } break;
+
+        case CALIBRATION_MODE: {
+            acc_cmd = accumulator::Command::OFF;
+            motor_cmd = motors::Command::OFF;
+            torque_request = 0;
+
+            if (calibration::GetState() == calibration::State::COMPLETE) {
+                calibration::SetCommand(calibration::Command::STOP);
+                new_state = WAIT_START_HV;  // Return to normal flow
+            } else if (calibration::GetState() == calibration::State::ERROR) {
+                new_state = ERROR;
             }
         } break;
 
