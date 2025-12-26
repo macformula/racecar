@@ -251,7 +251,6 @@ int main(void) {
 
     macfe::periph::SpiMaster spi;
     macfe::lv::LvBms bms(spi);
-    bms.resetCommandCounter();
 
     scheduler::register_task(task_100hz, 10);
     scheduler::register_task(task_10hz, 100);
