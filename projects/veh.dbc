@@ -99,6 +99,15 @@ BO_ 203 FcCounters: 8 FC
  SG_ Starter1 : 24|8@1+ (1,0) [0|1] "" RPI, DASH
  SG_ Starter2 : 32|8@1+ (1,0) [0|1] "" RPI, DASH
 
+BO_ 204 CalibrationStatus: 8 FC
+ SG_ Counter : 0|8@1+ (1,0) [0|255] "" DASH
+ SG_ State : 8|8@1+ (1,0) [0|10] "" DASH
+ SG_ ProgressPercent : 16|8@1+ (1,0) [0|100] "%" DASH
+ SG_ InstructionCode : 24|8@1+ (1,0) [0|10] "" DASH
+
+VAL_ 204 State 0 "INIT" 1 "APPS" 2 "BPPS" 3 "STEERING" 4 "COMPLETE" 5 "ERROR";
+VAL_ 204 InstructionCode 0 "IDLE" 1 "RELEASE_ACCEL" 2 "PRESS_ACCEL" 3 "RELEASE_BRAKE" 4 "PRESS_BRAKE" 5 "CENTER_STEERING" 6 "TURN_STEERING" 7 "KEEP_STATIONARY" 8 "COMPLETE" 9 "ERROR";
+
 BO_ 210 LvCommand: 1 FC
  SG_ BrakeLightEnable : 1|1@1+ (1,0) [0|1] "" LVC
 
