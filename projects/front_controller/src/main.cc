@@ -351,6 +351,7 @@ void task_100hz(void* argument) {
         driver_interface::Update_100Hz();
 
         fsm::Update_100Hz();
+        calibration::Update_100Hz(veh_can_bus);
 
         accumulator::Update_100Hz(veh_can_bus);
         vehicle_dynamics::Update_100Hz();
