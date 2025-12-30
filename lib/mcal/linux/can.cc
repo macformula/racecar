@@ -4,7 +4,7 @@
 
 #include <chrono>
 #include <cstring>
-#include <format>
+#include <fmt/core.h>
 #include <iostream>
 #include <thread>
 
@@ -33,7 +33,7 @@ void CanBase::Setup() {
 }
 
 void CanBase::Send(const macfe::can::RawMessage& can_tx_msg) {
-    std::cout << std::format("CanBase {}: Sending\n| {}", socket_.GetIface(),
+    std::cout << fmt::format("CanBase {}: Sending\n| {}", socket_.GetIface(),
                              can_tx_msg)
               << std::endl;
 
@@ -57,7 +57,7 @@ void CanBase::StartReading() {
 
         if (log_rx_) {
             // this can get noisy, so set `log_rx=false` to disable it
-            std::cout << std::format("CanBase {}: Received\n| {}",
+            std::cout << fmt::format("CanBase {}: Received\n| {}",
                                      socket_.GetIface(), raw_msg)
                       << std::endl;
         }
