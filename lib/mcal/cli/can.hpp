@@ -7,7 +7,7 @@
 
 #include <chrono>
 #include <cstring>
-#include <format>
+#include <fmt/core.h>
 #include <iostream>
 
 #include "can/msg.hpp"
@@ -20,11 +20,11 @@ public:
     CanBase(std::string can_iface) : iface_(can_iface) {};
 
     void Setup() {
-        std::cout << std::format("can interface: {}", iface_) << std::endl;
+        std::cout << fmt::format("can interface: {}", iface_) << std::endl;
     }
 
     void Send(const macfe::can::RawMessage& msg) override {
-        std::cout << std::format("CanBase {}: Sending\n| {}", iface_, msg)
+        std::cout << fmt::format("CanBase {}: Sending\n| {}", iface_, msg)
                   << std::endl;
     }
 

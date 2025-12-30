@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <format>
+#include <fmt/core.h>
 #include <iostream>
 #include <string>
 
@@ -17,23 +17,23 @@ public:
     PWMOutput(std::string name) : name_(name) {}
 
     void Start() override {
-        std::cout << std::format("Starting PWM {}", name_) << std::endl;
+        std::cout << fmt::format("Starting PWM {}", name_) << std::endl;
     }
 
     void Stop() override {
-        std::cout << std::format("Stopping PWM {}", name_) << std::endl;
+        std::cout << fmt::format("Stopping PWM {}", name_) << std::endl;
     }
 
     void SetDutyCycle(float duty_cycle) override {
         duty_cycle_ = etl::clamp<float>(duty_cycle, 0, 100);
 
-        std::cout << std::format("Setting PWM {} duty cycle to {:.3g}%", name_,
+        std::cout << fmt::format("Setting PWM {} duty cycle to {:.3g}%", name_,
                                  duty_cycle_)
                   << std::endl;
     }
 
     float GetDutyCycle() override {
-        std::cout << std::format("PWM {} has duty cycle {:.3g}%", name_,
+        std::cout << fmt::format("PWM {} has duty cycle {:.3g}%", name_,
                                  duty_cycle_)
                   << std::endl;
         return duty_cycle_;
@@ -42,13 +42,13 @@ public:
     void SetFrequency(float frequency) override {
         frequency_ = std::max((float)0, frequency);
 
-        std::cout << std::format("Setting PWM {} frequency to {:.3f} Hz", name_,
+        std::cout << fmt::format("Setting PWM {} frequency to {:.3f} Hz", name_,
                                  frequency_)
                   << std::endl;
     }
 
     float GetFrequency() override {
-        std::cout << std::format("PWM {} has frequency {:.3f} Hz", name_,
+        std::cout << fmt::format("PWM {} has frequency {:.3f} Hz", name_,
                                  frequency_)
                   << std::endl;
         return frequency_;

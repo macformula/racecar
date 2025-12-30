@@ -3,7 +3,7 @@
 #include <array>
 #include <concepts>
 #include <cstdint>
-#include <format>
+#include <fmt/core.h>
 
 namespace macfe::can {
 
@@ -29,20 +29,20 @@ concept TxMessage = requires(const T msg) {
 
 }  // namespace macfe::can
 
-// Convert RawMessage to string with `std::format`
+// Convert RawMessage to string with `fmt::format`
 template <>
-struct std::formatter<macfe::can::RawMessage> {
+struct fmt::formatter<macfe::can::RawMessage> {
     constexpr auto parse(auto& ctx) {
         return ctx.begin();
     }
 
     template <typename FormatContext>
     auto format(const macfe::can::RawMessage& msg, FormatContext& ctx) const {
-        std::string str = std::format("[{:02X}]", msg.id);
+        std::string str = fmt::format("[{:02X}]", msg.id);
         for (int i = 0; i < msg.data_length; ++i) {
-            str += std::format(" {:02X}", msg.data[i]);
+            str += fmt::format(" {:02X}", msg.data[i]);
         }
 
-        return std::format_to(ctx.out(), "{}", str);
+        return fmt::format_to(ctx.out(), "{}", str);
     }
 };

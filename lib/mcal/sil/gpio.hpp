@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <format>
+#include <fmt/core.h>
 #include <iostream>
 #include <string>
 
@@ -43,7 +43,7 @@ public:
     }
 
     void Set(bool level) override {
-        std::cout << std::format("setting {}.{} {}", ecu_name_, sig_name_,
+        std::cout << fmt::format("setting {}.{} {}", ecu_name_, sig_name_,
                                  level)
                   << std::endl;
         return sil_client_.SetDigitalLevel(ecu_name_, sig_name_, level);

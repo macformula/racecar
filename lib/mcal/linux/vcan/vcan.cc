@@ -9,7 +9,7 @@
 
 #include <cstdio>
 #include <cstring>
-#include <format>
+#include <fmt/core.h>
 #include <iostream>
 #include <string>
 
@@ -35,7 +35,7 @@ int VcanSocket::Open() {
         return -1;
     }
 
-    std::cout << std::format("Opened \"{}\" at index {}.\n", iface_,
+    std::cout << fmt::format("Opened \"{}\" at index {}.\n", iface_,
                              addr_.can_ifindex);
 
     return 0;

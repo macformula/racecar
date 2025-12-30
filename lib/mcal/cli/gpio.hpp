@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <format>
+#include <fmt/core.h>
 #include <iostream>
 #include <string>
 
@@ -20,10 +20,10 @@ public:
 
     bool Read() override {
         int value;
-        std::cout << std::format("Reading DigitalInput {}", name_) << std::endl;
+        std::cout << fmt::format("Reading DigitalInput {}", name_) << std::endl;
         std::cout << " | Enter 0 for False, 1 for True: ";
         std::cin >> value;
-        std::cout << std::format(" | Value was {}", value) << std::endl;
+        std::cout << fmt::format(" | Value was {}", value) << std::endl;
         return value;
     }
 };
@@ -36,7 +36,7 @@ public:
     DigitalOutput(std::string name) : name_(name) {}
 
     void Set(bool value) override {
-        std::cout << std::format("Setting DigitalOutput Channel {} to {}",
+        std::cout << fmt::format("Setting DigitalOutput Channel {} to {}",
                                  name_, value)
                   << std::endl;
     }

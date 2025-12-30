@@ -7,7 +7,7 @@
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/support/time.h>
 
-#include <format>
+#include <fmt/core.h>
 #include <iostream>
 #include <string>
 
@@ -39,12 +39,12 @@ void SilClient::RegisterDigitalInput(std::string ecu_name,
     status =
         stub_->RegisterSignal(&context, register_request, &register_response);
     if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(),
+        std::cout << fmt::format("{}: {}", status.error_code(),
                                  status.error_message())
                   << std::endl;
     }
     if (!register_response.status()) {
-        std::cout << std::format("register signal error: {}",
+        std::cout << fmt::format("register signal error: {}",
                                  register_response.error())
                   << std::endl;
     }
@@ -66,13 +66,13 @@ void SilClient::RegisterDigitalOutput(std::string ecu_name,
     status =
         stub_->RegisterSignal(&context, register_request, &register_response);
     if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(),
+        std::cout << fmt::format("{}: {}", status.error_code(),
                                  status.error_message())
                   << std::endl;
     }
 
     if (!register_response.status()) {
-        std::cout << std::format("register signal error: {}",
+        std::cout << fmt::format("register signal error: {}",
                                  register_response.error())
                   << std::endl;
     }
@@ -94,13 +94,13 @@ void SilClient::RegisterAnalogInput(std::string ecu_name,
     status =
         stub_->RegisterSignal(&context, register_request, &register_response);
     if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(),
+        std::cout << fmt::format("{}: {}", status.error_code(),
                                  status.error_message())
                   << std::endl;
     }
 
     if (!register_response.status()) {
-        std::cout << std::format("register signal error: {}",
+        std::cout << fmt::format("register signal error: {}",
                                  register_response.error())
                   << std::endl;
     }
@@ -119,14 +119,14 @@ void SilClient::SetDigitalLevel(std::string ecu_name, std::string sig_name,
 
     status = stub_->WriteSignal(&context, write_request, &write_response);
     if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(),
+        std::cout << fmt::format("{}: {}", status.error_code(),
                                  status.error_message())
                   << std::endl;
         return;
     }
 
     if (!write_response.status()) {
-        std::cout << std::format("write response error: {}",
+        std::cout << fmt::format("write response error: {}",
                                  write_response.error())
                   << std::endl;
         return;
@@ -147,14 +147,14 @@ bool SilClient::ReadDigitalLevel(std::string ecu_name, std::string sig_name) {
 
     status = stub_->ReadSignal(&context, read_request, &read_response);
     if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(),
+        std::cout << fmt::format("{}: {}", status.error_code(),
                                  status.error_message())
                   << std::endl;
         return false;
     }
 
     if (!read_response.status()) {
-        std::cout << std::format("write reponse error: {}",
+        std::cout << fmt::format("write reponse error: {}",
                                  read_response.error())
                   << std::endl;
         return false;
@@ -177,21 +177,21 @@ double SilClient::ReadAdcVoltage(std::string ecu_name, std::string sig_name) {
 
     status = stub_->ReadSignal(&context, read_request, &read_response);
     if (!status.ok()) {
-        std::cout << std::format("{}: {}", status.error_code(),
+        std::cout << fmt::format("{}: {}", status.error_code(),
                                  status.error_message())
                   << std::endl;
         return 0.0;
     }
 
     if (!read_response.status()) {
-        std::cout << std::format("write response error: {}",
+        std::cout << fmt::format("write response error: {}",
                                  read_response.error())
                   << std::endl;
         return 0.0;
     }
 
     if (!read_response.has_value_analog()) {
-        std::cout << std::format("expected adc value got: {}",
+        std::cout << fmt::format("expected adc value got: {}",
                                  read_response.value_case())
                   << std::endl;
     }

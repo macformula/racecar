@@ -1,6 +1,6 @@
 #include "digital_output.hpp"
 
-#include <format>
+#include <fmt/core.h>
 #include <iostream>
 #include <string>
 
@@ -9,7 +9,7 @@ namespace mcal::lnx {
 DigitalOutput::DigitalOutput(std::string name) : name_(name) {}
 
 void DigitalOutput::Set(bool value) {
-    std::cout << std::format("DigitalOutput \"{}\" => {}", name_,
+    std::cout << fmt::format("DigitalOutput \"{}\" => {}", name_,
                              value ? "true" : "false")
               << std::endl;
 }
