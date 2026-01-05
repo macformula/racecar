@@ -143,12 +143,14 @@ void Update_100Hz(PtBus& pt_can, VehBus& veh_can, amk::Request req_left,
             new_inverter_en = false;
 
             if (left_starter.HasErroredOut()) {
-                alerts::Get().left_motor_starting_error = true;
+                alerts::GetAlertsManager().Set(
+                    alerts::FcAlert::LeftMotorStartingError);
                 new_state = ERROR;
             }
 
             if (right_starter.HasErroredOut()) {
-                alerts::Get().right_motor_starting_error = true;
+                alerts::GetAlertsManager().Set(
+                    alerts::FcAlert::RightMotorStartingError);
                 new_state = ERROR;
             }
 
@@ -179,11 +181,13 @@ void Update_100Hz(PtBus& pt_can, VehBus& veh_can, amk::Request req_left,
             new_inverter_en = true;
 
             if (amk_left.HasError()) {
-                alerts::Get().left_motor_running_error = true;
+                alerts::GetAlertsManager().Set(
+                    alerts::FcAlert::LeftMotorRunningError);
                 new_state = ERROR;
             }
             if (amk_right.HasError()) {
-                alerts::Get().right_motor_running_error = true;
+                alerts::GetAlertsManager().Set(
+                    alerts::FcAlert::RightMotorRunningError);
                 new_state = ERROR;
             }
             break;
@@ -211,18 +215,18 @@ void Update_100Hz(PtBus& pt_can, VehBus& veh_can, amk::Request req_left,
     auto l_av2 = pt_can.GetRxInv1_ActualValues2();
     if (l_av1.has_value() && l_av2.has_value()) {
         amk_left.Update_100Hz(l_av1.value(), l_av2.value());
-        alerts::Get().no_inv1_can = false;
+        alerts::GetAlertsManager().Clear(alerts::FcAlert::NoInv1Can);
     } else {
-        alerts::Get().no_inv1_can = true;
+        alerts::GetAlertsManager().Set(alerts::FcAlert::NoInv1Can);
     }
 
     auto r_av1 = pt_can.GetRxInv2_ActualValues1();
     auto r_av2 = pt_can.GetRxInv2_ActualValues2();
     if (r_av1.has_value() && r_av2.has_value()) {
         amk_right.Update_100Hz(r_av1.value(), r_av2.value());
-        alerts::Get().no_inv2_can = false;
+        alerts::GetAlertsManager().Clear(alerts::FcAlert::NoInv2Can);
     } else {
-        alerts::Get().no_inv2_can = true;
+        alerts::GetAlertsManager().Set(alerts::FcAlert::NoInv2Can);
     }
 
     if (new_state != state) {

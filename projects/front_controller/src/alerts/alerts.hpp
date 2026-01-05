@@ -1,11 +1,12 @@
+
 #pragma once
 
-#include "generated/can/veh_messages.hpp"
+#include <alerts.hpp>
+
+#include "fc_alert_types.hpp"
 
 namespace alerts {
 
-generated::can::TxFcAlerts& Get(void);
+macfe::Alerts<FcAlert>& GetAlertsManager(void);
 
-void Reset(void);
-
-}  // namespace alerts
+}
