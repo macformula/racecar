@@ -77,20 +77,9 @@ VAL_ 201 AccumulatorState 0 "IDLE" 1 "STARTUP_ENSURE_OPEN" 2 "STARTUP_CLOSE_NEG"
 VAL_ 201 Inv1State 0 "OFF" 1 "SYSTEM_READY" 2 "STARTUP_bDCON" 3 "STARTUP_bENABLE" 4 "STARTUP_bINVERTER" 5 "STARTUP_X140" 6 "RUNNING" 7 "ERROR" 8 "ERROR_RESET";
 VAL_ 201 Inv2State 0 "OFF" 1 "SYSTEM_READY" 2 "STARTUP_bDCON" 3 "STARTUP_bENABLE" 4 "STARTUP_bINVERTER" 5 "STARTUP_X140" 6 "RUNNING" 7 "ERROR" 8 "ERROR_RESET";
 
-BO_ 202 FcAlerts: 2 FC
- SG_ AppsImplausible : 0|1@1+ (1,0) [0|1] "" RPI, DASH
- SG_ AccumulatorLowSoc : 1|1@1+ (1,0) [0|1] "" RPI, DASH
- SG_ AccumulatorContactorWrongState : 2|1@1+ (1,0) [0|1] "" RPI, DASH
- SG_ MotorRetriesExceeded : 3|1@1+ (1,0) [0|1] "" RPI, DASH
- SG_ LeftMotorStartingError : 4|1@1+ (1,0) [0|1] "" RPI, DASH
- SG_ RightMotorStartingError : 5|1@1+ (1,0) [0|1] "" RPI, DASH
- SG_ LeftMotorRunningError : 6|1@1+ (1,0) [0|1] "" RPI, DASH
- SG_ RightMotorRunningError : 7|1@1+ (1,0) [0|1] "" RPI, DASH
- SG_ DashboardBootTimeout : 8|1@1+ (1,0) [0|1] "" RPI, DASH
- SG_ CanTxError : 9|1@1+ (1,0) [0|1] "" RPI, DASH
- SG_ EV47Active : 10|1@1+ (1,0) [0|1] "" RPI, DASH
- SG_ NoInv1Can : 11|1@1+ (1,0) [0|1] "" RPI, DASH
- SG_ NoInv2Can : 12|1@1+ (1,0) [0|1] "" RPI, DASH
+BO_ 202 FcAlerts: 8 FC
+ SG_ AlertsBitfield : 0|64@1+ (1,0) [0|0] "" RPI, DASH
+
 
 BO_ 203 FcCounters: 8 FC
  SG_ Motor : 0|8@1+ (1,0) [0|1] "" RPI, DASH

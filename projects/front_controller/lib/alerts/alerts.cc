@@ -2,7 +2,7 @@
 
 namespace macfe {
 
-// Convert an alert enum value into a single-bit mask
+// Convert an alert enum value into a single bit mask
 template <typename T>
 uint64_t MakeMask(T error_code) {
     return 1ULL << static_cast<uint32_t>(error_code);

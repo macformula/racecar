@@ -151,7 +151,8 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = OPEN, .positive = OPEN, .negative = CLOSE};
 
             if (fb.precharge == IS_CLOSED || fb.positive == IS_CLOSED) {
-                alerts::Get().accumulator_contactor_wrong_state = true;
+                alerts::GetAlertsManager().Set(
+                    alerts::FcAlert::AccumulatorContactorWrongState);
                 new_state = ERROR;
 
             } else if (FeedbackMatchesCommand(cmd, fb)) {
@@ -164,7 +165,8 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = OPEN, .positive = OPEN, .negative = CLOSE};
 
             if (!FeedbackMatchesCommand(cmd, fb)) {
-                alerts::Get().accumulator_contactor_wrong_state = true;
+                alerts::GetAlertsManager().Set(
+                    alerts::FcAlert::AccumulatorContactorWrongState);
                 new_state = ERROR;
 
             } else if (elapsed >= 100) {
@@ -177,7 +179,8 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = CLOSE, .positive = OPEN, .negative = CLOSE};
 
             if (fb.positive == IS_CLOSED || fb.negative == IS_OPEN) {
-                alerts::Get().accumulator_contactor_wrong_state = true;
+                alerts::GetAlertsManager().Set(
+                    alerts::FcAlert::AccumulatorContactorWrongState);
                 new_state = ERROR;
 
             } else if (FeedbackMatchesCommand(cmd, fb)) {
@@ -189,7 +192,8 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = CLOSE, .positive = OPEN, .negative = CLOSE};
 
             if (!FeedbackMatchesCommand(cmd, fb)) {
-                alerts::Get().accumulator_contactor_wrong_state = true;
+                alerts::GetAlertsManager().Set(
+                    alerts::FcAlert::AccumulatorContactorWrongState);
                 new_state = ERROR;
 
             } else if (IsPrechargeComplete() &&
@@ -203,7 +207,8 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = CLOSE, .positive = CLOSE, .negative = CLOSE};
 
             if (fb.precharge == IS_OPEN || fb.negative == IS_OPEN) {
-                alerts::Get().accumulator_contactor_wrong_state = true;
+                alerts::GetAlertsManager().Set(
+                    alerts::FcAlert::AccumulatorContactorWrongState);
                 new_state = ERROR;
 
             } else if (FeedbackMatchesCommand(cmd, fb)) {
@@ -216,7 +221,8 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = CLOSE, .positive = CLOSE, .negative = CLOSE};
 
             if (!FeedbackMatchesCommand(cmd, fb)) {
-                alerts::Get().accumulator_contactor_wrong_state = true;
+                alerts::GetAlertsManager().Set(
+                    alerts::FcAlert::AccumulatorContactorWrongState);
                 new_state = ERROR;
 
             } else if (elapsed >= 100) {
@@ -229,7 +235,8 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = OPEN, .positive = CLOSE, .negative = CLOSE};
 
             if (fb.positive == IS_OPEN || fb.negative == IS_OPEN) {
-                alerts::Get().accumulator_contactor_wrong_state = true;
+                alerts::GetAlertsManager().Set(
+                    alerts::FcAlert::AccumulatorContactorWrongState);
                 new_state = ERROR;
 
             } else if (FeedbackMatchesCommand(cmd, fb)) {
@@ -242,7 +249,8 @@ static void UpdateStateMachine(ContactorFeedbacks fb) {
             cmd = {.precharge = OPEN, .positive = CLOSE, .negative = CLOSE};
 
             if (!FeedbackMatchesCommand(cmd, fb)) {
-                alerts::Get().accumulator_contactor_wrong_state = true;
+                alerts::GetAlertsManager().Set(
+                    alerts::FcAlert::AccumulatorContactorWrongState);
                 new_state = ERROR;
             }
             break;

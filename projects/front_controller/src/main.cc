@@ -76,7 +76,8 @@ static void Update_100Hz(void) {
             if (msg.has_value() && msg->State() == DashState::LOGO) {
                 new_state = WAIT_DRIVER_SELECT;
             } else if (elapsed > timeout::DASHBOARD_BOOT_TIME) {
-                alerts::Get().dashboard_boot_timeout = true;
+                alerts::GetAlertsManager().Set(
+                    alerts::FcAlert::DashboardBootTimeout);
             } else {
                 // keep waiting
             }
@@ -320,7 +321,9 @@ void task_10hz(void* argument) {
         });
 
         veh_can_bus.Send(accumulator::GetDebugMsg());
-        veh_can_bus.Send(alerts::Get());
+        generated::can::TxFcAlerts alert_msg;
+        alert_msg.alerts_bitfield = alerts::GetAlertsManager().GetBitfield();
+        veh_can_bus.Send(alert_msg);
 
         veh_can_bus.Send(sensors::driver::GetAppsDebugMsg());
         veh_can_bus.Send(sensors::driver::GetBppsSteerDebugMsg());
@@ -367,7 +370,7 @@ void task_100hz(void* argument) {
 int main(void) {
     bindings::Initialize();
 
-    alerts::Reset();
+    alerts::GetAlertsManager().ClearAll();
     accumulator::Init();
     motors::Init();
     vehicle_dynamics::Init();
