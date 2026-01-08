@@ -1,15 +1,23 @@
 package main
 
 import (
+	"context"
 	"container/list"
 	"database/sql"
+	"errors"
 	"fmt"
+	"os"
+	"strconv"
 	"sync"
+    "time"
 
+	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
+	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/macformula/hil/canlink"
 	"go.einride.tech/can"
 	"go.uber.org/zap"
 	_ "modernc.org/sqlite"
+   
 )
 
 const BufferSize = 512
@@ -29,9 +37,15 @@ type TelemetryHandler struct {
 	dbFile string
 
 	mu sync.Mutex
+
+	// Influx
+    influxClient influxdb2.Client
+    writeAPI      api.WriteAPIBlocking
+    influxOrg     string
+    influxBucket  string
 }
 
-func NewTelemetryHandler(dbFile string) (*TelemetryHandler, error) {
+func NewTelemetryHandler(dbFile string, logger *zap.logger) (*TelemetryHandler, error) {
 	db, err := sql.Open("sqlite", dbFile)
 	if err != nil {
 		return nil, err
@@ -60,6 +74,7 @@ func NewTelemetryHandler(dbFile string) (*TelemetryHandler, error) {
 	t := TelemetryHandler{
 		buf: list.New(),
 		db:  db,
+		l:	logger,
 	}
 
 	err = t.fillBufferFromDisk()
@@ -69,6 +84,18 @@ func NewTelemetryHandler(dbFile string) (*TelemetryHandler, error) {
 	}
 
 	fmt.Printf("Initial buffer size: %v\n", t.buf.Len())
+
+	influxURL := os.Getenv("INFLUX_URL")
+    influxToken := os.Getenv("INFLUX_TOKEN")
+    influxOrg := os.Getenv("INFLUX_ORG")
+    influxBucket := os.Getenv("INFLUX_BUCKET")
+
+    if influxURL != "" && influxToken != "" && influxOrg != "" && influxBucket != "" {
+        t.influxClient = influxdb2.NewClient(influxURL, influxToken)
+        t.writeAPI = t.influxClient.WriteAPIBlocking(influxOrg, influxBucket)
+        t.influxOrg = influxOrg
+        t.influxBucket = influxBucket
+    }
 
 	return &t, nil
 }
@@ -115,55 +142,109 @@ func (t *TelemetryHandler) Enqueue(frame canlink.TimestampedFrame, busName strin
 
 func (t *TelemetryHandler) Upload() error {
 
-	// pop from front of buffer and write to backend
-
-	// Ignore for now ...
-	/*buf := t.emptyBuffer()
-
-	type temp struct {
-		Value     []byte `json:"value"`
-		Timestamp int64  `json:"timestamp"`
+	// Make sure Influx is configured
+	if t.writeAPI == nil {
+		return errors.New("telemetry/upload: Influx not configured")
 	}
 
-	for i := range len(buf) {
-		frame := can.Frame{
-			ID:     buf[i].FrameId,
-			Data:   buf[i].FrameData,
-			Length: 8,
-		}
-		rawFrame, _ := json.Marshal(frame)
+	// Drain in-memory buffer into a slice
+	packets := t.emptyBuffer()
 
-		toWrite := temp{
-			Timestamp: buf[i].Timestamp,
-			Value:     rawFrame,
-		}
+	if len(packets) == 0 {
+		t.mu.Lock()
+		// Tracks whether the buffer is still empty. If empty, load from SQLite
+		empty := (t.buf.Len() == 0)
+		t.mu.Unlock()
 
-		data, err := json.Marshal(toWrite)
-		if err != nil {
-			return err
+		if empty {
+			return t.fillBufferFromDisk()
 		}
-		if i == 0 {
-			fmt.Printf("payload: %s\n", string(data))
-		}
-
-		// If this fails then we should re-queue the entire buffer to not lose anything
-		_, err = http.Post("http://localhost:5000/write-graph", "application/json", bytes.NewBuffer(data))
-		if err != nil {
-			fmt.Printf("telemetry/upload: failed to post frame data: %v\n", err)
-			return err
-		}
+		return nil
 	}
 
-	// In case of an error here, just log and keep going, we still need to upload our data
-	err := t.fillBufferFromDisk()
+	// Create empty slice that will hold packets that failed upload or failed delete
+	failed := make([]TelemetryPacket, 0)
+
+	// delStmt is a prepared statement object. This line compiles a SQL statement for deletion. This is done for efficiency
+	delStmt, err := t.db.Prepare(`DELETE FROM can_cache WHERE id = ?`)
+
 	if err != nil {
-		fmt.Printf("telemetry/upload: failed to fill buffer: %v\n", err)
-	}*/
+        // If we can't delete at all, requeue everything (we already drained memory)
+        t.mu.Lock()
+        for _, p := range packets {
+            t.buf.PushFront(p)
+
+			// Drop oldest item if buffer exceeds max size
+            if t.buf.Len() > BufferSize {
+                t.buf.Remove(t.buf.Back())
+            }
+        }
+        t.mu.Unlock()
+        return err
+    }
+    defer delStmt.Close()
+
+	 // For each packet: write to Influx. Ff success, delete from SQLite.
+	for _, packet := range packets {
+
+        // Tags are indexed metadata in Influx. They must be strings.
+        tags := map[string]string{
+            "can_bus":  packet.CanBus,
+            "frame_id": strconv.FormatUint(uint64(packet.FrameId), 10),
+        }
+
+        fields := map[string]interface{}{
+            "frame_data": packet.FrameData.PackBigEndian(),
+        }
+
+        // Create the point (measurement + tags + fields + timestamp)
+        p := influxdb2.NewPoint(
+            "can_frame",
+            tags,
+            fields,
+            time.UnixMilli(packet.Timestamp),
+        )
+
+        // Write to InfluxDB (blocking = waits for success/error)
+        if err := t.writeAPI.WritePoint(context.Background(), p); err != nil {
+            failed = append(failed, packet)
+            continue
+        }
+
+        // Only after Influx write succeeds: delete from SQLite
+        if _, err := delStmt.Exec(packet.Id); err != nil {
+            failed = append(failed, packet)
+            continue
+        }
+    }
+
+	// Requeue failures
+	if len(failed) > 0 {
+        t.mu.Lock()
+        for _, p := range failed {
+            t.buf.PushFront(p)
+            if t.buf.Len() > BufferSize {
+                t.buf.Remove(t.buf.Back())
+            }
+        }
+        t.mu.Unlock()
+
+        return fmt.Errorf("telemetry/upload: %d/%d packets failed", len(failed), len(packets))
+    }
+
+	// Load next batch fron disk if no failures and buffer is empty
+	t.mu.Lock()
+    empty := (t.buf.Len() == 0)
+    t.mu.Unlock()
+
+    if empty {
+        return t.fillBufferFromDisk()
+    }
 
 	return nil
 }
 
-func (t *TelemetryHandler) emptyBuffer() []TelemetryPacket {
+func (t *TelemetryHandler) emptyBuffer() []TelemetryPacket { // add fillbufferfromdisk
 
 	t.mu.Lock()
 	defer t.mu.Unlock()
