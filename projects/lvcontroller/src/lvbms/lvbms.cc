@@ -77,13 +77,24 @@ bool LvBms::sendReadCmd(LvBms::commandCode cmdCode) {
     uint16_t calcPec = dataPec10(&rx[4], 6);
 
     if (actualCCNT != expectedCCNT) {
-        // maybe define a special message back to lv controller
-        // From now on, these values won't be the same... this could flood our
-        // can bus
+        // resend the message 5 times, but each time check if CCNT has
+        // increased, indicating a message sent
+        uint8_t prevCCNT = actualCCNT;
+        for (int i = 0; i < 5; i++) {
+            spi_.TransmitReceive(tx, rx, 12);
+            rxPec = (rx[10] << 8) | rx[11];
+            actualCCNT = (rx[10] >> 2) & 0x3F;
+            calcPec = dataPec10(&rx[4], 6);
+            if (actualCCNT > prevCCNT) {  // this means the bms successfully
+                                          // received atleast one message
+                break;
+            }
+        }
     }
     if (rxPec != calcPec) {
-        // send back a specific message that the message was not sent through,
-        // this would be a rare instance since PEC is pretty good
+        // resend the message once, this error should not happen often and very
+        // rarely twice
+        spi_.TransmitReceive(tx, rx, 12);
     }
 
     // return true if dpec matches
