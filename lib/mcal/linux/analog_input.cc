@@ -3,7 +3,7 @@
 
 #include "analog_input.hpp"
 
-#include <format>
+#include <fmt/core.h>
 #include <iostream>
 
 namespace mcal::lnx {
@@ -11,11 +11,11 @@ namespace mcal::lnx {
 AnalogInput::AnalogInput(std::string name) : name_(name) {}
 
 float AnalogInput::ReadVoltage() {
-    std::cout << std::format("Reading ADC {} ...", name_) << std::endl;
+    std::cout << fmt::format("Reading ADC {} ...", name_) << std::endl;
     std::cout << " | Enter a voltage level: ";
     float voltage;
     std::cin >> voltage;
-    std::cout << std::format(" | Obtained value {:.3f} V", voltage)
+    std::cout << fmt::format(" | Obtained value {:.3f} V", voltage)
               << std::endl;
     return voltage;
 }
