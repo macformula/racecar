@@ -1,0 +1,38 @@
+name: Manual Test Self-Hosted Runner
+
+on:
+  workflow_call:
+    inputs:
+      project:
+        description: 'Project (i.e. Demo/Blink)'
+        required: true
+        type: string
+      platform:
+        description: 'Platform (i.e. cli, stm32f767)'
+        required: true
+        type: string
+      commit:
+        description: 'Commit hash (first 7 characters)'
+        required: true
+        type: string
+
+jobs:
+  download-artifact:
+    runs-on: self-hosted
+
+    steps:
+      - name: Prepare artifact name
+        id: prepare-artifact-name
+        run: |
+          project_name="${{ inputs.project }}" 
+          project_name="${project_name//\//-}"
+          github_sha="${{ inputs.commit }}"
+          github_sha="${github_sha:-${{ github.sha }}}"
+          github_sha="${github_sha:0:7}"
+          artifact_name="build-${project_name}-${{ inputs.platform }}-${github_sha}"
+          echo "artifact_name=${artifact_name}" >> $GITHUB_OUTPUT
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+            name: ${{ steps.prepare-artifact-name.outputs.artifact_name }}

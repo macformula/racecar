@@ -1,0 +1,48 @@
+name: Deploy Project
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'Project (i.e. Demo/Blink)'
+        required: true
+        type: string
+      platform:
+        description: 'Platform (i.e. cli, stm32f767)'
+        required: true
+        type: string
+      commit:
+        description: 'Full commit hash'
+        required: true
+        type: string
+
+jobs:
+  deploy-to-raspberry-pi:
+    runs-on: unbuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Tailscale
+        run: |
+            curl -fsSL https://tailscale.com/install.sh | sh
+
+      - name: Add Machine to Tailscale Network
+        uses: tailscale/github-action@v2
+        with:
+            oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+            oauth-secret: ${{ secrets.TAILSCALE_OAUTH_CLIENT_SECRET }}
+            tags: tag:ci
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-${{ inputs.project }}-${{ inputs.platform }}-${{ inputs.commit }}
+
+      - name: Deploy to Raspberry Pi
+        run: |
+          echo "Deploying to Raspberry Pi"
+          echo "project=${{ inputs.project }}"
+          echo "platform=${{ inputs.platform }}"
+          echo "commit=${{ inputs.commit }}"
+          echo "sha=${{ github.sha }}"

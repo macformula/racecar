@@ -1,0 +1,25 @@
+- name: Test Script
+  hosts: raspberry_pi
+  become: true
+
+  tasks:
+    - name: Create a test directory
+      file:
+        path: /home/macformula/test-directory
+        state: directory
+        owner: macformula
+        group: macformula
+        mode: '0755'
+
+    - name: Create a test file with content
+      copy:
+        dest: /home/macformula/test-directory/hello.txt
+        content: "Hello, Raspberry Pi!"
+        owner: macformula
+        group: macformula
+        mode: '0644'
+        
+    - name: Delete the test directory
+      file:
+        path: /home/macformula/test-directory
+        state: absent
