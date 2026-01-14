@@ -13,3 +13,4 @@ Check out our docs → <https://macformula.github.io/racecar>
 ## Want to contribute?
 
 We have a guide for that! <https://macformula.github.io/racecar/firmware/dev-setup/>
+
