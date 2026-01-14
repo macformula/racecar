@@ -5,12 +5,21 @@
 Screen::Screen(Display* display) : display_(display) {}
 
 void Screen::Create() {
-    frame_ = lv_obj_create(NULL);
+    // Get the active screen and clean it
+    lv_obj_t* scr = lv_screen_active();
+    if (scr != NULL) {
+        lv_obj_clean(scr);
+        frame_ = scr;
+    } else {
+        // If no screen exists yet, create one
+        frame_ = lv_obj_create(NULL);
+        lv_scr_load(frame_);
+    }
+
     lv_obj_set_style_bg_color(frame_, lv_color_hex(0xd3d3d3), LV_PART_MAIN);
 
-    CreateGUI();  // Screen-specific GUI elements
+    // Create the persistent status bar (appears on all screens)
+    status_bar_.Create(frame_);
 
-    // cleanup and load screen
-    lv_obj_clean(lv_scr_act());
-    lv_scr_load(frame_);
+    CreateGUI();  // Screen-specific GUI elements
 }
