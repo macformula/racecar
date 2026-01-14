@@ -1,24 +1,20 @@
 #include "alerts.hpp"
 
-#include "generated/can/veh_messages.hpp"
+// Include the template implementation
+#include <alerts.cc>
 
 namespace alerts {
 
-using namespace generated::can;
-
-static TxFcAlerts msg;
-
-TxFcAlerts& Get(void) {
-    return msg;
-}
-
-void Reset(void) {
-    msg = TxFcAlerts{};
+macfe::Alerts<FcAlert>& GetAlertsManager(void) {
+    static macfe::Alerts<FcAlert> instance;
+    return instance;
 }
 
 }  // namespace alerts
 
-// from macfe/perip/can
+// forces compilation of all methods
+template class macfe::Alerts<alerts::FcAlert>;
+
 void CanErrorHandler(void) {
-    alerts::Get().can_tx_error = true;
+    alerts::GetAlertsManager().Set(alerts::FcAlert::CanTxError);
 }
