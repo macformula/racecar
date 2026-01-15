@@ -15,7 +15,9 @@
 #include "brakelight/brakelight.hpp"
 #include "dcdc/dcdc.hpp"
 #include "fans/fans.hpp"
+#include "lvbms/lvbms.hpp"
 #include "motor_controller/motor_controller.hpp"
+#include "periph/spi.hpp"
 #include "scheduler/scheduler.hpp"
 #include "suspension/suspension.hpp"
 #include "tssi/tssi.hpp"
@@ -251,6 +253,9 @@ int main(void) {
     fans::Init();
     fsm::Init();
     motor_controller::Init();
+
+    macfe::periph::SpiMaster spi;
+    macfe::lv::LvBms bms(spi);
 
     scheduler::register_task(task_100hz, 10);
     scheduler::register_task(task_10hz, 100);
