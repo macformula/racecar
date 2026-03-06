@@ -167,7 +167,7 @@ BO_ 410 LvGitHash: 5 LVC
  SG_ Commit : 0|32@1+ (1,0) [0|0] "" RPI
  SG_ Dirty : 32|1@1+ (1,0) [0|0] "" RPI
 
-BO_ 420 TmsGitHash: 5 LVC
+BO_ 420 TmsGitHash: 5 TMS
  SG_ Commit : 0|32@1+ (1,0) [0|0] "" RPI
  SG_ Dirty : 32|1@1+ (1,0) [0|0] "" RPI
 

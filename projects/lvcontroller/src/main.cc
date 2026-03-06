@@ -7,6 +7,7 @@
 #include "bindings.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "generated/githash.hpp"
 #include "periph/gpio.hpp"
 
 // LV Modules
@@ -212,6 +213,10 @@ void check_can_flash(void) {
 
 void task_1hz(void) {
     veh_can.Send(TxLvDbcHash(generated::can::kVehDbcHash));
+    veh_can.Send(TxLvGitHash{
+        .commit = macfe::generated::GIT_HASH,
+        .dirty = macfe::generated::GIT_DIRTY,
+    });
 }
 
 void task_10hz(void) {
@@ -251,6 +256,7 @@ int main(void) {
 
     macfe::periph::SpiMaster spi;
     macfe::lv::LvBms bms(spi);
+    bms.resetCommandCounter();
 
     scheduler::register_task(task_100hz, 10);
     scheduler::register_task(task_10hz, 100);
