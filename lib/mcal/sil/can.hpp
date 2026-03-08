@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <fmt/core.h>
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include <net/if.h>
@@ -16,7 +17,6 @@
 #include <chrono>
 #include <cstdint>
 #include <cstring>
-#include <fmt/core.h>
 #include <iostream>
 #include <queue>
 #include <thread>

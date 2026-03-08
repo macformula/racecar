@@ -1,9 +1,10 @@
 #pragma once
 
+#include <fmt/core.h>
+
 #include <array>
 #include <concepts>
 #include <cstdint>
-#include <fmt/core.h>
 
 namespace macfe::can {
 

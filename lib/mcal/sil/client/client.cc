@@ -3,11 +3,11 @@
 
 #include "client.h"
 
+#include <fmt/core.h>
 #include <google/protobuf/stubs/port.h>
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/support/time.h>
 
-#include <fmt/core.h>
 #include <iostream>
 #include <string>
 

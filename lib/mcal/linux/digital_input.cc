@@ -1,6 +1,7 @@
 #include "digital_input.hpp"
 
 #include <fmt/core.h>
+
 #include <iostream>
 #include <string>
 

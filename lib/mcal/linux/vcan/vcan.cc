@@ -1,5 +1,6 @@
 #include "vcan.hpp"
 
+#include <fmt/core.h>
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include <net/if.h>
@@ -9,7 +10,6 @@
 
 #include <cstdio>
 #include <cstring>
-#include <fmt/core.h>
 #include <iostream>
 #include <string>
 

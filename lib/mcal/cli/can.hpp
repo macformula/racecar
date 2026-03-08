@@ -3,11 +3,11 @@
 
 #pragma once
 
+#include <fmt/core.h>
 #include <unistd.h>
 
 #include <chrono>
 #include <cstring>
-#include <fmt/core.h>
 #include <iostream>
 
 #include "can/msg.hpp"

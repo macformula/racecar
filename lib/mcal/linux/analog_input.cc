@@ -4,6 +4,7 @@
 #include "analog_input.hpp"
 
 #include <fmt/core.h>
+
 #include <iostream>
 
 namespace mcal::lnx {

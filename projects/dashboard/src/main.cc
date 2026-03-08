@@ -1,10 +1,11 @@
+#include <fmt/core.h>
+
 #include "Button.hpp"
 #include "Display.hpp"
 #include "bindings.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "lvgl.h"
-#include <fmt/core.h>
 
 extern "C" {
 extern lv_disp_drv_t lv_display_driver;

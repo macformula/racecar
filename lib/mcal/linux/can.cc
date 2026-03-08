@@ -1,10 +1,10 @@
 #include "can.hpp"
 
+#include <fmt/core.h>
 #include <linux/can.h>
 
 #include <chrono>
 #include <cstring>
-#include <fmt/core.h>
 #include <iostream>
 #include <thread>
 
