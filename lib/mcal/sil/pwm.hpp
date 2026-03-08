@@ -1,46 +1,39 @@
-/// @author Samuel Parent
-/// @date 2023-05-21
-
 #pragma once
 
 #include <fmt/core.h>
 
 #include <iostream>
-#include <string>
 
+#include "lvcontroller.pb.h"
 #include "periph/pwm.hpp"
 
-namespace mcal::raspi {
+namespace mcal::sil {
 
 class PWMOutput : public macfe::periph::PWMOutput {
+private:
+    lvcontroller_PWM* output_struct_;
+
 public:
-    PWMOutput(std::string name) : name_(name) {}
-
+    PWMOutput(lvcontroller_PWM* output_struct)
+        : output_struct_(output_struct) {}
     void Start() override {
-        std::cout << fmt::format("Starting PWM {}", name_) << std::endl;
+        std::cout << "Starting PWM" << std::endl;
     }
-
     void Stop() override {
-        std::cout << fmt::format("Stopping PWM {}", name_) << std::endl;
+        std::cout << "Stopping PWM" << std::endl;
     }
-
     void SetDutyCycle(float duty_cycle) override {
-        duty_cycle_ = macfe::util::Clamper<float>::Evaluate(duty_cycle, 0, 100);
-
-        std::cout << fmt::format("Setting PWM {} to {:.3g}%", name_,
-                                 duty_cycle_)
-                  << std::endl;
+        output_struct_->duty_cycle =
+            std::max<float>(0, std::min<float>(100, duty_cycle));
     }
     float GetDutyCycle() override {
-        std::cout << fmt::format("PWM {} has duty cycle {:.3f} Hz", name_,
-                                 duty_cycle_)
-                  << std::endl;
-        return duty_cycle_;
+        return output_struct_->duty_cycle;
     }
-
-private:
-    std::string name_;
-    float duty_cycle_;
+    void SetFrequency(float frequency) override {
+        output_struct_->frequency_hz = std::max<float>(0, frequency);
+    }
+    float GetFrequency() override {
+        return output_struct_->frequency_hz;
+    }
 };
-
-}  // namespace mcal::raspi
+}  // namespace mcal::sil

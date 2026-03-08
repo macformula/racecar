@@ -1,6 +1,3 @@
-/// @author Samuel Parent
-/// @date 2023-12-10
-
 #pragma once
 
 #include <fmt/core.h>
@@ -9,39 +6,27 @@
 #include <string>
 
 #include "periph/gpio.hpp"
-#include "validation/sil/sil_client.h"
 
-namespace mcal::raspi {
+namespace mcal::sil {
 
 class DigitalInput : public macfe::periph::DigitalInput {
-public:
-    DigitalInput(std::string ecu_name, std::string sig_name,
-                 val::sil::SilClient& sil_client)
-        : ecu_name_(ecu_name), sig_name_(sig_name), sil_client_(sil_client) {}
+private:
+    bool* input_;
 
-    void Register() {
-        sil_client_.RegisterDigitalInput(ecu_name_, sig_name_);
-    }
+public:
+    DigitalInput(bool* input) : input_(input) {}
 
     bool Read() override {
-        return sil_client_.ReadDigitalLevel(ecu_name_, sig_name_);
+        return *input_;
     }
-
-private:
-    std::string ecu_name_;
-    std::string sig_name_;
-    val::sil::SilClient& sil_client_;
 };
 
 class DigitalOutput : public macfe::periph::DigitalOutput {
-public:
-    DigitalOutput(std::string ecu_name, std::string sig_name,
-                  val::sil::SilClient& sil_client)
-        : ecu_name_(ecu_name), sig_name_(sig_name), sil_client_(sil_client) {}
+private:
+    bool* output_;
 
-    void Register() {
-        sil_client_.RegisterDigitalOutput(ecu_name_, sig_name_);
-    }
+public:
+    DigitalOutput(bool* output) : output_(output) {}
 
     void Set(bool level) override {
         std::cout << fmt::format("setting {}.{} {}", ecu_name_, sig_name_,
@@ -53,15 +38,8 @@ public:
     void SetHigh() override {
         Set(true);
     }
-
     void SetLow() override {
-        return sil_client_.SetDigitalLevel(ecu_name_, sig_name_, true);
+        Set(false);
     }
-
-private:
-    std::string ecu_name_;
-    std::string sig_name_;
-    val::sil::SilClient& sil_client_;
 };
-
-}  // namespace mcal::raspi
+}  // namespace mcal::sil
