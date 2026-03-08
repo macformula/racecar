@@ -1,0 +1,6 @@
+{
+  "name": "can",
+  "dependencies": [
+    { "name": "fmtlib/fmt" }
+  ]
+}

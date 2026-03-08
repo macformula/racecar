@@ -1,0 +1,7 @@
+{
+  "name": "periph",
+  "dependencies": [
+    { "name": "can" },
+    { "name": "fmtlib/fmt" }
+  ]
+}
