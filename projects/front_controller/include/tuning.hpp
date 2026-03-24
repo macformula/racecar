@@ -46,7 +46,7 @@ enum class PedalMapType {
 
 // The active pedal map to use. Change this to switch between Quadratic and
 // Linear maps
-constexpr PedalMapType active_pedal_map = PedalMapType::Quadratic;
+constexpr PedalMapType active_pedal_map = PedalMapType::Linear;
 
 // Get the active pedal map based on the value of active_pedal_map
 constexpr const auto& get_pedal_map() {
