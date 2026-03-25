@@ -47,6 +47,11 @@ CubeMX is a program which generates configuration code for our microcontrollers.
 
 2. Install Git from <https://git-scm.com/downloads>.
     
+3. (Windows only) Enable symbolic links.
+
+    1. Enable "Developer Mode" <https://learn.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development>
+    2. Run `git config --global core.symlinks true`
+
 ??? warning "Git Bash (for Windows only)"
 
     Git Bash is an alternative terminal shell which is installed alongside `git`. This shell emulates the Linux bash shell, allowing you to use commands like `grep`, `ls`, `rm` and many more on Windows.
