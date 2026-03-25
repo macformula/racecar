@@ -7,8 +7,8 @@ ProfileSelect::ProfileSelect(Display* display) : Screen(display) {}
 
 void ProfileSelect::CreateGUI() {
     // title label
-    lv_obj_t* title_label = lv_label_create(frame_);
-    lv_label_set_text(title_label, "Select a Profile");
+    title_label = lv_label_create(frame_);
+    lv_label_set_text(title_label, "Select a Profile: ");
     lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 50);
     lv_obj_set_style_text_font(title_label, &lv_font_montserrat_38, 0);
 
@@ -23,7 +23,6 @@ void ProfileSelect::CreateGUI() {
         }
         strcat(event_list, GetProfileName(static_cast<Profile>(i)));
     }
-
     lv_roller_set_options(roller, event_list, LV_ROLLER_MODE_NORMAL);
     lv_obj_set_width(roller, 300);
     lv_obj_set_style_text_font(roller, &lv_font_montserrat_24, 0);

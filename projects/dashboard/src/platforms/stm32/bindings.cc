@@ -35,10 +35,17 @@ namespace mcal {
 using namespace stm32f;
 
 CanBase veh_can_base{&hcan1};
-DigitalInput button_scroll_n{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
+//! NOAH
+// DigitalInput button_scroll_n{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
+DigitalInput button_scroll_n{GPIOA, GPIO_PIN_0};
 DigitalInput button_enter_n{BUTTON_SELECT_GPIO_Port, BUTTON_SELECT_Pin};
+// DigitalInput button_enter_n{GPIOA, GPIO_PIN_0};
+DigitalInput noled_tv_n{LED4_GPIO_PORT, LED4_PIN};
 macfe::periph::InvertedDigitalInput button_scroll{button_scroll_n};
 macfe::periph::InvertedDigitalInput button_enter{button_enter_n};
+
+//! Noah
+macfe::periph::InvertedDigitalInput noled_tv{noled_tv_n};
 
 }  // namespace mcal
 
@@ -47,6 +54,9 @@ namespace bindings {
 macfe::periph::CanBase& veh_can_base = mcal::veh_can_base;
 macfe::periph::DigitalInput& button_scroll = mcal::button_scroll;
 macfe::periph::DigitalInput& button_enter = mcal::button_enter;
+
+//! Noah
+macfe::periph::DigitalInput& noled_tv = mcal::noled_tv;
 
 void Initialize() {
     HAL_Init();
@@ -67,6 +77,7 @@ void Initialize() {
     MX_USART3_UART_Init();
 
     mcal::veh_can_base.Setup();
+    int isOne = 2;
 
     BSP_LCD_Init();
     BSP_LCD_LayerDefaultInit(0, (uint32_t)SDRAM_DEVICE_ADDR);

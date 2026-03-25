@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
- ******************************************************************************
- * @file           : main.h
- * @brief          : Header for main.c file.
- *                   This file contains the common defines of the application.
- ******************************************************************************
- * @attention
- *
- * Copyright (c) 2025 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- ******************************************************************************
- */
+  ******************************************************************************
+  * @file           : main.h
+  * @brief          : Header for main.c file.
+  *                   This file contains the common defines of the application.
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -77,6 +77,8 @@ void Error_Handler(void);
 #define D2_GPIO_Port GPIOD
 #define FMC_NBL2_Pin GPIO_PIN_4
 #define FMC_NBL2_GPIO_Port GPIOI
+#define BUTTON_SELECT_Pin GPIO_PIN_10
+#define BUTTON_SELECT_GPIO_Port GPIOG
 #define LED3_Pin GPIO_PIN_5
 #define LED3_GPIO_Port GPIOD
 #define D3_Pin GPIO_PIN_1
@@ -155,8 +157,6 @@ void Error_Handler(void);
 #define LCD_INT_GPIO_Port GPIOJ
 #define D20_Pin GPIO_PIN_12
 #define D20_GPIO_Port GPIOH
-#define WAKEUP_Pin GPIO_PIN_0
-#define WAKEUP_GPIO_Port GPIOA
 #define BUTTON_SCROLL_Pin GPIO_PIN_4
 #define BUTTON_SCROLL_GPIO_Port GPIOC
 #define A7_Pin GPIO_PIN_13
@@ -169,8 +169,8 @@ void Error_Handler(void);
 #define D17_GPIO_Port GPIOH
 #define D19_Pin GPIO_PIN_11
 #define D19_GPIO_Port GPIOH
-#define BUTTON_SELECT_Pin GPIO_PIN_5
-#define BUTTON_SELECT_GPIO_Port GPIOC
+#define A_BUTTON_SELECT_Pin GPIO_PIN_5
+#define A_BUTTON_SELECT_GPIO_Port GPIOC
 #define A8_Pin GPIO_PIN_14
 #define A8_GPIO_Port GPIOF
 #define DSI_TE_Pin GPIO_PIN_2
