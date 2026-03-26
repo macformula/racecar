@@ -115,6 +115,32 @@ class Simulation:
             lambda ds: ds["State"] == "WAIT_SELECTION_ACK",
         )
         print(f"Profile:\t{ds['Profile']}")
+
+        if ds["Profile"] == "Tuning":
+            while True:
+                self.bus.set_filters(
+                    [
+                        {
+                            "can_id": dash_msg.frame_id,
+                            "can_mask": 0x7FF,
+                            "extended": False,
+                        },
+                        {
+                            "can_id": rberry_msg.frame_id,
+                            "can_mask": 0x7FF,
+                            "extended": False,
+                        },
+                    ]
+                )
+                tune_msg = self.bus.recv()
+                # print(f"ID: {hex(tune_msg.arbitration_id)}, DLC: {tune_msg.dlc}, data: {tune_msg.data.hex()}")
+
+                tune = dbc.decode_message(tune_msg.arbitration_id, tune_msg.data)
+                if tune_msg.arbitration_id == 260:
+                    print(tune)
+                    break
+                # print(tune)
+
         sleep(DELAY)
         self.FcStatus["ConfigReceived"] = True
 
