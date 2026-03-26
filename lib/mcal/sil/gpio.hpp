@@ -1,5 +1,10 @@
 #pragma once
 
+#include <fmt/core.h>
+
+#include <iostream>
+#include <string>
+
 #include "periph/gpio.hpp"
 
 namespace mcal::sil {
@@ -22,9 +27,14 @@ private:
 
 public:
     DigitalOutput(bool* output) : output_(output) {}
-    void Set(bool value) override {
-        *output_ = value;
+
+    void Set(bool level) override {
+        std::cout << fmt::format("setting {}.{} {}", ecu_name_, sig_name_,
+                                 level)
+                  << std::endl;
+        return sil_client_.SetDigitalLevel(ecu_name_, sig_name_, level);
     }
+
     void SetHigh() override {
         Set(true);
     }

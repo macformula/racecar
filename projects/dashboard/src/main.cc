@@ -1,3 +1,5 @@
+#include <fmt/core.h>
+
 #include "Button.hpp"
 #include "Display.hpp"
 #include "bindings.hpp"

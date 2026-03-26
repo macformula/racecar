@@ -1,5 +1,6 @@
 #include "vcan.hpp"
 
+#include <fmt/core.h>
 #include <linux/can.h>
 #include <linux/can/raw.h>
 #include <net/if.h>
@@ -9,7 +10,6 @@
 
 #include <cstdio>
 #include <cstring>
-#include <format>
 #include <iostream>
 #include <string>
 
@@ -35,7 +35,7 @@ int VcanSocket::Open() {
         return -1;
     }
 
-    std::cout << std::format("Opened \"{}\" at index {}.\n", iface_,
+    std::cout << fmt::format("Opened \"{}\" at index {}.\n", iface_,
                              addr_.can_ifindex);
 
     return 0;
