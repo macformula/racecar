@@ -73,7 +73,6 @@ void Initialize() {
     MX_USART3_UART_Init();
 
     mcal::veh_can_base.Setup();
-    int isOne = 2;
 
     BSP_LCD_Init();
     BSP_LCD_LayerDefaultInit(0, (uint32_t)SDRAM_DEVICE_ADDR);
