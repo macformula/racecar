@@ -92,12 +92,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(OTG_FS1_OverCurrent_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : BUTTON_SELECT_Pin */
-  GPIO_InitStruct.Pin = BUTTON_SELECT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-  HAL_GPIO_Init(BUTTON_SELECT_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pins : LED3_Pin LED2_Pin */
   GPIO_InitStruct.Pin = LED3_Pin|LED2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
@@ -146,8 +140,8 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : BUTTON_SCROLL_Pin A_BUTTON_SELECT_Pin */
-  GPIO_InitStruct.Pin = BUTTON_SCROLL_Pin|A_BUTTON_SELECT_Pin;
+  /*Configure GPIO pins : BUTTON_SCROLL_Pin BUTTON_SELECT_Pin */
+  GPIO_InitStruct.Pin = BUTTON_SCROLL_Pin|BUTTON_SELECT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);

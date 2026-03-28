@@ -35,16 +35,12 @@ namespace mcal {
 using namespace stm32f;
 
 CanBase veh_can_base{&hcan1};
-//! NOAH
-// DigitalInput button_scroll_n{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
-DigitalInput button_scroll_n{GPIOA, GPIO_PIN_0};
+DigitalInput button_scroll_n{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
 DigitalInput button_enter_n{BUTTON_SELECT_GPIO_Port, BUTTON_SELECT_Pin};
-// DigitalInput button_enter_n{GPIOA, GPIO_PIN_0};
 DigitalInput noled_tv_n{LED4_GPIO_PORT, LED4_PIN};
 macfe::periph::InvertedDigitalInput button_scroll{button_scroll_n};
 macfe::periph::InvertedDigitalInput button_enter{button_enter_n};
 
-//! Noah
 macfe::periph::InvertedDigitalInput noled_tv{noled_tv_n};
 
 }  // namespace mcal

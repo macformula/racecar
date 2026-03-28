@@ -77,8 +77,6 @@ void Error_Handler(void);
 #define D2_GPIO_Port GPIOD
 #define FMC_NBL2_Pin GPIO_PIN_4
 #define FMC_NBL2_GPIO_Port GPIOI
-#define BUTTON_SELECT_Pin GPIO_PIN_10
-#define BUTTON_SELECT_GPIO_Port GPIOG
 #define LED3_Pin GPIO_PIN_5
 #define LED3_GPIO_Port GPIOD
 #define D3_Pin GPIO_PIN_1
@@ -169,8 +167,8 @@ void Error_Handler(void);
 #define D17_GPIO_Port GPIOH
 #define D19_Pin GPIO_PIN_11
 #define D19_GPIO_Port GPIOH
-#define A_BUTTON_SELECT_Pin GPIO_PIN_5
-#define A_BUTTON_SELECT_GPIO_Port GPIOC
+#define BUTTON_SELECT_Pin GPIO_PIN_5
+#define BUTTON_SELECT_GPIO_Port GPIOC
 #define A8_Pin GPIO_PIN_14
 #define A8_GPIO_Port GPIOF
 #define DSI_TE_Pin GPIO_PIN_2
