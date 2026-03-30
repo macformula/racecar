@@ -89,7 +89,7 @@ void Update_100Hz(void) {
         tv = AdjustTorqueVectoring(sensors::driver::GetSteeringWheel());
     }
 
-    float torque = macfe::LookupTable::Evaluate(tuning::pedal_to_torque,
+    float torque = macfe::LookupTable::Evaluate(tuning::get_pedal_map(),
                                                 driver_torque_request);
 
     left_request = {

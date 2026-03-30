@@ -19,5 +19,4 @@ extern void DelayMS(uint32_t ms);
 
 extern bool ShouldQuit();
 
-extern int isOne;
 }  // namespace bindings
