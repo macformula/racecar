@@ -81,6 +81,8 @@ DASHBOARD_HTML = """<!DOCTYPE html>
   </table>
   <script>
     const MAX_POINTS = 60;
+    const TABLE_MAX_DOM = 200;
+    let tableNeedsRender = false;
     const SPEED_KEY = 'DashCommand :: Speed';
     const STP3_KEY = 'SuspensionTravel34 :: STP3';
     const STP4_KEY = 'SuspensionTravel34 :: STP4';
@@ -160,11 +162,19 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     }
 
     function renderTable() {
-      tbody.innerHTML = allRows.map(r => '<tr><td class="mono">' + epochToHms(r.timestamp) +
+      const rows = allRows.slice(0, TABLE_MAX_DOM);
+      tbody.innerHTML = rows.map(r => '<tr><td class="mono">' + epochToHms(r.timestamp) +
         '</td><td class="mono">' + r.id_hex + '</td><td>' + escapeHtml(r.message) +
         '</td><td>' + escapeHtml(r.signal) + '</td><td class="mono">' + escapeHtml(String(r.value)) +
         '</td><td>' + escapeHtml(r.unit || '') + '</td></tr>').join('');
     }
+
+    setInterval(() => {
+      if (tableNeedsRender) {
+        tableNeedsRender = false;
+        renderTable();
+      }
+    }, 100);
 
     function escapeHtml(s) {
       const d = document.createElement('div');
@@ -190,11 +200,12 @@ DASHBOARD_HTML = """<!DOCTYPE html>
       latestByKey.set(k, msg);
       allRows.unshift(msg);
       pushPoint(k, msg.timestamp, msg.value);
-      renderTable();
+      tableNeedsRender = true;
     };
 
     clearBtn.addEventListener('click', () => {
       allRows.length = 0;
+      tableNeedsRender = false;
       renderTable();
     });
   </script>
