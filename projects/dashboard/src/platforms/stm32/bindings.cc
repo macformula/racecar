@@ -36,7 +36,6 @@ using namespace stm32f;
 
 CanBase veh_can_base{&hcan1};
 DigitalInput button_scroll_n{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
-DigitalInput button_scroll_n{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
 DigitalInput button_enter_n{BUTTON_SELECT_GPIO_Port, BUTTON_SELECT_Pin};
 macfe::periph::InvertedDigitalInput button_scroll{button_scroll_n};
 macfe::periph::InvertedDigitalInput button_enter{button_enter_n};
