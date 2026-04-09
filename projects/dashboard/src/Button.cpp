@@ -3,8 +3,12 @@
 #include "bindings.hpp"
 
 Button::Button(macfe::periph::DigitalInput& input) : input_(input) {
+    initialized_ = false;
     previous_state_ = false;
     last_change_time_ = 0;
+    pos_edge_ = false;
+    neg_edge_ = false;
+    last_update_time_ = 0;
 }
 
 bool Button::PosEdge() const {
@@ -25,6 +29,16 @@ uint32_t Button::GetHeldDuration() const {
 
 void Button::Update(int time_ms) {
     bool new_state = input_.Read();
+    if (!initialized_) {
+        initialized_ = true;
+        previous_state_ = new_state;
+        last_change_time_ = time_ms;
+        last_update_time_ = time_ms;
+        neg_edge_ = false;
+        pos_edge_ = false;
+        return;
+    }
+
     if (new_state != previous_state_) {
         if (time_ms - last_change_time_ >= kDebounceDelay) {
             previous_state_ = new_state;
