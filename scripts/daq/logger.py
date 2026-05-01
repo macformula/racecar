@@ -176,6 +176,7 @@ def decode_frame(
     """
     msg = next((m for m in db.messages if m.frame_id == can_id), None)
     if msg is None:
+        print(f"NO MESSAGE FOUND FOR ID: {can_id}")
         return None
     try:
         decoded = msg.decode(data)
@@ -271,6 +272,10 @@ def main() -> int:
         return 1
 
     db = load_dbc(veh_dbc, pt_dbc)
+    
+   # for msg in db.messages:
+        #print(msg.name, hex(msg.frame_id), [s.name for s in msg.signals])
+
     log_path, csv_file = open_csv(log_dir)
 
     interfaces = [args.interface]
@@ -316,12 +321,13 @@ def main() -> int:
         if not parsed:
             continue
         timestamp, can_id, data = parsed
-
+        print(f"RAW: {can_id} {data.hex()}")
         if not args.all and can_id not in TARGET_IDS:
             continue
 
         result = decode_frame(db, can_id, data)
         if not result:
+            print(f"DECODE FAILED -> ID: {hex(can_id)} DATA: {data.hex()}")
             continue
 
         msg_name, signals = result
