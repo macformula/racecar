@@ -19,11 +19,16 @@ import signal
 import subprocess
 import sys
 import threading
+import os
 from datetime import datetime
 from pathlib import Path
 
 import cantools
+from influxdb_client import InfluxDBClient, Point
+from dotenv import load_dotenv
 
+load_dotenv()
+INFLUX_TOKEN = os.getenv('INFLUX_TOKEN')
 
 # ---------------------------------------------------------------------------
 # Target message IDs — what we care about logging.
@@ -63,11 +68,60 @@ TARGET_IDS = {
     419361278,  # ThermistorBroadcast  (veh) - thermistor temps    (extended ID 0x18FEF1FE)
 }
 
+IMPORTANT_SIGNALS = {
+    "battery_voltage",
+    "pack_current",
+    "motor_rpm",
+    "motor_temp",
+    "inverter_temp",
+    "soc"
+}
+
 # candump -L log format: (timestamp) interface hex_id#hex_data
 CANDUMP_LINE_RE = re.compile(
     r'\((\d+\.\d+)\)\s+\S+\s+([0-9A-Fa-f]+)#([0-9A-Fa-f]*)'
 )
 
+client = InfluxDBClient(
+    url=os.getenv("INFLUX_URL"),
+    token=os.getenv("INFLUX_TOKEN"),
+    org=os.getenv("INFLUX_ORG")
+)
+write_api = client.write_api()
+
+
+def write_to_influx(sig_name, value, timestamp):
+    point = Point("car_data") \
+        .tag("signal", sig_name) \
+        .field("value", value) \
+        .time(int(timestamp * 1e9))
+
+    write_api.write(bucket=os.getenv("INFLUX_BUCKET"), record=point)
+
+def write_fault_to_influx(fault, severity, timestamp):
+    point = Point("faults") \
+        .tag("fault", fault) \
+        .tag("severity", severity) \
+        .time(int(timestamp * 1e9))
+
+    write_api.write(bucket=os.getenv("INFLUX_BUCKET"), record=point)
+
+def map_fault(code):
+    mapping = {
+        0: "No Fault",
+        1: "Low Voltage",
+        2: "Over Temp",
+        3: "Over Current"
+    }
+    return mapping.get(code, "Unknown")
+
+def get_severity(code):
+    if code == 0:
+        return "NORMAL"
+    elif code == 1:
+        return "WARNING"
+    else:
+        return "CRITICAL"
 
 def load_dbc(veh_dbc: Path, pt_dbc: Path | None) -> cantools.database.Database:
     """Load veh.dbc and optionally pt.dbc into a single cantools Database."""
@@ -276,6 +330,15 @@ def main() -> int:
             csv_file.write(
                 f'{timestamp},{id_hex},{msg_name},{sig_name},{value},"{unit}"\n'
             )
+
+            if sig_name == "fault_code":
+                fault_text = map_fault(value)
+                severity = get_severity(value)
+
+                write_fault_to_influx(fault_text, severity, timestamp)
+
+            if sig_name in IMPORTANT_SIGNALS:
+                write_to_influx(sig_name, value, timestamp)
 
     csv_file.close()
     return 0
