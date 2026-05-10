@@ -1,0 +1,4 @@
+cantools>=39.0.0
+influxdb-client>=1.50.0
+python-dotenv>=1.2.2
+python-can>=4.6.1
