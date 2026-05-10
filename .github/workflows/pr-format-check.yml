@@ -15,3 +15,4 @@ jobs:
         with:
           check-path: '.'
           clang-format-version: '20'
+          exclude-regex: '.*/platforms/stm32/Core/.*'
