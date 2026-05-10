@@ -7,9 +7,9 @@ them using the vehicle and powertrain DBC files, writes decoded signals to a
 timestamped CSV file, and streams key telemetry and fault events to InfluxDB.
 
 Usage:
-    python logger.py [interface] [--pt-interface PT_INTERFACE]
-    python logger.py vcan0
-    python logger.py can0 --pt-interface can1
+    python logger.py                                   # Pi: reads can0 can1
+    python logger.py --interfaces vcan0 vcan1          # VM: virtual CAN
+    python logger.py --interfaces can0                 # single interface
 """
 
 import argparse
@@ -258,17 +258,23 @@ def main() -> int:
         action='store_true',
         help='Log every decodable message, not just target signals',
     )
+    parser.add_argument(
+        '--interfaces',
+        nargs='+',
+        default=['can0', 'can1'],
+        metavar='IFACE',
+        help='CAN interfaces to read from (default: can0 can1)',
+    )
 
     args = parser.parse_args()
 
     script_dir = Path(__file__).resolve().parent
 
-    # Fixed deployment config, we won't be changing any of these
     veh_dbc = script_dir / 'dbc' / 'veh.dbc'
     pt_dbc  = script_dir / 'dbc' / 'pt.dbc'
     log_dir = script_dir / 'logs'
 
-    interfaces = ['can0', 'can1']
+    interfaces = args.interfaces
 
     if not veh_dbc.exists():
         print(f'Error: veh.dbc not found at {veh_dbc}', file=sys.stderr)
