@@ -196,7 +196,7 @@ extern "C" {
 #define USE_HAL_LPTIM_REGISTER_CALLBACKS \
     0U /* LPTIM register callback disabled     */
 #define USE_HAL_LTDC_REGISTER_CALLBACKS \
-    1U /* LTDC register callback enabled      */
+    0U /* LTDC register callback disabled      */
 #define USE_HAL_MMC_REGISTER_CALLBACKS \
     0U /* MMC register callback disabled       */
 #define USE_HAL_NAND_REGISTER_CALLBACKS \
