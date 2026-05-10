@@ -263,7 +263,7 @@ def main() -> int:
 
     script_dir = Path(__file__).resolve().parent
 
-    # Fixed deployment configuration
+    # Fixed deployment config, we won't be changing any of these
     veh_dbc = script_dir / 'dbc' / 'veh.dbc'
     pt_dbc  = script_dir / 'dbc' / 'pt.dbc'
     log_dir = script_dir / 'logs'
