@@ -179,7 +179,7 @@ void SysTick_Handler(void) {
     /* USER CODE END SysTick_IRQn 0 */
     HAL_IncTick();
     /* USER CODE BEGIN SysTick_IRQn 1 */
-    LVGL_Tick_Inc();
+    lv_tick_inc(1);
     /* USER CODE END SysTick_IRQn 1 */
 }
 
