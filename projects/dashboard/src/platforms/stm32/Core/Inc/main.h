@@ -155,8 +155,6 @@ void Error_Handler(void);
 #define LCD_INT_GPIO_Port GPIOJ
 #define D20_Pin GPIO_PIN_12
 #define D20_GPIO_Port GPIOH
-#define WAKEUP_Pin GPIO_PIN_0
-#define WAKEUP_GPIO_Port GPIOA
 #define BUTTON_SCROLL_Pin GPIO_PIN_4
 #define BUTTON_SCROLL_GPIO_Port GPIOC
 #define A7_Pin GPIO_PIN_13
