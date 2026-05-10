@@ -3,12 +3,10 @@
 Real-time CAN telemetry for the MAC Formula Electric racecar.
 Data flows from two CAN buses on the Raspberry Pi → InfluxDB → Grafana dashboard.
 
----
-
 ## Architecture
 
 ```
-Racecar CAN buses
+Racecar
   can0  (Vehicle bus — FC, LVC, TMS, BMS, GPS)
   can1  (Powertrain bus — Inverter 1, Inverter 2)
          │
@@ -16,15 +14,15 @@ Racecar CAN buses
   Raspberry Pi 4
   ┌─────────────────────────────────┐
   │  candump -L can0 / can1         │  raw CAN frames
-  │       │                         │
   │  logger.py                      │  decode via veh.dbc + pt.dbc
-  │       │                         │
-  │  CSV logs  (logs/can_log_*.csv) │  full signal archive
-  │  InfluxDB  (localhost:8086)     │  key signals + faults
+  │  CSV logs  (logs/can_log_*.csv) │  full signal archive on SD card
   └─────────────────────────────────┘
+         │ 4G LTE (SIM card)
+         ▼
+  InfluxDB Cloud  (AWS us-east-1, free tier)
          │
-         ▼ (network / same machine)
-  Grafana  (localhost:3000 or Grafana Cloud)
+         ▼
+  Dock laptop — Grafana (local, free)
   ┌─────────────────────────────────┐
   │  Vehicle Safety row             │
   │  Performance row                │
@@ -32,8 +30,7 @@ Racecar CAN buses
   └─────────────────────────────────┘
 ```
 
----
-
+The Pi runs **only** logger.py — no InfluxDB or Grafana on the Pi itself. Data is written to InfluxDB Cloud over cellular. Grafana on the dock laptop queries InfluxDB Cloud independently — the Pi and laptop only need their own internet connections, not the same network.
 
 ---
 
@@ -117,31 +114,19 @@ cd scripts/daq
 bash setup.sh
 ```
 
-The script:
-1. Installs `python3`, `can-utils`, `influxdb2`, and Grafana from the bundled `.deb`
-2. Enables InfluxDB and Grafana as systemd services (auto-start on boot)
-3. Brings up `can0` and `can1` at 500 kbit/s
-4. Creates a Python virtualenv and installs requirements
+The script installs `python3`, `can-utils`, configures `can0`/`can1` at 500 kbit/s, and creates a Python virtualenv.
 
 After running `setup.sh`:
 
-1. Open `http://localhost:8086` → complete InfluxDB setup:
-   - Username: `admin`, Password: (choose one)
-   - Organization: `macformula`
-   - Bucket: `macfe`
-   - Generate an **All Access API token**
-
-2. Create `.env` in this directory:
+1. Copy `.env` onto the Pi (it's gitignored — copy it manually or `scp` it over):
    ```
-   INFLUX_URL=http://localhost:8086
-   INFLUX_TOKEN=<paste token here>
+   INFLUX_URL=https://us-east-1-1.aws.cloud2.influxdata.com
+   INFLUX_TOKEN=<team token>
    INFLUX_ORG=macformula
    INFLUX_BUCKET=macfe
    ```
 
-3. Open `http://localhost:3000` (admin/admin) → import `grafana_dashboard.json`
-
-4. Start logging:
+2. Start logging:
    ```bash
    source venv/bin/activate
    python logger.py
@@ -149,32 +134,50 @@ After running `setup.sh`:
 
 ---
 
-## Dev Setup (Windows — no Pi, no CAN bus)
+## Linux VM Setup (testing logger.py without a Pi)
 
-Uses InfluxDB Cloud (free tier) and Grafana Cloud instead of local installs.
+Use this to verify logger.py works before deploying to the Pi. Requires Ubuntu 22.04+ in VirtualBox or VMware — **not WSL2** (WSL2 lacks the `vcan` kernel module).
 
-1. Create accounts at `cloud2.influxdata.com` and `grafana.com`
-2. In InfluxDB Cloud: create bucket `macfe`, generate All Access token
-3. Create `.env`:
-   ```
-   INFLUX_URL=https://<your-region>.aws.cloud2.influxdata.com
-   INFLUX_TOKEN=<cloud token>
-   INFLUX_ORG=<your org name>
-   INFLUX_BUCKET=macfe
-   ```
-4. Install Python dependencies:
+```bash
+cd scripts/daq
+bash setup_vm.sh
+```
+
+The script installs Python deps and brings up `vcan0`/`vcan1` (virtual CAN interfaces). Uses the cloud InfluxDB credentials already in `.env` — no local InfluxDB needed.
+
+```bash
+# Terminal 1 — run the logger:
+source venv/bin/activate
+python logger.py --interfaces vcan0 vcan1
+
+# Terminal 2 — inject test CAN frames:
+cansend vcan0 624#1234567890ABCDEF   # Pack_State → writes to InfluxDB
+cangen vcan0 -g 50 &                 # random frames → exercises CSV logging
+```
+
+Verify: CSV appears in `logs/`, and `car_data` measurement appears in InfluxDB Cloud Data Explorer.
+
+---
+
+## Dock Laptop Setup (Grafana)
+
+Run once on the laptop you'll use at the dock:
+
+1. Install Grafana via Docker:
    ```bash
-   python -m venv venv
-   venv\Scripts\activate
-   pip install -r requirements.txt
+   docker run -d -p 3000:3000 --name grafana grafana/grafana
    ```
-5. Run the simulated data writer to verify the connection:
-   ```bash
-   python test_influx.py
-   ```
-   Should print `Connection OK — test write succeeded.` and stream fake sensor values.
+   Open `http://localhost:3000` (admin / admin).
 
-6. In Grafana Cloud: add InfluxDB datasource (Flux, same credentials as `.env`), then import `grafana_dashboard.json`.
+2. Add InfluxDB Cloud as a data source:
+   - Type: **InfluxDB**, Query language: **Flux**
+   - URL: value of `INFLUX_URL` from `.env`
+   - Token: value of `INFLUX_TOKEN` from `.env`
+   - Organisation: `macformula`, Default bucket: `macfe`
+
+3. Import `grafana_dashboard.json` via **Dashboards → Import**.
+
+The dashboard will live-update as the Pi writes data to InfluxDB Cloud. The laptop just needs any internet connection — it doesn't need to be near the Pi.
 
 ---
 
