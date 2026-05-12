@@ -9,8 +9,6 @@ extern macfe::periph::CanBase& veh_can_base;
 extern macfe::periph::DigitalInput& button_scroll;
 extern macfe::periph::DigitalInput& button_enter;
 
-
-
 extern void Initialize();
 
 extern void Shutdown();
