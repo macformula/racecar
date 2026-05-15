@@ -54,7 +54,7 @@ extern macfe::periph::DigitalOutput& hsd1_sel1;
 
 extern macfe::periph::AnalogInput& hsd2_isense;
 extern macfe::periph::DigitalOutput& hsd2_isense_en;
-extern macfe::periph::DigitalOutput& hsd2_sel2;
+extern macfe::periph::DigitalOutput& hsd2_sel;
 
 extern macfe::periph::AnalogInput& hsd3_isense;
 extern macfe::periph::DigitalOutput& hsd3_isense_en;
