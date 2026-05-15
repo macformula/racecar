@@ -7,7 +7,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -57,8 +57,28 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define DCDC_SNS_Pin GPIO_PIN_0
-#define DCDC_SNS_GPIO_Port GPIOC
+#define HSD3_I_SENSE_EN_Pin GPIO_PIN_5
+#define HSD3_I_SENSE_EN_GPIO_Port GPIOE
+#define HSD3_SEL_Pin GPIO_PIN_6
+#define HSD3_SEL_GPIO_Port GPIOE
+#define HSD6_I_SENSE_EN_Pin GPIO_PIN_14
+#define HSD6_I_SENSE_EN_GPIO_Port GPIOC
+#define HSD6_SEL_Pin GPIO_PIN_15
+#define HSD6_SEL_GPIO_Port GPIOC
+#define ANALOG_CURRENT_SENSE_Pin GPIO_PIN_3
+#define ANALOG_CURRENT_SENSE_GPIO_Port GPIOF
+#define ANALOG_VOLTAGE_SENSE_Pin GPIO_PIN_4
+#define ANALOG_VOLTAGE_SENSE_GPIO_Port GPIOF
+#define LV_VOLTAGE_SENSE_Pin GPIO_PIN_5
+#define LV_VOLTAGE_SENSE_GPIO_Port GPIOF
+#define HSD6_I_SENSE_Pin GPIO_PIN_7
+#define HSD6_I_SENSE_GPIO_Port GPIOF
+#define HSD3_I_SENSE_Pin GPIO_PIN_8
+#define HSD3_I_SENSE_GPIO_Port GPIOF
+#define HSD4_I_SENSE_Pin GPIO_PIN_9
+#define HSD4_I_SENSE_GPIO_Port GPIOF
+#define HSD5_I_SENSE_Pin GPIO_PIN_10
+#define HSD5_I_SENSE_GPIO_Port GPIOF
 #define TSSI_RED_SIG_Pin GPIO_PIN_2
 #define TSSI_RED_SIG_GPIO_Port GPIOC
 #define TSSI_GN_SIG_Pin GPIO_PIN_3
@@ -69,6 +89,18 @@ void Error_Handler(void);
 #define STP4_SIG_GPIO_Port GPIOC
 #define STP3_SIG_Pin GPIO_PIN_5
 #define STP3_SIG_GPIO_Port GPIOC
+#define HSD1_I_SENSE_Pin GPIO_PIN_0
+#define HSD1_I_SENSE_GPIO_Port GPIOB
+#define HSD2_I_SENSE_Pin GPIO_PIN_1
+#define HSD2_I_SENSE_GPIO_Port GPIOB
+#define HSD4_I_SENSE_EN_Pin GPIO_PIN_12
+#define HSD4_I_SENSE_EN_GPIO_Port GPIOF
+#define HSD4_SEL_Pin GPIO_PIN_13
+#define HSD4_SEL_GPIO_Port GPIOF
+#define HSD5_I_SENSE_EN_Pin GPIO_PIN_14
+#define HSD5_I_SENSE_EN_GPIO_Port GPIOF
+#define HSD5_SEL_Pin GPIO_PIN_15
+#define HSD5_SEL_GPIO_Port GPIOF
 #define POWERTRAIN_FAN1_EN_Pin GPIO_PIN_0
 #define POWERTRAIN_FAN1_EN_GPIO_Port GPIOG
 #define IMU_GPS_EN_Pin GPIO_PIN_1
@@ -77,6 +109,16 @@ void Error_Handler(void);
 #define POWERTRAIN_PUMP1_EN_GPIO_Port GPIOE
 #define POWERTRAIN_PUMP2_EN_Pin GPIO_PIN_15
 #define POWERTRAIN_PUMP2_EN_GPIO_Port GPIOE
+#define HSD1_I_SENSE_EN_Pin GPIO_PIN_10
+#define HSD1_I_SENSE_EN_GPIO_Port GPIOB
+#define HSD1_SEL0_Pin GPIO_PIN_11
+#define HSD1_SEL0_GPIO_Port GPIOB
+#define HSD1_SEL1_Pin GPIO_PIN_12
+#define HSD1_SEL1_GPIO_Port GPIOB
+#define HSD2_I_SENSE_EN_Pin GPIO_PIN_14
+#define HSD2_I_SENSE_EN_GPIO_Port GPIOB
+#define HSD2_SEL_Pin GPIO_PIN_15
+#define HSD2_SEL_GPIO_Port GPIOB
 #define IMD_FAULT_STATUS_Pin GPIO_PIN_8
 #define IMD_FAULT_STATUS_GPIO_Port GPIOD
 #define BMS_FAULT_STATUS_Pin GPIO_PIN_9
@@ -93,12 +135,12 @@ void Error_Handler(void);
 #define SHUTDOWN_CIRCUIT_EN_GPIO_Port GPIOG
 #define MOTOR_CONTROLLER_PRECHARGE_EN_Pin GPIO_PIN_7
 #define MOTOR_CONTROLLER_PRECHARGE_EN_GPIO_Port GPIOG
-#define DCDC_EN_Pin GPIO_PIN_8
-#define DCDC_EN_GPIO_Port GPIOG
 #define ACCUMULATOR_EN_Pin GPIO_PIN_9
 #define ACCUMULATOR_EN_GPIO_Port GPIOG
 #define BRAKE_LIGHT_EN_Pin GPIO_PIN_10
 #define BRAKE_LIGHT_EN_GPIO_Port GPIOG
+#define VICOR_EN_Pin GPIO_PIN_11
+#define VICOR_EN_GPIO_Port GPIOG
 #define MOTOR_CONTROLLER_SWITCH_EN_Pin GPIO_PIN_12
 #define MOTOR_CONTROLLER_SWITCH_EN_GPIO_Port GPIOG
 #define DCDC_SNS_SEL_Pin GPIO_PIN_14
