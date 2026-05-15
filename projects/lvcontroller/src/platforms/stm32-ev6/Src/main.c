@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -52,7 +52,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-// static void MPU_Config(void);
+static void MPU_Config(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -123,7 +123,7 @@ void SystemClock_Config(void) {
 
 /* MPU Configuration */
 
-static void MPU_Config(void) {
+void MPU_Config(void) {
     MPU_Region_InitTypeDef MPU_InitStruct = {0};
 
     /* Disables the MPU */
