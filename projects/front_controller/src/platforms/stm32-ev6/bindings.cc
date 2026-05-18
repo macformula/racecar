@@ -50,6 +50,14 @@ DigitalOutput bms_fault_led_en{BMS_FAULT_LED_EN_GPIO_Port,
 DigitalOutput ready_to_drive_sig_en{RTDS_EN_GPIO_Port, RTDS_EN_Pin};
 DigitalOutput debug_led{DEBUG_LED_GPIO_Port, DEBUG_LED_Pin};
 
+// =========== HSD =========================================
+AnalogInput hsd1_isense{HSD1_ISENSE_Pin, HSD1_ISENSE_GPIO_Port};
+DigitalOutput hsd1_isense_en{HSD1_ISENSE_EN_Pin, HSD1_ISENSE_EN_GPIO_Port};
+DigitalOutput hsd1_sel0{HSD1_SEL0_Pin, HSD1_SEL0_GPIO_Port};
+DigitalOutput hsd1_sel1{HSD1_SEL1_Pin, HSD1_SEL1_GPIO_Port};
+
+DigitalOutput hsd2_isense{HSD2_ISENSE_Pin, HSD2_ISENSE_GPIO_Port};
+DigitalOutput hsd2_isense_en{HSD2_ISENSE_EN_Pin, HSD2_ISENSE_EN_GPIO_Port};
 }  // namespace mcal
 
 namespace bindings {
@@ -86,6 +94,14 @@ macfe::periph::DigitalOutput& bms_fault_led_en = mcal::bms_fault_led_en;
 macfe::periph::DigitalOutput& ready_to_drive_sig_en =
     mcal::ready_to_drive_sig_en;
 macfe::periph::DigitalOutput& debug_led = mcal::debug_led;
+
+// =========== HSD =========================================
+macfe::periph::AnalogInput& hsd1_isense = mcal::hsd1_isense;
+macfe::periph::DigitalOutput& hsd1_isense_en = mcal::hsd1_isense_en;
+macfe::periph::DigitalOutput& hsd1_sel0 = mcal::hsd1_sel0;
+macfe::periph::DigitalOutput& hsd1_sel1 = mcal::hsd1_sel1;
+macfe::periph::AnalogInput& hsd2_isense = mcal::hsd2_isense;
+macfe::periph::DigitalOutput& hsd2_isense_en = mcal::hsd2_isense_en;
 
 void Initialize() {
     SystemClock_Config();
