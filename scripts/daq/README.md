@@ -30,7 +30,7 @@ Racecar
   └─────────────────────────────────┘
 ```
 
-The Pi runs **only** logger.py — no InfluxDB or Grafana on the Pi itself. Data is written to InfluxDB Cloud over cellular. Grafana on the dock laptop queries InfluxDB Cloud independently — the Pi and laptop only need their own internet connections, not the same network.
+The Pi runs **only** logger.py, no InfluxDB or Grafana on the Pi itself. Data is written to InfluxDB Cloud over cellular. Grafana on the dock laptop queries InfluxDB Cloud independently, the Pi and laptop only need their own internet connections, not the same network.
 
 ---
 

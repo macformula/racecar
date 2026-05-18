@@ -77,6 +77,9 @@ def main():
             igbt_temp     = inverter_temp + random.uniform(-2, 2)
             pack_current  = 50 + 30 * math.sin(t * 0.4) + random.uniform(-5, 5)
             speed         = 60 + 25 * math.sin(t * 0.05) + random.uniform(-2, 2)
+            apps1         = max(0, min(100, 50 + 45 * math.sin(t * 0.2) + random.uniform(-2, 2)))
+            apps2         = max(0, min(100, apps1 + random.uniform(-3, 3)))
+            bpps          = max(0, min(100, 20 * abs(math.sin(t * 0.15)) + random.uniform(-1, 1)))
 
             # Scalar signals (no extra tags needed)
             for name, value in [
@@ -84,6 +87,9 @@ def main():
                 ("Pack_Current",      pack_current),
                 ("Pack_SOC",          soc),
                 ("Speed",             speed),
+                ("Apps1Percent",      apps1),
+                ("Apps2Percent",      apps2),
+                ("BppsPercent",       bpps),
             ]:
                 write_signal(name, value)
 
@@ -134,7 +140,8 @@ def main():
             print(
                 f"  t={t:.0f}s  inv1={inv1_rpm:.0f}rpm  inv2={inv2_rpm:.0f}rpm  "
                 f"v={battery_v:.1f}V  soc={soc:.1f}%  "
-                f"mtemp={motor_temp:.1f}°C  curr={pack_current:.1f}A  spd={speed:.1f}mph"
+                f"mtemp={motor_temp:.1f}°C  curr={pack_current:.1f}A  spd={speed:.1f}mph  "
+                f"apps1={apps1:.1f}%  apps2={apps2:.1f}%  bpps={bpps:.1f}%"
             )
 
             t += 1

@@ -82,6 +82,9 @@ IMPORTANT_SIGNALS = {
     "HighThermValue",     # segment max temp (°C)     — BmsBroadcast (0x1839F380)
     "LowThermValue",      # segment min temp (°C)     — BmsBroadcast
     "AvgThermValue",      # segment avg temp (°C)     — BmsBroadcast
+    "Apps1Percent",       # APPS sensor 1 position (%) — AppsDebug (401)
+    "Apps2Percent",       # APPS sensor 2 position (%) — AppsDebug (401)
+    "BppsPercent",        # brake pedal position (%)   — BppsSteerDebug (402)
 }
 
 # Boolean fault signals from FcAlerts (202) and LvStatus (211).
@@ -201,6 +204,8 @@ def decode_frame(
 
     Returns (message_name, {signal_name: (value, unit)}) or None if the
     message is not in the DBC or decoding fails.
+
+    can id - data 
     """
     msg = next((m for m in db.messages if m.frame_id == can_id), None) #cycle thru dbc to find matched can id
     if msg is None:

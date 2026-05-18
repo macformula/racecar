@@ -3,7 +3,7 @@
         {
             "name": "DS_INFLUXDB",
             "label": "InfluxDB",
-            "description": "InfluxDB Cloud datasource — must use Flux query language",
+            "description": "InfluxDB Cloud datasource \u00e2\u20ac\u201d must use Flux query language",
             "type": "datasource",
             "pluginId": "influxdb",
             "pluginName": "InfluxDB"
@@ -39,7 +39,7 @@
     "annotations": {
         "list": []
     },
-    "description": "MAC Formula Electric — Real-time racecar telemetry",
+    "description": "MAC Formula Electric \u00e2\u20ac\u201d Real-time racecar telemetry",
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 1,
@@ -1528,6 +1528,137 @@
                 }
             ],
             "title": "Segment 6 Temp",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 75
+            },
+            "id": 200,
+            "title": "Pedal Inputs",
+            "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "${DS_INFLUXDB}"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "lineWidth": 2,
+                        "fillOpacity": 10,
+                        "spanNulls": false
+                    },
+                    "mappings": [],
+                    "min": 0,
+                    "max": 100,
+                    "unit": "percent",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "apps1"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "APPS 1"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "apps2"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "APPS 2"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "bpps"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "BPPS"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 76
+            },
+            "id": 201,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "min",
+                        "max",
+                        "last"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom"
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "${DS_INFLUXDB}"
+                    },
+                    "refId": "A",
+                    "query": "from(bucket: \"macfe\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"car_data\")\n  |> filter(fn: (r) => r.signal == \"Apps1Percent\")\n  |> filter(fn: (r) => r._field == \"value\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> set(key: \"_field\", value: \"apps1\")"
+                },
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "${DS_INFLUXDB}"
+                    },
+                    "refId": "B",
+                    "query": "from(bucket: \"macfe\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"car_data\")\n  |> filter(fn: (r) => r.signal == \"Apps2Percent\")\n  |> filter(fn: (r) => r._field == \"value\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> set(key: \"_field\", value: \"apps2\")"
+                },
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "${DS_INFLUXDB}"
+                    },
+                    "refId": "C",
+                    "query": "from(bucket: \"macfe\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"car_data\")\n  |> filter(fn: (r) => r.signal == \"BppsPercent\")\n  |> filter(fn: (r) => r._field == \"value\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> set(key: \"_field\", value: \"bpps\")"
+                }
+            ],
+            "title": "APPS & BPPS (%)",
             "type": "timeseries"
         }
     ],
