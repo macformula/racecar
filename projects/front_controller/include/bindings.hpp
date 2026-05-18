@@ -38,6 +38,15 @@ extern macfe::periph::DigitalOutput& bms_fault_led_en;
 extern macfe::periph::DigitalOutput& ready_to_drive_sig_en;
 extern macfe::periph::DigitalOutput& debug_led;
 
+// =========== HSD =========================================
+extern macfe::periph::AnalogInput& hsd1_isense;
+extern macfe::periph::DigitalOutput& hsd1_sel0;
+extern macfe::periph::DigitalOutput& hsd1_sel1;
+extern macfe::periph::DigitalOutput& hsd1_isense_en;
+
+extern macfe::periph::AnalogInput& hsd2_isense;
+extern macfe::periph::DigitalOutput& hsd2_isense_en;
+
 extern void Initialize();
 
 extern int GetTickMs();
