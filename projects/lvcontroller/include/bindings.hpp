@@ -9,6 +9,7 @@
 #include "periph/can.hpp"
 #include "periph/gpio.hpp"
 #include "periph/pwm.hpp"
+#include "src/hsd/hsd.hpp"
 
 namespace bindings {
 
@@ -71,6 +72,9 @@ extern macfe::periph::DigitalOutput& hsd5_sel;
 extern macfe::periph::AnalogInput& hsd6_isense;
 extern macfe::periph::DigitalOutput& hsd6_isense_en;
 extern macfe::periph::DigitalOutput& hsd6_sel;
+
+extern hsd::HSD4Channel& hsd1;
+extern hsd::HSD2Channel& hsd2;
 
 // Other IO
 extern macfe::periph::DigitalOutput& brake_light_en;

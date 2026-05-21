@@ -89,6 +89,9 @@ DigitalOutput hsd1_isense_en{HSD1_I_SENSE_EN_GPIO_Port, HSD1_I_SENSE_EN_Pin};
 DigitalOutput hsd1_sel0{HSD1_SEL0_GPIO_Port, HSD1_SEL0_Pin};
 DigitalOutput hsd1_sel1{HSD1_SEL1_GPIO_Port, HSD1_SEL1_Pin};
 
+hsd::HSD4Channel hsd1{hsd1_isense, hsd1_isense_en, hsd1_sel0, hsd1_sel1};
+hsd::HSD2Channel hsd2{hsd2_isense, hsd2_isense_en, hsd2_sel};
+
 AnalogInput hsd2_isense{&hadc1, ADC_CHANNEL_9};
 DigitalOutput hsd2_isense_en{HSD2_I_SENSE_EN_GPIO_Port, HSD2_I_SENSE_EN_Pin};
 DigitalOutput hsd2_sel{HSD2_SEL_GPIO_Port, HSD2_SEL_Pin};
@@ -177,6 +180,9 @@ DigitalOutput& hsd5_sel = mcal::hsd5_sel;
 AnalogInput& hsd6_isense = mcal::hsd6_isense;
 DigitalOutput& hsd6_isense_en = mcal::hsd6_isense_en;
 DigitalOutput& hsd6_sel = mcal::hsd6_sel;
+
+hsd::HSD4Channel& hsd1 = mcal::hsd1;
+hsd::HSD2Channel& hsd2 = mcal::hsd2;
 
 // Other IO
 DigitalOutput& brake_light_en = mcal::brake_light_en;
