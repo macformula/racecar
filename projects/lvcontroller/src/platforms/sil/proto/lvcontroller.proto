@@ -36,6 +36,21 @@ message Output {
     bool dcdc_en = 16;
     bool dcdc_sense_select = 17;
 
+    // HSD sensing
+    bool hsd1_isense_en = 19;
+    bool hsd1_sel0 = 20;
+    bool hsd1_sel1 = 21;
+    bool hsd2_isense_en = 22;
+    bool hsd2_sel = 23;
+    bool hsd3_isense_en = 24;
+    bool hsd3_sel = 25;
+    bool hsd4_isense_en = 26;
+    bool hsd4_sel = 27;
+    bool hsd5_isense_en = 28;
+    bool hsd5_sel = 29;
+    bool hsd6_isense_en = 30;
+    bool hsd6_sel = 31;
+
     // Other
     bool brake_light_en = 18;
 }
@@ -49,4 +64,12 @@ message Input {
     float dcdc_sense = 3;
     float suspension_travel3 = 4;
     float suspension_travel4 = 5;
+
+    // HSD sensing
+    float hsd1_isense = 6;
+    float hsd2_isense = 7;
+    float hsd3_isense = 8;
+    float hsd4_isense = 9;
+    float hsd5_isense = 10;
+    float hsd6_isense = 11;
 }
