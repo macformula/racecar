@@ -1,7 +1,17 @@
+/// @author Manush Patel
+/// @date 2026-05-23
+
 #pragma once
-#include "bindings.hpp"
+#include <cstdint>
+
+#include "generated/can/veh_bus.hpp"
+#include "periph/analog_input.hpp"
+#include "periph/gpio.hpp"
 
 namespace hsd {
+
+using macfe::periph::AnalogInput;
+using macfe::periph::DigitalOutput;
 
 struct Reading {
     float current_ma = 0.0f;
@@ -13,6 +23,12 @@ public:
     virtual Reading Read(uint8_t channel) = 0;
     virtual ~HSD() = default;
 };
+
+void Update_10Hz(generated::can::VehBus& veh_can);
+
+bool HasOverCurrent();
+float GetCurrent(uint8_t channel_index);
+bool IsOverCurrent(uint8_t channel_index);
 
 class HSD2Channel : public HSD {
 public:

@@ -12,9 +12,11 @@
 
 // LV Modules
 #include "accumulator/accumulator.hpp"
+#include "alerts/alerts.hpp"
 #include "brakelight/brakelight.hpp"
 #include "dcdc/dcdc.hpp"
 #include "fans/fans.hpp"
+#include "hsd/hsd.hpp"
 #include "motor_controller/motor_controller.hpp"
 #include "scheduler/scheduler.hpp"
 #include "suspension/suspension.hpp"
@@ -224,6 +226,11 @@ void task_10hz(void) {
     tssi::task_10hz();
     accumulator::task_10hz(veh_can);
     // check_can_flash(); // unused in 2025
+    hsd::Update_10Hz(veh_can);
+
+    veh_can.Send(TxLvAlerts{
+        .hsd_overcurrent = alerts::Get().hsd_overcurrent,
+    });
 
     veh_can.Send(TxLvStatus{
         .counter = tx_counter++,

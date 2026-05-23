@@ -5,11 +5,11 @@
 
 #include <cstdint>
 
+#include "hsd/hsd.hpp"
 #include "periph/analog_input.hpp"
 #include "periph/can.hpp"
 #include "periph/gpio.hpp"
 #include "periph/pwm.hpp"
-#include "src/hsd/hsd.hpp"
 
 namespace bindings {
 
@@ -39,6 +39,9 @@ extern macfe::periph::DigitalOutput& imu_gps_en;
 extern macfe::periph::DigitalOutput& shutdown_circuit_en;
 
 // DCDC System & Measurement
+extern macfe::periph::DigitalOutput& dcdc_en;
+extern macfe::periph::DigitalOutput& dcdc_sense_select;
+extern macfe::periph::AnalogInput& dcdc_sense;
 extern macfe::periph::DigitalOutput& vicor_en;
 // extern macfe::periph::DigitalOutput& dcdc_sense_select;
 
@@ -75,6 +78,10 @@ extern macfe::periph::DigitalOutput& hsd6_sel;
 
 extern hsd::HSD4Channel& hsd1;
 extern hsd::HSD2Channel& hsd2;
+extern hsd::HSD2Channel& hsd3;
+extern hsd::HSD2Channel& hsd4;
+extern hsd::HSD2Channel& hsd5;
+extern hsd::HSD2Channel& hsd6;
 
 // Other IO
 extern macfe::periph::DigitalOutput& brake_light_en;
