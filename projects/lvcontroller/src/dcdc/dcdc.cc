@@ -35,16 +35,16 @@ float GetAmps(void) {
 // - are these conversions 100% correct
 // - is any time delay needed between select and read?
 
-float MeasureLvBatteryVoltage(void) {
-    return bindings::lv_battery.ReadVoltage();
-}
-
 static void MeasureAmps(void) {
     amps = bindings::bus_current.ReadVoltage() * 5.0f;
 }
 
 static void MeasureVolts(void) {
-    voltage = bindings::bus_voltage.ReadVoltage();
+    voltage = bindings::bus_voltage.ReadVoltage() * 8.0f;
+}
+
+static void MeasureLvBatteryVoltage(void) {
+    lv_battery_voltage = bindings::lv_battery.ReadVoltage() * 10.0f;
 }
 
 void task_100hz() {

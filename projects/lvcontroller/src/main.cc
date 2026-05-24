@@ -232,6 +232,12 @@ void task_10hz(void) {
         .hsd_overcurrent = alerts::Get().hsd_overcurrent,
     });
 
+    veh_can.Send(TxLvDcdc{
+        .lv_battery_voltage = dcdc::GetLvBatteryVoltage(),
+        .bus_voltage = dcdc::GetVoltage(),
+        .bus_current = dcdc::GetAmps(),
+    });
+
     veh_can.Send(TxLvStatus{
         .counter = tx_counter++,
         .lv_state = fsm::state,
