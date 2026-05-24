@@ -83,6 +83,11 @@ DigitalOutput hsd6_isense_en{"HSD6_ISENSE_EN"};
 DigitalOutput hsd6_sel{"HSD6_SEL"};
 hsd::HSD2Channel hsd6{hsd6_isense, hsd6_isense_en, hsd6_sel};
 
+DigitalOutput vicor_en{"VICOR_EN"};
+AnalogInput lv_battery{"LV_BATTERY"};
+AnalogInput bus_voltage{"BUS_VOLTAGE"};
+AnalogInput bus_current{"BUS_CURRENT"};
+
 // Other IO
 DigitalOutput brake_light_en{"BRAKE_LIGHT_EN"};
 AnalogInput suspension_travel3{"SUSPENSION_TRAVEL3"};
@@ -123,6 +128,12 @@ DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 DigitalOutput& dcdc_en = mcal::dcdc_en;
 DigitalOutput& dcdc_sense_select = mcal::dcdc_sense_select;
 AnalogInput& dcdc_sense = mcal::dcdc_sense;
+
+DigitalOutput& vicor_en = mcal::vicor_en;
+AnalogInput& bus_voltage = mcal::bus_voltage;
+AnalogInput& bus_current = mcal::bus_current;
+AnalogInput& lv_battery = mcal::lv_battery;
+
 
 // HSD Sensing
 AnalogInput& hsd1_isense = mcal::hsd1_isense;
