@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "hsd/hsd..hpp"
+#include "hsd/hsd.hpp"
 #include "periph/analog_input.hpp"
 #include "periph/can.hpp"
 #include "periph/gpio.hpp"
