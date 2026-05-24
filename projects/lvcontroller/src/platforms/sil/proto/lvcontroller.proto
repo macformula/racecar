@@ -35,6 +35,7 @@ message Output {
     // DCDC System & measurement
     bool dcdc_en = 16;
     bool dcdc_sense_select = 17;
+    bool vicor_en = 32;
 
     // HSD sensing
     bool hsd1_isense_en = 19;
@@ -64,6 +65,9 @@ message Input {
     float dcdc_sense = 3;
     float suspension_travel3 = 4;
     float suspension_travel4 = 5;
+    float lv_battery = 12;
+    float bus_voltage = 13;
+    float bus_current = 14;
 
     // HSD sensing
     float hsd1_isense = 6;
