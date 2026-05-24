@@ -1,3 +1,6 @@
+/// @author Manush Patel
+/// @date 2026-05-24
+
 #pragma once
 
 namespace dcdc {

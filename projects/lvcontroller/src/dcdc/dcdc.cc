@@ -1,3 +1,6 @@
+/// @author Manush Patel
+/// @date 2026-05-24
+
 #include "dcdc.hpp"
 
 #include "bindings.hpp"
@@ -37,9 +40,6 @@ float MeasureLvBatteryVoltage(void) {
 }
 
 static void MeasureAmps(void) {
-    // bindings::dcdc_sense_select.SetHigh();
-    // amps = bindings::dcdc_sense.ReadVoltage();
-
     amps = bindings::bus_current.ReadVoltage() * 5.0f;
 }
 
