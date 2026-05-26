@@ -61,8 +61,9 @@ void Update_10Hz(generated::can::VehBus&) {
     channels[10] = bindings::hsd5.Read(0);
     channels[11] = bindings::hsd5.Read(1);
 
-    // HSD6 — 1 channel
+    // HSD6 — 2 channel
     channels[12] = bindings::hsd6.Read(0);
+    channels[13] = bindings::hsd6.Read(1);
 
     bool any_fault = HasOverCurrent();
 
