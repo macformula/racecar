@@ -34,8 +34,10 @@ Reading HSD4Channel::Read(uint8_t channel) {
 
     en_.SetLow();
 
-    return Reading{.current_ma = v * kVoltstoMa,
-                   .fault = (v > kFaultThresholdV)};
+    return Reading{
+        .current_ma = v * kVoltstoMa,
+        .fault = (v > kFaultThresholdV),
+    };
 }
 
 bool HasOverCurrent() {
