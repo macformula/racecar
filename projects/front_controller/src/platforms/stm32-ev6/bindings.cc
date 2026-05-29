@@ -103,6 +103,9 @@ macfe::periph::DigitalOutput& hsd1_sel1 = mcal::hsd1_sel1;
 macfe::periph::AnalogInput& hsd2_isense = mcal::hsd2_isense;
 macfe::periph::DigitalOutput& hsd2_isense_en = mcal::hsd2_isense_en;
 
+hsd::HSD4Channel& hsd1 = mcal::hsd1;
+hsd::HSD1Channel& hsd2 = mcal::hsd2;
+
 void Initialize() {
     SystemClock_Config();
 
