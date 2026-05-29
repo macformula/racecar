@@ -54,6 +54,42 @@ DigitalOutput shutdown_circuit_en{&outputs.shutdown_circuit_en};
 DigitalOutput dcdc_en{&outputs.dcdc_en};
 DigitalOutput dcdc_sense_select{&outputs.dcdc_sense_select};
 AnalogInput dcdc_sense{&inputs.dcdc_sense};
+DigitalOutput vicor_en{&outputs.vicor_en};
+AnalogInput lv_battery{&inputs.lv_battery};
+AnalogInput bus_voltage{&inputs.bus_voltage};
+AnalogInput bus_current{&inputs.bus_current};
+
+// HSD Sensing
+AnalogInput hsd1_isense{&inputs.hsd1_isense};
+DigitalOutput hsd1_isense_en{&outputs.hsd1_isense_en};
+DigitalOutput hsd1_sel0{&outputs.hsd1_sel0};
+DigitalOutput hsd1_sel1{&outputs.hsd1_sel1};
+hsd::HSD4Channel hsd1{hsd1_isense, hsd1_isense_en, hsd1_sel0, hsd1_sel1};
+
+AnalogInput hsd2_isense{&inputs.hsd2_isense};
+DigitalOutput hsd2_isense_en{&outputs.hsd2_isense_en};
+DigitalOutput hsd2_sel{&outputs.hsd2_sel};
+hsd::HSD2Channel hsd2{hsd2_isense, hsd2_isense_en, hsd2_sel};
+
+AnalogInput hsd3_isense{&inputs.hsd3_isense};
+DigitalOutput hsd3_isense_en{&outputs.hsd3_isense_en};
+DigitalOutput hsd3_sel{&outputs.hsd3_sel};
+hsd::HSD2Channel hsd3{hsd3_isense, hsd3_isense_en, hsd3_sel};
+
+AnalogInput hsd4_isense{&inputs.hsd4_isense};
+DigitalOutput hsd4_isense_en{&outputs.hsd4_isense_en};
+DigitalOutput hsd4_sel{&outputs.hsd4_sel};
+hsd::HSD2Channel hsd4{hsd4_isense, hsd4_isense_en, hsd4_sel};
+
+AnalogInput hsd5_isense{&inputs.hsd5_isense};
+DigitalOutput hsd5_isense_en{&outputs.hsd5_isense_en};
+DigitalOutput hsd5_sel{&outputs.hsd5_sel};
+hsd::HSD2Channel hsd5{hsd5_isense, hsd5_isense_en, hsd5_sel};
+
+AnalogInput hsd6_isense{&inputs.hsd6_isense};
+DigitalOutput hsd6_isense_en{&outputs.hsd6_isense_en};
+DigitalOutput hsd6_sel{&outputs.hsd6_sel};
+hsd::HSD2Channel hsd6{hsd6_isense, hsd6_isense_en, hsd6_sel};
 
 // Other IO
 DigitalOutput brake_light_en{&outputs.brake_light_en};
@@ -155,6 +191,43 @@ DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 DigitalOutput& dcdc_en = mcal::dcdc_en;
 DigitalOutput& dcdc_sense_select = mcal::dcdc_sense_select;
 AnalogInput& dcdc_sense = mcal::dcdc_sense;
+DigitalOutput& vicor_en = mcal::vicor_en;
+AnalogInput& lv_battery = mcal::lv_battery;
+AnalogInput& bus_voltage = mcal::bus_voltage;
+AnalogInput& bus_current = mcal::bus_current;
+
+// HSD Sensing
+AnalogInput& hsd1_isense = mcal::hsd1_isense;
+DigitalOutput& hsd1_isense_en = mcal::hsd1_isense_en;
+DigitalOutput& hsd1_sel0 = mcal::hsd1_sel0;
+DigitalOutput& hsd1_sel1 = mcal::hsd1_sel1;
+
+AnalogInput& hsd2_isense = mcal::hsd2_isense;
+DigitalOutput& hsd2_isense_en = mcal::hsd2_isense_en;
+DigitalOutput& hsd2_sel = mcal::hsd2_sel;
+
+AnalogInput& hsd3_isense = mcal::hsd3_isense;
+DigitalOutput& hsd3_isense_en = mcal::hsd3_isense_en;
+DigitalOutput& hsd3_sel = mcal::hsd3_sel;
+
+AnalogInput& hsd4_isense = mcal::hsd4_isense;
+DigitalOutput& hsd4_isense_en = mcal::hsd4_isense_en;
+DigitalOutput& hsd4_sel = mcal::hsd4_sel;
+
+AnalogInput& hsd5_isense = mcal::hsd5_isense;
+DigitalOutput& hsd5_isense_en = mcal::hsd5_isense_en;
+DigitalOutput& hsd5_sel = mcal::hsd5_sel;
+
+AnalogInput& hsd6_isense = mcal::hsd6_isense;
+DigitalOutput& hsd6_isense_en = mcal::hsd6_isense_en;
+DigitalOutput& hsd6_sel = mcal::hsd6_sel;
+
+hsd::HSD4Channel& hsd1 = mcal::hsd1;
+hsd::HSD2Channel& hsd2 = mcal::hsd2;
+hsd::HSD2Channel& hsd3 = mcal::hsd3;
+hsd::HSD2Channel& hsd4 = mcal::hsd4;
+hsd::HSD2Channel& hsd5 = mcal::hsd5;
+hsd::HSD2Channel& hsd6 = mcal::hsd6;
 
 // Other IO
 DigitalOutput& brake_light_en = mcal::brake_light_en;
