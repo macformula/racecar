@@ -70,26 +70,34 @@ def main():
             # Simulate values using actual DBC signal names so the dashboard queries match.
             inv1_rpm      = 2000 + 1500 * math.sin(t * 0.3) + random.uniform(-50, 50)
             inv2_rpm      = 1800 + 1400 * math.sin(t * 0.3 + 0.2) + random.uniform(-50, 50)
-            battery_v     = 400 + 10 * math.sin(t * 0.05) + random.uniform(-1, 1)
+            # Pack voltage: 360V min (cell damage), 600V max; simulate normal discharge ~490V
+            battery_v     = 490 + 15 * math.sin(t * 0.05) + random.uniform(-1, 1)
             soc           = max(20, 90 - t * 0.2 + random.uniform(-0.5, 0.5))
-            motor_temp    = 40 + 20 * (1 - math.exp(-t * 0.02)) + random.uniform(-1, 1)
-            inverter_temp = 35 + 15 * (1 - math.exp(-t * 0.015)) + random.uniform(-1, 1)
+            # Temps warm up from ambient; stay well below 70°C motor / 60°C inverter limits
+            motor_temp    = 30 + 18 * (1 - math.exp(-t * 0.02)) + random.uniform(-1, 1)
+            inverter_temp = 28 + 14 * (1 - math.exp(-t * 0.015)) + random.uniform(-1, 1)
             igbt_temp     = inverter_temp + random.uniform(-2, 2)
-            pack_current  = 50 + 30 * math.sin(t * 0.4) + random.uniform(-5, 5)
+            # Pack current: fuse rated 60A, absolute max 59A; simulate normal load ~10–45A
+            pack_current  = 27 + 18 * math.sin(t * 0.4) + random.uniform(-3, 3)
             speed         = 60 + 25 * math.sin(t * 0.05) + random.uniform(-2, 2)
             apps1         = max(0, min(100, 50 + 45 * math.sin(t * 0.2) + random.uniform(-2, 2)))
             apps2         = max(0, min(100, apps1 + random.uniform(-3, 3)))
             bpps          = max(0, min(100, 20 * abs(math.sin(t * 0.15)) + random.uniform(-1, 1)))
+            # LV battery: 18V min, 29V fully charged; simulate ~24V nominal system
+            lv_batt_v     = 24.5 + 1.5 * math.sin(t * 0.02) + random.uniform(-0.1, 0.1)
+            lv_batt_temp  = 25 + 8 * (1 - math.exp(-t * 0.01)) + random.uniform(-0.5, 0.5)
 
             # Scalar signals (no extra tags needed)
             for name, value in [
-                ("Pack_Inst_Voltage", battery_v),
-                ("Pack_Current",      pack_current),
-                ("Pack_SOC",          soc),
-                ("Speed",             speed),
-                ("Apps1Percent",      apps1),
-                ("Apps2Percent",      apps2),
-                ("BppsPercent",       bpps),
+                ("Pack_Inst_Voltage",    battery_v),
+                ("Pack_Current",         pack_current),
+                ("Pack_SOC",             soc),
+                ("Speed",                speed),
+                ("Apps1Percent",         apps1),
+                ("Apps2Percent",         apps2),
+                ("BppsPercent",          bpps),
+                ("LvBatteryVoltage",     lv_batt_v),
+                ("LvBatteryTemp",        lv_batt_temp),
             ]:
                 write_signal(name, value)
 
@@ -131,8 +139,8 @@ def main():
 
             # Occasionally write a simulated fault
             if t > 0 and int(t) % 15 == 0:
-                write_fault("BMS", "Low State of Charge", "WARNING")
-                print(f"  t={t:.0f}s  Wrote fault: BMS / Low State of Charge / WARNING")
+                write_fault("CAN", "TX Error", "WARNING")
+                print(f"  t={t:.0f}s  Wrote fault: CAN / TX Error / WARNING")
             if t > 0 and int(t) % 30 == 0:
                 write_fault("Motor", "Left Motor Running Error", "CRITICAL")
                 print(f"  t={t:.0f}s  Wrote fault: Motor / Left Motor Running Error / CRITICAL")

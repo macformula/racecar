@@ -52,6 +52,7 @@ load_dotenv(override=True)
 TARGET_IDS = {
     202,        # FcAlerts             (veh) - 13 boolean fault flags
     211,        # LvStatus             (veh) - ImdFault, BmsFault
+    214,        # LvDcdc               (veh) - LV battery/bus voltage + bus current
     230,        # DashCommand          (veh) - Speed
     300,        # Accumulator_Soc      (veh) - battery state
     310,        # SuspensionTravel34   (veh) - linear pots
@@ -85,6 +86,8 @@ IMPORTANT_SIGNALS = {
     "Apps1Percent",       # APPS sensor 1 position (%) — AppsDebug (401)
     "Apps2Percent",       # APPS sensor 2 position (%) — AppsDebug (401)
     "BppsPercent",        # brake pedal position (%)   — BppsSteerDebug (402)
+    "LvBatteryVoltage",   # LV battery voltage (V)     — LvDcdc (214)
+    "LvBatteryTemp",      # LV battery temperature (°C) — LvDcdc (214)
 }
 
 # Boolean fault signals from FcAlerts (202) and LvStatus (211).
@@ -107,6 +110,15 @@ FAULT_SIGNALS = {
     # LvStatus (211)
     "ImdFault":                       ("IMD",       "Isolation Fault",              "CRITICAL"),
     "BmsFault":                       ("BMS",       "BMS Fault",                    "CRITICAL"),
+}
+SIGNAL_THRESHOLDS = {
+    "Pack_Current":      (None,  59.0,  "BMS",      "Pack Overcurrent",               "CRITICAL"),
+    "Pack_Inst_Voltage": (360.0, 600.0, "BMS",      "Pack Voltage Out of Range",      "CRITICAL"),
+    "TempMotor":         (None,  70.0,  "Motor",    "Motor Overtemperature",          "CRITICAL"),
+    "TempInverter":      (None,  60.0,  "Inverter", "Inverter Overtemperature",       "CRITICAL"),
+    "TempIGBT":          (None,  60.0,  "Inverter", "IGBT Overtemperature",           "CRITICAL"),
+    "HighThermValue":    (None,  60.0,  "BMS",      "Battery Segment Overtemperature","CRITICAL"),
+    "LvBatteryVoltage":  (18.0,  29.0,  "LV",       "LV Battery Voltage Out of Range","CRITICAL"),
 }
 
 # CAN IDs that produce the same signal names for left and right — tagged "inverter".
@@ -357,7 +369,14 @@ def main() -> int:
                 write_fault_to_influx(system, fault_desc, severity, timestamp)
 
             if sig_name in IMPORTANT_SIGNALS:
-                write_to_influx(sig_name, float(value), timestamp, extra_tags)
+                fval = float(value)
+                write_to_influx(sig_name, fval, timestamp, extra_tags)
+
+                if sig_name in SIGNAL_THRESHOLDS:
+                    lo, hi, sys_name, desc, sev = SIGNAL_THRESHOLDS[sig_name]
+                    checked = abs(fval) if sig_name == "Pack_Current" else fval
+                    if (lo is not None and checked < lo) or (hi is not None and checked > hi):
+                        write_fault_to_influx(sys_name, desc, sev, timestamp)
 
     csv_file.close()
     return 0
