@@ -289,7 +289,7 @@ void task_10hz(void* argument) {
         // CheckCanFlash();  // no CAN flash in 2025. pcb needs an external
         // oscillator
         suspension::task_10hz(veh_can_bus);
-        hsd::Update_10Hz();
+        hsd::Update_10Hz(veh_can_bus);
 
         veh_can_bus.Send(TxFcStatus{
             .counter = tx_counter++,
