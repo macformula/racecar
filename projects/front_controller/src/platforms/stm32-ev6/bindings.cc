@@ -60,7 +60,7 @@ AnalogInput hsd2_isense{&hadc1, ADC_CHANNEL_11};
 DigitalOutput hsd2_isense_en{HSD2_I_SENSE_EN_GPIO_Port, HSD2_I_SENSE_EN_Pin};
 
 hsd::HSD4Channel hsd1{hsd1_isense, hsd1_isense_en, hsd1_sel0, hsd1_sel1};
-hsd::HSD1Channel hsd2{hsd2_isense, hsd2_isense_en, hsd2_sel0, hsd2_sel1};
+hsd::HSD1Channel hsd2{hsd2_isense, hsd2_isense_en};
 
 }  // namespace mcal
 
