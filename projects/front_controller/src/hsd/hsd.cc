@@ -11,16 +11,19 @@ namespace hsd {
 static constexpr float kVoltstoMa = 1400.0f / 0.5f;
 static constexpr float kFaultThresholdV = 0.5f;
 
+static constexpr uint8_t kTotalChannels = 5;
+static Reading channels[kTotalChannels];
+
 Reading HSD1Channel::Read(uint8_t channel) {
-    en_.setHigh();
+    en_.SetHigh();
     float v = isense_.ReadVoltage();
-    en_SetLow();
+    en_.SetLow();
 
     return Reading {
         .current_ma = v * kVoltstoMa;
         .fault = (v > kFaultThresholdV);
-    }
-};
+    };
+}
 
 Reading HSD4Channel::Read(uint8_t channel) {
     sel0_.Set(channel & 0b01);
@@ -31,10 +34,8 @@ Reading HSD4Channel::Read(uint8_t channel) {
 
     en_.SetLow();
 
-    return Reading {
-        .current_ma = v * kVoltstoMa;
-        .fault = (v > kFaultThresholdV);
-    };
+    return Reading{.current_ma = v * kVoltstoMa,
+                   .fault = (v > kFaultThresholdV)};
 }
 
 bool HasOverCurrent() {
@@ -45,9 +46,6 @@ bool HasOverCurrent() {
     }
     return false;
 }
-
-static constexpr uint8_t kTotalChannels = 5;
-static Reading channels[kTotalChannels];
 
 void Update_10Hz(generated::can::VehBus&) {
     // HSD1 - 4 Channels
@@ -65,12 +63,12 @@ void Update_10Hz(generated::can::VehBus&) {
 }
 
 bool IsOverCurrent(uint8_t channel_index) {
-    if (channel_index > kTotalChannels) return false;
+    if (channel_index >= kTotalChannels) return false;
     return channels[channel_index].fault;
 }
 
 float GetCurrent(uint8_t channel_index) {
-    if (channel_index > kTotalChannels) return 0.0f;
+    if (channel_index >= kTotalChannels) return 0.0f;
 
     return channels[channel_index].current_ma;
 }
