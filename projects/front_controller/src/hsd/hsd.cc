@@ -19,10 +19,8 @@ Reading HSD1Channel::Read(uint8_t channel) {
     float v = isense_.ReadVoltage();
     en_.SetLow();
 
-    return Reading {
-        .current_ma = v * kVoltstoMa;
-        .fault = (v > kFaultThresholdV);
-    };
+    return Reading{.current_ma = v * kVoltstoMa,
+                   .fault = (v > kFaultThresholdV)};
 }
 
 Reading HSD4Channel::Read(uint8_t channel) {
@@ -34,10 +32,8 @@ Reading HSD4Channel::Read(uint8_t channel) {
 
     en_.SetLow();
 
-    return Reading{
-        .current_ma = v * kVoltstoMa,
-        .fault = (v > kFaultThresholdV),
-    };
+    return Reading{.current_ma = v * kVoltstoMa,
+                   .fault = (v > kFaultThresholdV)};
 }
 
 bool HasOverCurrent() {
