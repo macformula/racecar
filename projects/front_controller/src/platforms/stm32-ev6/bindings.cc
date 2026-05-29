@@ -52,12 +52,12 @@ DigitalOutput debug_led{DEBUG_LED_GPIO_Port, DEBUG_LED_Pin};
 
 // =========== HSD =========================================
 AnalogInput hsd1_isense{&hadc1, ADC_CHANNEL_10};
-DigitalOutput hsd1_isense_en{HSD1_ISENSE_EN_GPIO_Port, HSD1_ISENSE_EN_Pin};
+DigitalOutput hsd1_isense_en{HSD1_I_SENSE_EN_GPIO_Port, HSD1_I_SENSE_EN_Pin};
 DigitalOutput hsd1_sel0{HSD1_SEL0_GPIO_Port, HSD1_SEL0_Pin};
 DigitalOutput hsd1_sel1{HSD1_SEL1_GPIO_Port, HSD1_SEL1_Pin};
 
 AnalogInput hsd2_isense{&hadc1, ADC_CHANNEL_11};
-DigitalOutput hsd2_isense_en{HSD2_ISENSE_EN_GPIO_Port, HSD2_ISENSE_EN_Pin};
+DigitalOutput hsd2_isense_en{HSD2_I_SENSE_EN_GPIO_Port, HSD2_I_SENSE_EN_Pin};
 }  // namespace mcal
 
 namespace bindings {
