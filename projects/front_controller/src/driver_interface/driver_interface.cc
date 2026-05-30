@@ -27,8 +27,10 @@ void Update_100Hz(void) {
         }
     }
 
-    alerts::Get().apps_implausible = apps_implausible;
-    alerts::Get().ev47_active = pedal_needs_reset;
+    alerts::GetAlertsManager().SetPresent(alerts::FcAlert::AppsImplausible,
+                                          apps_implausible);
+    alerts::GetAlertsManager().SetPresent(alerts::FcAlert::EV47Active,
+                                          pedal_needs_reset);
 
     if (apps_implausible) {
         torque_request = 0.f;
