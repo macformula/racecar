@@ -57,7 +57,8 @@ void BatteryTemps::Draw(lv_obj_t* parent, lv_align_t align, lv_coord_t x,
 }
 
 void BatteryTemps::SetTemps(float min_temp, float max_temp) {
-    lv_label_set_text_fmt(label, "%.1f / %.1f °C", min_temp, max_temp);
+    lv_label_set_text_fmt(label, "%d / %d °C", static_cast<int>(min_temp),
+                          static_cast<int>(max_temp));
 }
 
 void MotorInverterTemps::Draw(lv_obj_t* parent, lv_align_t align, lv_coord_t x,
@@ -69,8 +70,9 @@ void MotorInverterTemps::Draw(lv_obj_t* parent, lv_align_t align, lv_coord_t x,
 }
 
 void MotorInverterTemps::SetTemps(float motor_temp, float inverter_temp) {
-    lv_label_set_text_fmt(label, "Motor: %.1f °C\nInv: %.1f °C", motor_temp,
-                          inverter_temp);
+    lv_label_set_text_fmt(label, "Motor: %d °C\nInv: %d °C",
+                          static_cast<int>(motor_temp),
+                          static_cast<int>(inverter_temp));
 }
 
 void HVBatteryVoltageCurrent::Draw(lv_obj_t* parent, lv_align_t align,
@@ -82,7 +84,8 @@ void HVBatteryVoltageCurrent::Draw(lv_obj_t* parent, lv_align_t align,
 }
 
 void HVBatteryVoltageCurrent::SetValues(float voltage, float current) {
-    lv_label_set_text_fmt(label, "HV: %.1f V / %.1f A", voltage, current);
+    lv_label_set_text_fmt(label, "HV: %d V / %d A", static_cast<int>(voltage),
+                          static_cast<int>(current));
 }
 
 void LVBatteryVoltageCurrent::Draw(lv_obj_t* parent, lv_align_t align,
@@ -94,7 +97,8 @@ void LVBatteryVoltageCurrent::Draw(lv_obj_t* parent, lv_align_t align,
 }
 
 void LVBatteryVoltageCurrent::SetValues(float voltage, float current) {
-    lv_label_set_text_fmt(label, "LV: %.1f V / %.1f A", voltage, current);
+    lv_label_set_text_fmt(label, "LV: %d V / %d A", static_cast<int>(voltage),
+                          static_cast<int>(current));
 }
 
 void FCStatusMessage::Draw(lv_obj_t* parent, lv_align_t align, lv_coord_t x,
