@@ -136,23 +136,22 @@ void DriveModeMenu::CreateGUI() {
 void DriveModeMenu::Update() {
     if (display_->enter.GetHeldDuration() > 3000 &&
         display_->enter.IsPressed()) {
-        display_->ChangeState(State::SHUTDOWN);
+        //! display_->ChangeState(State::SHUTDOWN);
     }
 
     auto fc_msg = display_->veh_bus.GetRxDashCommand();
 
-    if (fc_msg.has_value()) {
-        speedometer_.SetSpeed(fc_msg->Speed());
-        battery_.SetPercent(fc_msg->HvSocPercent());
+    if (true) {                     //! fc_msg.has_value()) {
+        speedometer_.SetSpeed(40);  //! fc_msg->Speed());
+        battery_.SetPercent(40);    //! fc_msg->HvSocPercent());
 
-        // Example: update new signals (replace with real data accessors)
-        // battery_temps_.SetTemps();
-        // motor_inverter_temps_.SetTemps();
-        // hv_batt_vc_.SetValues();
-        // lv_batt_vc_.SetValues();
-        // fc_status_.SetStatus();
+        // battery_temps_.SetTemps(50, 50);
+        // motor_inverter_temps_.SetTemps(67, 67);
+        // hv_batt_vc_.SetValues(60, 60);
+        // lv_batt_vc_.SetValues(41, 41);
+        fc_status_.SetStatus("Hi");
 
-        if (fc_msg->Errored()) {
+        if (false) {  //! fc_msg->Errored()) {
             display_->ChangeState(State::ERROR);
         }
     }

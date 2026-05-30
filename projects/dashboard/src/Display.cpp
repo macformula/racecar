@@ -4,7 +4,7 @@ Display::Display(Button& enter, Button& scroll, generated::can::VehBus& veh)
     : enter(enter),
       scroll(scroll),
       veh_bus(veh),
-      screen_(&profile_select),
+      screen_(&drive_mode),
       profile_select(this),
       confirm_menu(this),
       acknowledge_config(this),
