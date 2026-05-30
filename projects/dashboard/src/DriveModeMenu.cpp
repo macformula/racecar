@@ -48,6 +48,67 @@ void Battery::SetPercent(float soc) {
     lv_label_set_text_fmt(label, "%d %%", static_cast<int>(soc));
 }
 
+void BatteryTemps::Draw(lv_obj_t* parent, lv_align_t align, lv_coord_t x,
+                        lv_coord_t y) {
+    label = lv_label_create(parent);
+    lv_obj_align(label, align, x, y);
+    lv_label_set_text(label, "-- / -- °C");
+    lv_obj_set_style_text_font(label, &lv_font_montserrat_24, 0);
+}
+
+void BatteryTemps::SetTemps(float min_temp, float max_temp) {
+    lv_label_set_text_fmt(label, "%.1f / %.1f °C", min_temp, max_temp);
+}
+
+void MotorInverterTemps::Draw(lv_obj_t* parent, lv_align_t align, lv_coord_t x,
+                              lv_coord_t y) {
+    label = lv_label_create(parent);
+    lv_obj_align(label, align, x, y);
+    lv_label_set_text(label, "Motor: -- °C\nInv: -- °C");
+    lv_obj_set_style_text_font(label, &lv_font_montserrat_24, 0);
+}
+
+void MotorInverterTemps::SetTemps(float motor_temp, float inverter_temp) {
+    lv_label_set_text_fmt(label, "Motor: %.1f °C\nInv: %.1f °C", motor_temp,
+                          inverter_temp);
+}
+
+void HVBatteryVoltageCurrent::Draw(lv_obj_t* parent, lv_align_t align,
+                                   lv_coord_t x, lv_coord_t y) {
+    label = lv_label_create(parent);
+    lv_obj_align(label, align, x, y);
+    lv_label_set_text(label, "HV: -- V / -- A");
+    lv_obj_set_style_text_font(label, &lv_font_montserrat_24, 0);
+}
+
+void HVBatteryVoltageCurrent::SetValues(float voltage, float current) {
+    lv_label_set_text_fmt(label, "HV: %.1f V / %.1f A", voltage, current);
+}
+
+void LVBatteryVoltageCurrent::Draw(lv_obj_t* parent, lv_align_t align,
+                                   lv_coord_t x, lv_coord_t y) {
+    label = lv_label_create(parent);
+    lv_obj_align(label, align, x, y);
+    lv_label_set_text(label, "LV: -- V / -- A");
+    lv_obj_set_style_text_font(label, &lv_font_montserrat_24, 0);
+}
+
+void LVBatteryVoltageCurrent::SetValues(float voltage, float current) {
+    lv_label_set_text_fmt(label, "LV: %.1f V / %.1f A", voltage, current);
+}
+
+void FCStatusMessage::Draw(lv_obj_t* parent, lv_align_t align, lv_coord_t x,
+                           lv_coord_t y) {
+    label = lv_label_create(parent);
+    lv_obj_align(label, align, x, y);
+    lv_label_set_text(label, "FC: --");
+    lv_obj_set_style_text_font(label, &lv_font_montserrat_24, 0);
+}
+
+void FCStatusMessage::SetStatus(const char* status) {
+    lv_label_set_text_fmt(label, "FC: %s", status);
+}
+
 DriveModeMenu::DriveModeMenu(Display* display)
     : Screen(display), last_warning_time_(0), warning_cycle_index_(0) {}
 
@@ -60,6 +121,11 @@ void DriveModeMenu::CreateGUI() {
     // Status bar is always visible
     speedometer_.Draw(frame_, LV_ALIGN_LEFT_MID, 100, 0);
     battery_.Draw(frame_, LV_ALIGN_RIGHT_MID, -100, 0);
+    battery_temps_.Draw(frame_, LV_ALIGN_TOP_LEFT, 20, 20);
+    motor_inverter_temps_.Draw(frame_, LV_ALIGN_TOP_LEFT, 20, 60);
+    hv_batt_vc_.Draw(frame_, LV_ALIGN_TOP_RIGHT, -20, 20);
+    lv_batt_vc_.Draw(frame_, LV_ALIGN_TOP_RIGHT, -20, 60);
+    fc_status_.Draw(frame_, LV_ALIGN_BOTTOM_LEFT, 20, -20);
 
     lv_obj_t* footer = lv_label_create(frame_);
     lv_label_set_text(footer, "Hold ENTER to shutdown");
@@ -78,6 +144,13 @@ void DriveModeMenu::Update() {
     if (fc_msg.has_value()) {
         speedometer_.SetSpeed(fc_msg->Speed());
         battery_.SetPercent(fc_msg->HvSocPercent());
+
+        // Example: update new signals (replace with real data accessors)
+        // battery_temps_.SetTemps();
+        // motor_inverter_temps_.SetTemps();
+        // hv_batt_vc_.SetValues();
+        // lv_batt_vc_.SetValues();
+        // fc_status_.SetStatus();
 
         if (fc_msg->Errored()) {
             display_->ChangeState(State::ERROR);
