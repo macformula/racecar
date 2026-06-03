@@ -36,11 +36,11 @@ Reading HSD4Channel::Read(uint8_t channel) {
 
     if (overthreshold && prev_tick_ch4[channel] > kFaultThresholdV_4ch) {
         overthreshold = true;
-        prev_tick_ch4[channel] = v;
+
     } else {
         overthreshold = false;
-        prev_tick_ch4[channel] = v;
     }
+    prev_tick_ch4[channel] = v;
 
     en_.SetLow();
 
