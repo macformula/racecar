@@ -8,8 +8,10 @@
 
 namespace hsd {
 
-static constexpr float kVoltstoMa = 1400.0f / 0.5f;
-static constexpr float kFaultThresholdV = 0.5f;
+static constexpr float kFaultThresholdV_4ch = 0.64f;
+static constexpr float kFaultThresholdV_1ch = 0.48f;
+static constexpr float kVoltsToMa_4ch = 1500.0f / 0.535f;   // HSD_1
+static constexpr float kVoltsToMa_1ch = 4000.0f / 0.3424f;  // HSD_2
 
 static constexpr uint8_t kTotalChannels = 5;
 static Reading channels[kTotalChannels];
@@ -19,8 +21,8 @@ Reading HSD1Channel::Read(uint8_t channel) {
     float v = isense_.ReadVoltage();
     en_.SetLow();
 
-    return Reading{.current_ma = v * kVoltstoMa,
-                   .fault = (v > kFaultThresholdV)};
+    return Reading{.current_ma = v * kVoltsToMa_1ch,
+                   .fault = (v > kFaultThresholdV_1ch)};
 }
 
 Reading HSD4Channel::Read(uint8_t channel) {
@@ -28,12 +30,24 @@ Reading HSD4Channel::Read(uint8_t channel) {
     sel1_.Set(channel & 0b10);
 
     en_.SetHigh();
+
     float v = isense_.ReadVoltage();
+    bool overthreshold = (v > kFaultThresholdV_4ch);
+
+    if (overthreshold && prev_tick_ch4[channel] > kFaultThresholdV_4ch) {
+        overthreshold = true;
+        prev_tick_ch4[channel] = v;
+    } else {
+        overthreshold = false;
+        prev_tick_ch4[channel] = v;
+    }
 
     en_.SetLow();
 
-    return Reading{.current_ma = v * kVoltstoMa,
-                   .fault = (v > kFaultThresholdV)};
+    return Reading{
+        .current_ma = v * kVoltsToMa_4ch,
+        .fault = overthreshold,
+    };
 }
 
 bool HasOverCurrent() {

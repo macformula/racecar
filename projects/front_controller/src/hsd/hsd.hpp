@@ -54,6 +54,7 @@ private:
     DigitalOutput& en_;
     DigitalOutput& sel0_;
     DigitalOutput& sel1_;
+    float prev_tick_ch4[4] = {};
 };
 
 }  // namespace hsd
