@@ -41,6 +41,7 @@ private:
     AnalogInput& isense_;
     DigitalOutput& en_;
     DigitalOutput& sel_;
+    float prev_tick_ch2[2] = {};
 };
 
 class HSD4Channel : public HSD {
@@ -56,6 +57,7 @@ private:
     DigitalOutput& en_;
     DigitalOutput& sel0_;
     DigitalOutput& sel1_;
+    float prev_tick_ch4[4] = {};
 };
 
 }  // namespace hsd

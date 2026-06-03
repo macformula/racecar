@@ -8,19 +8,30 @@
 
 namespace hsd {
 
-static constexpr float kVoltstoMa = 1400.0f / 0.5f;
-static constexpr float kFaultThresholdV = 0.5f;
+static constexpr float kVoltsToMa_4ch = 1500.0f / 0.535f;    // HSD_1
+static constexpr float kVoltsToMa_2ch = 10000.0f / 0.4815f;  // HSD_2–6
+static constexpr float kFaultThresholdV = 0.64f;
+static constexpr uint8_t kTotalChannels = 14;
+static Reading channels[kTotalChannels];
 
 Reading HSD2Channel::Read(uint8_t channel) {
     sel_.Set(channel & 0b1);
     en_.SetHigh();
     float v = isense_.ReadVoltage();
+    bool overthreshold = (v > kFaultThresholdV);
 
+    if (overthreshold && prev_tick_ch2[channel] > kFaultThresholdV) {
+        // greater than threshold voltage > 100ms, detect fault
+        overthreshold = true;
+    } else {
+        overthreshold = false;
+    }
+    prev_tick_ch2[channel] = v;
     en_.SetLow();
 
     return Reading{
-        .current_ma = v * kVoltstoMa,
-        .fault = (v > kFaultThresholdV),
+        .current_ma = v * kVoltsToMa_2ch,
+        .fault = overthreshold,
     };
 }
 
@@ -30,16 +41,23 @@ Reading HSD4Channel::Read(uint8_t channel) {
 
     en_.SetHigh();
     float v = isense_.ReadVoltage();
+    bool overthreshold = (v > kFaultThresholdV);
+
+    if (overthreshold && prev_tick_ch4[channel] > kFaultThresholdV) {
+        // greater than threshold voltage > 100ms, detect fault
+        overthreshold = true;
+    } else {
+        overthreshold = false;
+    }
+    prev_tick_ch4[channel] = v;
+
     en_.SetLow();
 
     return Reading{
-        .current_ma = v * kVoltstoMa,
-        .fault = (v > kFaultThresholdV),
+        .current_ma = v * kVoltsToMa_4ch,
+        .fault = overthreshold,
     };
 }
-
-static constexpr uint8_t kTotalChannels = 13;
-static Reading channels[kTotalChannels];
 
 void Update_10Hz(generated::can::VehBus&) {
     // HSD1 - 4 channels
