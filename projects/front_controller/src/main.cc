@@ -196,7 +196,6 @@ static void Update_100Hz(void) {
                 // should probably check if motors and DI have shut down
                 new_state = START_DASHBOARD;
             }
-            break;
 
         case ERROR: {
             acc_cmd = accumulator::Command::OFF;
@@ -290,6 +289,7 @@ void task_10hz(void* argument) {
         // CheckCanFlash();  // no CAN flash in 2025. pcb needs an external
         // oscillator
         suspension::task_10hz(veh_can_bus);
+        hsd::Update_10Hz(veh_can_bus);
 
         veh_can_bus.Send(TxFcStatus{
             .counter = tx_counter++,
