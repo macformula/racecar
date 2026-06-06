@@ -279,6 +279,7 @@ void DriveModeMenu::Update() {
     auto fc_msg = display_->veh_bus.GetRxDashCommand();
     auto lv_msg = display_->veh_bus.GetRxLvDcdc();
     auto acc_msg = display_->veh_bus.GetRxAccumulator_Soc();
+    auto bms_msg = display_->veh_bus.GetRxBmsBroadcast();
 
     if (fc_msg.has_value()) {
         const float hv_current = 120.0f;  //! no HVCurrent signal exists yet
@@ -287,15 +288,16 @@ void DriveModeMenu::Update() {
         current_arcs_.PushSamples(hv_current, lv_current);
 
         voltage_display_.SetVoltages(
-            120.0f,  //! no HVVoltage signal exists yet
+            acc_msg.has_value() ? acc_msg->PackVoltage() : 0.0f,
             lv_msg.has_value() ? lv_msg->LvBatteryVoltage() : 0.0f);
 
         battery_.SetSOC(acc_msg.has_value()
                             ? static_cast<float>(acc_msg->SocPercent())
                             : 0.0f);
 
-        battery_temps_.SetTemps(45.0f,
-                                50.0f);  //! no MinCellTemp/MaxCellTemp yet
+        battery_temps_.SetTemps(
+            bms_msg.has_value() ? bms_msg->LowThermValue() : 0.0f,
+            bms_msg.has_value() ? bms_msg->HighThermValue() : 0.0f);
 
         motor_inverter_temps_.SetTemps(
             67.0f, 67.0f);  //! no MotorTemp/InverterTemp yet
