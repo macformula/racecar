@@ -73,8 +73,9 @@ static void Update_100Hz(void) {
 
             // wait until dashboard comes online
             auto msg = veh_can_bus.GetRxDashStatus();
-            if (msg.has_value() && msg->State() == DashState::LOGO ||
-                msg->State() == DashState::SELECT_PROFILE) {
+            if (msg.has_value() &&
+                (msg->State() == DashState::LOGO ||
+                 msg->State() == DashState::SELECT_PROFILE)) {
                 // notice: ideally we should only check for select profile if
                 // we're going to bypass the logo screen, this will need to be
                 // changed
