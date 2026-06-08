@@ -273,7 +273,7 @@ void DriveModeMenu::CreateGUI() {
 void DriveModeMenu::Update() {
     if (display_->enter.GetHeldDuration() > 3000 &&
         display_->enter.IsPressed()) {
-        //! display_->ChangeState(State::SHUTDOWN);
+        display_->ChangeState(State::SHUTDOWN);
     }
 
     auto fc_msg = display_->veh_bus.GetRxDashCommand();
@@ -305,7 +305,7 @@ void DriveModeMenu::Update() {
         fc_status_.SetStatus("Hi");  //! no FC status
 
         if (fc_msg->Errored()) {
-            //! display_->ChangeState(State::ERROR);
+            display_->ChangeState(State::ERROR);
         }
     }
     // ... warning cycling unchanged
