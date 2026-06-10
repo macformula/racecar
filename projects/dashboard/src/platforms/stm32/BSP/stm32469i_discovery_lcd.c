@@ -227,9 +227,9 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
      * its XRES signal (active low) */
     BSP_LCD_Reset();  //! Breaks
     led_counter = 1;
-    advance_leds();   // 2
-    advance_leds();   // 2
-    advance_leds();   // 2 #2
+    advance_leds();  // 2
+    advance_leds();  // 2
+    advance_leds();  // 2 #2
 
     /* Call first MSP Initialize only in case of first initialization
      * This will set IP blocks LTDC, DSI and DMA2D
@@ -239,11 +239,11 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
      */
     BSP_LCD_MspInit();
     int toggle = 0;
-    while (0) { //! Toggle once we reach the while
+    while (0) {  //! Toggle once we reach the while
         HAL_Delay(500);
         toggle = !toggle;
         HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin,
-                      (toggle) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+                          (toggle) ? GPIO_PIN_RESET : GPIO_PIN_SET);
     }
     led_counter = 2;
     advance_leds();  // 3
@@ -256,7 +256,7 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
 
     HAL_DSI_DeInit(&(hdsi_eval));
     led_counter = 3;
-    advance_leds();   // 4
+    advance_leds();  // 4
 #if !defined(USE_STM32469I_DISCO_REVA)
     dsiPllInit.PLLNDIV = 125;
     dsiPllInit.PLLIDF = DSI_PLL_IN_DIV2;
@@ -482,14 +482,14 @@ void BSP_LCD_Reset(void) {
 #if !defined(USE_STM32469I_DISCO_REVA)
     /* Disco Rev B and beyond : reset the LCD by activation of XRES (active low)
      * connected to PH7 */
-    led_counter = 0; //! stupid
+    led_counter = 0;  //! stupid
     GPIO_InitTypeDef gpio_init_structure;
-    advance_leds(); // 1
-    advance_leds(); // 1
-    advance_leds(); // 1
-    advance_leds(); // 1
+    advance_leds();  // 1
+    advance_leds();  // 1
+    advance_leds();  // 1
+    advance_leds();  // 1
     __HAL_RCC_GPIOH_CLK_ENABLE();
-    advance_leds(); // 2
+    advance_leds();  // 2
 
     /* Configure the GPIO on PH7 */
     gpio_init_structure.Pin = GPIO_PIN_7;
@@ -503,26 +503,26 @@ void BSP_LCD_Reset(void) {
     gpio_init_structure.Speed = GPIO_SPEED_HIGH;
 
     HAL_GPIO_Init(GPIOH, &gpio_init_structure);
-    advance_leds(); // 3
+    advance_leds();  // 3
 
     /* Activate XRES active low */
     HAL_GPIO_WritePin(GPIOH, GPIO_PIN_7, GPIO_PIN_RESET);
-    advance_leds(); // 4
-    advance_leds();   // 4
-    advance_leds();   // 4
-    advance_leds();   // 4
-    advance_leds();   // 4
-    advance_leds();   // 4
+    advance_leds();  // 4
+    advance_leds();  // 4
+    advance_leds();  // 4
+    advance_leds();  // 4
+    advance_leds();  // 4
+    advance_leds();  // 4
 
-    HAL_Delay(200); /* wait 20 ms */
-    advance_leds(); // 5
+    HAL_Delay(200);  /* wait 20 ms */
+    advance_leds();  // 5
 
     /* Deactivate XRES */
     HAL_GPIO_WritePin(GPIOH, GPIO_PIN_7, GPIO_PIN_SET);
-    advance_leds(); // 6
+    advance_leds();  // 6
     /* Wait for 20ms after releasing XRES before sending commands */
     HAL_Delay(200);
-    advance_leds(); // 7
+    advance_leds();  // 7
 #else
     /* Nothing to do in case of Disco Rev A */
 #endif /* USE_STM32469I_DISCO_REVA == 0 */
