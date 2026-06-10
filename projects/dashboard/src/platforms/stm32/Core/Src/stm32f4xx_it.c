@@ -63,6 +63,7 @@ extern DMA2D_HandleTypeDef hdma2d;
 extern DSI_HandleTypeDef hdsi;
 extern LTDC_HandleTypeDef hltdc;
 /* USER CODE BEGIN EV */
+volatile uint32_t can_irq_count = 0;
 
 /* USER CODE END EV */
 
@@ -195,7 +196,7 @@ void SysTick_Handler(void) {
  */
 void CAN1_RX0_IRQHandler(void) {
     /* USER CODE BEGIN CAN1_RX0_IRQn 0 */
-
+    can_irq_count++;
     /* USER CODE END CAN1_RX0_IRQn 0 */
     HAL_CAN_IRQHandler(&hcan1);
     /* USER CODE BEGIN CAN1_RX0_IRQn 1 */

@@ -77,7 +77,7 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef* canHandle) {
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
         /* CAN1 interrupt Init */
-        HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 1, 0);
         HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
         /* USER CODE BEGIN CAN1_MspInit 1 */
 

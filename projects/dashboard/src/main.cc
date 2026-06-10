@@ -32,6 +32,7 @@ int main(void) {
 #ifdef __linux__
         try {
 #endif
+
             int time_ms = lv_tick_get();
 
             display.Update(time_ms);
