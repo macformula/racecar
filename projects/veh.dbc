@@ -134,7 +134,7 @@ BO_ 230 DashCommand: 5 FC
  SG_ Reset              : 4|1@1+ (1,0) [0|1] "" DASH
  SG_ Errored            : 5|1@1+ (1,0) [0|1] "" DASH
  SG_ HvPrechargePercent : 8|8@1+ (1,0) [0|100] "" DASH
- SG_ Speed              : 16|12@1+ (0.1,0) [0|100] "mph" DASH
+ SG_ Speed              : 16|12@1+ (1,0) [0|100] "mph" DASH
  SG_ HvSocPercent       : 32|8@1+ (1,0) [0|100] "" DASH
 
 BO_ 231 DashStatus: 3 DASH
