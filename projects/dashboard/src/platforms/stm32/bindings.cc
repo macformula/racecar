@@ -10,6 +10,27 @@
 #include "ltdc.h"
 #include "usart.h"
 
+namespace {
+
+uint8_t led_counter = 0;
+
+static void advance_leds() {
+    ++led_counter;
+    led_counter = led_counter * 1;  // this factor is for turning
+    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin,
+                      (led_counter & 0x1) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+
+    HAL_GPIO_WritePin(GPIOD, LED2_Pin,
+                      (led_counter & 0x2) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+
+    HAL_GPIO_WritePin(GPIOD, LED3_Pin,
+                      (led_counter & 0x4) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+
+    HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin,
+                      (led_counter & 0x8) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+}
+}  // namespace
+
 // firmware includes
 #include "mcal/stm32f/can.hpp"
 #include "mcal/stm32f/gpio.hpp"
@@ -50,6 +71,8 @@ macfe::periph::DigitalInput& button_enter = mcal::button_enter;
 
 void Initialize() {
     HAL_Init();
+    uwTickPrio = 0;
+    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
     SystemClock_Config();
 
     /* Initialize all configured peripherals */
@@ -57,7 +80,6 @@ void Initialize() {
     MX_DMA_Init();
     MX_DMA2D_Init();
     MX_DSIHOST_DSI_Init();
-    MX_CAN1_Init();
 
     // Don't call MX_FMC_Init() - it is replaced by BSP_SDRAM...()
     BSP_SDRAM_Init();
@@ -66,35 +88,43 @@ void Initialize() {
     MX_LTDC_Init();
     MX_USART3_UART_Init();
 
-    mcal::veh_can_base.Setup();
-
-    BSP_LCD_Init();
+    BSP_LCD_Init();  //! Breaks
     BSP_LCD_LayerDefaultInit(0, (uint32_t)SDRAM_DEVICE_ADDR);
-    BSP_LCD_Clear(LCD_COLOR_BLACK);
-
+    BSP_LCD_Clear(LCD_COLOR_CYAN);
     lv_init();
-
+    advance_leds();
+    // Read actual register values
+    uint32_t systick_prio = NVIC_GetPriority(SysTick_IRQn);
+    uint32_t can_prio = NVIC_GetPriority(CAN1_RX0_IRQn);
+    MX_CAN1_Init();
+    mcal::veh_can_base.Setup();
+    //! USEFUL
     // init display
+    advance_leds();
+    advance_leds();
+    advance_leds();
     uint32_t ltdc_layer_index = 0; /* typically 0 or 1 */
 #if 0
-  // note: direct mode with the LV_USE_DRAW_DMA2D enabled results in glitches on the screen
-  void *framebuffer1_address = (void *)SDRAM_DEVICE_ADDR;
-  void *framebuffer2_address = (void *)(SDRAM_DEVICE_ADDR + 3 * 1024 * 1024 / 2);
-  lv_st_ltdc_create_direct(framebuffer1_address, framebuffer2_address, ltdc_layer_index);
+    // note: direct mode with the LV_USE_DRAW_DMA2D enabled results in glitches on the screen
+    void *framebuffer1_address = (void *)SDRAM_DEVICE_ADDR;
+    void *framebuffer2_address = (void *)(SDRAM_DEVICE_ADDR + 3 * 1024 * 1024 / 2);
+    lv_st_ltdc_create_direct(framebuffer1_address, framebuffer2_address, ltdc_layer_index);
 #else
-// note: partial mode works fine with the LV_USE_DRAW_DMA2D enabled
+    // note: partial mode works fine with the LV_USE_DRAW_DMA2D enabled
 #define BUF_SIZE 800 * 48 * 4
     static uint8_t partial_buf1[BUF_SIZE];
     // static uint8_t optional_partial_buf2[BUF_SIZE];
     create_disp(partial_buf1, 0 /*optional_partial_buf2*/, BUF_SIZE,
                 ltdc_layer_index);
 #endif
-
-    // screen_driver_init();
+    advance_leds();
+    advance_leds();
+    advance_leds();
 }
 
 void DelayMS(uint32_t ms) {
-    HAL_Delay(ms);
+    // HAL_Delay(ms);
+    for (volatile uint32_t i = 0; i < 18000 * ms; i++);
 }
 
 bool ShouldQuit() {
