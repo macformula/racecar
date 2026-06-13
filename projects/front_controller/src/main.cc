@@ -73,7 +73,12 @@ static void Update_100Hz(void) {
 
             // wait until dashboard comes online
             auto msg = veh_can_bus.GetRxDashStatus();
-            if (msg.has_value() && msg->State() == DashState::LOGO) {
+            if (msg.has_value() &&
+                (msg->State() == DashState::LOGO ||
+                 msg->State() == DashState::SELECT_PROFILE)) {
+                // notice: ideally we should only check for select profile if
+                // we're going to bypass the logo screen, this will need to be
+                // changed
                 new_state = WAIT_DRIVER_SELECT;
             } else if (elapsed > timeout::DASHBOARD_BOOT_TIME) {
                 alerts::Get().dashboard_boot_timeout = true;
@@ -204,7 +209,6 @@ static void Update_100Hz(void) {
                 // should probably check if motors and DI have shut down
                 new_state = START_DASHBOARD;
             }
-            break;
 
         case ERROR: {
             acc_cmd = accumulator::Command::OFF;
@@ -298,6 +302,7 @@ void task_10hz(void* argument) {
         // CheckCanFlash();  // no CAN flash in 2025. pcb needs an external
         // oscillator
         suspension::task_10hz(veh_can_bus);
+        hsd::Update_10Hz(veh_can_bus);
 
         veh_can_bus.Send(TxFcStatus{
             .counter = tx_counter++,

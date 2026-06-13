@@ -91,6 +91,7 @@ BO_ 202 FcAlerts: 2 FC
  SG_ EV47Active : 10|1@1+ (1,0) [0|1] "" RPI, DASH
  SG_ NoInv1Can : 11|1@1+ (1,0) [0|1] "" RPI, DASH
  SG_ NoInv2Can : 12|1@1+ (1,0) [0|1] "" RPI, DASH
+ SG_ HsdOvercurrent : 13|1@1+ (1,0) [0|1] "" RPI, DASH
 
 BO_ 203 FcCounters: 8 FC
  SG_ Motor : 0|8@1+ (1,0) [0|1] "" RPI, DASH

@@ -2,14 +2,13 @@
 /// @date 2026-05-23
 
 #pragma once
-#include <cstdint>
+#include <stdint.h>
 
 #include "generated/can/veh_bus.hpp"
 #include "periph/analog_input.hpp"
 #include "periph/gpio.hpp"
 
 namespace hsd {
-
 using macfe::periph::AnalogInput;
 using macfe::periph::DigitalOutput;
 
@@ -26,22 +25,20 @@ public:
 
 void Update_10Hz(generated::can::VehBus& veh_can);
 
-bool HasOverCurrent();
+bool HasOvercurrent();
 float GetCurrent(uint8_t channel_index);
 bool IsOverCurrent(uint8_t channel_index);
 
-class HSD2Channel : public HSD {
+class HSD1Channel : public HSD {
 public:
-    HSD2Channel(AnalogInput& isense, DigitalOutput& en, DigitalOutput& sel)
-        : isense_(isense), en_(en), sel_(sel) {}
+    HSD1Channel(AnalogInput& isense, DigitalOutput& en)
+        : isense_(isense), en_(en) {}
 
     Reading Read(uint8_t channel) override;
 
 private:
     AnalogInput& isense_;
     DigitalOutput& en_;
-    DigitalOutput& sel_;
-    float prev_tick_ch2[2] = {};
 };
 
 class HSD4Channel : public HSD {
