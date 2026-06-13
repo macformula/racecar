@@ -40,7 +40,7 @@
  * application requirements.
  *
  * These parameters and more are described within the 'configuration' section of
- *the FreeRTOS API documentation available on the FreeRTOS.org web site.
+ * the FreeRTOS API documentation available on the FreeRTOS.org web site.
  *
  * See http://www.freertos.org/a00110.html
  *----------------------------------------------------------*/

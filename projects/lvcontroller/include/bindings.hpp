@@ -5,6 +5,7 @@
 
 #include <cstdint>
 
+#include "hsd/hsd.hpp"
 #include "periph/analog_input.hpp"
 #include "periph/can.hpp"
 #include "periph/gpio.hpp"
@@ -41,6 +42,46 @@ extern macfe::periph::DigitalOutput& shutdown_circuit_en;
 extern macfe::periph::DigitalOutput& dcdc_en;
 extern macfe::periph::DigitalOutput& dcdc_sense_select;
 extern macfe::periph::AnalogInput& dcdc_sense;
+extern macfe::periph::DigitalOutput& vicor_en;
+// extern macfe::periph::DigitalOutput& dcdc_sense_select;
+
+// Rev 4.
+extern macfe::periph::AnalogInput& lv_battery;
+extern macfe::periph::AnalogInput& bus_voltage;
+extern macfe::periph::AnalogInput& bus_current;
+
+// HSD Sensing
+extern macfe::periph::AnalogInput& hsd1_isense;
+extern macfe::periph::DigitalOutput& hsd1_isense_en;
+extern macfe::periph::DigitalOutput& hsd1_sel0;
+extern macfe::periph::DigitalOutput& hsd1_sel1;
+
+extern macfe::periph::AnalogInput& hsd2_isense;
+extern macfe::periph::DigitalOutput& hsd2_isense_en;
+extern macfe::periph::DigitalOutput& hsd2_sel;
+
+extern macfe::periph::AnalogInput& hsd3_isense;
+extern macfe::periph::DigitalOutput& hsd3_isense_en;
+extern macfe::periph::DigitalOutput& hsd3_sel;
+
+extern macfe::periph::AnalogInput& hsd4_isense;
+extern macfe::periph::DigitalOutput& hsd4_isense_en;
+extern macfe::periph::DigitalOutput& hsd4_sel;
+
+extern macfe::periph::AnalogInput& hsd5_isense;
+extern macfe::periph::DigitalOutput& hsd5_isense_en;
+extern macfe::periph::DigitalOutput& hsd5_sel;
+
+extern macfe::periph::AnalogInput& hsd6_isense;
+extern macfe::periph::DigitalOutput& hsd6_isense_en;
+extern macfe::periph::DigitalOutput& hsd6_sel;
+
+extern hsd::HSD4Channel& hsd1;
+extern hsd::HSD2Channel& hsd2;
+extern hsd::HSD2Channel& hsd3;
+extern hsd::HSD2Channel& hsd4;
+extern hsd::HSD2Channel& hsd5;
+extern hsd::HSD2Channel& hsd6;
 
 // Other IO
 extern macfe::periph::DigitalOutput& brake_light_en;

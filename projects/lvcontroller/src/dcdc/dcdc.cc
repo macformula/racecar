@@ -1,12 +1,17 @@
+/// @author Manush Patel
+/// @date 2026-05-24
+
 #include "dcdc.hpp"
 
 #include "bindings.hpp"
 
+// new update in rev 4: no dcdc select
 namespace dcdc {
 
 static bool enabled = false;
 static float voltage = 0;
 static float amps = 0;
+static float lv_battery_voltage = 0;
 
 void SetEnabled(bool enable) {
     enabled = enable;
@@ -16,30 +21,37 @@ float GetVoltage(void) {
     return voltage;
 }
 
+float GetLvBatteryVoltage(void) {
+    return lv_battery_voltage;
+}
+
 float GetAmps(void) {
     return amps;
 }
 
 // TODO
-// - Check if V or I is sel=high/low
-// - Convert adc voltage to physical value
+// - Do we need can messages for lvbattery, current & voltage (should we have go
+// to dash, rpi)
+// - are these conversions 100% correct
 // - is any time delay needed between select and read?
 
 static void MeasureAmps(void) {
-    bindings::dcdc_sense_select.SetHigh();
-    amps = bindings::dcdc_sense.ReadVoltage();
+    amps = bindings::bus_current.ReadVoltage() * 5.0f;
 }
 
 static void MeasureVolts(void) {
-    bindings::dcdc_sense_select.SetLow();
-    voltage = bindings::dcdc_sense.ReadVoltage();
+    voltage = bindings::bus_voltage.ReadVoltage() * 8.0f;
+}
+
+static void MeasureLvBatteryVoltage(void) {
+    lv_battery_voltage = bindings::lv_battery.ReadVoltage() * 10.0f;
 }
 
 void task_100hz() {
-    bindings::dcdc_en.Set(!enabled);  // active low
-
+    bindings::vicor_en.Set(!enabled);
     MeasureAmps();
     MeasureVolts();
+    MeasureLvBatteryVoltage();
 }
 
 }  // namespace dcdc

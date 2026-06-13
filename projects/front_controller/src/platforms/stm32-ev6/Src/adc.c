@@ -7,7 +7,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -129,6 +129,8 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle) {
         __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
         /**ADC1 GPIO Configuration
+        PC0     ------> ADC1_IN10
+        PC1     ------> ADC1_IN11
         PC2     ------> ADC1_IN12
         PA1     ------> ADC1_IN1
         PA2     ------> ADC1_IN2
@@ -137,9 +139,9 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle) {
         PB0     ------> ADC1_IN8
         PB1     ------> ADC1_IN9
         */
-        GPIO_InitStruct.Pin = BPPS_BUFFERED_Pin |
-                              WHEEL_SPEED_LEFT_B_BUFFERED_Pin |
-                              WHEEL_SPEED_LEFT_A_BUFFERED_Pin;
+        GPIO_InitStruct.Pin =
+            HSD1_ISENSE_Pin | HSD2_ISENSE_Pin | BPPS_BUFFERED_Pin |
+            WHEEL_SPEED_LEFT_B_BUFFERED_Pin | WHEEL_SPEED_LEFT_A_BUFFERED_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
@@ -193,6 +195,8 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle) {
         __HAL_RCC_ADC1_CLK_DISABLE();
 
         /**ADC1 GPIO Configuration
+        PC0     ------> ADC1_IN10
+        PC1     ------> ADC1_IN11
         PC2     ------> ADC1_IN12
         PA1     ------> ADC1_IN1
         PA2     ------> ADC1_IN2
@@ -201,7 +205,8 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle) {
         PB0     ------> ADC1_IN8
         PB1     ------> ADC1_IN9
         */
-        HAL_GPIO_DeInit(GPIOC, BPPS_BUFFERED_Pin |
+        HAL_GPIO_DeInit(GPIOC, HSD1_ISENSE_Pin | HSD2_ISENSE_Pin |
+                                   BPPS_BUFFERED_Pin |
                                    WHEEL_SPEED_LEFT_B_BUFFERED_Pin |
                                    WHEEL_SPEED_LEFT_A_BUFFERED_Pin);
 

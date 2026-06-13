@@ -7,7 +7,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -57,6 +57,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define HSD1_SEL1_Pin GPIO_PIN_13
+#define HSD1_SEL1_GPIO_Port GPIOC
 #define WHEEL_SPEED_RIGHT_B_BUFFERED_Pin GPIO_PIN_3
 #define WHEEL_SPEED_RIGHT_B_BUFFERED_GPIO_Port GPIOF
 #define WHEEL_SPEED_RIGHT_A_BUFFERED_Pin GPIO_PIN_4
@@ -67,6 +69,10 @@ void Error_Handler(void);
 #define APPS2_BUFFERED_GPIO_Port GPIOF
 #define BSPD_FAULT_Pin GPIO_PIN_10
 #define BSPD_FAULT_GPIO_Port GPIOF
+#define HSD1_ISENSE_Pin GPIO_PIN_0
+#define HSD1_ISENSE_GPIO_Port GPIOC
+#define HSD2_ISENSE_Pin GPIO_PIN_1
+#define HSD2_ISENSE_GPIO_Port GPIOC
 #define BPPS_BUFFERED_Pin GPIO_PIN_2
 #define BPPS_BUFFERED_GPIO_Port GPIOC
 #define PRECHARGE_MONITOR_Pin GPIO_PIN_1
@@ -91,6 +97,12 @@ void Error_Handler(void);
 #define BMS_FAULT_LED_EN_GPIO_Port GPIOF
 #define RTDS_EN_Pin GPIO_PIN_0
 #define RTDS_EN_GPIO_Port GPIOG
+#define HSD1_I_SENSE_EN_Pin GPIO_PIN_10
+#define HSD1_I_SENSE_EN_GPIO_Port GPIOC
+#define HSD2_I_SENSE_EN_Pin GPIO_PIN_11
+#define HSD2_I_SENSE_EN_GPIO_Port GPIOC
+#define HSD1_SEL0_Pin GPIO_PIN_12
+#define HSD1_SEL0_GPIO_Port GPIOC
 
 /* USER CODE BEGIN Private defines */
 
