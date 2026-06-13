@@ -184,6 +184,8 @@ static void Update_100Hz(void) {
             if (dash.has_value() && (dash->State() == DashState::SHUTDOWN)) {
                 new_state = SHUTDOWN;
             }
+
+            auto inv
         } break;
 
         case SHUTDOWN:

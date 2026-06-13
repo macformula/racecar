@@ -1,6 +1,9 @@
 #pragma once
 
 #include "StatusBar.hpp"
+#include "generated/can/pt_bus.hpp"
+#include "generated/can/pt_messages.hpp"
+#include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "lvgl.h"
 

@@ -1,5 +1,6 @@
 ﻿#include "Display.hpp"
 
+#include "generated/can/veh_bus.hpp"
 Display::Display(Button& enter, Button& scroll, generated::can::VehBus& veh)
     : enter(enter),
       scroll(scroll),

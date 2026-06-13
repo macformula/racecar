@@ -127,15 +127,15 @@ BO_ 214 LvDcdc: 6 LVC
  SG_ BusCurrent : 32|16@1+ (0.001,0) [0|15] "A" FC,RPI,DASH
 
 BO_ 230 DashCommand: 5 FC
- SG_ ConfigReceived     : 0|1@1+ (1,0) [0|1] "" DASH
- SG_ HvStarted          : 1|1@1+ (1,0) [0|1] "" DASH
- SG_ MotorStarted       : 2|1@1+ (1,0) [0|1] "" DASH
- SG_ DriveStarted       : 3|1@1+ (1,0) [0|1] "" DASH
- SG_ Reset              : 4|1@1+ (1,0) [0|1] "" DASH
- SG_ Errored            : 5|1@1+ (1,0) [0|1] "" DASH
- SG_ HvPrechargePercent : 8|8@1+ (1,0) [0|100] "" DASH
- SG_ Speed              : 16|12@1+ (1,0) [0|100] "mph" DASH
- SG_ HvSocPercent       : 32|8@1+ (1,0) [0|100] "" DASH
+ SG_ ConfigReceived     : 0|1@1+ (1.0,0) [0|1] "" DASH
+ SG_ HvStarted          : 1|1@1+ (1.0,0) [0|1] "" DASH
+ SG_ MotorStarted       : 2|1@1+ (1.0,0) [0|1] "" DASH
+ SG_ DriveStarted       : 3|1@1+ (1.0,0) [0|1] "" DASH
+ SG_ Reset              : 4|1@1+ (1.0,0) [0|1] "" DASH
+ SG_ Errored            : 5|1@1+ (1.0,0) [0|1] "" DASH
+ SG_ HvPrechargePercent : 8|8@1+ (1.0,0) [0|100] "" DASH
+ SG_ Speed              : 16|12@1+ (0.1,0) [0|100] "mph" DASH
+ SG_ HvSocPercent       : 32|8@1+ (1.0,0) [0|100] "" DASH
 
 BO_ 231 DashStatus: 3 DASH
  SG_ Counter : 0|8@1+ (1,0) [0|255] "" FC
@@ -261,10 +261,10 @@ BO_ 1570 ContactorCommand: 3 FC
  SG_ PackNegative : 16|8@1+ (1,0) [0|0] "" BMS
 
 BO_ 1572 Pack_State: 7 BMS
- SG_ Pack_Current : 0|16@1+ (0.1,0) [0|0] "Amps" FC
- SG_ Pack_Inst_Voltage : 16|16@1+ (0.1,0) [0|0] "Volts" FC
- SG_ Avg_Cell_Voltage : 32|16@1+ (0.0001,0) [0|0] "Volts" FC
- SG_ Populated_Cells : 48|8@1+ (1,0) [0|0] "Num" FC
+ SG_ Pack_Current : 0|16@1+ (0.1,0) [0|0] "Amps" FC, DASH
+ SG_ Pack_Inst_Voltage : 16|16@1+ (0.1,0) [0|0] "Volts" FC, DASH
+ SG_ Avg_Cell_Voltage : 32|16@1+ (0.0001,0) [0|0] "Volts" FC, DASH
+ SG_ Populated_Cells : 48|8@1+ (1,0) [0|0] "Num" FC, DASH
 
 BO_ 1571 Pack_Current_Limits: 4 BMS
  SG_ Pack_CCL : 0|16@1+ (1,0) [0|0] "Amps" FC

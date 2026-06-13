@@ -187,21 +187,24 @@ void TempCard::Draw(lv_obj_t* parent, const char* title, lv_color_t color) {
 
     lv_obj_t* t = lv_label_create(container_);
     lv_obj_set_style_text_font(t, kFontCaption, 0);
+    lv_obj_set_style_text_color(t, lv_color_white(), 0);
     lv_label_set_text(t, title);
 
     lv_obj_t* row = MakeRow(container_);
     min_label_ = lv_label_create(row);
-    lv_obj_set_style_text_font(min_label_, kFontMid, 0);
-    lv_label_set_text(min_label_, "Min --");
+    lv_obj_set_style_text_font(min_label_, kFontTitle, 0);
+    lv_obj_set_style_text_color(min_label_, lv_color_white(), 0);
+    lv_label_set_text(min_label_, "Min -");
 
     max_label_ = lv_label_create(row);
-    lv_obj_set_style_text_font(max_label_, kFontMid, 0);
-    lv_label_set_text(max_label_, "Max --");
+    lv_obj_set_style_text_font(max_label_, kFontTitle, 0);
+    lv_obj_set_style_text_color(max_label_, lv_color_white(), 0);
+    lv_label_set_text(max_label_, "Max -");
 }
 
 void TempCard::SetTemps(float min, float max) {
-    lv_label_set_text_fmt(min_label_, "Min: %d C", (int)min);
-    lv_label_set_text_fmt(max_label_, "Max: %d C", (int)max);
+    lv_label_set_text_fmt(min_label_, "Min: %d", (int)min);
+    lv_label_set_text_fmt(max_label_, "Max: %d", (int)max);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -316,8 +319,9 @@ void DriveModeMenu::Update() {
     auto lv_msg = display_->veh_bus.GetRxLvDcdc();
     auto acc_msg = display_->veh_bus.GetRxAccumulator_Soc();
     auto bms_msg = display_->veh_bus.GetRxBmsBroadcast();
+    auto pack_msg = display_->veh_bus.GetRxPack_State();
 
-    hv_arc_.PushSample(0.0f);
+    hv_arc_.PushSample(bms_msg ? pack_msg->Pack_Current() : 0.0f);
 
     lv_current_.SetCurrent(lv_msg ? lv_msg->BusCurrent() : 0.0f);
 

@@ -14,9 +14,10 @@
 #include "StartMotors.hpp"
 #include "StartingHV.hpp"
 #include "StartingMotors.hpp"
+#include "generated/can/pt_bus.hpp"
+#include "generated/can/pt_messages.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
-
 class Display {
 public:
     using State = generated::can::TxDashStatus::State_t;
