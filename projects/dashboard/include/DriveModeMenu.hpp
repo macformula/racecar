@@ -5,58 +5,71 @@
 #include "etl/vector.h"
 #include "lvgl.h"
 
-class CurrentArcs {
+// ── HV current arc ───────────────────────────────────────────────────────────
+class HVCurrentArc {
 public:
     static constexpr uint32_t kUpdateRateHz = 100;
-    static constexpr uint32_t kAvgWindowSamples = kUpdateRateHz;  // 1s window
-    static constexpr float kHVCurrentMax = 500.0f;                // A — tune
-    static constexpr float kLVCurrentMax = 50.0f;                 // A — tune
-    static constexpr float kArcResolution = 10.0f;  // ticks per amp
+    static constexpr uint32_t kAvgWindowSamples = kUpdateRateHz;
+    static constexpr float kHVCurrentMax = 500.0f;
+    static constexpr float kArcResolution = 10.0f;
 
-    void Draw(lv_obj_t* parent, lv_align_t align, lv_coord_t x, lv_coord_t y);
-
-    // Push one sample per Update() tick.
-    void PushSamples(float hv_current, float lv_current);
+    void Draw(lv_obj_t* parent);
+    void PushSample(float hv_current);
 
 private:
-    lv_obj_t* hv_arc_{nullptr};
-    lv_obj_t* lv_arc_{nullptr};
-    lv_obj_t* hv_label_{nullptr};
-    lv_obj_t* lv_label_{nullptr};
+    lv_obj_t* arc_{nullptr};
+    lv_obj_t* label_{nullptr};
+    etl::circular_buffer<float, kAvgWindowSamples> buf_;
 
-    etl::circular_buffer<float, kAvgWindowSamples> hv_buf_;
-    etl::circular_buffer<float, kAvgWindowSamples> lv_buf_;
-
-    float ComputeAverage(
-        const etl::circular_buffer<float, kAvgWindowSamples>& buf) const;
-    void UpdateArcs();
+    float ComputeAverage() const;
+    void Update();
 };
 
-class VoltageDisplay {
+// ── HV / LV voltage ──────────────────────────────────────────────────────────
+class HVVoltageDisplay {
 public:
-    void Draw(lv_obj_t* parent, lv_align_t align, lv_coord_t x, lv_coord_t y);
-    void SetVoltages(float hv_voltage, float lv_voltage);
+    void Draw(lv_obj_t* parent);
+    void SetVoltage(float hv_voltage);
 
 private:
-    lv_obj_t* container_{nullptr};
-    lv_obj_t* hv_label_{nullptr};
-    lv_obj_t* lv_label_{nullptr};
+    lv_obj_t* label_{nullptr};
 };
 
+class LVVoltageDisplay {
+public:
+    void Draw(lv_obj_t* parent);
+    void SetVoltage(float lv_voltage);
+
+private:
+    lv_obj_t* label_{nullptr};
+};
+
+// ── LV current (text) ────────────────────────────────────────────────────────
+class LVCurrentDisplay {
+public:
+    void Draw(lv_obj_t* parent);
+    void SetCurrent(float current);
+
+private:
+    lv_obj_t* label_{nullptr};
+};
+
+// ── SOC ──────────────────────────────────────────────────────────────────────
 class Battery {
 public:
     void Draw(lv_obj_t* parent);
     void SetSOC(float soc);
 
 private:
-    lv_obj_t* row_{nullptr};
-    lv_obj_t* soc_bar_{nullptr};
-    lv_obj_t* soc_label_{nullptr};
+    lv_obj_t* bar_{nullptr};
+    lv_obj_t* label_{nullptr};
 };
-class BatteryTemps {
+
+// ── Temperature card ─────────────────────────────────────────────────────────
+class TempCard {
 public:
-    void Draw(lv_obj_t* parent);
-    void SetTemps(float min_temp, float max_temp);
+    void Draw(lv_obj_t* parent, const char* title, lv_color_t color);
+    void SetTemps(float min, float max);
 
 private:
     lv_obj_t* container_{nullptr};
@@ -64,26 +77,41 @@ private:
     lv_obj_t* max_label_{nullptr};
 };
 
-class MotorInverterTemps {
+// ── CAN indicator ────────────────────────────────────────────────────────────
+class CANIndicator {
 public:
-    void Draw(lv_obj_t* parent);
-    void SetTemps(float motor_temp, float inverter_temp);
+    void Draw(lv_obj_t* parent, const char* label);
+    void SetActive(bool active);
 
 private:
-    lv_obj_t* container_{nullptr};
-    lv_obj_t* motor_label_{nullptr};
-    lv_obj_t* inv_label_{nullptr};
+    lv_obj_t* dot_{nullptr};
+    lv_obj_t* label_{nullptr};
 };
 
+// ── FC status ────────────────────────────────────────────────────────────────
 class FCStatusMessage {
 public:
-    void Draw(lv_obj_t* parent, lv_align_t align, lv_coord_t x, lv_coord_t y);
+    void Draw(lv_obj_t* parent);
     void SetStatus(const char* status);
 
 private:
-    lv_obj_t* label{nullptr};
+    lv_obj_t* label_{nullptr};
 };
 
+// ── Speedometer (compact) ────────────────────────────────────────────────────
+class Speedometer {
+public:
+    static constexpr float kSpeedMax = 140.0f;  // km/h, FSAE-realistic ceiling
+
+    void Draw(lv_obj_t* parent);
+    void SetSpeed(float speed_kph);
+
+private:
+    lv_obj_t* arc_{nullptr};
+    lv_obj_t* value_label_{nullptr};
+};
+
+// ── Screen ───────────────────────────────────────────────────────────────────
 class DriveModeMenu : public Screen {
 public:
     explicit DriveModeMenu(Display* display);
@@ -91,12 +119,21 @@ public:
     void Update() override;
 
 private:
-    CurrentArcs current_arcs_;
-    VoltageDisplay voltage_display_;
+    HVCurrentArc hv_arc_;
+    HVVoltageDisplay hv_voltage_;
+    LVVoltageDisplay lv_voltage_;
+    LVCurrentDisplay lv_current_;
     Battery battery_;
-    BatteryTemps battery_temps_;
-    MotorInverterTemps motor_inverter_temps_;
+
+    TempCard battery_temp_;
+    TempCard motor_temp_;
+    TempCard inverter_temp_;
+
+    CANIndicator pt_can_;
+    CANIndicator veh_can_;
+
     FCStatusMessage fc_status_;
+    Speedometer speedo_;
 
     uint32_t last_warning_time_{0};
     etl::vector<int, 10> active_warning_ids_;

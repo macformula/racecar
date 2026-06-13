@@ -60,7 +60,7 @@ void DMA2_Stream0_IRQHandler(void);
 void LTDC_IRQHandler(void);
 void DMA2D_IRQHandler(void);
 void DSI_IRQHandler(void);
-void HardFault_Decode(void); 
+void HardFault_Decode(void);
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */
