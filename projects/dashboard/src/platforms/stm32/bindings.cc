@@ -56,6 +56,7 @@ namespace mcal {
 using namespace stm32f;
 
 CanBase veh_can_base{&hcan1};
+CanBase pt_can_base{&hcan2};
 DigitalInput button_scroll_n{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
 DigitalInput button_enter_n{BUTTON_SELECT_GPIO_Port, BUTTON_SELECT_Pin};
 macfe::periph::InvertedDigitalInput button_scroll{button_scroll_n};
@@ -66,6 +67,7 @@ macfe::periph::InvertedDigitalInput button_enter{button_enter_n};
 namespace bindings {
 
 macfe::periph::CanBase& veh_can_base = mcal::veh_can_base;
+macfe::periph::CanBase& pt_can_base = mcal::pt_can_base;
 macfe::periph::DigitalInput& button_scroll = mcal::button_scroll;
 macfe::periph::DigitalInput& button_enter = mcal::button_enter;
 
@@ -98,6 +100,7 @@ void Initialize() {
     uint32_t can_prio = NVIC_GetPriority(CAN1_RX0_IRQn);
     MX_CAN1_Init();
     mcal::veh_can_base.Setup();
+    mcal::pt_can_base.Setup();
     //! USEFUL
     // init display
     advance_leds();

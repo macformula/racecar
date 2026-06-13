@@ -23,13 +23,14 @@ public:
     using State = generated::can::TxDashStatus::State_t;
     using Profile = generated::can::TxDashStatus::Profile_t;
 
-    Display(Button& enter, Button& scroll, generated::can::VehBus& veh);
+    Display(Button& enter, Button& scroll, generated::can::VehBus& veh,
+            generated::can::PtBus& pt);
 
     // CAN and Buttons are public so the ScreenUpdate can access them
     Button enter;
     Button scroll;
     generated::can::VehBus& veh_bus;
-
+    generated::can::PtBus& pt_bus;
     Profile selected_profile = Profile::Default;
 
     void Start();
