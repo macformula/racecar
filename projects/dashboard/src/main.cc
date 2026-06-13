@@ -5,8 +5,6 @@
 #include "Button.hpp"
 #include "Display.hpp"
 #include "bindings.hpp"
-#include "generated/can/pt_bus.hpp"
-#include "generated/can/pt_messages.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "gpio.h"
@@ -20,8 +18,7 @@ using namespace generated::can;
 Button btn_enter{bindings::button_enter};
 Button btn_scroll{bindings::button_scroll};
 VehBus veh_can{bindings::veh_can_base};
-PtBus pt_can{bindings::pt_can_base};
-Display display{btn_enter, btn_scroll, veh_can, pt_can};
+Display display{btn_enter, btn_scroll, veh_can};
 
 const int kUpdatePeriodMs = 20;
 static uint8_t tx_counter = 0;

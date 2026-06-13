@@ -309,7 +309,6 @@ void DriveModeMenu::CreateGUI() {
     fc_status_.Draw(right);
 
     lv_obj_t* can_row = MakeRow(right);
-    pt_can_.Draw(can_row, "PT");
     veh_can_.Draw(can_row, "VEH");
 
     speedo_.Draw(right);
@@ -321,8 +320,7 @@ void DriveModeMenu::Update() {
     auto acc_msg = display_->veh_bus.GetRxAccumulator_Soc();
     auto bms_msg = display_->veh_bus.GetRxBmsBroadcast();
     auto pack_msg = display_->veh_bus.GetRxPack_State();
-    auto inv1_msg = display_->pt_bus.GetRxInv1_ActualValues2();
-    auto inv2_msg = display_->pt_bus.GetRxInv2_ActualValues2();
+    auto inv_msg = display_->veh_bus.GetRxInverterStatus();
 
     hv_arc_.PushSample(bms_msg ? pack_msg->Pack_Current() : 0.0f);
 
@@ -338,15 +336,14 @@ void DriveModeMenu::Update() {
                                bms_msg->HighThermValue());
     }
 
-    motor_temp_.SetTemps(inv1_msg ? inv1_msg->TempMotor() : 0.0f,
-                         inv2_msg ? inv2_msg->TempMotor() : 0.0f);
-    inverter_temp_.SetTemps(inv1_msg ? inv1_msg->TempInverter() : 0.0f,
-                            inv2_msg ? inv2_msg->TempInverter() : 0.0f);
+    motor_temp_.SetTemps(inv_msg ? inv_msg->TempMotorInv1() : 0.0f,
+                         inv_msg ? inv_msg->TempMotorInv2() : 0.0f);
+    inverter_temp_.SetTemps(inv_msg ? inv_msg->TempInverterInv1() : 0.0f,
+                            inv_msg ? inv_msg->TempInverterInv2() : 0.0f);
 
     fc_status_.SetStatus("OK");
 
     speedo_.SetSpeed(fc_msg ? fc_msg->Speed() : 0.0f);
 
-    pt_can_.SetActive(false);
     veh_can_.SetActive(true);
 }

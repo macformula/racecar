@@ -142,6 +142,12 @@ BO_ 231 DashStatus: 3 DASH
  SG_ State   : 8|8@1+ (1,0) [0|1] "" FC
  SG_ Profile : 16|8@1+ (1,0) [0|15] "" FC
 
+BO_ 241 InverterStatus: 8 FC
+ SG_ TempMotorInv1 : 0|16@1- (0.1,0) [0|0] "degC" DASH
+ SG_ TempInverterInv1: 16|16@1- (0.1,0) [0|0] "degC" DASH
+ SG_ TempMotorInv2 : 32|16@1- (0.1,0) [0|0] "degC" DASH
+ SG_ TempInverterInv2 : 48|16@1- (0.1,0) [0|0] "degC" DASH
+
 VAL_ 231 State 0 "LOGO" 1 "SELECT_PROFILE" 2 "CONFIRM_SELECTION" 3 "WAIT_SELECTION_ACK" 4 "PRESS_FOR_HV" 5 "STARTING_HV" 6 "PRESS_FOR_MOTOR" 7 "STARTING_MOTORS" 8 "BRAKE_TO_START" 9 "RUNNING" 10 "SHUTDOWN" 11 "ERROR";
 VAL_ 231 Profile 0 "Default" 1 "Launch" 2 "Skidpad" 3 "Endurance" 4 "Tuning" 5 "_ENUM_TAIL_";
 

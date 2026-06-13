@@ -68,7 +68,6 @@ namespace mcal {
 using namespace mcal::lnx;
 
 CanBase veh_can_base{"vcan0"};
-CanBase pt_can_base{"vcan1"};
 KeyboardInput button_scroll{SDLK_TAB};
 KeyboardInput button_select{SDLK_SPACE};
 
@@ -77,7 +76,6 @@ KeyboardInput button_select{SDLK_SPACE};
 namespace bindings {
 
 macfe::periph::CanBase& veh_can_base = mcal::veh_can_base;
-macfe::periph::CanBase& pt_can_base = mcal::pt_can_base;
 macfe::periph::DigitalInput& button_scroll = mcal::button_scroll;
 macfe::periph::DigitalInput& button_enter = mcal::button_select;
 
@@ -101,7 +99,6 @@ void Initialize() {
     std::signal(SIGTERM, signal_handler);  // Termination signal
 
     mcal::veh_can_base.Setup();
-    mcal::pt_can_base.Setup();
 
     /* Create SDL window with LVGL 9.3 native driver */
     lv_display = lv_sdl_window_create(800, 480);

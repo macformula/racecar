@@ -129,7 +129,6 @@ private:
     TempCard motor_temp_;
     TempCard inverter_temp_;
 
-    CANIndicator pt_can_;
     CANIndicator veh_can_;
 
     FCStatusMessage fc_status_;

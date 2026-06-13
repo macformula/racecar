@@ -14,8 +14,6 @@
 #include "StartMotors.hpp"
 #include "StartingHV.hpp"
 #include "StartingMotors.hpp"
-#include "generated/can/pt_bus.hpp"
-#include "generated/can/pt_messages.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 class Display {
@@ -23,14 +21,12 @@ public:
     using State = generated::can::TxDashStatus::State_t;
     using Profile = generated::can::TxDashStatus::Profile_t;
 
-    Display(Button& enter, Button& scroll, generated::can::VehBus& veh,
-            generated::can::PtBus& pt);
+    Display(Button& enter, Button& scroll, generated::can::VehBus& veh);
 
     // CAN and Buttons are public so the ScreenUpdate can access them
     Button enter;
     Button scroll;
     generated::can::VehBus& veh_bus;
-    generated::can::PtBus& pt_bus;
     Profile selected_profile = Profile::Default;
 
     void Start();
