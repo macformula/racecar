@@ -133,6 +133,12 @@ void MX_GPIO_Init(void) {
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(LCD_INT_GPIO_Port, &GPIO_InitStruct);
 
+    /*Configure GPIO pin : PA0 */
+    GPIO_InitStruct.Pin = GPIO_PIN_0;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
     /*Configure GPIO pins : BUTTON_SCROLL_Pin BUTTON_SELECT_Pin */
     GPIO_InitStruct.Pin = BUTTON_SCROLL_Pin | BUTTON_SELECT_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
