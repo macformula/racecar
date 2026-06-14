@@ -131,17 +131,67 @@ CANDUMP_LINE_RE = re.compile(
 )
 
 """ Influx DB Helper Functions """
-# -------------------------------------------------------------------------
-client = InfluxDBClient(
-    url=os.getenv("INFLUX_URL"),
-    token=os.getenv("INFLUX_TOKEN"),
-    org=os.getenv("INFLUX_ORG"),
-    verify_ssl=False,
-)
-write_api = client.write_api()
+REQUIRED_INFLUX_ENV = ("INFLUX_URL", "INFLUX_TOKEN", "INFLUX_ORG", "INFLUX_BUCKET")
+client: InfluxDBClient | None = None
+write_api = None
+influx_warning_printed = False
+
+
+def init_influx() -> bool:
+    """Initialize optional InfluxDB telemetry; CSV logging does not depend on it."""
+    missing = [name for name in REQUIRED_INFLUX_ENV if not os.getenv(name)]
+    if missing:
+        print(
+            f"Warning: InfluxDB disabled; missing environment variables: {', '.join(missing)}\n"
+            "CSV logging will continue locally.",
+            file=sys.stderr,
+        )
+        return False
+
+    global client, write_api
+    try:
+        client = InfluxDBClient(
+            url=os.getenv("INFLUX_URL"),
+            token=os.getenv("INFLUX_TOKEN"),
+            org=os.getenv("INFLUX_ORG"),
+            verify_ssl=False,
+        )
+        write_api = client.write_api()
+    except Exception as exc:
+        print(
+            f"Warning: InfluxDB disabled; client setup failed: {exc}\n"
+            "CSV logging will continue locally.",
+            file=sys.stderr,
+        )
+        client = None
+        write_api = None
+        return False
+
+    print("InfluxDB telemetry enabled.", file=sys.stderr)
+    return True
+
+
+def _write_influx_point(point: Point) -> None:
+    """Best-effort InfluxDB write; never interrupt local CSV logging."""
+    global influx_warning_printed
+    if write_api is None:
+        return
+
+    try:
+        write_api.write(bucket=os.getenv("INFLUX_BUCKET"), record=point)
+    except Exception as exc:
+        if not influx_warning_printed:
+            print(
+                f"Warning: InfluxDB write failed; continuing CSV logging only: {exc}",
+                file=sys.stderr,
+            )
+            influx_warning_printed = True
 
 
 def write_to_influx(sig_name: str, value: float, timestamp: float, extra_tags: dict = None) -> None:
+    if write_api is None:
+        return
+
     point = (
         Point("car_data")
         .tag("signal", sig_name)
@@ -151,10 +201,13 @@ def write_to_influx(sig_name: str, value: float, timestamp: float, extra_tags: d
     if extra_tags:
         for k, v in extra_tags.items():
             point = point.tag(k, v)
-    write_api.write(bucket=os.getenv("INFLUX_BUCKET"), record=point)
+    _write_influx_point(point)
 
 
 def write_fault_to_influx(system: str, fault: str, severity: str, timestamp: float) -> None:
+    if write_api is None:
+        return
+
     point = (
         Point("faults")
         .tag("system", system)
@@ -163,7 +216,7 @@ def write_fault_to_influx(system: str, fault: str, severity: str, timestamp: flo
         .field("active", 1)
         .time(int(timestamp * 1e9))
     )
-    write_api.write(bucket=os.getenv("INFLUX_BUCKET"), record=point)
+    _write_influx_point(point)
 # -------------------------------------------------------------------------
 
 def load_dbc(veh_dbc: Path, pt_dbc: Path | None) -> cantools.database.Database:
@@ -180,7 +233,7 @@ def open_csv(log_dir: Path) -> tuple[Path, object]:
     log_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime('%Y%m%d_%H%M%S')
     path = log_dir / f'can_log_{ts}.csv'
-    f = open(path, 'w', newline='', encoding='utf-8')
+    f = open(path, 'w', newline='', encoding='utf-8', buffering=1)
     f.write('timestamp_epoch_s,message_id_hex,message_name,signal_name,value,unit\n')
     return path, f
 
@@ -256,6 +309,7 @@ def _candump_reader(
             "On the Raspberry Pi install can-utils: sudo apt install can-utils",
             file=sys.stderr,
         )
+        out_queue.put(("error", interface))
         out_queue.put(None)
         return
 
@@ -297,6 +351,8 @@ def main() -> int:
         print(f'Error: veh.dbc not found at {veh_dbc}', file=sys.stderr)
         return 1
 
+    init_influx()
+
     db = load_dbc(veh_dbc, pt_dbc)
 
     log_path, csv_file = open_csv(log_dir)
@@ -321,6 +377,8 @@ def main() -> int:
             p.terminate()
             p.wait()
         csv_file.close()
+        if client is not None:
+            client.close()
         sys.exit(0)
 
     signal.signal(signal.SIGINT, cleanup)
@@ -328,9 +386,13 @@ def main() -> int:
 
     num_interfaces = len(interfaces)
     done = 0
+    reader_errors = 0
 
     while done < num_interfaces:
         line = line_queue.get()
+        if isinstance(line, tuple) and line[0] == "error":
+            reader_errors += 1
+            continue
         if line is None:
             done += 1
             continue
@@ -379,7 +441,9 @@ def main() -> int:
                         write_fault_to_influx(sys_name, desc, sev, timestamp)
 
     csv_file.close()
-    return 0
+    if client is not None:
+        client.close()
+    return 1 if reader_errors else 0
 
 
 if __name__ == '__main__':
