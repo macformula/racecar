@@ -87,7 +87,8 @@ IMPORTANT_SIGNALS = {
     "Apps2Percent",       # APPS sensor 2 position (%) — AppsDebug (401)
     "BppsPercent",        # brake pedal position (%)   — BppsSteerDebug (402)
     "LvBatteryVoltage",   # LV battery voltage (V)     — LvDcdc (214)
-    "LvBatteryTemp",      # LV battery temperature (°C) — LvDcdc (214)
+    "BusVoltage",         # DCDC bus voltage (V)        — LvDcdc (214)
+    "BusCurrent",         # DCDC bus current (A)        — LvDcdc (214)
 }
 
 # Boolean fault signals from FcAlerts (202) and LvStatus (211).
