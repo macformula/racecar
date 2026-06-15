@@ -290,6 +290,15 @@ BO_ 2553934720 BmsBroadcast: 8 TMS
  SG_ LowThermID : 48|8@1+ (1,0) [0|0] "" BMS
  SG_ Checksum : 56|8@1+ (1,0) [0|0] "" BMS
 
+BO_ 204 TMSValues: 6 TMS
+ SG_ val1 : 0|8@1+ (1,0) [0|0] "" BMS
+ SG_ val2 : 8|8@1+ (1,0) [0|0] "" BMS
+ SG_ val3 : 16|8@1+ (1,0) [0|0] "" BMS
+ SG_ val4 : 24|8@1+ (1,0) [0|0] "" BMS
+ SG_ val5 : 32|8@1+ (1,0) [0|0] "" BMS
+ SG_ val6 : 40|8@1+ (1,0) [0|0] "" BMS
+
+
 BO_ 2566844926 ThermistorBroadcast: 8 TMS
  SG_ RelThermID : 0|16@1+ (1,0) [0|0] "" BMS
  SG_ ThermValue : 16|8@1- (1,0) [0|0] " C" BMS

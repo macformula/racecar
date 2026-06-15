@@ -43,6 +43,23 @@ FanController fan_controller{bindings::fan_controller_pwm};
 
 VehBus veh_can_bus{bindings::veh_can_base};
 
+TxTMSValues TMSBroadcast(const std::array<float, kSensorCount>& temperatures) {
+    return TxTMSValues{
+        .val1 = static_cast<uint8_t>(bindings::temp_sensor_adc_1.ReadVoltage() *
+                                     50.0f),
+        .val2 = static_cast<uint8_t>(bindings::temp_sensor_adc_2.ReadVoltage() *
+                                     50.0f),
+        .val3 = static_cast<uint8_t>(bindings::temp_sensor_adc_3.ReadVoltage() *
+                                     50.0f),
+        .val4 = static_cast<uint8_t>(bindings::temp_sensor_adc_4.ReadVoltage() *
+                                     50.0f),
+        .val5 = static_cast<uint8_t>(bindings::temp_sensor_adc_5.ReadVoltage() *
+                                     50.0f),
+        .val6 = static_cast<uint8_t>(bindings::temp_sensor_adc_6.ReadVoltage() *
+                                     50.0f),
+    };
+}
+
 TxBmsBroadcast PackBmsBroadcast(
     const std::array<float, kSensorCount>& temperatures) {
     // Compute the min, max, and avg temperatures
@@ -58,7 +75,7 @@ TxBmsBroadcast PackBmsBroadcast(
         auto t = static_cast<int8_t>(temperatures[i]);
         if (t < low_temp) {
             low_temp = t;
-            low_index = 1;
+            low_index = i;
         }
         if (t > high_temp) {
             high_temp = t;
@@ -101,7 +118,10 @@ void Update(float update_period_ms) {
 
     // Send the temperatures to the BMS
     TxBmsBroadcast bms_broadcast = PackBmsBroadcast(temperatures);
+    TxTMSValues tms = TMSBroadcast(temperatures);
+
     veh_can_bus.Send(bms_broadcast);
+    veh_can_bus.Send(tms);
 
     // Adjust the fan speed based on the average temperature
     fan_controller.Update(avg_temp, update_period_ms);
