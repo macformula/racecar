@@ -143,8 +143,6 @@ void Error_Handler(void);
 #define VICOR_EN_GPIO_Port GPIOG
 #define MOTOR_CONTROLLER_SWITCH_EN_Pin GPIO_PIN_12
 #define MOTOR_CONTROLLER_SWITCH_EN_GPIO_Port GPIOG
-#define DCDC_SNS_SEL_Pin GPIO_PIN_14
-#define DCDC_SNS_SEL_GPIO_Port GPIOG
 
 /* USER CODE BEGIN Private defines */
 

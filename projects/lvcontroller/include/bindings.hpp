@@ -38,12 +38,10 @@ extern macfe::periph::DigitalOutput& front_controller_en;
 extern macfe::periph::DigitalOutput& imu_gps_en;
 extern macfe::periph::DigitalOutput& shutdown_circuit_en;
 
-// DCDC System & Measurement
+// DCDC System & Measurementj
 extern macfe::periph::DigitalOutput& dcdc_en;
-extern macfe::periph::DigitalOutput& dcdc_sense_select;
 extern macfe::periph::AnalogInput& dcdc_sense;
 extern macfe::periph::DigitalOutput& vicor_en;
-// extern macfe::periph::DigitalOutput& dcdc_sense_select;
 
 // Rev 4.
 extern macfe::periph::AnalogInput& lv_battery;

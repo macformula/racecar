@@ -35,7 +35,6 @@ DigitalOutput shutdown_circuit_en{"SHUTDOWN_CIRCUIT_EN"};
 
 // DCDC System & Measurement
 DigitalOutput dcdc_en{"DCDC_EN"};
-DigitalOutput dcdc_sense_select{"DCDC_SENSE_SELECT"};
 AnalogInput dcdc_sense{"DCDC_SENSE"};
 
 // Other IO
@@ -76,7 +75,6 @@ macfe::periph::DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 
 // DCDC System & Measurement
 macfe::periph::DigitalOutput& dcdc_en = mcal::dcdc_en;
-macfe::periph::DigitalOutput& dcdc_sense_select = mcal::dcdc_sense_select;
 macfe::periph::AnalogInput& dcdc_sense = mcal::dcdc_sense;
 
 // Other IO

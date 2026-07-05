@@ -34,7 +34,6 @@ message Output {
 
     // DCDC System & measurement
     bool dcdc_en = 16;
-    bool dcdc_sense_select = 17;
     bool vicor_en = 32;
 
     // HSD sensing
