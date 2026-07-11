@@ -236,7 +236,7 @@ BO_ 58 IMD_InfoItSystem: 8 IMD
  SG_ voltageMeasuredFrequency : 40|16@1+ (1,0) [0|0] "" RPI
  SG_ Reserved : 56|8@1+ (1,0) [0|0] "" RPI
 
-BO_ 34 IMD_Request: 8 RPI
+BO_ 34 IMD_Request: 8 LVC 
  SG_ index : 0|8@1+ (1,0) [0|0] "" IMD
  SG_ data0 : 8|8@1+ (1,0) [0|0] "" IMD
  SG_ data1 : 16|8@1+ (1,0) [0|0] "" IMD
@@ -246,15 +246,15 @@ BO_ 34 IMD_Request: 8 RPI
  SG_ data5 : 48|8@1+ (1,0) [0|0] "" IMD
  SG_ data6 : 56|8@1+ (1,0) [0|0] "" IMD
 
-BO_ 35 ID_Response: 8 IMD
- SG_ index : 0|8@1+ (1,0) [0|0] "" RPI
- SG_ d1 : 8|8@1+ (1,0) [0|0] "" RPI
- SG_ d2 : 16|8@1+ (1,0) [0|0] "" RPI
- SG_ d3 : 24|8@1+ (1,0) [0|0] "" RPI
- SG_ d4 : 32|8@1+ (1,0) [0|0] "" RPI
- SG_ d5 : 40|8@1+ (1,0) [0|0] "" RPI
- SG_ d6 : 48|8@1+ (1,0) [0|0] "" RPI
- SG_ d7 : 56|8@1+ (1,0) [0|0] "" RPI
+BO_ 35 IMD_Response: 8 IMD
+ SG_ index : 0|8@1+ (1,0) [0|0] "" LVC
+ SG_ d1 : 8|8@1+ (1,0) [0|0] "" LVC
+ SG_ d2 : 16|8@1+ (1,0) [0|0] "" LVC
+ SG_ d3 : 24|8@1+ (1,0) [0|0] "" LVC
+ SG_ d4 : 32|8@1+ (1,0) [0|0] "" LVC
+ SG_ d5 : 40|8@1+ (1,0) [0|0] "" LVC
+ SG_ d6 : 48|8@1+ (1,0) [0|0] "" LVC
+ SG_ d7 : 56|8@1+ (1,0) [0|0] "" LVC
 
 BO_ 1570 ContactorCommand: 3 FC
  SG_ PackPositive : 0|8@1+ (1,0) [0|0] "" BMS
