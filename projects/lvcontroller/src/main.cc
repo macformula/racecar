@@ -223,7 +223,7 @@ void task_1hz(void) {
         .dirty = macfe::generated::GIT_DIRTY,
     });
     veh_can.Send(TxIMD_Request{.index = 0x4A});  // ask for warning threshold
-    veh_can.GetRxIMD_Response();                 // not needed exactly
+    veh_can.GetRxIMD_Response();
 }
 
 void task_10hz(void) {
