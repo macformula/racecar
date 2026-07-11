@@ -21,7 +21,6 @@ float TempSensor::Read() {
     /// buffer between them. V_STM = 1.44 + 0.836 * V_TS / 2 So the
     /// inverse is V_TS = 2 * (V_STM - 1.44) / 0.83
     float volt_at_tempsensor = 2 * (volt_at_stm - 1.44) / 0.836;
-
     float temperature =
         macfe::LookupTable::Evaluate(volt_ts_to_degC, volt_at_tempsensor);
 
