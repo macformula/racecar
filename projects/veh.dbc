@@ -50,6 +50,42 @@ CM_ "1xn - Irregular, high importance commands";
 BO_ 140 InitiateCanFlash: 1 RPI
  SG_ ECU : 0|8@1+ (1,0) [0|2] "" FC, LVC, TMS
 
+BO_ 141 AcknowledgeCanFlashFC: 1 FC
+ SG_ ECU : 0|8@1+ (1,0) [0|2] "" RPI
+
+BO_ 142 AcknowledgeCanFlashLVC: 1 LVC
+ SG_ ECU : 0|8@1+ (1,0) [0|2] "" RPI
+
+BO_ 143 AcknowledgeCanFlashTMS: 1 TMS
+ SG_ ECU : 0|8@1+ (1,0) [0|2] "" RPI
+
+BO_ 144 FirmwareChunks: 8 RPI
+ SG_ index0 : 0|8@1+ (1,0) [0|255] "" LVC, FC, TMS
+ SG_ index1 : 8|8@1+ (1,0) [0|255] "" LVC, FC, TMS
+ SG_ index2 : 16|8@1+ (1,0) [0|255] "" LVC, FC, TMS
+ SG_ index3 : 24|8@1+ (1,0) [0|255] "" LVC, FC, TMS
+ SG_ index4 : 32|4@1+ (1,0) [0|255] "" LVC, FC, TMS
+ SG_ index5 : 36|4@1+ (1,0) [0|255] "" LVC, FC, TMS
+ SG_ index6 : 40|1@1+ (1,0) [0|1] "" LVC, FC, TMS
+ SG_ index7 : 48|4@1+ (1,0) [0|255] "" LVC, FC, TMS
+ SG_ index8 : 52|4@1+ (1,0) [0|255] "" LVC, FC, TMS
+
+BO_ 145 CanFlashStatusFC: 1 FC
+ SG_ State : 0|8@1+ (1,0) [0|255] "" RPI
+
+BO_ 146 CanFlashStatusLVC: 1 LVC
+ SG_ State : 0|8@1+ (1,0) [0|255] "" RPI
+
+BO_ 147 CanFlashStatusTMS: 1 TMS
+ SG_ State : 0|8@1+ (1,0) [0|255] "" RPI
+
+BO_ 148 CanFlashCRC: 2 RPI
+ SG_ Size : 0|8@1+ (1,0) [0|255] "" FC, LVC, TMS
+ SG_ CRC : 8|8@1+ (1,0) [0|255] "" FC, LVC, TMS 
+
+VAL_ 145 State 0 "IDLE" 1 "RECEIVING" 2 "VALIDATING" 3 "FLASHING";
+VAL_ 146 State 0 "IDLE" 1 "RECEIVING" 2 "VALIDATING" 3 "FLASHING";
+VAL_ 147 State 0 "IDLE" 1 "RECEIVING" 2 "VALIDATING" 3 "FLASHING";
 VAL_ 140 ECU 0 "FrontController" 1 "LvController" 2 "TMS";
 
 CM_ "Periodic Messages

@@ -291,7 +291,7 @@ void task_10hz(void* argument) {
         ToggleDebugLed();
         UpdateErrorLeds();
         dbc_hash::Update_10Hz(veh_can_bus);
-        // CheckCanFlash();  // no CAN flash in 2025. pcb needs an external
+        CheckCanFlash();  // no CAN flash in 2025. pcb needs an external
         // oscillator
         suspension::task_10hz(veh_can_bus);
         hsd::Update_10Hz(veh_can_bus);

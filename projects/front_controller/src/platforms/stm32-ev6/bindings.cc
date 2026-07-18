@@ -1,6 +1,7 @@
 #include "bindings.hpp"
 
 #include "adc.h"
+#include "bootloader/bootloader.hpp"
 #include "can.h"
 #include "gpio.h"
 #include "main.h"
@@ -111,6 +112,10 @@ hsd::HSD4Channel& hsd1 = mcal::hsd1;
 hsd::HSD1Channel& hsd2 = mcal::hsd2;
 
 void Initialize() {
+    // This is where can-flash bootloader runs, configuring custom internal
+    // clocks and CAN setup for flash
+    bootloader::Run();
+
     SystemClock_Config();
 
     MX_GPIO_Init();
