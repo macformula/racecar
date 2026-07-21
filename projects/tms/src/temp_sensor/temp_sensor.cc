@@ -16,13 +16,8 @@ float TempSensor::Update() {
 float TempSensor::Read() {
     float volt_at_stm = analog_input_.ReadVoltage();
 
-    /// Calculate the voltage at the temperature sensor from the voltage
-    /// at the STM. They are not equal because there is a non-unity gain
-    /// buffer between them. V_STM = 1.44 + 0.836 * V_TS / 2 So the
-    /// inverse is V_TS = 2 * (V_STM - 1.44) / 0.83
-    float volt_at_tempsensor = 2 * (volt_at_stm - 1.44) / 0.836;
     float temperature =
-        macfe::LookupTable::Evaluate(volt_ts_to_degC, volt_at_tempsensor);
+        macfe::LookupTable::Evaluate(volt_ts_to_degC, volt_at_stm);
 
     return temperature;
 }

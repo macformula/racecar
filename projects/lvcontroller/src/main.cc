@@ -103,6 +103,11 @@ void Update_100hz(void) {
             bindings::shutdown_circuit_en.SetHigh();
 
             if (accumulator::IsRunning()) {
+                veh_can.Send(TxIMD_Request{
+                    .index = 0x47,
+                    .data0 = 0x2C,
+                    .data1 = 0x01,
+                });
                 new_state = DCDC_ON;
             }
             break;
@@ -217,6 +222,8 @@ void task_1hz(void) {
         .commit = macfe::generated::GIT_HASH,
         .dirty = macfe::generated::GIT_DIRTY,
     });
+    veh_can.Send(TxIMD_Request{.index = 0x4A});  // ask for warning threshold
+    veh_can.GetRxIMD_Response();
 }
 
 void task_10hz(void) {
