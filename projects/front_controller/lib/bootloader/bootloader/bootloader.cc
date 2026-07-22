@@ -156,6 +156,15 @@ uint32_t crc32_iso_hdlc(const void* data, size_t length) {
     return crc ^ 0xFFFFFFFF;
 }
 
+bool EraseSector(uint32_t sector_number) {
+    // Single sector erase function
+    // Set PSIZE (parallelism field), clear+set SNB (which sector to erase)
+    // Set STRT, __DSB(), poll BSY, check ERSERR, return true or false
+
+    FLASH->CR &= ~FLASH_CR_PSIZE_0;  // clear both bits first
+    FLASH->CR |= FLASH_CR_PSIZE_1;   // set to word (10)
+}
+
 __attribute__((section(".RamFunc")), noinline) bool WriteFirmwaretoFlash(
     const uint8_t* src, size_t len) {
     if (len > APP_FLASH_SIZE) return false;
