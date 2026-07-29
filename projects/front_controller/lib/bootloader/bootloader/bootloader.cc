@@ -27,6 +27,14 @@ enum class State {
     RECOVERY,
 };
 
+enum class FailurePoint {
+    FLASH,
+    PROGRAM,
+    NONE,
+    SIZE,
+    CRC,
+};
+static FailurePoint failure_point = FailurePoint::NONE;
 static State state = State::IDLE;
 static auto crc_msg_opt = 0;
 static auto bytes_received = 0;
@@ -53,7 +61,7 @@ int Run(void) {
         veh_can_bus.Send(TxAcknowledgeCanFlashFC{.ecu = 0}));
                 }
 
-                state = State::Receiving
+                state = State::Receiving;
             } break;
         }
 
@@ -67,6 +75,7 @@ int Run(void) {
                     uint8_t firmware_size = crc_msg_opt->Size();
 
                     if (firmware_size > RAM_BUFFER_SIZE_BYTES) {
+                        failure_point = FailurePoint::SIZE;
                         state = State::FAULT;
                         break;
                     }
@@ -117,6 +126,7 @@ int Run(void) {
                 crc32_iso_hdlc(firmware_buffer, firmware_size);
 
             if (crc32_host != crc32_rpi) {
+                failure_point = FailurePoint::CRC;
                 state = State::FAULT;
                 veh_can.Send(TxCanFlashStatusFC{.state = State::FAULT});
                 break;
@@ -129,10 +139,16 @@ int Run(void) {
 
         case FLASHING: {
             // use ram func section
-            WriteFirmwaretoFlash();
-        }
+            bool success = WriteFirmwaretoFlash();
+        } break;
 
-            // receiving firmware in chunks stored in SRAM temporarily
+        case RECOVERY: {
+            FLASH->CR |= FLASH_CR_LOCK;
+            TearDownHardware();
+            if (success) {
+                NVIC_SystemReset();
+            }
+        }
     }
 };
 
@@ -185,6 +201,7 @@ bool EraseSector(uint32_t sector_number) {
     }
 
     if (FLASH->SR & FLASH_SR_ERSERR) {
+        failure_point = FailurePoint::FLASH;
         return false;  // erase failed
     } else {
         return true;
@@ -218,6 +235,7 @@ bool WriteDoubleWord(uint32_t address, const uint8_t* data) {
     }
 
     if ((FLASH->SR & FLASH_SR_PGPERR) || (FLASH->SR & FLASH_SR_PGAERR)) {
+        failure_point = FailurePoint::FLASH;
         return false;
     }
 
@@ -244,6 +262,7 @@ __attribute__((section(".RamFunc")), noinline) bool WriteFirmwaretoFlash(
 
     if ((FLASH->CR & FLASH_CR_LOCK) != 0) {
         // Flash not unlocked
+        failure_point = FailurePoint::PROGRAM;
         __enable_irq();
         return false;
     }
@@ -256,23 +275,36 @@ __attribute__((section(".RamFunc")), noinline) bool WriteFirmwaretoFlash(
 
     // continue writing within this loop
     while (FLASH->SR & FLASH_SR_BSY) {
-        /// @note double check if these are all the errors possible on F7
-        uint32_t error_mask =
-            (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR |
+        // feed watchdog here
+    }
 
-             FLASH_SR_PGAERR | FLASH_SR_PGPERR | FLASH_SR_ERSERR);
+    /// @note double check if these are all the errors possible on F7
+    uint32_t error_mask = (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR |
 
-        if (FLASH->SR & error_mask) {
-            // save error code that was triggered
-            uint32_t active_errors = FLASH->SR & error_mask;
+                           FLASH_SR_PGAERR | FLASH_SR_PGPERR | FLASH_SR_ERSERR);
 
-            // clear faults
-            FLASH->SR = active_errors;
-        }
+    if (FLASH->SR & error_mask) {
+        // save error code that was triggered
+        uint32_t active_errors = FLASH->SR & error_mask;
 
-        else {
-            // ready to flash
-            EraseSector(0);  // sector 0
+        // clear faults
+        FLASH->SR = active_errors;
+        failure_point = FailurePoint::FLASH;
+        __enable_irq();
+        return false;
+    }
+
+    else {
+        // ready to flash
+
+        size_t covered = 0;
+        for (size_t i = 0; i < KNUMSECTORS && covered < len; i++) {
+            // erase flash sectors dependent on size of firmware
+            if (!EraseSector(i)) {
+                __enable_irq();
+                return false;
+            }
+            covered += kSectors[i].size;
         }
     }
 
@@ -282,14 +314,17 @@ __attribute__((section(".RamFunc")), noinline) bool WriteFirmwaretoFlash(
 
         if (!write_word) {
             // failed write
+            __enable_irq();
             return false;
         }
     }
 
     // memcmp section to verify flash region == ram region
     if (VerifyFlash(FLASH_START, firmware_buffer, len)) {
+        __enable_irq();
         return true;
     } else {
+        __enable_irq();
         return false;
     }
 }
