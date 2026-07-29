@@ -1,0 +1,4 @@
+generated/
+can_cache.sqlite
+logs/
+.env

@@ -1,7 +1,7 @@
 VERSION ""
 
 
-NS_ : 
+NS_ :
 	NS_DESC_
 	CM_
 	BA_DEF_
@@ -38,7 +38,7 @@ BU_: FC LVC TMS DASH RPI IMD BMS GPS
 CM_ "ID Scheme:
 Replace x with the pertinent ECU (not necessarily the sender)
 x=0 Front Controller
-x=1 LV Controller  
+x=1 LV Controller
 x=2 TMS
 x=3 Dashboard
 x=4 RPI
@@ -91,7 +91,6 @@ BO_ 202 FcAlerts: 2 FC
  SG_ EV47Active : 10|1@1+ (1,0) [0|1] "" RPI, DASH
  SG_ NoInv1Can : 11|1@1+ (1,0) [0|1] "" RPI, DASH
  SG_ NoInv2Can : 12|1@1+ (1,0) [0|1] "" RPI, DASH
- SG_ HsdOvercurrent : 13|1@1+ (1,0) [0|1] "" RPI, DASH
 
 BO_ 203 FcCounters: 8 FC
  SG_ Motor : 0|8@1+ (1,0) [0|1] "" RPI, DASH
@@ -104,7 +103,7 @@ BO_ 210 LvCommand: 1 FC
  SG_ BrakeLightEnable : 1|1@1+ (1,0) [0|1] "" LVC
 
 BO_ 213 InverterSwitchCommand: 1 FC
- SG_ CloseInverterSwitch : 0|1@1+ (1,0) [0|1] "" LVC 
+ SG_ CloseInverterSwitch : 0|1@1+ (1,0) [0|1] "" LVC
 
 CM_ BO_ 213 "This should be combined with LvCommand once testing is done.";
 
@@ -119,35 +118,20 @@ BO_ 211 LvStatus: 4 LVC
 VAL_ 211 LvState 0 "PWRUP_START" 1 "PWRUP_TSSI_ON" 2 "PWRUP_PERIPHERALS_ON" 3 "PWRUP_ACCUMULATOR_ON" 4 "PWRUP_MOTOR_CONTROLLER_PRECHARGING" 7 "PWRUP_SHUTDOWN_ON" 9 "DCDC_ON" 10 "POWERTRAIN_PUMP_ON" 11 "POWERTRAIN_FAN_ON" 13 "READY_TO_DRIVE" 14 "SHUTDOWN_DRIVER_WARNING" 15 "SHUTDOWN_PUMP_OFF" 16 "SHUTDOWN_FAN_OFF" 17 "SHUTDOWN_COMPLETE";
 VAL_ 211 MotorControllerState 0 "OFF" 1 "PRECHARGING" 2 "PRECHARGING_HANDOFF" 3 "ON";
 
-BO_ 212 LvAlerts: 1 LVC
- SG_ HsdOvercurrent : 0|1@1+ (1,0) [0|1] "" FC,RPI,DASH
-
-BO_ 214 LvDcdc: 6 LVC
- SG_ LvBatteryVoltage : 0|16@1+ (0.001,0) [0|30] "V" FC,RPI,DASH
- SG_ BusVoltage : 16|16@1+ (0.001,0) [0|24] "V" FC,RPI,DASH
- SG_ BusCurrent : 32|16@1+ (0.001,0) [0|15] "A" FC,RPI,DASH
-
 BO_ 230 DashCommand: 5 FC
- SG_ ConfigReceived     : 0|1@1+ (1.0,0) [0|1] "" DASH
- SG_ HvStarted          : 1|1@1+ (1.0,0) [0|1] "" DASH
- SG_ MotorStarted       : 2|1@1+ (1.0,0) [0|1] "" DASH
- SG_ DriveStarted       : 3|1@1+ (1.0,0) [0|1] "" DASH
- SG_ Reset              : 4|1@1+ (1.0,0) [0|1] "" DASH
- SG_ Errored            : 5|1@1+ (1.0,0) [0|1] "" DASH
- SG_ HvPrechargePercent : 8|8@1+ (1.0,0) [0|100] "" DASH
+ SG_ ConfigReceived     : 0|1@1+ (1,0) [0|1] "" DASH
+ SG_ HvStarted          : 1|1@1+ (1,0) [0|1] "" DASH
+ SG_ MotorStarted       : 2|1@1+ (1,0) [0|1] "" DASH
+ SG_ DriveStarted       : 3|1@1+ (1,0) [0|1] "" DASH
+ SG_ Errored            : 5|1@1+ (1,0) [0|1] "" DASH
+ SG_ HvPrechargePercent : 8|8@1+ (1,0) [0|100] "" DASH
  SG_ Speed              : 16|12@1+ (0.1,0) [0|100] "mph" DASH
- SG_ HvSocPercent       : 32|8@1+ (1.0,0) [0|100] "" DASH
+ SG_ HvSocPercent       : 32|8@1+ (1,0) [0|100] "" DASH
 
 BO_ 231 DashStatus: 3 DASH
  SG_ Counter : 0|8@1+ (1,0) [0|255] "" FC
  SG_ State   : 8|8@1+ (1,0) [0|1] "" FC
  SG_ Profile : 16|8@1+ (1,0) [0|15] "" FC
-
-BO_ 241 InverterStatus: 8 FC
- SG_ TempMotorInv1 : 0|16@1- (0.1,0) [0|0] "degC" DASH
- SG_ TempInverterInv1: 16|16@1- (0.1,0) [0|0] "degC" DASH
- SG_ TempMotorInv2 : 32|16@1- (0.1,0) [0|0] "degC" DASH
- SG_ TempInverterInv2 : 48|16@1- (0.1,0) [0|0] "degC" DASH
 
 VAL_ 231 State 0 "LOGO" 1 "SELECT_PROFILE" 2 "CONFIRM_SELECTION" 3 "WAIT_SELECTION_ACK" 4 "PRESS_FOR_HV" 5 "STARTING_HV" 6 "PRESS_FOR_MOTOR" 7 "STARTING_MOTORS" 8 "BRAKE_TO_START" 9 "RUNNING" 10 "SHUTDOWN" 11 "ERROR";
 VAL_ 231 Profile 0 "Default" 1 "Launch" 2 "Skidpad" 3 "Endurance" 4 "Tuning" 5 "_ENUM_TAIL_";
@@ -161,13 +145,9 @@ BO_ 300 Accumulator_Soc: 8 FC
 
 CM_ "3xn - Additional sensor readings";
 
-BO_ 310 SuspensionTravel34: 4 LVC
- SG_ STP3_mm : 0|16@1+ (0.1,0) [0|255] "" FC
- SG_ STP4_mm : 16|16@1+ (0.1,0) [0|255] "" FC
-
-BO_ 301 SuspensionTravel12: 4 FC
- SG_ STP1_mm : 0|16@1+ (0.1,0) [0|255] "" FC
- SG_ STP2_mm : 16|16@1+ (0.1,0) [0|255] "" FC
+BO_ 310 SuspensionTravel34: 2 LVC
+ SG_ STP3 : 0|8@1+ (1,0) [0|255] "" FC
+ SG_ STP4 : 8|8@1+ (1,0) [0|255] "" FC
 
 BO_ 340 TuningParams: 8 RPI
  SG_ aggressiveness : 0|8@1+ (1,0) [0|100] "" FC
@@ -182,7 +162,7 @@ BO_ 410 LvGitHash: 5 LVC
  SG_ Commit : 0|32@1+ (1,0) [0|0] "" RPI
  SG_ Dirty : 32|1@1+ (1,0) [0|0] "" RPI
 
-BO_ 420 TmsGitHash: 5 TMS
+BO_ 420 TmsGitHash: 5 LVC
  SG_ Commit : 0|32@1+ (1,0) [0|0] "" RPI
  SG_ Dirty : 32|1@1+ (1,0) [0|0] "" RPI
 
@@ -242,7 +222,7 @@ BO_ 58 IMD_InfoItSystem: 8 IMD
  SG_ voltageMeasuredFrequency : 40|16@1+ (1,0) [0|0] "" RPI
  SG_ Reserved : 56|8@1+ (1,0) [0|0] "" RPI
 
-BO_ 34 IMD_Request: 8 LVC 
+BO_ 34 IMD_Request: 8 RPI
  SG_ index : 0|8@1+ (1,0) [0|0] "" IMD
  SG_ data0 : 8|8@1+ (1,0) [0|0] "" IMD
  SG_ data1 : 16|8@1+ (1,0) [0|0] "" IMD
@@ -252,15 +232,15 @@ BO_ 34 IMD_Request: 8 LVC
  SG_ data5 : 48|8@1+ (1,0) [0|0] "" IMD
  SG_ data6 : 56|8@1+ (1,0) [0|0] "" IMD
 
-BO_ 35 IMD_Response: 8 IMD
- SG_ index : 0|8@1+ (1,0) [0|0] "" LVC
- SG_ d1 : 8|8@1+ (1,0) [0|0] "" LVC
- SG_ d2 : 16|8@1+ (1,0) [0|0] "" LVC
- SG_ d3 : 24|8@1+ (1,0) [0|0] "" LVC
- SG_ d4 : 32|8@1+ (1,0) [0|0] "" LVC
- SG_ d5 : 40|8@1+ (1,0) [0|0] "" LVC
- SG_ d6 : 48|8@1+ (1,0) [0|0] "" LVC
- SG_ d7 : 56|8@1+ (1,0) [0|0] "" LVC
+BO_ 35 ID_Response: 8 IMD
+ SG_ index : 0|8@1+ (1,0) [0|0] "" RPI
+ SG_ d1 : 8|8@1+ (1,0) [0|0] "" RPI
+ SG_ d2 : 16|8@1+ (1,0) [0|0] "" RPI
+ SG_ d3 : 24|8@1+ (1,0) [0|0] "" RPI
+ SG_ d4 : 32|8@1+ (1,0) [0|0] "" RPI
+ SG_ d5 : 40|8@1+ (1,0) [0|0] "" RPI
+ SG_ d6 : 48|8@1+ (1,0) [0|0] "" RPI
+ SG_ d7 : 56|8@1+ (1,0) [0|0] "" RPI
 
 BO_ 1570 ContactorCommand: 3 FC
  SG_ PackPositive : 0|8@1+ (1,0) [0|0] "" BMS
@@ -268,10 +248,10 @@ BO_ 1570 ContactorCommand: 3 FC
  SG_ PackNegative : 16|8@1+ (1,0) [0|0] "" BMS
 
 BO_ 1572 Pack_State: 7 BMS
- SG_ Pack_Current : 0|16@1+ (0.1,0) [0|0] "Amps" FC, DASH
- SG_ Pack_Inst_Voltage : 16|16@1+ (0.1,0) [0|0] "Volts" FC, DASH
- SG_ Avg_Cell_Voltage : 32|16@1+ (0.0001,0) [0|0] "Volts" FC, DASH
- SG_ Populated_Cells : 48|8@1+ (1,0) [0|0] "Num" FC, DASH
+ SG_ Pack_Current : 0|16@1+ (0.1,0) [0|0] "Amps" FC
+ SG_ Pack_Inst_Voltage : 16|16@1+ (0.1,0) [0|0] "Volts" FC
+ SG_ Avg_Cell_Voltage : 32|16@1+ (0.0001,0) [0|0] "Volts" FC
+ SG_ Populated_Cells : 48|8@1+ (1,0) [0|0] "Num" FC
 
 BO_ 1571 Pack_Current_Limits: 4 BMS
  SG_ Pack_CCL : 0|16@1+ (1,0) [0|0] "Amps" FC
@@ -287,14 +267,14 @@ BO_ 1574 Contactor_Feedback: 3 BMS
  SG_ Pack_Precharge_Feedback : 16|1@1+ (1,0) [0|1] "" FC, DASH, LVC
 
 BO_ 2553934720 BmsBroadcast: 8 TMS
- SG_ ThermModuleNum : 0|8@1+ (1,0) [0|0] "" BMS, DASH
- SG_ LowThermValue : 8|8@1- (1,0) [0|0] " C" BMS, DASH
- SG_ HighThermValue : 16|8@1- (1,0) [0|0] " C" BMS, DASH
- SG_ AvgThermValue : 24|8@1- (1,0) [0|0] " C" BMS, DASH
- SG_ NumThermEn : 32|8@1+ (1,0) [0|0] "" BMS, DASH
- SG_ HighThermID : 40|8@1+ (1,0) [0|0] "" BMS, DASH
- SG_ LowThermID : 48|8@1+ (1,0) [0|0] "" BMS, DASH
- SG_ Checksum : 56|8@1+ (1,0) [0|0] "" BMS, DASH
+ SG_ ThermModuleNum : 0|8@1+ (1,0) [0|0] "" BMS
+ SG_ LowThermValue : 8|8@1- (1,0) [0|0] " C" BMS
+ SG_ HighThermValue : 16|8@1- (1,0) [0|0] " C" BMS
+ SG_ AvgThermValue : 24|8@1- (1,0) [0|0] " C" BMS
+ SG_ NumThermEn : 32|8@1+ (1,0) [0|0] "" BMS
+ SG_ HighThermID : 40|8@1+ (1,0) [0|0] "" BMS
+ SG_ LowThermID : 48|8@1+ (1,0) [0|0] "" BMS
+ SG_ Checksum : 56|8@1+ (1,0) [0|0] "" BMS
 
 BO_ 2566844926 ThermistorBroadcast: 8 TMS
  SG_ RelThermID : 0|16@1+ (1,0) [0|0] "" BMS
