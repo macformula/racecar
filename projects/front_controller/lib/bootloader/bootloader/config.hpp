@@ -49,9 +49,14 @@
 #define BOOTLOADER_TIMEOUT_MS 3000
 #endif
 
-#define FLASH_CR_PSIZE_0 0x1 << 8  // 0x1 << 8 = 0x100
-#define FLASH_CR_PSIZE_1 0x2 << 8  // 0x2 << 8 = 0x200
-#define FLASH_CR_PSIZE_Msk (FLASH_CR_PSIZE_0 | FLASH_CR_PSIZE_1)
+// #define FLASH_CR_PSIZE_0 0x1 << 8  // 0x1 << 8 = 0x100
+// #define FLASH_CR_PSIZE_1 0x2 << 8  // 0x2 << 8 = 0x200
+// #define FLASH_CR_PSIZE_Msk (FLASH_CR_PSIZE_0 | FLASH_CR_PSIZE_1)
+#define FLASH_CR_PSIZE_Pos (8U)
+#define FLASH_CR_PSIZE_Msk (0x3UL << FLASH_CR_PSIZE_Pos)  // 0x00000300
+
+#define FLASH_CR_SNB_Pos (3U)
+#define FLASH_CR_SNB_Msk (0x1FUL << FLASH_CR_SNB_Pos)  //  0x000000F8
 
 #define FLASH_KEY1 0x45670123
 

@@ -24,6 +24,7 @@ enum class State {
     VALIDATING,
     FLASHING,
     FAULT,
+    RECOVERY,
 };
 
 static State state = State::IDLE;
@@ -161,8 +162,66 @@ bool EraseSector(uint32_t sector_number) {
     // Set PSIZE (parallelism field), clear+set SNB (which sector to erase)
     // Set STRT, __DSB(), poll BSY, check ERSERR, return true or false
 
-    FLASH->CR &= ~FLASH_CR_PSIZE_0;  // clear both bits first
-    FLASH->CR |= FLASH_CR_PSIZE_1;   // set to word (10)
+    FLASH->CR &= ~FLASH_CR_PSIZE_Msk;  // clears bits 8 and 9
+    FLASH->CR |= FLASH_CR_PSIZE_1;     // sets bit 9 only → field = 10 (word)
+
+    FLASH->CR &= ~FLASH_CR_SNB_Msk;
+    FLASH->CR |= (sector_number << FLASH_CR_SNB_Pos);
+
+    // FLASH_CR_SER - mode switch to sector erase
+    FLASH->CR |= FLASH_CR_SER;
+
+    FLASH->SR =
+        FLASH_SR_ERSERR;  // W1C — clear any stale error flag before triggering
+
+    // FLASH_CR_STRT - the trigger
+    FLASH->CR |= FLASH_CR_STRT;
+
+    // data synchronization buffer
+    __DSB();
+
+    while (FLASH->SR & FLASH_SR_BSY) {
+        // feed watchdog here
+    }
+
+    if (FLASH->SR & FLASH_SR_ERSERR) {
+        return false;  // erase failed
+    } else {
+        return true;
+    }
+}
+
+bool VerifyFlash(const uint8_t* flash_addr, const uint8_t* ram_buffer,
+                 size_t len) {
+    return memcmp(flash_addr, ram_buffer, len) == 0;
+}
+
+bool WriteDoubleWord(uint32_t address, const uint8_t* data) {
+    uint32_t* dest = (uint32_t*)address;
+
+    const uint32_t* src_words = (const uint32_t*)data;
+
+    // program flash
+    FLASH->CR |= FLASH_CR_PG;
+
+    FLASH->CR &= ~FLASH_CR_PSIZE_Msk;  // clears bits 8 and 9
+    FLASH->CR |= FLASH_CR_PSIZE_1;     // sets bit 9 only → field = 10 (word)
+
+    // clear error flags
+    FLASH->SR = FLASH_SR_PGAERR | FLASH_SR_PGPERR;
+
+    dest[0] = src_words[0];
+    dest[1] = src_words[1];
+
+    while (FLASH->SR & FLASH_SR_BSY) {
+        // wait, feed watchdog
+    }
+
+    if ((FLASH->SR & FLASH_SR_PGPERR) || (FLASH->SR & FLASH_SR_PGAERR)) {
+        return false;
+    }
+
+    return true;
 }
 
 __attribute__((section(".RamFunc")), noinline) bool WriteFirmwaretoFlash(
@@ -196,7 +255,7 @@ __attribute__((section(".RamFunc")), noinline) bool WriteFirmwaretoFlash(
                  FLASH_SR_PGAERR | FLASH_SR_PGPERR | FLASH_SR_ERSERR);
 
     // continue writing within this loop
-    while (FLASH->SR & FLASH_SR_BUSY) {
+    while (FLASH->SR & FLASH_SR_BSY) {
         /// @note double check if these are all the errors possible on F7
         uint32_t error_mask =
             (FLASH_SR_EOP | FLASH_SR_OPERR | FLASH_SR_WRPERR |
@@ -213,7 +272,25 @@ __attribute__((section(".RamFunc")), noinline) bool WriteFirmwaretoFlash(
 
         else {
             // ready to flash
+            EraseSector(0);  // sector 0
         }
+    }
+
+    // program flash
+    for (size_t offset = 0; offset < len; offset += 8) {
+        bool write_word = WriteDoubleWord(FLASH_START + offset, src + offset);
+
+        if (!write_word) {
+            // failed write
+            return false;
+        }
+    }
+
+    // memcmp section to verify flash region == ram region
+    if (VerifyFlash(FLASH_START, firmware_buffer, len)) {
+        return true;
+    } else {
+        return false;
     }
 }
 
