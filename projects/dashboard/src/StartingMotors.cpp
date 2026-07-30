@@ -1,6 +1,7 @@
 #include "StartingMotors.hpp"
 
 #include "Display.hpp"
+#include "lvgl.h"
 
 StartingMotors::StartingMotors(Display* display) : Screen(display) {}
 
@@ -14,7 +15,8 @@ void StartingMotors::CreateGUI() {
 void StartingMotors::Update() {
     auto fc_msg = display_->veh_bus.GetRxDashCommand();
 
-    if (fc_msg.has_value() && fc_msg->MotorStarted()) {
+    if ((fc_msg.has_value() && fc_msg->MotorStarted()) &&
+        display_->enter.PosEdge()) {
         display_->ChangeState(State::BRAKE_TO_START);
     }
 }
