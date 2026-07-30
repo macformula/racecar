@@ -2,6 +2,7 @@
 
 #include "Display.hpp"
 #include "lvgl.h"
+#include "veh_messages.hpp"
 
 StartMotors::StartMotors(Display* display) : Screen(display) {}
 
@@ -20,7 +21,10 @@ void StartMotors::CreateGUI() {
 }
 
 void StartMotors::Update() {
-    if (display_->enter.PosEdge()) {
+    auto veh_msg = display_->veh_bus.GetRxBppsSteerDebug();
+
+    if (display_->enter.PosEdge() &&
+        (veh_msg.has_value() && veh_msg->BppsPercent() > 0.20)) {
         display_->ChangeState(State::STARTING_MOTORS);
     }
 }
