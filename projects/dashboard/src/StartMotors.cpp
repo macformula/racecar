@@ -1,7 +1,6 @@
 #include "StartMotors.hpp"
 
 #include "Display.hpp"
-#include "lvgl.h"
 #include "veh_messages.hpp"
 
 StartMotors::StartMotors(Display* display) : Screen(display) {}
