@@ -28,12 +28,13 @@ enum class State {
 };
 
 enum class FailurePoint {
-    FLASH,
-    PROGRAM,
-    NONE,
-    SIZE,
-    CRC,
+    FLASH = 0,
+    PROGRAM = 1,
+    NONE = 2,
+    CRC = 3,
+    SIZE = 4,
 };
+
 static FailurePoint failure_point = FailurePoint::NONE;
 static State state = State::IDLE;
 static auto crc_msg_opt = 0;
@@ -147,6 +148,10 @@ int Run(void) {
             TearDownHardware();
             if (success) {
                 NVIC_SystemReset();
+            } else {
+                state = State::FAULT;
+                /// @note reminder: need to change for LVC, TMS
+                veh_can.Send(TxCanFlashFaultFC{.fault_type = failure_point});
             }
         }
     }
@@ -314,6 +319,7 @@ __attribute__((section(".RamFunc")), noinline) bool WriteFirmwaretoFlash(
 
         if (!write_word) {
             // failed write
+            failure_point = FailurePoint::FLASH;
             __enable_irq();
             return false;
         }
@@ -324,6 +330,7 @@ __attribute__((section(".RamFunc")), noinline) bool WriteFirmwaretoFlash(
         __enable_irq();
         return true;
     } else {
+        failure_point = FailurePoint::FLASH;
         __enable_irq();
         return false;
     }
