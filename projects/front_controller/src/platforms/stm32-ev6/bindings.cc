@@ -112,10 +112,6 @@ hsd::HSD4Channel& hsd1 = mcal::hsd1;
 hsd::HSD1Channel& hsd2 = mcal::hsd2;
 
 void Initialize() {
-    // This is where can-flash bootloader runs, configuring custom internal
-    // clocks and CAN setup for flash
-    bootloader::Run();
-
     SystemClock_Config();
 
     MX_GPIO_Init();
@@ -126,6 +122,9 @@ void Initialize() {
 
     mcal::veh_can_base.Setup();
     mcal::pt_can_base.Setup();
+    // This is where can-flash bootloader runs, configuring custom internal
+    // clocks and CAN setup for flash
+    bootloader::Run();
 }
 
 int GetTickMs() {
