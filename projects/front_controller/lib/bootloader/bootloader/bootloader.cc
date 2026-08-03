@@ -24,17 +24,20 @@ enum class State {
     VALIDATING,
     FLASHING,
     FAULT,
-    RECOVERY,
 };
 
 enum class FailurePoint {
-    FLASH = 0,
-    ERASE = 1,
-    PROGRAM = 2,
-    NONE = 3,
-    CRC = 4,
-    SIZE = 5,
-    PROGRAM_WRITE = 6,
+    NONE = 0,
+
+    // Firmware reception / validation
+    SIZE_INVALID,
+    CRC_INVALID,
+
+    // Flash operation failures
+    FLASH_UNLOCK,
+    FLASH_ERASE,
+    FLASH_PROGRAM,
+    FLASH_VERIFY,
 };
 
 static FailurePoint failure_point = FailurePoint::NONE;
@@ -50,7 +53,7 @@ static bool success = false;
 // will call another function that will intialize the periphs for canflash
 int Run(void) {
     // need a function for holding safe gpio states [for can tx/rx, and status
-    // led]
+    // led
 
     while (1) {
         switch (state) {
@@ -78,8 +81,9 @@ int Run(void) {
 
                     uint8_t firmware_size = crc_msg_opt->Size();
 
-                    if (firmware_size > RAM_BUFFER_SIZE_BYTES) {
-                        failure_point = FailurePoint::SIZE;
+                    if (firmware_size == 0 ||
+                        firmware_size > RAM_BUFFER_SIZE_BYTES) {
+                        failure_point = FailurePoint::SIZE_INVALID;
                         state = State::FAULT;
                         break;
                     }
@@ -130,7 +134,7 @@ int Run(void) {
                 crc32_iso_hdlc(firmware_buffer, firmware_size);
 
             if (crc32_host != crc32_rpi) {
-                failure_point = FailurePoint::CRC;
+                failure_point = FailurePoint::CRC_INVALID;
                 state = State::FAULT;
                 veh_can.Send(TxCanFlashStatusFC{.state = State::FAULT});
                 break;
@@ -146,76 +150,44 @@ int Run(void) {
             bool success =
                 WriteFirmwaretoFlash(firmware_buffer, bytes_received);
 
-            state = State::RECOVERY;
-        } break;
-
-        case RECOVERY: {
-            FLASH->CR |= FLASH_CR_LOCK;
-            TearDownHardware();
             if (success) {
-                NVIC_SystemReset();
+                FLASH->CR |= FLASH_CR_LOCK;
+
+                NVIC_SystemReset();  // reset cpu and continue with new firmware
             } else {
                 state = State::FAULT;
-                /// @note reminder: need to change for LVC, TMS
-                veh_can.Send(TxCanFlashFaultFC{.fault_type = failure_point});
+            }
+        } break;
+
+        case FAULT: {
+            // determine recoverability, if flash is touched, manually reflash
+            // prior can be recovered by nvic system reset()
+
+            switch (failure_point) {
+                    // clang-format off
+                case FailurePoint::CRC_INVALID:
+                case FailurePoint::FLASH_UNLOCK:
+                case FailurePoint::SIZE_INVALID: {
+                    NVIC_SystemReset();
+                }
+
+                case FailurePoint::FLASH_ERASE:
+                case FailurePoint::FLASH_PROGRAM:
+                case FailurePoint::FLASH_VERIFY: {
+                    // send command to dash
+                    static bool fault_sent = false;
+                    if (!fault_sent){
+                        /// @note reminder: need to change for LVC, TMS
+                        veh_can.Send(TxCanFlashFaultFC{.fault_type = failure_point});
+                        fault_sent = true;
+                    }
+                }
+
+                    // clang-format on
             }
         }
     }
 };
-
-static void TearDownHardware() {
-
-};
-
-static void HoldSafeGpioStates() {
-    // we want to store any safety critical pins (contactors, ) and
-}
-
-static void InitBootloaderPeripherals() {
-    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-
-    /** Configure the main internal regulator output voltage
-     */
-    __HAL_RCC_PWR_CLK_ENABLE();
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
-
-    /** Initializes the RCC Oscillators according to the specified parameters
-     * in the RCC_OscInitTypeDef structure.
-     */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-    RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-    RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-    RCC_OscInitStruct.PLL.PLLM = 16;
-    RCC_OscInitStruct.PLL.PLLN = 192;
-    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-    RCC_OscInitStruct.PLL.PLLQ = 2;
-    RCC_OscInitStruct.PLL.PLLR = 2;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-        Error_Handler();
-    }
-
-    /** Activate the Over-Drive mode
-     */
-    if (HAL_PWREx_EnableOverDrive() != HAL_OK) {
-        Error_Handler();
-    }
-
-    /** Initializes the CPU, AHB and APB buses clocks
-     */
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
-                                  RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK) {
-        Error_Handler();
-    }
-}
 
 uint32_t crc32_iso_hdlc(const void* data, size_t length) {
     const unsigned char* buf = (const unsigned char*)data;
@@ -262,7 +234,7 @@ bool EraseSector(uint32_t sector_number) {
     }
 
     if (FLASH->SR & FLASH_SR_ERSERR) {
-        failure_point = FailurePoint::FLASH;
+        failure_point = FailurePoint::FLASH_ERASE;
         return false;  // erase failed
     } else {
         return true;
@@ -296,7 +268,7 @@ bool WriteDoubleWord(uint32_t address, const uint8_t* data) {
     }
 
     if ((FLASH->SR & FLASH_SR_PGPERR) || (FLASH->SR & FLASH_SR_PGAERR)) {
-        failure_point = FailurePoint::FLASH;
+        failure_point = FailurePoint::FLASH_PROGRAM;
         return false;
     }
 
@@ -305,8 +277,10 @@ bool WriteDoubleWord(uint32_t address, const uint8_t* data) {
 
 __attribute__((section(".RamFunc")), noinline) bool WriteFirmwaretoFlash(
     const uint8_t* src, size_t len) {
-    if (len > APP_FLASH_SIZE) return false;
-
+    if (len == 0 || len > APP_FLASH_SIZE) {
+        failure_point = FailurePoint::SIZE_INVALID;
+        return false;
+    }
     // disable interrupts when writing from SRAM to FLASH to avoid broken writes
     __disable_irq();
 
@@ -323,7 +297,7 @@ __attribute__((section(".RamFunc")), noinline) bool WriteFirmwaretoFlash(
 
     if ((FLASH->CR & FLASH_CR_LOCK) != 0) {
         // Flash not unlocked
-        failure_point = FailurePoint::PROGRAM;
+        failure_point = FailurePoint::FLASH_UNLOCK;
         __enable_irq();
         return false;
     }
@@ -350,7 +324,7 @@ __attribute__((section(".RamFunc")), noinline) bool WriteFirmwaretoFlash(
 
         // clear faults
         FLASH->SR = active_errors;
-        failure_point = FailurePoint::FLASH;
+        failure_point = FailurePoint::FLASH_ERASE;
         __enable_irq();
         return false;
     }
@@ -374,15 +348,14 @@ __attribute__((section(".RamFunc")), noinline) bool WriteFirmwaretoFlash(
         bool write_word = WriteDoubleWord(FLASH_START + offset, src + offset);
 
         if (!write_word) {
-            // failed write
-            failure_point = FailurePoint::FLASH;
             __enable_irq();
             return false;
         }
     }
 
     // memcmp section to verify flash region == ram region
-    if (VerifyFlash(FLASH_START, firmware_buffer, len)) {
+    if (VerifyFlash(reinterpret_cast<const uint8_t*>(FLASH_START),
+                    firmware_buffer, len)) {
         __enable_irq();
         return true;
     } else {
