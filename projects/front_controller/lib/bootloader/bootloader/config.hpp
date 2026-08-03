@@ -35,8 +35,8 @@
 // Sector 0 starting location in flash (Where the app starts executing)
 #define BOOTLOADER_FLASH_START 0x08000000U
 #define FLASH_START 0x08000000U
-#define FLASH_SIZE (2U * 1024U * 1024U)       // 2MB, in bytes
-#define FLASH_END (FLASH_START + FLASH_SIZE)  // 0x08200000
+#define FLASH_SIZE (2U * 1024U * 1024U)  // 2MB, in bytes
+// #define FLASH_END (FLASH_START + FLASH_SIZE)  // 0x08200000
 
 // =============================================================================
 // Network Identity & Timings
@@ -62,6 +62,6 @@ kSectors[6] = {32000, 32000,  32000,
 
 #define KNUMSECTORS 6
 
-#define FLASH_KEY1 0x45670123
+// #define FLASH_KEY1 0x45670123
 
-#define FLASH_KEY2 0xCDEF89AB
+// #define FLASH_KEY2 0xCDEF89AB

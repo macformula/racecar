@@ -1,8 +1,10 @@
-#include ""
+#pragma once
+
+#include <cstddef>
+#include <cstdint>
 
 namespace bootloader {
 
 int Run(void);
-void WriteFirmwaretoFlash() __attribute__((section(".RamFunc")), noinline);
 
 }  // namespace bootloader
