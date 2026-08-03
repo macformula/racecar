@@ -57,8 +57,8 @@
 #define FLASH_CR_SNB_Pos (3U)
 #define FLASH_CR_SNB_Msk (0x1FUL << FLASH_CR_SNB_Pos)  //  0x000000F8
 
-kSectors[6] = {32000, 32000,  32000,
-               32000, 128000, 256000};  // each sector memory size
+uint32_t kSectors[6] = {32000, 32000,  32000,
+                        32000, 128000, 256000};  // each sector memory size
 
 #define KNUMSECTORS 6
 
