@@ -29,7 +29,7 @@
 // =============================================================================
 // Memory Boundaries
 // =============================================================================
-#define RAM_BUFFER_SIZE_BYTES (256 * 1024)  // 256 KB static staging buffer
+#define RAM_BUFFER_SIZE_BYTES (1024)  // 256 KB static staging buffer
 #define BOOTLOADER_RAM_BUF_SIZE RAM_BUFFER_SIZE_BYTES
 
 // Sector 0 starting location in flash (Where the app starts executing)
@@ -57,8 +57,8 @@
 #define FLASH_CR_SNB_Pos (3U)
 #define FLASH_CR_SNB_Msk (0x1FUL << FLASH_CR_SNB_Pos)  //  0x000000F8
 
-uint32_t kSectors[6] = {32000, 32000,  32000,
-                        32000, 128000, 256000};  // each sector memory size
+uint32_t kSectors[6] = {32 * 1024,  32 * 1024, 32 * 1024, 32 * 1024,
+                        128 * 1024, 256 * 1024};  // each sector memory size
 
 #define KNUMSECTORS 6
 
