@@ -282,7 +282,7 @@ void task_1hz(void* argument) {
     static UBaseType_t min_hwm = STACK_SIZE_WORDS;
 
     while (true) {
-        UpdateMinHighWaterMark(&min_hwm);
+        fsm::UpdateMinHighWaterMark(&min_hwm);
         veh_can_bus.Send(TxFcGitHash{
             .commit = macfe::generated::GIT_HASH,
             .dirty = macfe::generated::GIT_DIRTY,
@@ -301,7 +301,7 @@ void task_10hz(void* argument) {
     static UBaseType_t min_hwm = STACK_SIZE_WORDS;
 
     while (true) {
-        UpdateMinHighWaterMark(&min_hwm);
+        fsm::UpdateMinHighWaterMark(&min_hwm);
         ToggleDebugLed();
         UpdateErrorLeds();
         dbc_hash::Update_10Hz(veh_can_bus);
@@ -357,7 +357,7 @@ void task_100hz(void* argument) {
     static UBaseType_t min_hwm = STACK_SIZE_WORDS;
 
     while (true) {
-        UpdateMinHighWaterMark(&min_hwm);
+        fsm::UpdateMinHighWaterMark(&min_hwm);
         sensors::driver::Update_100Hz();
         sensors::dynamics::Update_100Hz();
         driver_interface::Update_100Hz();
