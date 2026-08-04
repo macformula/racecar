@@ -51,6 +51,14 @@ using State = TxFcStatus::State_t;
 static State state = State::START_DASHBOARD;
 static uint32_t elapsed = 0;
 
+static UBaseType_t UpdateMinHighWaterMark(UBaseType_t* min_hwm) {
+    UBaseType_t current = uxTaskGetStackHighWaterMark(NULL);
+    if (current < *min_hwm) {
+        *min_hwm = current;
+    }
+    return *min_hwm;
+}
+
 static void Update_100Hz(void) {
     using enum State;
     using DashState = RxDashStatus::State_t;
@@ -271,7 +279,10 @@ void task_1hz(void* argument) {
 
     TickType_t wake_time = xTaskGetTickCount();
 
+    static UBaseType_t min_hwm = STACK_SIZE_WORDS;
+
     while (true) {
+        UpdateMinHighWaterMark(&min_hwm);
         veh_can_bus.Send(TxFcGitHash{
             .commit = macfe::generated::GIT_HASH,
             .dirty = macfe::generated::GIT_DIRTY,
@@ -287,7 +298,10 @@ void task_10hz(void* argument) {
 
     TickType_t wake_time = xTaskGetTickCount();
 
+    static UBaseType_t min_hwm = STACK_SIZE_WORDS;
+
     while (true) {
+        UpdateMinHighWaterMark(&min_hwm);
         ToggleDebugLed();
         UpdateErrorLeds();
         dbc_hash::Update_10Hz(veh_can_bus);
@@ -340,7 +354,10 @@ void task_100hz(void* argument) {
 
     TickType_t wake_time = xTaskGetTickCount();
 
+    static UBaseType_t min_hwm = STACK_SIZE_WORDS;
+
     while (true) {
+        UpdateMinHighWaterMark(&min_hwm);
         sensors::driver::Update_100Hz();
         sensors::dynamics::Update_100Hz();
         driver_interface::Update_100Hz();
