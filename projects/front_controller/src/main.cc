@@ -201,6 +201,7 @@ static void Update_100Hz(void) {
                 // should probably check if motors and DI have shut down
                 new_state = START_DASHBOARD;
             }
+            break;
 
         case ERROR: {
             acc_cmd = accumulator::Command::OFF;
