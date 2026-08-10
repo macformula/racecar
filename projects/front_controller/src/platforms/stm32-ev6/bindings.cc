@@ -1,6 +1,7 @@
 #include "bindings.hpp"
 
 #include "adc.h"
+#include "bootloader/bootloader.hpp"
 #include "can.h"
 #include "gpio.h"
 #include "main.h"
@@ -121,6 +122,9 @@ void Initialize() {
 
     mcal::veh_can_base.Setup();
     mcal::pt_can_base.Setup();
+    // This is where can-flash bootloader runs, configuring custom internal
+    // clocks and CAN setup for flash
+    bootloader::Run();
 }
 
 int GetTickMs() {
