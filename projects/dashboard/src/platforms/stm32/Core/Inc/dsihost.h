@@ -49,3 +49,4 @@ void MX_DSIHOST_DSI_Init(void);
 #endif
 
 #endif /* __DSIHOST_H__ */
+

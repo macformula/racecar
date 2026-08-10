@@ -1,6 +1,7 @@
 #include "ConfirmMenu.hpp"
 
 #include "Display.hpp"
+#include "generated/can/veh_bus.hpp"
 
 ConfirmMenu::ConfirmMenu(Display* display) : Screen(display) {}
 

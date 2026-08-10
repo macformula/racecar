@@ -11,5 +11,6 @@ public:
     void Update() override;
 
 private:
+    lv_obj_t* title_label;
     lv_obj_t* progress_bar_;
 };

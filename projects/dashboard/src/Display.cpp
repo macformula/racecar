@@ -1,10 +1,12 @@
 ﻿#include "Display.hpp"
 
+#include "generated/can/pt_bus.hpp"
+#include "generated/can/veh_bus.hpp"
 Display::Display(Button& enter, Button& scroll, generated::can::VehBus& veh)
     : enter(enter),
       scroll(scroll),
       veh_bus(veh),
-      screen_(&profile_select),
+      screen_(&profile_select),  //! Useful: drive_mode profile_select
       profile_select(this),
       confirm_menu(this),
       acknowledge_config(this),

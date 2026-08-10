@@ -4,3 +4,6 @@ canGen:
     - name: veh
       node: DASH
       dbcFile: "../veh.dbc"
+    - name: pt
+      node: DASH
+      dbcFile: "../pt.dbc"

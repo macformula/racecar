@@ -1,7 +1,6 @@
 #include "AcknowledgeConfig.hpp"
 
 #include "Display.hpp"
-#include "generated/can/veh_bus.hpp"
 #include "lvgl.h"
 
 AcknowledgeConfig::AcknowledgeConfig(Display* display) : Screen(display) {}

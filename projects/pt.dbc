@@ -33,7 +33,7 @@ NS_ :
 
 BS_:
 
-BU_: INV1 INV2 FC
+BU_: INV1 INV2 FC DASH
 
 BO_ 643 Inv1_ActualValues1: 8 INV1
  SG_ bSystemReady : 8|1@1+ (1,0) [0|0] "" FC

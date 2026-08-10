@@ -29,8 +29,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-/* DMA memory to memory transfer handles
- * -------------------------------------*/
+/* DMA memory to memory transfer handles -------------------------------------*/
 extern DMA_HandleTypeDef hdma_memtomem_dma2_stream0;
 
 /* USER CODE BEGIN Includes */
@@ -52,3 +51,4 @@ void MX_DMA_Init(void);
 #endif
 
 #endif /* __DMA_H__ */
+
