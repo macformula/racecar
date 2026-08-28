@@ -1,7 +1,7 @@
 #pragma once
 
-#include "lookup_table.hpp"
-#include "moving_average.hpp"
+#include "lookup_table/lookup_table.hpp"
+#include "moving_average/moving_average.hpp"
 #include "periph/analog_input.hpp"
 
 class TempSensor {

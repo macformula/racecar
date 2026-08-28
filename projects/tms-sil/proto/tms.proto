@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package macfe.tms.proto;  //translates to C++ namespace
+
+message SiltoTms {  // translates to class macfe::tms::proto::SimtoTms
+    repeated float adc_voltages = 1;  // 6 channel
+}
+
+message TmstoSil {  // translates to class macfe::tms::proto::TmstoSim
+    float fan_pwm = 1;
+    bool debug_led_green = 2;
+    bool debug_led_red = 3;
+    bool debug_led_nucleo = 4;
+}

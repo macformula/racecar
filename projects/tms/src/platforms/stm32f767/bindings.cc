@@ -60,24 +60,19 @@ macfe::periph::DigitalOutput& debug_led_red = mcal::debug_led_red;
 
 macfe::periph::CanBase& veh_can_base = mcal::veh_can_base;
 
-void Initialize() {
-    HAL_Init();
-    SystemClock_Config();
-    MX_ADC1_Init();
-    MX_TIM4_Init();
-    MX_GPIO_Init();
-    MX_CAN2_Init();
+// void Initialize() {
+//     HAL_Init();
+//     SystemClock_Config();
+//     MX_ADC1_Init();
+//     MX_TIM4_Init();
+//     MX_GPIO_Init();
+//     MX_CAN2_Init();
 
-    mcal::veh_can_base.Setup();
-}
+//     mcal::veh_can_base.Setup();
+// }
 
 uint32_t GetCurrentTimeMs() {
     return HAL_GetTick();
-}
-
-void SoftwareReset() {
-    NVIC_SystemReset();
-    Error_Handler();
 }
 
 }  // namespace bindings

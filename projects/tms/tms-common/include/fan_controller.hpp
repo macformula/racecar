@@ -6,7 +6,7 @@
 
 #include <array>
 
-#include "lookup_table.hpp"
+#include "lookup_table/lookup_table.hpp"
 #include "periph/pwm.hpp"
 
 class FanController {
