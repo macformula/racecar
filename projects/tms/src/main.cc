@@ -20,7 +20,7 @@
 #include "periph/gpio.hpp"
 #include "temp_sensor.hpp"
 #include "tim.h"
-#include "tms-common/include/tms_tasks.hpp"
+#include "tms_tasks.hpp"
 // FreeRTOS
 #include "FreeRTOS.h"
 #include "task.h"
@@ -62,8 +62,7 @@ etl::array temp_sensors{
     TempSensor{temp_sensor_adc_3}, TempSensor{temp_sensor_adc_4},
     TempSensor{temp_sensor_adc_5}, TempSensor{temp_sensor_adc_6},
 };
-constexpr int kSensorCount = temp_sensors.size();
-static_assert(kSensorCount > 0);
+static_assert(temp_sensors.size() > 0);
 
 FanController fan_controller{fan_controller_pwm};
 
