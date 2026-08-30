@@ -5,13 +5,13 @@
 
 namespace macfe::tms {
 
-using namespace generated::can;
+using namespace ::generated::can;
 
 namespace {
 
-TxTMSValues TMSBroadcast(
+::generated::can::TxTMSValues TMSBroadcast(
     std::span<macfe::periph::AnalogInput* const, kSensorCount> adcs) {
-    return TxTMSValues{
+    return ::generated::can::TxTMSValues{
         .val1 = static_cast<uint8_t>(adcs[0]->ReadVoltage() * 50.0f),
         .val2 = static_cast<uint8_t>(adcs[1]->ReadVoltage() * 50.0f),
         .val3 = static_cast<uint8_t>(adcs[2]->ReadVoltage() * 50.0f),
@@ -21,7 +21,7 @@ TxTMSValues TMSBroadcast(
     };
 }
 
-TxBmsBroadcast PackBmsBroadcast(
+::generated::can::TxBmsBroadcast PackBmsBroadcast(
     const std::array<float, kSensorCount>& temperatures) {
     uint8_t low_index = 0;
     uint8_t high_index = 0;
@@ -50,7 +50,7 @@ TxBmsBroadcast PackBmsBroadcast(
                        avg_temp + kSensorCount + high_index + low_index +
                        kBmsChecksumConstant;
 
-    return TxBmsBroadcast{
+    return ::generated::can::TxBmsBroadcast{
         .therm_module_num = kThermistorModuleNumber,
         .low_therm_value = low_temp,
         .high_therm_value = high_temp,
@@ -74,8 +74,9 @@ void Process10HzStep(TmsContext& ctx, float dt_ms) {
     }
     avg_temp /= static_cast<float>(kSensorCount);
 
-    TxBmsBroadcast bms_broadcast = PackBmsBroadcast(temperatures);
-    TxTMSValues tms = TMSBroadcast(ctx.adc_channels);
+    ::generated::can::TxBmsBroadcast bms_broadcast =
+        PackBmsBroadcast(temperatures);
+    ::generated::can::TxTMSValues tms = TMSBroadcast(ctx.adc_channels);
 
     ctx.veh_can_bus.Send(bms_broadcast);
     ctx.veh_can_bus.Send(tms);
@@ -83,8 +84,8 @@ void Process10HzStep(TmsContext& ctx, float dt_ms) {
     ctx.fan_controller.Update(avg_temp, dt_ms);
 }
 
-void Process1HzStep(generated::can::VehBus& veh_can_bus) {
-    veh_can_bus.Send(generated::can::TxTmsGitHash{
+void Process1HzStep(::generated::can::VehBus& veh_can_bus) {
+    veh_can_bus.Send(::generated::can::TxTmsGitHash{
         .commit = macfe::generated::GIT_HASH,
         .dirty = macfe::generated::GIT_DIRTY,
     });

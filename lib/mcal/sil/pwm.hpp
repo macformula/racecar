@@ -1,36 +1,37 @@
 #pragma once
 
-#include <iostream>
+#include <algorithm>
 
-#include "lvcontroller.pb.h"
 #include "periph/pwm.hpp"
+
 namespace mcal::sil {
 
 class PWMOutput : public macfe::periph::PWMOutput {
-private:
-    lvcontroller_PWM* output_struct_;
-
 public:
-    PWMOutput(lvcontroller_PWM* output_struct)
-        : output_struct_(output_struct) {}
-    void Start() {
-        std::cout << "Starting PWM" << std::endl;
+    explicit PWMOutput(float* output) : output_(output) {}
+
+    void Start() override {}
+    void Stop() override {}
+
+    void SetDutyCycle(float duty_cycle) override {
+        *output_ = std::clamp(duty_cycle, 0.0f, 100.0f);
     }
-    void Stop() {
-        std::cout << "Stopping PWM" << std::endl;
+
+    float GetDutyCycle() override {
+        return *output_;
     }
-    void SetDutyCycle(float duty_cycle) {
-        output_struct_->duty_cycle =
-            std::max<float>(0, std::min<float>(100, duty_cycle));
+
+    void SetFrequency(float frequency) override {
+        frequency_ = frequency;
     }
-    float GetDutyCycle() {
-        return output_struct_->duty_cycle;
+
+    float GetFrequency() override {
+        return frequency_;
     }
-    void SetFrequency(float frequency) {
-        output_struct_->frequency_hz = std::min<float>(0, frequency);
-    }
-    float GetFrequency() {
-        return output_struct_->frequency_hz;
-    }
+
+private:
+    float* output_;
+    float frequency_ = 0.0f;
 };
+
 }  // namespace mcal::sil
