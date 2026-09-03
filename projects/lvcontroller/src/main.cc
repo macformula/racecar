@@ -32,6 +32,7 @@ using LvState = TxLvStatus::LvState_t;
 
 static LvState state = LvState::PWRUP_START;
 static uint32_t elapsed = 0;
+static bool hv_fault_shutdown = false;  // true if shutdown was caused by contactors opening unexpectedly
 
 void Init(void) {
     state = LvState::PWRUP_START;
@@ -162,7 +163,16 @@ void Update_100hz(void) {
         case SHUTDOWN_FAN_OFF:
             fans::SetPowerSetpoint(0);
 
-            if (elapsed > 50) new_state = SHUTDOWN_COMPLETE;
+            if (elapsed > 50) {
+                if (hv_fault_shutdown) {
+                    hv_fault_shutdown = false;
+                    new_state = PWRUP_ACCUMULATOR_ON;
+                } 
+                
+                else {
+                    new_state = SHUTDOWN_COMPLETE;
+                }
+            }
             break;
 
         case SHUTDOWN_COMPLETE:
@@ -170,6 +180,17 @@ void Update_100hz(void) {
             break;
     }
 
+    bool check_shutdown = state == DCDC_ON || state == POWERTRAIN_PUMP_ON ||
+                      state == POWERTRAIN_FAN_ON || state == READY_TO_DRIVE;
+
+    if (check_shutdown && accumulator::ConfirmContactorsOpen()) {
+        hv_fault_shutdown = true;
+        new_state = SHUTDOWN_DRIVER_WARNING;
+
+    }
+
+
+    
     // no LVBMS yet, so we can't check for shutdown
     /*
     // Shutdown checks that can occur from multiple states
