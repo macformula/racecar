@@ -10,10 +10,6 @@
 #include "main.h"
 #include "tim.h"
 
-// The HAL defines `CRC` as an object-like macro for the CRC peripheral, which
-// mangles the CRC() accessor on generated CAN messages. TMS doesn't use that
-// peripheral. This must stay between the HAL headers and the generated ones -
-// the blank-line-separated blocks keep clang-format from re-sorting across it.
 #undef CRC
 
 #include "etl/array.h"
