@@ -6,7 +6,8 @@ namespace macfe::tms {
 
 using namespace ::generated::can;
 
-TxTMSValues TMSBroadcast(const std::array<float, kSensorCount>& temperatures) {
+::generated::can::TxTMSValues TMSBroadcast(
+    const std::array<float, kSensorCount>& temperatures) {
     return TxTMSValues{
         .val1 = static_cast<uint8_t>(temperatures[0] * 50.0f),
         .val2 = static_cast<uint8_t>(temperatures[1] * 50.0f),
@@ -17,7 +18,7 @@ TxTMSValues TMSBroadcast(const std::array<float, kSensorCount>& temperatures) {
     };
 }
 
-TxBmsBroadcast PackBmsBroadcast(
+::generated::can::TxBmsBroadcast PackBmsBroadcast(
     const std::array<float, kSensorCount>& temperatures) {
     // Compute the min, max, and avg temperatures
     uint8_t low_index = 0;

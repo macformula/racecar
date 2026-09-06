@@ -12,18 +12,16 @@
 
 namespace macfe::tms {
 
-using ::generated::can::TxBmsBroadcast;
-using ::generated::can::TxTMSValues;
-using ::generated::can::VehBus;
-
 inline constexpr size_t kSensorCount = 6;
 
-TxTMSValues TMSBroadcast(const std::array<float, kSensorCount>& temperatures);
+::generated::can::TxTMSValues TMSBroadcast(
+    const std::array<float, kSensorCount>& temperatures);
 
-TxBmsBroadcast PackBmsBroadcast(
+::generated::can::TxBmsBroadcast PackBmsBroadcast(
     const std::array<float, kSensorCount>& temperatures);
 
 void ReadAndSendTemperatures(
-    float update_period_ms, VehBus& veh_can_bus, FanController& fan_controller,
+    float update_period_ms, ::generated::can::VehBus& veh_can_bus,
+    FanController& fan_controller,
     etl::array<TempSensor, kSensorCount>& temp_sensors);
 }  // namespace macfe::tms
