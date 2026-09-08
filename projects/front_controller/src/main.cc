@@ -256,7 +256,7 @@ void CheckCanFlash() {
 }
 
 void UpdateErrorLeds() {
-    auto error_led = veh_can_bus.GetRxLvStatus();
+    auto error_led = veh_can_bus.GetRxLvAlerts();
     if (error_led.has_value()) {
         bindings::imd_fault_led_en.Set(error_led->ImdFault());
         bindings::bms_fault_led_en.Set(error_led->BmsFault());
