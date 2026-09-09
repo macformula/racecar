@@ -47,13 +47,14 @@ PtBus pt_can_bus{bindings::pt_can_base};
 
 namespace fsm {
 using State = TxFcStatus::State_t;
+using DashState = RxDashStatus::State_t;
 
 static State state = State::START_DASHBOARD;
 static uint32_t elapsed = 0;
+static std::optional<DashState> prev_dash_state = std::nullopt;
 
 static void Update_100Hz(void) {
     using enum State;
-    using DashState = RxDashStatus::State_t;
 
     State new_state = state;
 
@@ -110,7 +111,8 @@ static void Update_100Hz(void) {
 
             auto dash = veh_can_bus.GetRxDashStatus();
             if (dash.has_value()) {
-                if (dash->State() == DashState::STARTING_HV) {
+                if (dash->State() == DashState::STARTING_HV &&
+                    prev_dash_state != DashState::STARTING_HV) {
                     new_state = STARTING_HV;
                 }
             }
@@ -124,8 +126,6 @@ static void Update_100Hz(void) {
 
             if (accumulator::GetState() == accumulator::State::RUNNING) {
                 new_state = WAIT_START_MOTOR;
-            } else if (accumulator::GetState() == accumulator::State::ERROR) {
-                new_state = ERROR;
             } else {
                 // waiting
             }
@@ -177,10 +177,6 @@ static void Update_100Hz(void) {
             speaker = elapsed < timeout::SPEAKER_DURATION;
             torque_request = driver_interface::GetTorqueRequest();
 
-            if (accumulator::GetState() == accumulator::State::ERROR) {
-                new_state = ERROR;
-            }
-
             if (motors::GetState() == motors::State::ERROR) {
                 new_state = ERROR;
             }
@@ -197,9 +193,10 @@ static void Update_100Hz(void) {
             speaker = false;
             torque_request = 0;
 
-            if (accumulator::GetState() == accumulator::State::IDLE) {
+            if (accumulator::GetState() == accumulator::State::IDLE &&
+                motors::GetState() == motors::State::IDLE) {
                 // should probably check if motors and DI have shut down
-                new_state = START_DASHBOARD;
+                new_state = WAIT_START_HV;
             }
             break;
 
@@ -219,6 +216,14 @@ static void Update_100Hz(void) {
         } break;
     }
 
+    bool hv_active = state != START_DASHBOARD && state != WAIT_DRIVER_SELECT &&
+                     state != WAIT_START_HV && state != SHUTDOWN &&
+                     state != ERROR;
+
+    if (hv_active && accumulator::GetState() == accumulator::State::ERROR) {
+        new_state = SHUTDOWN;
+    }
+
     if (hvil_interrupt) {
         new_state = SHUTDOWN;
     }
@@ -233,6 +238,11 @@ static void Update_100Hz(void) {
         elapsed = 0;
     } else {
         elapsed += 10;
+    }
+
+    auto dash_now = veh_can_bus.GetRxDashStatus();
+    if (dash_now.has_value()) {
+        prev_dash_state = dash_now->State();
     }
 }
 }  // namespace fsm
@@ -318,6 +328,7 @@ void task_10hz(void* argument) {
             .drive_started = fsm::state == fsm::State::RUNNING,
             .reset = fsm::state == fsm::State::START_DASHBOARD,
             .errored = fsm::state == fsm::State::ERROR,
+            .hv_shutdown = fsm::state == fsm::State::SHUTDOWN,
             .hv_precharge_percent =
                 static_cast<uint8_t>(accumulator::GetPrechargePercent()),
             .speed = motors::GetMph(),
