@@ -245,6 +245,8 @@ void task_10hz(void) {
 
     veh_can.Send(TxLvAlerts{
         .hsd_overcurrent = alerts::Get().hsd_overcurrent,
+        .imd_fault = tssi::GetImdFault(),
+        .bms_fault = tssi::GetBmsFault(),
     });
 
     veh_can.Send(TxLvDcdc{
@@ -258,8 +260,6 @@ void task_10hz(void) {
         .lv_state = fsm::state,
         .motor_controller_state = motor_controller::GetState(),
         .motor_controller_switch_closed = motor_controller::GetSwitchClosed(),
-        .imd_fault = tssi::GetImdFault(),
-        .bms_fault = tssi::GetBmsFault(),
     });
 }
 
