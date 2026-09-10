@@ -1,0 +1,13 @@
+{
+    "name": "tms-common",
+    "version": "0.1.0",
+    "description": "Platform-independent TMS logic: temperature sensing, BMS broadcast packing, and fan control.",
+    "dependencies": {
+        "Embedded Template Library": "^20",
+        "atomic_buffer": "*",
+        "can": "*",
+        "lookup_table": "*",
+        "moving_average": "*",
+        "periph": "*"
+    }
+}
