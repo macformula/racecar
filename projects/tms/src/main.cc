@@ -8,8 +8,23 @@
 #include "fan_controller/fan_controller.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "generated/githash.hpp"
 #include "periph/gpio.hpp"
 #include "temp_sensor/temp_sensor.hpp"
+
+// FreeRTOS
+#include "FreeRTOS.h"
+#include "task.h"
+
+static const size_t STACK_SIZE_WORDS = 2048 * 16;
+static const uint32_t PRIORITY_10HZ = 2;
+static const uint32_t PRIORITY_1HZ = 1;
+
+StaticTask_t t10hz_control_block;
+StackType_t t10hz_buffer[STACK_SIZE_WORDS];
+
+StaticTask_t t1hz_control_block;
+StackType_t t1hz_buffer[STACK_SIZE_WORDS];
 
 using namespace generated::can;
 
@@ -98,13 +113,29 @@ void Update(float update_period_ms) {
     toggle = !toggle;
 }
 
-int main(void) {
-    bindings::Initialize();
+void task_1hz(void* argument) {
+    (void)argument;
 
-    const uint32_t kUpdatePeriodMs = 100;
+    const uint32_t kUpdatePeriodMs = 1000;
+    TickType_t wake_time = xTaskGetTickCount();
 
     while (true) {
-        uint32_t start_time_ms = bindings::GetCurrentTimeMs();
+        veh_can_bus.Send(TxTmsGitHash{
+            .commit = macfe::generated::GIT_HASH,
+            .dirty = macfe::generated::GIT_DIRTY,
+        });
+
+        vTaskDelayUntil(&wake_time, pdMS_TO_TICKS(kUpdatePeriodMs));
+    }
+}
+
+void task_10hz(void* argument) {
+    (void)argument;
+
+    const uint32_t kUpdatePeriodMs = 100;
+    TickType_t wake_time = xTaskGetTickCount();
+
+    while (true) {
         Update(kUpdatePeriodMs);
 
         // Check for CAN Flash
@@ -113,8 +144,37 @@ int main(void) {
             bindings::SoftwareReset();
         }
 
-        while (bindings::GetCurrentTimeMs() <= start_time_ms + kUpdatePeriodMs);
+        vTaskDelayUntil(&wake_time, pdMS_TO_TICKS(kUpdatePeriodMs));
     }
+}
+
+int main(void) {
+    bindings::Initialize();
+
+    xTaskCreateStatic(task_10hz, "10HZ", STACK_SIZE_WORDS, NULL, PRIORITY_10HZ,
+                      t10hz_buffer, &t10hz_control_block);
+
+    xTaskCreateStatic(task_1hz, "1HZ", STACK_SIZE_WORDS, NULL, PRIORITY_1HZ,
+                      t1hz_buffer, &t1hz_control_block);
+
+    vTaskStartScheduler();
+
+    while (true) continue;
 
     return 0;
+}
+
+extern "C" void vApplicationStackOverflowHook(TaskHandle_t xTask,
+                                              char* pcTaskName);
+
+// Optional: call this periodically, e.g., from task_10hz
+
+extern "C" void vApplicationStackOverflowHook(TaskHandle_t xTask,
+                                              char* pcTaskName) {
+    // Handle stack overflow (e.g., light an LED, halt, etc.)
+    bindings::debug_led_red.SetHigh();
+    macfe::periph::CanErrorHandler(&bindings::veh_can_base);
+    while (1) {
+        // Trap CPU here
+    }
 }

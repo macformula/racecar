@@ -16,6 +16,7 @@ public:
     void Update(int time_ms);
 
 private:
+    bool initialized_;
     bool pos_edge_;
     bool neg_edge_;
     bool previous_state_;

@@ -14,6 +14,7 @@ public:
     void Update() override;
 
 private:
+    lv_obj_t* title_label;
     const uint8_t kEventCount = static_cast<uint8_t>(Profile::_ENUM_TAIL_);
     lv_obj_t* roller;
 };

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "hsd/hsd.hpp"
 #include "periph/analog_input.hpp"
 #include "periph/can.hpp"
 #include "periph/gpio.hpp"
@@ -37,6 +38,17 @@ extern macfe::periph::DigitalOutput& imd_fault_led_en;
 extern macfe::periph::DigitalOutput& bms_fault_led_en;
 extern macfe::periph::DigitalOutput& ready_to_drive_sig_en;
 extern macfe::periph::DigitalOutput& debug_led;
+
+// =========== HSD =========================================
+extern macfe::periph::AnalogInput& hsd1_isense;
+extern macfe::periph::DigitalOutput& hsd1_sel0;
+extern macfe::periph::DigitalOutput& hsd1_sel1;
+extern macfe::periph::DigitalOutput& hsd1_isense_en;
+extern macfe::periph::AnalogInput& hsd2_isense;
+extern macfe::periph::DigitalOutput& hsd2_isense_en;
+
+extern hsd::HSD4Channel& hsd1;
+extern hsd::HSD1Channel& hsd2;
 
 extern void Initialize();
 

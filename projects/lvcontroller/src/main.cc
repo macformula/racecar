@@ -7,13 +7,16 @@
 #include "bindings.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "generated/githash.hpp"
 #include "periph/gpio.hpp"
 
 // LV Modules
 #include "accumulator/accumulator.hpp"
+#include "alerts/alerts.hpp"
 #include "brakelight/brakelight.hpp"
 #include "dcdc/dcdc.hpp"
 #include "fans/fans.hpp"
+#include "hsd/hsd.hpp"
 #include "motor_controller/motor_controller.hpp"
 #include "scheduler/scheduler.hpp"
 #include "suspension/suspension.hpp"
@@ -210,6 +213,10 @@ void check_can_flash(void) {
 
 void task_1hz(void) {
     veh_can.Send(TxLvDbcHash(generated::can::kVehDbcHash));
+    veh_can.Send(TxLvGitHash{
+        .commit = macfe::generated::GIT_HASH,
+        .dirty = macfe::generated::GIT_DIRTY,
+    });
 }
 
 void task_10hz(void) {
@@ -219,6 +226,17 @@ void task_10hz(void) {
     tssi::task_10hz();
     accumulator::task_10hz(veh_can);
     // check_can_flash(); // unused in 2025
+    hsd::Update_10Hz(veh_can);
+
+    veh_can.Send(TxLvAlerts{
+        .hsd_overcurrent = alerts::Get().hsd_overcurrent,
+    });
+
+    veh_can.Send(TxLvDcdc{
+        .lv_battery_voltage = dcdc::GetLvBatteryVoltage(),
+        .bus_voltage = dcdc::GetVoltage(),
+        .bus_current = dcdc::GetAmps(),
+    });
 
     veh_can.Send(TxLvStatus{
         .counter = tx_counter++,

@@ -19,7 +19,7 @@ const float EV_4_7_APPS_DEACTIVATE = 5.0f;  // rule EV.4.7
 
 // motor
 const float MOTOR_TORQUE_LIMIT_PERCENT = 100.f;
-const float MOTOR_SPEED_LIMIT_RPM = 5000.f;
+const float MOTOR_SPEED_LIMIT_RPM = 12000.f;
 
 }  // namespace threshold
 
