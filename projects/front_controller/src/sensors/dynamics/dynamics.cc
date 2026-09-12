@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "bindings.hpp"
+#include "motors/motors.hpp"
 #include "physical.hpp"
 
 namespace sensors::dynamics {
@@ -44,6 +45,8 @@ void Update_100Hz(void) {
         tach_front_left.Update(bindings::GetWheelTicksLeft(), kDtSeconds);
     wheel_speed.front_right =
         tach_front_right.Update(bindings::GetWheelTicksRight(), kDtSeconds);
+    wheel_speed.rear_left = motors::GetLeftWheelRpm();
+    wheel_speed.rear_right = motors::GetRightWheelRpm();
 }
 
 }  // namespace sensors::dynamics
