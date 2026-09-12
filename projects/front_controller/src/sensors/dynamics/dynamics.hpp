@@ -11,6 +11,8 @@ struct WheelSpeed {
 
 const WheelSpeed& GetWheelSpeeds(void);
 
+float GetMph(void);
+
 void Update_100Hz(void);
 
 }  // namespace sensors::dynamics

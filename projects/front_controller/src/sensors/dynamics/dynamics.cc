@@ -28,6 +28,16 @@ const WheelSpeed& GetWheelSpeeds(void) {
     return wheel_speed;
 }
 
+float GetMph(void) {
+    constexpr float PI = 3.1415926f;
+    constexpr float in_per_rev = PI * tuning::motor_diam_inch;
+    constexpr float in_per_mile = 12.0f * 5280.0f;
+    constexpr float min_per_hr = 60.0f;
+
+    float avg_rpm = (wheel_speed.front_left + wheel_speed.front_right) / 2.0f;
+    return (avg_rpm * in_per_rev * min_per_hr) / in_per_mile;
+}
+
 void Update_100Hz(void) {
     constexpr float kDtSeconds = 0.01f;
     wheel_speed.front_left =
