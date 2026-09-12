@@ -1,2 +1,3 @@
 cantools
 numpy
+python-can
