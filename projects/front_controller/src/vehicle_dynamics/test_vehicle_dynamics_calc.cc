@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include "sensors/dynamics/dynamics.hpp"
 #include "vehicle_dynamics_calc.hpp"
 
 using namespace ctrl;
@@ -68,23 +69,50 @@ TEST(VehicleDynamicsCalc, TestMultistageTC) {
 }
 
 TEST(VehicleDynamicsCalc, TestActualSlip) {
-    // Should return 0 because right-rear wheel speed is greater than idle wheel
-    // speed, forcing the bound to 0.
-    EXPECT_FLOAT_EQ(ctrl::CalculateActualSlip(132.5, 134.0, 140.0, 135.0), 0);
+    // Should return 0 because rear wheel speed is less than idle front wheel
+    // speed, forcing the bound to 0 (deceleration/braking).
+    // idle = (140.0 + 135.0) / 2 = 137.5. max_rear = 134.0.
+    EXPECT_FLOAT_EQ(ctrl::CalculateActualSlip({
+                        .front_left = 140.0f,
+                        .front_right = 135.0f,
+                        .rear_left = 132.5f,
+                        .rear_right = 134.0f,
+                    }),
+                    0.0f);
 
-    // Same as the last test but Left Rear wheel speed is used because it is
-    // greater then Right-Rear wheel speed.
-    EXPECT_FLOAT_EQ(ctrl::CalculateActualSlip(133.4, 130.2, 140.0, 135.0), 0);
+    // Same as above but Left-Rear wheel speed is used because it is greater
+    // than Right-Rear wheel speed, but still less than idle speed.
+    // idle = 137.5. max_rear = 133.4.
+    EXPECT_FLOAT_EQ(ctrl::CalculateActualSlip({
+                        .front_left = 140.0f,
+                        .front_right = 135.0f,
+                        .rear_left = 133.4f,
+                        .rear_right = 130.2f,
+                    }),
+                    0.0f);
 
-    // Should be a decimal since Right-Rear wheel speed is less than the idle
-    // speed, and the Actual-Slip value will return.
-    EXPECT_NEAR(ctrl::CalculateActualSlip(155.6, 157.2, 155.3, 157.8), 0.004152,
-                1e-6);
+    // Right-Rear wheel speed is greater than idle front speed.
+    // idle = (155.3 + 157.8) / 2 = 156.55. max_rear = 157.2.
+    // slip = (157.2 / 156.55) - 1.0 = 0.004152.
+    EXPECT_NEAR(ctrl::CalculateActualSlip({
+                    .front_left = 155.3f,
+                    .front_right = 157.8f,
+                    .rear_left = 155.6f,
+                    .rear_right = 157.2f,
+                }),
+                0.004152f, 1e-6f);
 
-    // Should be a decimal for same reasons as previous, but for Left-Rear wheel
-    // speed.
-    EXPECT_NEAR(ctrl::CalculateActualSlip(156.4, 155.3, 155.2, 157.1), 0.001601,
-                1e-6);
+    // Same as above, but Left-Rear wheel speed is used because it is greater
+    // than Right-Rear wheel speed.
+    // idle = (155.2 + 157.1) / 2 = 156.15. max_rear = 156.4.
+    // slip = (156.4 / 156.15) - 1.0 = 0.001601.
+    EXPECT_NEAR(ctrl::CalculateActualSlip({
+                    .front_left = 155.2f,
+                    .front_right = 157.1f,
+                    .rear_left = 156.4f,
+                    .rear_right = 155.3f,
+                }),
+                0.001601f, 1e-6f);
 }
 
 int main(int argc, char** argv) {
