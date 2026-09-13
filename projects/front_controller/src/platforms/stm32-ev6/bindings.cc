@@ -1,5 +1,7 @@
 #include "bindings.hpp"
 
+#include <atomic>
+
 #include "adc.h"
 #include "can.h"
 #include "gpio.h"
@@ -61,15 +63,15 @@ hsd::HSD1Channel hsd2{hsd2_isense, hsd2_isense_en};
 }  // namespace mcal
 
 // =========== Wheel Speed Sensor Interrupts =============
-static volatile uint32_t wheel_ticks_left = 0;
-static volatile uint32_t wheel_ticks_right = 0;
+static std::atomic<uint32_t> wheel_ticks_left{0};
+static std::atomic<uint32_t> wheel_ticks_right{0};
 
 // Exported with C linkage so STM32 HAL invokes it
 extern "C" void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
     if (GPIO_Pin == WHEEL_SPEED_LEFT_A_BUFFERED_Pin) {
-        wheel_ticks_left++;
+        wheel_ticks_left.fetch_add(1, std::memory_order_relaxed);
     } else if (GPIO_Pin == WHEEL_SPEED_RIGHT_A_BUFFERED_Pin) {
-        wheel_ticks_right++;
+        wheel_ticks_right.fetch_add(1, std::memory_order_relaxed);
     }
 }
 
@@ -84,11 +86,11 @@ macfe::periph::AnalogInput& suspension_travel1 = mcal::suspension_travel1;
 macfe::periph::AnalogInput& suspension_travel2 = mcal::suspension_travel2;
 
 uint32_t GetWheelTicksLeft() {
-    return wheel_ticks_left;
+    return wheel_ticks_left.load(std::memory_order_relaxed);
 }
 
 uint32_t GetWheelTicksRight() {
-    return wheel_ticks_right;
+    return wheel_ticks_right.load(std::memory_order_relaxed);
 }
 
 // =========== Driver Control ==============================
