@@ -320,7 +320,7 @@ void task_10hz(void* argument) {
             .errored = fsm::state == fsm::State::ERROR,
             .hv_precharge_percent =
                 static_cast<uint8_t>(accumulator::GetPrechargePercent()),
-            .speed = motors::GetMph(),
+            .speed = sensors::dynamics::GetMph(),
             .hv_soc_percent =
                 static_cast<uint8_t>(accumulator::GetSocPercent()),
         });

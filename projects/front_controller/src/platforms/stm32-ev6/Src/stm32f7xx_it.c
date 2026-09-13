@@ -219,4 +219,17 @@ void CAN2_RX0_IRQHandler(void) {
 
 /* USER CODE BEGIN 1 */
 
+/**
+ * @brief This function handles EXTI line4 interrupt.
+ */
+void EXTI4_IRQHandler(void) {
+    HAL_GPIO_EXTI_IRQHandler(WHEEL_SPEED_RIGHT_A_BUFFERED_Pin);
+}
+/**
+ * @brief This function handles EXTI line9 interrupt.
+ */
+void EXTI9_5_IRQHandler(void) {
+    HAL_GPIO_EXTI_IRQHandler(WHEEL_SPEED_LEFT_A_BUFFERED_Pin);
+}
+
 /* USER CODE END 1 */
