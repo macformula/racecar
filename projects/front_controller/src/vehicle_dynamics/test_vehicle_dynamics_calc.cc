@@ -68,6 +68,31 @@ TEST(VehicleDynamicsCalc, TestMultistageTC) {
     }
 }
 
+TEST(VehicleDynamicsCalc, StandstillGuardZeroRpm) {
+    // Both front wheels at 0 RPM (dead stop) with rear wheels stopped.
+    // Must return 0.0f slip and avoid division-by-zero.
+    EXPECT_FLOAT_EQ(ctrl::CalculateActualSlip({
+                        .front_left = 0.0f,
+                        .front_right = 0.0f,
+                        .rear_left = 0.0f,
+                        .rear_right = 0.0f,
+                    }),
+                    0.0f);
+
+    // Both front wheels at 0 RPM (standstill) but rear wheels spinning
+    // (e.g. burnout / launch from standstill).
+    // Standstill guard must trigger on 0 RPM front idle speed and return 0.0f,
+    // preventing infinite slip (std::numeric_limits<float>::infinity()) and
+    // division-by-zero.
+    EXPECT_FLOAT_EQ(ctrl::CalculateActualSlip({
+                        .front_left = 0.0f,
+                        .front_right = 0.0f,
+                        .rear_left = 100.0f,
+                        .rear_right = 150.0f,
+                    }),
+                    0.0f);
+}
+
 TEST(VehicleDynamicsCalc, TestActualSlip) {
     // Should return 0 because rear wheel speed is less than idle front wheel
     // speed, forcing the bound to 0 (deceleration/braking).
