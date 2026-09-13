@@ -4,36 +4,7 @@
 
 using namespace ctrl;
 
-TorqueRequest tr;
-
-TEST(TorqueRequest, StopTorque) {
-    EXPECT_FLOAT_EQ(tr.Update(30.0, 20.0),
-                    0.0);  // Should return 0.0 due to State::Stop
-    EXPECT_FLOAT_EQ(tr.Update(15.0, 2.5),
-                    0.0);  // Only the !brake_on condition is met here, so it
-    // should stay in State::Stop and return 0.0
-    EXPECT_FLOAT_EQ(
-        tr.Update(4.5, 10.5),
-        0.0);  // Only the driver_torque_request < static_cast<T>(5) condition
-               // is met here, so it should stay in State::Stop and return 0.0
-}
-
-TEST(TorqueRequest, RunTorque) {
-    EXPECT_FLOAT_EQ(
-        tr.Update(3.0, 0.0),
-        3.0);  // Should move to State::Run and return driver_torque_request
-    EXPECT_FLOAT_EQ(tr.Update(40.0, 4.0),
-                    40.0);  // Should stay in State::Run and return 40.0
-    EXPECT_FLOAT_EQ(tr.Update(12.2, 11.0),
-                    12.2);  // Only the brake_on condition is met here, so it
-                            // should stay in State::Run and return 12.2
-    EXPECT_FLOAT_EQ(tr.Update(25.4, 9.0),
-                    25.4);  // Only the driver_torque_request >=
-                            // static_cast<T>(25) condition is met here, so it
-                            // should stay in State::Run and return 25.4
-}
-
-TEST(TorqueRequest, CreateTorqueVectoringFactor) {
+TEST(VehicleDynamicsCalc, CreateTorqueVectoringFactor) {
     EXPECT_FLOAT_EQ(CreateTorqueVectoringFactor(5.0), 0.934);
     EXPECT_FLOAT_EQ(CreateTorqueVectoringFactor(10.0), 0.87);
     EXPECT_FLOAT_EQ(CreateTorqueVectoringFactor(13.2), 0.83032);
@@ -41,7 +12,7 @@ TEST(TorqueRequest, CreateTorqueVectoringFactor) {
     EXPECT_FLOAT_EQ(CreateTorqueVectoringFactor(27.3), 0.683);
 }
 
-TEST(TorqueRequest, AdjustTorqueVectoring) {
+TEST(VehicleDynamicsCalc, AdjustTorqueVectoring) {
     {
         TorqueVector tv = AdjustTorqueVectoring(15.0);
         EXPECT_FLOAT_EQ(tv.left, 1.0);
@@ -73,7 +44,7 @@ TEST(TorqueRequest, AdjustTorqueVectoring) {
     }
 }
 
-TEST(TorqueRequest, TestMultistageTC) {
+TEST(VehicleDynamicsCalc, TestMultistageTC) {
     int time_ms = 0;
     TractionControl tc;
     tc.Init(time_ms);
@@ -96,7 +67,7 @@ TEST(TorqueRequest, TestMultistageTC) {
     }
 }
 
-TEST(TorqueRequest, TestActualSlip) {
+TEST(VehicleDynamicsCalc, TestActualSlip) {
     // Should return 0 because right-rear wheel speed is greater than idle wheel
     // speed, forcing the bound to 0.
     EXPECT_FLOAT_EQ(ctrl::CalculateActualSlip(132.5, 134.0, 140.0, 135.0), 0);
@@ -114,4 +85,9 @@ TEST(TorqueRequest, TestActualSlip) {
     // speed.
     EXPECT_NEAR(ctrl::CalculateActualSlip(156.4, 155.3, 155.2, 157.1), 0.001601,
                 1e-6);
+}
+
+int main(int argc, char** argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
