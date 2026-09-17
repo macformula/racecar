@@ -18,7 +18,10 @@ static etl::vector<task_t, SCHEDULER_MAX_TASKS> tasks;
 
 namespace scheduler {
 
-void register_task(void (*task)(void), uint32_t period_ms) {
+class Controller {
+public:
+    Controller()
+} void register_task(void (*task)(void), uint32_t period_ms) {
     task_t new_task = {
         .period_ms = period_ms,
         .last_run_ms = 0,
