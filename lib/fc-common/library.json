@@ -1,0 +1,11 @@
+{
+    "name": "fc-common",
+    "build": {
+        "srcDir": ".",
+        "includeDir": ".",
+        "srcFilter": [
+            "+<*>",
+            "-<**/test*>"
+        ]
+    }
+}

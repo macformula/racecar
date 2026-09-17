@@ -3,7 +3,6 @@
 
 #include "vehicle_dynamics.hpp"
 
-#include "bindings.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "lookup_table.hpp"
 #include "motors/motors.hpp"
@@ -70,7 +69,7 @@ void Init(void) {
     };
 
     driver_torque_request = 0;
-    traction_ctrl.Init(bindings::GetTickMs());
+    traction_ctrl.Init(GetTickMs());
 }
 
 void Update_100Hz(void) {

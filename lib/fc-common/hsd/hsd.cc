@@ -61,10 +61,10 @@ bool HasOverCurrent() {
 
 void Update_10Hz(generated::can::VehBus&) {
     // HSD1 - 4 Channels
-    channels[0] = bindings::hsd1.Read(0);
-    channels[1] = bindings::hsd1.Read(1);
-    channels[2] = bindings::hsd1.Read(2);
-    channels[3] = bindings::hsd1.Read(3);
+    channels[0] = hsd1.Read(0);
+    channels[1] = hsd1.Read(1);
+    channels[2] = hsd1.Read(2);
+    channels[3] = hsd1.Read(3);
 
     channels[4] = bindings::hsd2.Read(
         0);  //  function requires channel but ideally should not

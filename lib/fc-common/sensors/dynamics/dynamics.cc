@@ -16,14 +16,11 @@ static float VoltageToRpm(float voltage) {
 }
 
 void Update_100Hz(void) {
-    wheel_speed.front_left =
-        VoltageToRpm(bindings::wheel_speed_front_left.ReadVoltage());
+    wheel_speed.front_left = VoltageToRpm(wheel_speed_front_left.ReadVoltage());
     wheel_speed.front_right =
-        VoltageToRpm(bindings::wheel_speed_front_right.ReadVoltage());
-    wheel_speed.rear_left =
-        VoltageToRpm(bindings::wheel_speed_rear_left.ReadVoltage());
-    wheel_speed.rear_right =
-        VoltageToRpm(bindings::wheel_speed_rear_right.ReadVoltage());
+        VoltageToRpm(wheel_speed_front_right.ReadVoltage());
+    wheel_speed.rear_left = VoltageToRpm(wheel_speed_rear_left.ReadVoltage());
+    wheel_speed.rear_right = VoltageToRpm(wheel_speed_rear_right.ReadVoltage());
 }
 
 }  // namespace sensors::dynamics
