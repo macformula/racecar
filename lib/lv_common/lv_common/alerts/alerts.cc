@@ -1,4 +1,4 @@
-#include "alerts/alerts.hpp"
+#include "lv_common/alerts/alerts.hpp"
 
 namespace alerts {
 static LvAlerts state;
