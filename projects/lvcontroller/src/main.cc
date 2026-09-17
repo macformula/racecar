@@ -4,11 +4,16 @@
 #include <cstdint>
 #include <optional>
 
-#include "bindings.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "generated/githash.hpp"
+#include "mcal/stm32f/analog_input.hpp"
+#include "mcal/stm32f/can.hpp"
+#include "mcal/stm32f/gpio.hpp"
+#include "mcal/stm32f/pwm.hpp"
+#include "periph/can.hpp"
 #include "periph/gpio.hpp"
+#include "periph/pwm.hpp"
 
 // LV Modules
 #include "accumulator/accumulator.hpp"
@@ -265,10 +270,14 @@ void task_100hz(void) {
 }
 
 int main(void) {
-    bindings::Initialize();
-
     accumulator::Init();
+    brake_light::Init();
+    dcdc::Init();
     fans::Init();
+    hsd::Init();
+    motor_controller::Init();
+    suspension::Init();
+    tssi::Init();
     fsm::Init();
     motor_controller::Init();
 
