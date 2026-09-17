@@ -371,6 +371,8 @@ void task_100hz(void* argument) {
 }
 
 int main(void) {
+    SCB->VTOR = 0x08008000;
+
     bindings::Initialize();
 
     alerts::Reset();
