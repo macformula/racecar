@@ -62,6 +62,7 @@ functions.
 #include "../../../Utilities/Fonts/font24.c"
 #include "../../../Utilities/Fonts/font8.c"
 #include "../../../Utilities/Fonts/fonts.h"
+#include "gpio.h"
 
 /** @addtogroup BSP
  * @{
@@ -188,6 +189,22 @@ uint8_t BSP_LCD_Init(void) {
  *     - OTM8009A LCD Display IC Driver ititialization
  * @retval LCD state
  */
+static uint8_t led_counter = 0;
+
+static void advance_leds(void) {
+    ++led_counter;
+    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin,
+                      (led_counter & 0x1) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+
+    HAL_GPIO_WritePin(GPIOD, LED2_Pin,
+                      (led_counter & 0x2) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+
+    HAL_GPIO_WritePin(GPIOD, LED3_Pin,
+                      (led_counter & 0x4) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+
+    HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin,
+                      (led_counter & 0x8) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+}
 uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
     DSI_PLLInitTypeDef dsiPllInit;
     DSI_PHY_TimerTypeDef PhyTimings;
@@ -205,10 +222,14 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
     uint32_t HFP;  /*!< Horizontal Front Porch time in units of lcdClk */
     uint32_t HACT; /*!< Horizontal Active time in units of lcdClk = imageSize X
                       in pixels to display */
-
+    advance_leds();  // 1
     /* Toggle Hardware Reset of the DSI LCD using
      * its XRES signal (active low) */
-    BSP_LCD_Reset();
+    BSP_LCD_Reset();  //! Breaks
+    led_counter = 1;
+    advance_leds();  // 2
+    advance_leds();  // 2
+    advance_leds();  // 2 #2
 
     /* Call first MSP Initialize only in case of first initialization
      * This will set IP blocks LTDC, DSI and DMA2D
@@ -217,7 +238,15 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
      * - NVIC IRQ related to IP blocks enabled
      */
     BSP_LCD_MspInit();
-
+    int toggle = 0;
+    while (0) {  //! Toggle once we reach the while
+        HAL_Delay(500);
+        toggle = !toggle;
+        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin,
+                          (toggle) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+    }
+    led_counter = 2;
+    advance_leds();  // 3
     /*************************DSI
      * Initialization***********************************/
 
@@ -226,7 +255,8 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
     hdsi_eval.Instance = DSI;
 
     HAL_DSI_DeInit(&(hdsi_eval));
-
+    led_counter = 3;
+    advance_leds();  // 4
 #if !defined(USE_STM32469I_DISCO_REVA)
     dsiPllInit.PLLNDIV = 125;
     dsiPllInit.PLLIDF = DSI_PLL_IN_DIV2;
@@ -253,6 +283,7 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
     Lcd_Driver_Type = LCD_ReadType(Lcd_Driver_Type);
 
     BSP_LCD_Reset();
+    advance_leds();
     HAL_DSI_Stop(&hdsi_eval);
 
     /* Timing parameters for all Video modes
@@ -451,9 +482,14 @@ void BSP_LCD_Reset(void) {
 #if !defined(USE_STM32469I_DISCO_REVA)
     /* Disco Rev B and beyond : reset the LCD by activation of XRES (active low)
      * connected to PH7 */
+    led_counter = 0;  //! stupid
     GPIO_InitTypeDef gpio_init_structure;
-
+    advance_leds();  // 1
+    advance_leds();  // 1
+    advance_leds();  // 1
+    advance_leds();  // 1
     __HAL_RCC_GPIOH_CLK_ENABLE();
+    advance_leds();  // 2
 
     /* Configure the GPIO on PH7 */
     gpio_init_structure.Pin = GPIO_PIN_7;
@@ -467,17 +503,26 @@ void BSP_LCD_Reset(void) {
     gpio_init_structure.Speed = GPIO_SPEED_HIGH;
 
     HAL_GPIO_Init(GPIOH, &gpio_init_structure);
+    advance_leds();  // 3
 
     /* Activate XRES active low */
     HAL_GPIO_WritePin(GPIOH, GPIO_PIN_7, GPIO_PIN_RESET);
+    advance_leds();  // 4
+    advance_leds();  // 4
+    advance_leds();  // 4
+    advance_leds();  // 4
+    advance_leds();  // 4
+    advance_leds();  // 4
 
-    HAL_Delay(20); /* wait 20 ms */
+    HAL_Delay(200);  /* wait 20 ms */
+    advance_leds();  // 5
 
     /* Deactivate XRES */
     HAL_GPIO_WritePin(GPIOH, GPIO_PIN_7, GPIO_PIN_SET);
-
+    advance_leds();  // 6
     /* Wait for 20ms after releasing XRES before sending commands */
-    HAL_Delay(20);
+    HAL_Delay(200);
+    advance_leds();  // 7
 #else
     /* Nothing to do in case of Disco Rev A */
 #endif /* USE_STM32469I_DISCO_REVA == 0 */
