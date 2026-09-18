@@ -191,20 +191,6 @@ uint8_t BSP_LCD_Init(void) {
  */
 static uint8_t led_counter = 0;
 
-static void advance_leds(void) {
-    ++led_counter;
-    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin,
-                      (led_counter & 0x1) ? GPIO_PIN_RESET : GPIO_PIN_SET);
-
-    HAL_GPIO_WritePin(GPIOD, LED2_Pin,
-                      (led_counter & 0x2) ? GPIO_PIN_RESET : GPIO_PIN_SET);
-
-    HAL_GPIO_WritePin(GPIOD, LED3_Pin,
-                      (led_counter & 0x4) ? GPIO_PIN_RESET : GPIO_PIN_SET);
-
-    HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin,
-                      (led_counter & 0x8) ? GPIO_PIN_RESET : GPIO_PIN_SET);
-}
 uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
     DSI_PLLInitTypeDef dsiPllInit;
     DSI_PHY_TimerTypeDef PhyTimings;
@@ -222,14 +208,9 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
     uint32_t HFP;  /*!< Horizontal Front Porch time in units of lcdClk */
     uint32_t HACT; /*!< Horizontal Active time in units of lcdClk = imageSize X
                       in pixels to display */
-    advance_leds();  // 1
     /* Toggle Hardware Reset of the DSI LCD using
      * its XRES signal (active low) */
     BSP_LCD_Reset();  //! Breaks
-    led_counter = 1;
-    advance_leds();  // 2
-    advance_leds();  // 2
-    advance_leds();  // 2 #2
 
     /* Call first MSP Initialize only in case of first initialization
      * This will set IP blocks LTDC, DSI and DMA2D
@@ -245,8 +226,6 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
         HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin,
                           (toggle) ? GPIO_PIN_RESET : GPIO_PIN_SET);
     }
-    led_counter = 2;
-    advance_leds();  // 3
     /*************************DSI
      * Initialization***********************************/
 
@@ -255,8 +234,6 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
     hdsi_eval.Instance = DSI;
 
     HAL_DSI_DeInit(&(hdsi_eval));
-    led_counter = 3;
-    advance_leds();  // 4
 #if !defined(USE_STM32469I_DISCO_REVA)
     dsiPllInit.PLLNDIV = 125;
     dsiPllInit.PLLIDF = DSI_PLL_IN_DIV2;
