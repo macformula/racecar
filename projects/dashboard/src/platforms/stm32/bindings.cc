@@ -10,27 +10,6 @@
 #include "ltdc.h"
 #include "usart.h"
 
-namespace {
-
-uint8_t led_counter = 0;
-
-static void advance_leds() {
-    ++led_counter;
-    led_counter = led_counter * 1;  // this factor is for turning
-    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin,
-                      (led_counter & 0x1) ? GPIO_PIN_RESET : GPIO_PIN_SET);
-
-    HAL_GPIO_WritePin(GPIOD, LED2_Pin,
-                      (led_counter & 0x2) ? GPIO_PIN_RESET : GPIO_PIN_SET);
-
-    HAL_GPIO_WritePin(GPIOD, LED3_Pin,
-                      (led_counter & 0x4) ? GPIO_PIN_RESET : GPIO_PIN_SET);
-
-    HAL_GPIO_WritePin(LED4_GPIO_Port, LED4_Pin,
-                      (led_counter & 0x8) ? GPIO_PIN_RESET : GPIO_PIN_SET);
-}
-}  // namespace
-
 // firmware includes
 #include "mcal/stm32f/can.hpp"
 #include "mcal/stm32f/gpio.hpp"
@@ -92,7 +71,6 @@ void Initialize() {
     BSP_LCD_LayerDefaultInit(0, (uint32_t)SDRAM_DEVICE_ADDR);
     BSP_LCD_Clear(LCD_COLOR_CYAN);
     lv_init();
-    advance_leds();
     // Read actual register values
     uint32_t systick_prio = NVIC_GetPriority(SysTick_IRQn);
     uint32_t can_prio = NVIC_GetPriority(CAN1_RX0_IRQn);
@@ -100,9 +78,6 @@ void Initialize() {
     mcal::veh_can_base.Setup();
     //! USEFUL
     // init display
-    advance_leds();
-    advance_leds();
-    advance_leds();
     uint32_t ltdc_layer_index = 0; /* typically 0 or 1 */
 #if 0
     // note: direct mode with the LV_USE_DRAW_DMA2D enabled results in glitches on the screen
@@ -117,9 +92,6 @@ void Initialize() {
     create_disp(partial_buf1, 0 /*optional_partial_buf2*/, BUF_SIZE,
                 ltdc_layer_index);
 #endif
-    advance_leds();
-    advance_leds();
-    advance_leds();
 }
 
 void DelayMS(uint32_t ms) {
