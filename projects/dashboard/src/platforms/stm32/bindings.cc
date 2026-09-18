@@ -50,8 +50,7 @@ macfe::periph::DigitalInput& button_enter = mcal::button_enter;
 
 void Initialize() {
     HAL_Init();
-    uwTickPrio = 0;
-    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+    // HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0); // note: might need to put back
     SystemClock_Config();
 
     /* Initialize all configured peripherals */
@@ -95,8 +94,7 @@ void Initialize() {
 }
 
 void DelayMS(uint32_t ms) {
-    // HAL_Delay(ms);
-    for (volatile uint32_t i = 0; i < 18000 * ms; i++);
+    HAL_Delay(ms);
 }
 
 bool ShouldQuit() {
