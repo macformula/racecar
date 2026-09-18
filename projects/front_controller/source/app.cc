@@ -1,14 +1,11 @@
 /// @author Blake Freer
 /// @date 2025-06
 
-#include "adc.h"
 #include "bindings.hpp"
-#include "can.h"
 #include "fc-common/accumulator/accumulator.hpp"
 #include "fc-common/alerts/alerts.hpp"
 #include "fc-common/dbc_hash/dbc_hash.hpp"
 #include "fc-common/driver_interface/driver_interface.hpp"
-#include "fc-common/hsd/hsd.hpp"
 #include "fc-common/motors/motors.hpp"
 #include "fc-common/sensors/driver/driver.hpp"
 #include "fc-common/sensors/dynamics/dynamics.hpp"
@@ -19,10 +16,6 @@
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "generated/githash.hpp"
-#include "main.h"
-#include "mcal/stm32f/analog_input.hpp"
-#include "mcal/stm32f/can.hpp"
-#include "mcal/stm32f/gpio.hpp"
 #include "physical.hpp"
 #include "thresholds.hpp"
 
@@ -47,8 +40,34 @@ StackType_t t10hz_buffer[STACK_SIZE_WORDS];
 StaticTask_t t1hz_control_block;
 StackType_t t1hz_buffer[STACK_SIZE_WORDS];
 
+void Initialize() {
+    SystemClock_Config();
+
+    MX_GPIO_Init();
+    MX_ADC1_Init();
+    MX_ADC3_Init();
+    MX_CAN1_Init();
+    MX_CAN2_Init();
+
+    mcal::veh_can_base.Setup();
+    mcal::pt_can_base.Setup();
+}
+
+int GetTickMs() {
+    return HAL_GetTick();
+}
+
+void DelayMs(int ms) {
+    HAL_Delay(ms);
+}
+
+void SoftwareReset() {
+    NVIC_SystemReset();
+    Error_Handler();
+}
+
 using namespace generated::can;
-using namespace mcal::stm32f;
+using mcal::stm32f;
 
 // =========== Vehicle Dynamics Sensors ====================
 AnalogInput suspension_travel1{&hadc1, ADC_CHANNEL_8};

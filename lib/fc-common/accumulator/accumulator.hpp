@@ -14,6 +14,10 @@ enum class ContactorCommand {
     CLOSE = true,
 };
 
+struct accumulator_periph {
+    macfe::periph::DigitalOutput*
+}
+
 struct ContactorFeedbacks {
     ContactorFeedback precharge;
     ContactorFeedback negative;
@@ -29,6 +33,12 @@ struct ContactorCommands {
 namespace accumulator {
 
 using State = generated::can::TxFcStatus::AccumulatorState_t;
+
+class Controller {
+public:
+    void Init(DigitalOutput& accumulator_en) {}
+
+}
 
 enum class Command {
     OFF,
