@@ -95,9 +95,10 @@ Faults are **boolean bits** in two CAN messages, not a single fault code signal.
 | `NoInv1Can` | Inverter | No INV1 CAN Comm | CRITICAL |
 | `NoInv2Can` | Inverter | No INV2 CAN Comm | CRITICAL |
 
-**LvStatus (ID 211)** — LV Controller status:
+**LvAlerts (ID 212)** — LV Controller alerts:
 | Signal | System | Description | Severity |
 |---|---|---|---|
+| `HsdOvercurrent` | LV | HSD Overcurrent | CRITICAL |
 | `ImdFault` | IMD | Isolation Fault | CRITICAL |
 | `BmsFault` | BMS | BMS Fault | CRITICAL |
 

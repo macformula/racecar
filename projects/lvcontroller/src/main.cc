@@ -162,27 +162,35 @@ void Update_100hz(void) {
         case SHUTDOWN_FAN_OFF:
             fans::SetPowerSetpoint(0);
 
-            if (elapsed > 50) new_state = SHUTDOWN_COMPLETE;
-            break;
+            if (elapsed > 50) {
+                new_state = PWRUP_ACCUMULATOR_ON;
+            }
 
-        case SHUTDOWN_COMPLETE:
-            // there's no coming back from this
             break;
+    }
+
+    bool check_shutdown = state == DCDC_ON || state == POWERTRAIN_PUMP_ON ||
+                          state == POWERTRAIN_FAN_ON || state == READY_TO_DRIVE;
+
+    if (check_shutdown && accumulator::ConfirmContactorsOpen()) {
+        new_state = SHUTDOWN_PUMP_OFF;
     }
 
     // no LVBMS yet, so we can't check for shutdown
     /*
     // Shutdown checks that can occur from multiple states
-    bool check_shutdown = state == DCDC_ON || state == POWERTRAIN_PUMP_ON ||
-                          state == POWERTRAIN_FAN_ON || state == READY_TO_DRIVE;
+    bool check_shutdown = state == DCDC_ON || state ==
+    POWERTRAIN_PUMP_ON || state == POWERTRAIN_FAN_ON || state ==
+    READY_TO_DRIVE;
 
     if (check_shutdown) {
-        const float kNoCurrentThresholdAmp = 0.5;  // what should this be?
-        bool lost_lv_comms = false;  // this should come from a SPI heartbeat
+        const float kNoCurrentThresholdAmp = 0.5;  // what should this
+    be? bool lost_lv_comms = false;  // this should come from a SPI
+    heartbeat
 
         if (dcdc::GetVoltage() < 19.2 ||
-            (lost_lv_comms && dcdc::GetAmps() < kNoCurrentThresholdAmp)) {
-            new_state = SHUTDOWN_DRIVER_WARNING;
+            (lost_lv_comms && dcdc::GetAmps() < kNoCurrentThresholdAmp))
+    { new_state = SHUTDOWN_DRIVER_WARNING;
         }
 
         auto msg = veh_can.GetRxFcStatus();
@@ -237,6 +245,8 @@ void task_10hz(void) {
 
     veh_can.Send(TxLvAlerts{
         .hsd_overcurrent = alerts::Get().hsd_overcurrent,
+        .imd_fault = tssi::GetImdFault(),
+        .bms_fault = tssi::GetBmsFault(),
     });
 
     veh_can.Send(TxLvDcdc{
@@ -250,8 +260,6 @@ void task_10hz(void) {
         .lv_state = fsm::state,
         .motor_controller_state = motor_controller::GetState(),
         .motor_controller_switch_closed = motor_controller::GetSwitchClosed(),
-        .imd_fault = tssi::GetImdFault(),
-        .bms_fault = tssi::GetBmsFault(),
     });
 }
 
