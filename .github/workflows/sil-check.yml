@@ -1,0 +1,40 @@
+name: SIL check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+  workflow_dispatch:
+
+jobs:
+  sil:
+    # Only run when:
+    # - Manually triggered (workflow_dispatch), OR
+    # - PR has the label "ci:run-sil"
+    if: ${{ 
+          github.event_name == 'workflow_dispatch' ||
+          (github.event_name == 'pull_request' &&
+          contains(github.event.pull_request.labels.*.name, 'ci:run-sil'))
+        }}
+
+
+    # Target only your hardened runner
+    runs-on: [self-hosted, linux, sil, socketcan]
+
+    # Minimal required permissions
+    permissions:
+      contents: read
+
+    # Prevent runaway SIL jobs
+    timeout-minutes: 2
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Run dummy SIL (0 = pass, 1 = fail) # Update to actual SIL check once ready
+        run: |
+          # Per-step resource guardrails
+          ulimit -c 0        # disable core dumps
+          ulimit -n 65536    # bump file descriptor limit if needed
+
+          ./scripts/run_sil_dummy.sh
