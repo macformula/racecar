@@ -14,19 +14,8 @@ enum Feedback : bool {
     CLOSED = false,
 };
 
-static bool enabled = false;
-static std::optional<RxContactor_Feedback> contactors;
-
 void Controller::UpdateOutputs() {
     periph.accumulator_en->Set(enabled);
-}
-
-void Controller::Init(DigitalOutput& accumulator_en) {
-    enabled = false;
-    contactors = std::nullopt;
-
-    periph = accumulator_periph{&accumulator_en};
-    UpdateOutputs();
 }
 
 void Controller::SetEnabled(bool enable) {

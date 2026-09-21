@@ -16,6 +16,7 @@ struct dcdc_periph {
 
 class Controller {
 public:
+    Controller(dcdc_periph dcdc_periph) : periph(dcdc_periph) {};
     void SetEnabled(bool enable);
 
     float GetVoltage(void);
