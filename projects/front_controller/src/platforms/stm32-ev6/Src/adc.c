@@ -140,8 +140,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle) {
         PB1     ------> ADC1_IN9
         */
         GPIO_InitStruct.Pin =
-            HSD1_ISENSE_Pin | HSD2_ISENSE_Pin | BPPS_BUFFERED_Pin |
-            WHEEL_SPEED_LEFT_B_BUFFERED_Pin | WHEEL_SPEED_LEFT_A_BUFFERED_Pin;
+            HSD1_ISENSE_Pin | HSD2_ISENSE_Pin | BPPS_BUFFERED_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
@@ -173,9 +172,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle) {
         PF8     ------> ADC3_IN6
         PF9     ------> ADC3_IN7
         */
-        GPIO_InitStruct.Pin = WHEEL_SPEED_RIGHT_B_BUFFERED_Pin |
-                              WHEEL_SPEED_RIGHT_A_BUFFERED_Pin |
-                              APPS1_BUFFERED_Pin | APPS2_BUFFERED_Pin;
+        GPIO_InitStruct.Pin = APPS1_BUFFERED_Pin | APPS2_BUFFERED_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);

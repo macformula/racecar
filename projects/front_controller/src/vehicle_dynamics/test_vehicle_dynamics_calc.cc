@@ -1,39 +1,11 @@
 #include <gtest/gtest.h>
 
+#include "sensors/dynamics/dynamics.hpp"
 #include "vehicle_dynamics_calc.hpp"
 
 using namespace ctrl;
 
-TorqueRequest tr;
-
-TEST(TorqueRequest, StopTorque) {
-    EXPECT_FLOAT_EQ(tr.Update(30.0, 20.0),
-                    0.0);  // Should return 0.0 due to State::Stop
-    EXPECT_FLOAT_EQ(tr.Update(15.0, 2.5),
-                    0.0);  // Only the !brake_on condition is met here, so it
-    // should stay in State::Stop and return 0.0
-    EXPECT_FLOAT_EQ(
-        tr.Update(4.5, 10.5),
-        0.0);  // Only the driver_torque_request < static_cast<T>(5) condition
-               // is met here, so it should stay in State::Stop and return 0.0
-}
-
-TEST(TorqueRequest, RunTorque) {
-    EXPECT_FLOAT_EQ(
-        tr.Update(3.0, 0.0),
-        3.0);  // Should move to State::Run and return driver_torque_request
-    EXPECT_FLOAT_EQ(tr.Update(40.0, 4.0),
-                    40.0);  // Should stay in State::Run and return 40.0
-    EXPECT_FLOAT_EQ(tr.Update(12.2, 11.0),
-                    12.2);  // Only the brake_on condition is met here, so it
-                            // should stay in State::Run and return 12.2
-    EXPECT_FLOAT_EQ(tr.Update(25.4, 9.0),
-                    25.4);  // Only the driver_torque_request >=
-                            // static_cast<T>(25) condition is met here, so it
-                            // should stay in State::Run and return 25.4
-}
-
-TEST(TorqueRequest, CreateTorqueVectoringFactor) {
+TEST(VehicleDynamicsCalc, CreateTorqueVectoringFactor) {
     EXPECT_FLOAT_EQ(CreateTorqueVectoringFactor(5.0), 0.934);
     EXPECT_FLOAT_EQ(CreateTorqueVectoringFactor(10.0), 0.87);
     EXPECT_FLOAT_EQ(CreateTorqueVectoringFactor(13.2), 0.83032);
@@ -41,7 +13,7 @@ TEST(TorqueRequest, CreateTorqueVectoringFactor) {
     EXPECT_FLOAT_EQ(CreateTorqueVectoringFactor(27.3), 0.683);
 }
 
-TEST(TorqueRequest, AdjustTorqueVectoring) {
+TEST(VehicleDynamicsCalc, AdjustTorqueVectoring) {
     {
         TorqueVector tv = AdjustTorqueVectoring(15.0);
         EXPECT_FLOAT_EQ(tv.left, 1.0);
@@ -73,7 +45,7 @@ TEST(TorqueRequest, AdjustTorqueVectoring) {
     }
 }
 
-TEST(TorqueRequest, TestMultistageTC) {
+TEST(VehicleDynamicsCalc, TestMultistageTC) {
     int time_ms = 0;
     TractionControl tc;
     tc.Init(time_ms);
@@ -96,22 +68,79 @@ TEST(TorqueRequest, TestMultistageTC) {
     }
 }
 
-TEST(TorqueRequest, TestActualSlip) {
-    // Should return 0 because right-rear wheel speed is greater than idle wheel
-    // speed, forcing the bound to 0.
-    EXPECT_FLOAT_EQ(ctrl::CalculateActualSlip(132.5, 134.0, 140.0, 135.0), 0);
+TEST(VehicleDynamicsCalc, StandstillGuardZeroRpm) {
+    // Both front wheels at 0 RPM (dead stop) with rear wheels stopped.
+    // Must return 0.0f slip and avoid division-by-zero.
+    EXPECT_FLOAT_EQ(ctrl::CalculateActualSlip({
+                        .front_left = 0.0f,
+                        .front_right = 0.0f,
+                        .rear_left = 0.0f,
+                        .rear_right = 0.0f,
+                    }),
+                    0.0f);
 
-    // Same as the last test but Left Rear wheel speed is used because it is
-    // greater then Right-Rear wheel speed.
-    EXPECT_FLOAT_EQ(ctrl::CalculateActualSlip(133.4, 130.2, 140.0, 135.0), 0);
+    // Both front wheels at 0 RPM (standstill) but rear wheels spinning
+    // (e.g. burnout / launch from standstill).
+    // Standstill guard must trigger on 0 RPM front idle speed and return 0.0f,
+    // preventing infinite slip (std::numeric_limits<float>::infinity()) and
+    // division-by-zero.
+    EXPECT_FLOAT_EQ(ctrl::CalculateActualSlip({
+                        .front_left = 0.0f,
+                        .front_right = 0.0f,
+                        .rear_left = 100.0f,
+                        .rear_right = 150.0f,
+                    }),
+                    0.0f);
+}
 
-    // Should be a decimal since Right-Rear wheel speed is less than the idle
-    // speed, and the Actual-Slip value will return.
-    EXPECT_NEAR(ctrl::CalculateActualSlip(155.6, 157.2, 155.3, 157.8), 0.004152,
-                1e-6);
+TEST(VehicleDynamicsCalc, TestActualSlip) {
+    // Should return 0 because rear wheel speed is less than idle front wheel
+    // speed, forcing the bound to 0 (deceleration/braking).
+    // idle = (140.0 + 135.0) / 2 = 137.5. max_rear = 134.0.
+    EXPECT_FLOAT_EQ(ctrl::CalculateActualSlip({
+                        .front_left = 140.0f,
+                        .front_right = 135.0f,
+                        .rear_left = 132.5f,
+                        .rear_right = 134.0f,
+                    }),
+                    0.0f);
 
-    // Should be a decimal for same reasons as previous, but for Left-Rear wheel
-    // speed.
-    EXPECT_NEAR(ctrl::CalculateActualSlip(156.4, 155.3, 155.2, 157.1), 0.001601,
-                1e-6);
+    // Same as above but Left-Rear wheel speed is used because it is greater
+    // than Right-Rear wheel speed, but still less than idle speed.
+    // idle = 137.5. max_rear = 133.4.
+    EXPECT_FLOAT_EQ(ctrl::CalculateActualSlip({
+                        .front_left = 140.0f,
+                        .front_right = 135.0f,
+                        .rear_left = 133.4f,
+                        .rear_right = 130.2f,
+                    }),
+                    0.0f);
+
+    // Right-Rear wheel speed is greater than idle front speed.
+    // idle = (155.3 + 157.8) / 2 = 156.55. max_rear = 157.2.
+    // slip = (157.2 / 156.55) - 1.0 = 0.004152.
+    EXPECT_NEAR(ctrl::CalculateActualSlip({
+                    .front_left = 155.3f,
+                    .front_right = 157.8f,
+                    .rear_left = 155.6f,
+                    .rear_right = 157.2f,
+                }),
+                0.004152f, 1e-6f);
+
+    // Same as above, but Left-Rear wheel speed is used because it is greater
+    // than Right-Rear wheel speed.
+    // idle = (155.2 + 157.1) / 2 = 156.15. max_rear = 156.4.
+    // slip = (156.4 / 156.15) - 1.0 = 0.001601.
+    EXPECT_NEAR(ctrl::CalculateActualSlip({
+                    .front_left = 155.2f,
+                    .front_right = 157.1f,
+                    .rear_left = 156.4f,
+                    .rear_right = 155.3f,
+                }),
+                0.001601f, 1e-6f);
+}
+
+int main(int argc, char** argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
