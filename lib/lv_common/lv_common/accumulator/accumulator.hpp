@@ -10,7 +10,13 @@ struct accumulator_periph {
 
 class Controller {
 public:
-    void Init(macfe::periph::DigitalOutput& accumulator_en);
+    Controller(accumulator_periph accumulator_periph)
+        : periph(accumulator_periph) {
+        enabled = false;
+        contactors = std::nullopt;
+
+        UpdateOutputs();
+    };
 
     void SetEnabled(bool enable);
 
@@ -22,6 +28,8 @@ public:
 private:
     void UpdateOutputs();
     accumulator_periph periph;
+    bool enabled = false;
+    std::optional<RxContactor_Feedback> contactors;
 };
 
 }  // namespace accumulator

@@ -9,7 +9,8 @@ struct brake_light_periph {
 };
 class Controller {
 public:
-    void Init(macfe::periph::DigitalOutput& brake_light_en);
+    Controller(brake_light_periph brake_light_periph)
+        : periph(brake_light_periph) {};
 
     void task_100hz(generated::can::VehBus& veh_can);
 

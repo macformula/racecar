@@ -14,6 +14,8 @@
 #include "periph/can.hpp"
 #include "periph/gpio.hpp"
 #include "periph/pwm.hpp"
+#include "stm32f7xx_hal.h"
+#include "stm32f7xx_hal_tim.h"
 
 // LV Modules
 #include "accumulator/accumulator.hpp"
@@ -37,7 +39,6 @@ using LvState = TxLvStatus::LvState_t;
 
 static LvState state = LvState::PWRUP_START;
 static uint32_t elapsed = 0;
-
 void Init(void) {
     state = LvState::PWRUP_START;
     elapsed = 0;
