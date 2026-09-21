@@ -12,6 +12,7 @@ namespace hsd {
 
 using macfe::periph::AnalogInput;
 using macfe::periph::DigitalOutput;
+
 struct hsd {
     macfe::periph::AnalogInput* isense;
     macfe::periph::DigitalOutput* isense_en;
