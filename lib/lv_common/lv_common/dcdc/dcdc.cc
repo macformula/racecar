@@ -5,51 +5,43 @@
 
 #include "periph/analog_input.hpp"
 #include "periph/gpio.hpp"
-// new update in rev 4: no dcdc select
-namespace dcdc {
+// new update in rev 4: no dcdc select, so this should go. Don't want to remove
+// it yet, will make a separate issue.
+namespace macfe::lv {
 
-using macfe::periph::AnalogInput;
-using macfe::periph::DigitalOutput;
-
-void Controller::SetEnabled(bool enable) {
+void DCDC::SetEnabled(bool enable) {
     enabled = enable;
 }
 
-float Controller::GetVoltage(void) {
+float DCDC::GetVoltage(void) {
     return voltage;
 }
 
-float Controller::GetLvBatteryVoltage(void) {
+float DCDC::GetLvBatteryVoltage(void) {
     return lv_battery_voltage;
 }
 
-float Controller::GetAmps(void) {
+float DCDC::GetAmps(void) {
     return amps;
 }
 
-// TODO
-// - Do we need can messages for lvbattery, current & voltage (should we have go
-// to dash, rpi)
-// - are these conversions 100% correct
-// - is any time delay needed between select and read?
-
-void Controller::MeasureAmps() {
-    amps = periph.bus_current->ReadVoltage() * 5.0f;
+void DCDC::MeasureAmps() {
+    amps = _bus_current.ReadVoltage() * 5.0f;
 }
 
-void Controller::MeasureVolts() {
-    voltage = periph.bus_voltage->ReadVoltage() * 8.0f;
+void DCDC::MeasureVolts() {
+    voltage = _bus_voltage.ReadVoltage() * 8.0f;
 }
 
-void Controller::MeasureLvBatteryVoltage() {
-    lv_battery_voltage = periph.lv_battery->ReadVoltage() * 10.0f;
+void DCDC::MeasureLvBatteryVoltage() {
+    lv_battery_voltage = _lv_battery.ReadVoltage() * 10.0f;
 }
 
-void Controller::task_100hz(void) {
-    periph.vicor_en->Set(!enabled);
+void DCDC::task_100hz(void) {
+    _vicor_en.Set(!enabled);
     MeasureAmps();
     MeasureVolts();
     MeasureLvBatteryVoltage();
 }
 
-}  // namespace dcdc
+}  // namespace macfe::lv
