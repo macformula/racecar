@@ -1,38 +1,28 @@
 #include "accumulator.hpp"
 
-#include "bindings.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
-
-namespace accumulator {
+#include "optional"
+#include "periph/gpio.hpp"
+namespace macfe::lv {
 
 using namespace generated::can;
-
+using macfe::periph::DigitalOutput;
 enum Feedback : bool {
     // feedback is inverted relative to command
     OPEN = true,
     CLOSED = false,
 };
 
-static bool enabled = false;
-static std::optional<RxContactor_Feedback> contactors;
-
-static void UpdateOutputs(void) {
-    bindings::accumulator_en.Set(enabled);
+void Accumulator::UpdateOutputs() {
+    accumulator_en.Set(enabled);
 }
 
-void Init(void) {
-    enabled = false;
-    contactors = std::nullopt;
-
-    UpdateOutputs();
-}
-
-void SetEnabled(bool enable) {
+void Accumulator::SetEnabled(bool enable) {
     enabled = enable;
 }
 
-bool ConfirmContactorsOpen(void) {
+bool Accumulator::ConfirmContactorsOpen(void) {
     if (contactors.has_value()) {
         return contactors->Pack_Positive_Feedback() == OPEN &&
                contactors->Pack_Precharge_Feedback() == OPEN &&
@@ -42,7 +32,7 @@ bool ConfirmContactorsOpen(void) {
     }
 }
 
-bool IsRunning(void) {
+bool Accumulator::IsRunning(void) {
     if (contactors.has_value()) {
         return contactors->Pack_Positive_Feedback() == CLOSED &&
                contactors->Pack_Precharge_Feedback() == OPEN &&
@@ -52,9 +42,9 @@ bool IsRunning(void) {
     }
 }
 
-void task_10hz(generated::can::VehBus& veh_can) {
+void Accumulator::task_10hz(generated::can::VehBus& veh_can) {
     contactors = veh_can.GetRxContactor_Feedback();
     UpdateOutputs();
 }
 
-}  // namespace accumulator
+}  // namespace macfe::lv
