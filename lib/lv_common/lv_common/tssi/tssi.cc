@@ -1,40 +1,39 @@
 #include "tssi.hpp"
 
-namespace tssi {
+namespace macfe::lv {
 
-void Controller::SetEnabled(bool enable) {
+void TSSI::SetEnabled(bool enable) {
     enabled = enable;
 }
 
-bool Controller::GetImdFault(void) {
+bool TSSI::GetImdFault(void) {
     return imd_fault;
 }
 
-bool Controller::GetBmsFault(void) {
+bool TSSI::GetBmsFault(void) {
     return bms_fault;
 }
 
 /// @brief See FSAE 2025 Rules EV.5.11.5
-void Controller::task_10hz(int time_ms) {
-    periph.tssi_en->Set(enabled);
+void TSSI::task_10hz() {
+    _tssi_en.Set(enabled);
 
-    imd_fault = periph.imd_fault->Read();
-    bms_fault = periph.bms_fault->Read();
-
-    // uint32_t time_ms = bindings::GetTick();
+    imd_fault = _imd_fault.Read();
+    bms_fault = _bms_fault.Read();
 
     if (bms_fault || imd_fault) {
-        periph.tssi_green_signal->SetLow();
-        periph.tssi_red_signal->Set(flash_toggle);
-        if ((time_ms - state_entered_time) > kTogglePeriodMs) {
-            state_entered_time = time_ms;
+        _tssi_green_signal.SetLow();
+        _tssi_red_signal.Set(flash_toggle);
+        if ((time_in_state_ms) > kTogglePeriodMs) {
+            time_in_state_ms = 0;
             flash_toggle = !flash_toggle;
         }
     } else {
-        periph.tssi_red_signal->SetLow();
-        periph.tssi_green_signal->SetHigh();
+        _tssi_red_signal.SetLow();
+        _tssi_green_signal.SetHigh();
         flash_toggle = true;
     }
+    time_in_state_ms += 100;
 }
 
-}  // namespace tssi
+}  // namespace macfe::lv

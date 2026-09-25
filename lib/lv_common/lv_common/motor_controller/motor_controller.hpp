@@ -4,23 +4,25 @@
 #include "generated/can/veh_messages.hpp"
 #include "periph/gpio.hpp"
 
-namespace motor_controller {
+namespace macfe::lv {
 
-using State = generated::can::TxLvStatus::MotorControllerState_t;
+using State = generated::can::TxLvStatus::Motor_ControllerState_t;
 
-struct motor_controller_periph {
-    macfe::periph::DigitalOutput* motor_ctrl_precharge_en;
-    macfe::periph::DigitalOutput* motor_controller_en;
-    macfe::periph::DigitalOutput* motor_ctrl_switch_en;
-};
+macfe::periph::DigitalOutput& motor_ctrl_precharge_en;
+macfe::periph::DigitalOutput& motor_controller_en;
+macfe::periph::DigitalOutput& motor_ctrl_switch_en;
 
-class Controller {
+class Motor_Controller {
 public:
-    Controller(motor_controller_periph motor_controller_periph)
-        : periph(motor_controller_periph) {
-        periph.motor_ctrl_precharge_en->SetLow();
-        periph.motor_controller_en->SetLow();
-        periph.motor_ctrl_switch_en->SetLow();
+    Motor_Controller(macfe::periph::DigitalOutput& motor_ctrl_precharge_en,
+                     macfe::periph::DigitalOutput& motor_controller_en,
+                     macfe::periph::DigitalOutput& motor_ctrl_switch_en)
+        : _motor_ctrl_precharge_en(motor_ctrl_precharge_en),
+          _motor_controller_en(motor_controller_en),
+          _motor_ctrl_switch_en(motor_ctrl_switch_en) {
+        _motor_ctrl_precharge_en.SetLow();
+        _motor_controller_en.SetLow();
+        _motor_ctrl_switch_en.SetLow();
 
         enabled = false;
         state = State::OFF;
@@ -34,13 +36,14 @@ public:
 private:
     void HandleSwitch(VehBus& veh_can);
     void StateMachine_100hz(void);
-    motor_controller_periph periph;
+    macfe::periph::DigitalOutput& _motor_ctrl_precharge_en;
+    macfe::periph::DigitalOutput& _motor_controller_en;
+    macfe::periph::DigitalOutput& _motor_ctrl_switch_en;
     bool enabled = false;
 
     bool sw = false;
     State state = State::OFF;
     uint32_t elapsed = 0;
 };
-//! void Init(void);
 
-}  // namespace motor_controller
+}  // namespace macfe::lv

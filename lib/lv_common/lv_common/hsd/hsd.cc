@@ -5,27 +5,21 @@
 
 #include "lib/lv_common/lv_common/alerts/alerts.hpp"
 
-namespace hsd {
+namespace macfe::lv {
 
-// Read indexed from 1
-// Channel indexed from 0
-Reading Controller::Read(uint8_t read_hsd, uint8_t channel) {
-    hsd hsd = periph.hsd[read_hsd];
-    for (int i = 0; i < hsd.num_sel; i++) {
-        hsd.sel[i]->Set(channel & (2 << i));
-    }
-    hsd.isense_en->SetHigh();
-    float v = hsd.isense->ReadVoltage();
-    bool overthreshold = (v > kFaultThresholdV);
-
-    if (overthreshold && hsd.prev_tick_ch[channel] > kFaultThresholdV) {
-        // greater than threshold voltage > 100ms, detect fault
-        overthreshold = true;
-    } else {
-        overthreshold = false;
-    }
-    hsd.prev_tick_ch[channel] = v;
-    hsd.isense_en->SetLow();
+static constexpr float kVoltsToMa_4ch = 1500.0f / 0.535f;    // HSD_1
+static constexpr float kVoltsToMa_2ch = 10000.0f / 0.4815f;  // HSD_2–6
+static constexpr float kFaultThresholdV = 0.64f;
+static constexpr uint8_t kTotalChannels = 14;
+Reading HSD2::Read(uint8_t channel) {
+    _sel1.Set(channel & 0x01);
+    _isense_en.SetHigh();
+    float v = _isense.ReadVoltage();
+    bool overthreshold =
+        (v > kFaultThresholdV) &&
+        (overthreshold && prev_tick_ch[channel] > kFaultThresholdV);
+    prev_tick_ch[channel] = v;
+    _isense_en.SetLow();
 
     return Reading{
         .current_ma = v * kVoltsToMa_2ch,
@@ -33,40 +27,42 @@ Reading Controller::Read(uint8_t read_hsd, uint8_t channel) {
     };
 }
 
-void Controller::Update_10Hz(generated::can::VehBus&) {
-    // HSD1 - 4 channels
-    channels[0] = Read(1, 0);
-    channels[1] = Read(1, 1);
-    channels[2] = Read(1, 2);
-    channels[3] = Read(1, 3);
+Reading HSD4::Read(uint8_t channel) {
+    _sel1.Set(channel & 0x01);
+    _sel2.Set(channel & 0x02);
+    _isense_en.SetHigh();
+    float v = _isense.ReadVoltage();
+    bool overthreshold =
+        (v > kFaultThresholdV) &&
+        (overthreshold && prev_tick_ch[channel] > kFaultThresholdV);
+    prev_tick_ch[channel] = v;
+    _isense_en.SetLow();
 
-    // HSD2 through HSD5 — 2 channels each
-    channels[4] = Read(2, 0);
-    channels[5] = Read(2, 1);
-
-    channels[6] = Read(3, 0);
-    channels[7] = Read(3, 1);
-
-    channels[8] = Read(4, 0);
-    channels[9] = Read(4, 1);
-
-    channels[10] = Read(5, 0);
-    channels[11] = Read(5, 1);
-
-    // HSD6 — 2 channel
-    channels[12] = Read(6, 0);
-    channels[13] = Read(6, 1);
-
-    bool any_fault = HasOverCurrent();
-    alerts::Get().hsd_overcurrent = any_fault;
+    return Reading{
+        .current_ma = v * kVoltsToMa_4ch,
+        .fault = overthreshold,
+    };
 }
 
-bool Controller::HasOverCurrent() {
-    for (int i = 0; i < channel_num; i++) {
-        if (channels[i].fault) {
+void HSD::Update_10Hz(generated::can::VehBus&) {
+    uint8_t channel_index = 0;
+
+    for (uint8_t hsd_index = 0; hsd_index < hsd_count; ++hsd_index) {
+        for (uint8_t channel = 0; channel < channels_per_hsd[hsd_index];
+             ++channel) {
+            _channels[channel_index++] = _hsds[hsd_index]->Read(channel);
+        }
+    }
+
+    alerts::Get().hsd_overcurrent = HasOverCurrent();
+}
+
+bool HSD::HasOverCurrent() {
+    for (int i = 0; i < channel_count; i++) {
+        if (_channels[i].fault) {
             return true;
         }
     }
     return false;
 }
-}  // namespace hsd
+}  // namespace macfe::lv

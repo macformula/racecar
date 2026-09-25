@@ -4,15 +4,15 @@
 #include "sls095.hpp"
 
 namespace suspension {
-void Controller::Measure(void) {
-    float v3 = periph.suspension_travel3->ReadVoltage();
-    float v4 = periph.suspension_travel4->ReadVoltage();
+float SENSOR_SUPPLY_V = 3.3f;
 
-    travel3 = macfe::sls095::VoltToMillimeter(v3, SENSOR_SUPPLY_V);
-    travel4 = macfe::sls095::VoltToMillimeter(v4, SENSOR_SUPPLY_V);
-}
-void Controller::task_10hz(generated::can::VehBus& veh_can) {
-    Measure();
+void task_10hz(generated::can::VehBus& veh_can,
+               macfe::periph::AnalogInput& suspension_travel3,
+               macfe::periph::AnalogInput& suspension_travel4) {
+    auto travel3 = macfe::sls095::VoltToMillimeter(
+        suspension_travel3.ReadVoltage(), SENSOR_SUPPLY_V);
+    auto travel4 = macfe::sls095::VoltToMillimeter(
+        suspension_travel4.ReadVoltage(), SENSOR_SUPPLY_V);
 
     generated::can::TxSuspensionTravel34 suspension_msg{travel3, travel4};
     veh_can.Send(suspension_msg);
