@@ -8,50 +8,69 @@
 #include "periph/analog_input.hpp"
 #include "periph/gpio.hpp"
 
-namespace hsd {
+namespace macfe::lv {
 
 using macfe::periph::AnalogInput;
-using macfe::periph::DigitalOutput;
-
-struct hsd {
-    macfe::periph::AnalogInput* isense;
-    macfe::periph::DigitalOutput* isense_en;
-    macfe::periph::DigitalOutput** sel;
-    int num_sel;
-    float* prev_tick_ch;
-};
-struct hsd_periph {
-    hsd hsd[];
-};
 struct Reading {
     float current_ma = 0.0f;
     bool fault = false;
 };
-class Controller {
+// named to avoid conflict with overarching HSD class.
+// depending on future direction, this can be made into a template that uses
+// std::reference_wrapper for an array of n sel pins
+
+class HSD_Base {
 public:
-    Controller(hsd_periph hsd_periph) {
-        for (int i = 0; i < sizeof(hsd_periph); i++) {
-            size_t sel_size = sizeof(hsd_periph.hsd[i].sel);
-            hsd_periph.hsd[i].num_sel = sel_size;
-            hsd_periph.hsd[i].prev_tick_ch = new float[2 << (sel_size - 1)];
-            channel_num += (2 << (sel_size - 1));
-        }
-        periph = hsd_periph;
-        channels = new Reading[channel_num];
-    };
-    void Update_10Hz(generated::can::VehBus& veh_can);
+    virtual Reading Read(uint8_t channel) = 0;
+};
+class HSD2 : public HSD_Base {
+public:
+    HSD2(macfe::periph::AnalogInput& isense,
+         macfe::periph::DigitalOutput& isense_en,
+         macfe::periph::DigitalOutput& sel1)
+        : _isense(isense), _isense_en(isense_en), _sel1(sel1) {};
+    Reading Read(uint8_t channel) override;
 
 private:
-    hsd_periph periph;
-    Reading Read(uint8_t hsd, uint8_t channel);
+    macfe::periph::AnalogInput& _isense;
+    macfe::periph::DigitalOutput& _isense_en;
+    macfe::periph::DigitalOutput& _sel1;
+    float prev_tick_ch[2] = {};
+};
+
+class HSD4 : public HSD_Base {
+public:
+    HSD4(macfe::periph::AnalogInput& isense,
+         macfe::periph::DigitalOutput& isense_en,
+         macfe::periph::DigitalOutput& sel1, macfe::periph::DigitalOutput& sel2)
+        : _isense(isense), _isense_en(isense_en), _sel1(sel1), _sel2(sel2) {};
+    Reading Read(uint8_t channel) override;
+
+private:
+    macfe::periph::AnalogInput& _isense;
+    macfe::periph::DigitalOutput& _isense_en;
+    macfe::periph::DigitalOutput& _sel1;
+    macfe::periph::DigitalOutput& _sel2;
+    float prev_tick_ch[4] = {};
+};
+class HSD {
+public:
+    HSD(HSD_Base& hsd1, HSD_Base& hsd2, HSD_Base& hsd3, HSD_Base& hsd4,
+        HSD_Base& hsd5, HSD_Base& hsd6)
+        : _hsds{&hsd1, &hsd2, &hsd3, &hsd4, &hsd5, &hsd6} {}
+
+    void Update_10Hz(generated::can::VehBus& bus);
 
     bool HasOverCurrent();
 
-    float kVoltsToMa_4ch = 1500.0f / 0.535f;    // HSD_1
-    float kVoltsToMa_2ch = 10000.0f / 0.4815f;  // HSD_2–6
-    float kFaultThresholdV = 0.64f;
-    Reading* channels;
-    int channel_num = 0;
+private:
+    static constexpr uint8_t hsd_count = 6;
+    static constexpr uint8_t channels_per_hsd[] = {4, 2, 2, 2, 2, 2};
+
+    static constexpr uint8_t channel_count = 14;
+
+    HSD_Base* _hsds[hsd_count];
+    Reading _channels[channel_count] = {};
 };
 
-}  // namespace hsd
+}  // namespace macfe::lv

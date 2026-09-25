@@ -2,16 +2,12 @@
 
 #include "generated/can/veh_bus.hpp"
 #include "periph/gpio.hpp"
-namespace accumulator {
+namespace macfe::lv {
 
-struct accumulator_periph {
-    macfe::periph::DigitalOutput* accumulator_en;
-};
-
-class Controller {
+class Accumulator {
 public:
-    Controller(accumulator_periph accumulator_periph)
-        : periph(accumulator_periph) {
+    Accumulator(macfe::periph::DigitalOutput& accumulator_en)
+        : accumulator_en(accumulator_en) {
         enabled = false;
         contactors = std::nullopt;
 
@@ -27,9 +23,9 @@ public:
 
 private:
     void UpdateOutputs();
-    accumulator_periph periph;
+    macfe::periph::DigitalOutput& accumulator_en;
     bool enabled = false;
     std::optional<RxContactor_Feedback> contactors;
 };
 
-}  // namespace accumulator
+}  // namespace macfe::lv

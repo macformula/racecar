@@ -6,17 +6,18 @@
 #include "periph/analog_input.hpp"
 #include "periph/gpio.hpp"
 
-namespace dcdc {
-struct dcdc_periph {
-    macfe::periph::DigitalOutput* vicor_en;
-    macfe::periph::AnalogInput* bus_current;
-    macfe::periph::AnalogInput* bus_voltage;
-    macfe::periph::AnalogInput* lv_battery;
-};
+namespace macfe::lv {
 
-class Controller {
+class DCDC {
 public:
-    Controller(dcdc_periph dcdc_periph) : periph(dcdc_periph) {};
+    DCDC(macfe::periph::DigitalOutput& vicor_en,
+         macfe::periph::AnalogInput& bus_current,
+         macfe::periph::AnalogInput& bus_voltage,
+         macfe::periph::AnalogInput& lv_battery)
+        : _vicor_en(vicor_en),
+          _bus_current(bus_current),
+          _bus_voltage(bus_voltage),
+          _lv_battery(lv_battery) {};
     void SetEnabled(bool enable);
 
     float GetVoltage(void);
@@ -29,11 +30,14 @@ private:
     void MeasureLvBatteryVoltage() {}
     void MeasureAmps();
     void MeasureVolts();
-    dcdc_periph periph;
+    macfe::periph::DigitalOutput& _vicor_en;
+    macfe::periph::AnalogInput& _bus_current;
+    macfe::periph::AnalogInput& _bus_voltage;
+    macfe::periph::AnalogInput& _lv_battery;
     bool enabled = false;
     float voltage = 0;
     float amps = 0;
     float lv_battery_voltage = 0;
 };
 
-}  // namespace dcdc
+}  // namespace macfe::lv

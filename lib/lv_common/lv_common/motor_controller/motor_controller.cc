@@ -2,19 +2,19 @@
 
 #include "generated/can/veh_messages.hpp"
 
-namespace motor_controller {
+namespace macfe::lv {
 
 using namespace generated::can;
 
-State Controller::GetState(void) {
+State Motor_Controller::GetState(void) {
     return state;
 }
 
-void Controller::SetEnabled(bool enable) {
+void Motor_Controller::SetEnabled(bool enable) {
     enabled = enable;
 }
 
-void Controller::StateMachine_100hz(void) {
+void Motor_Controller::StateMachine_100hz(void) {
     bool precharge = false;
     bool positive = false;
 
@@ -68,11 +68,11 @@ void Controller::StateMachine_100hz(void) {
         elapsed += 10;
     }
 
-    periph.motor_ctrl_precharge_en->Set(precharge);
-    periph.motor_controller_en->Set(positive);
+    _motor_ctrl_precharge_en.Set(precharge);
+    _motor_controller_en.Set(positive);
 }
 
-void Controller::HandleSwitch(VehBus& veh_can) {
+void Motor_Controller::HandleSwitch(VehBus& veh_can) {
     auto msg = veh_can.GetRxInverterSwitchCommand();
     if (msg.has_value()) {
         sw = msg->CloseInverterSwitch();
@@ -80,16 +80,16 @@ void Controller::HandleSwitch(VehBus& veh_can) {
         sw = false;
     }
 
-    periph.motor_ctrl_switch_en->Set(sw);
+    _motor_ctrl_switch_en.Set(sw);
 }
 
-bool Controller::GetSwitchClosed(void) {
+bool Motor_Controller::GetSwitchClosed(void) {
     return sw;
 }
 
-void Controller::task_100hz(VehBus& veh_can) {
+void Motor_Controller::task_100hz(VehBus& veh_can) {
     StateMachine_100hz();
     HandleSwitch(veh_can);
 }
 
-}  // namespace motor_controller
+}  // namespace macfe::lv
