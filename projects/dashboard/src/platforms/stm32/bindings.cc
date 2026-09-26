@@ -50,6 +50,7 @@ macfe::periph::DigitalInput& button_enter = mcal::button_enter;
 
 void Initialize() {
     HAL_Init();
+    // HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0); // note: might need to put back
     SystemClock_Config();
 
     /* Initialize all configured peripherals */
@@ -57,7 +58,6 @@ void Initialize() {
     MX_DMA_Init();
     MX_DMA2D_Init();
     MX_DSIHOST_DSI_Init();
-    MX_CAN1_Init();
 
     // Don't call MX_FMC_Init() - it is replaced by BSP_SDRAM...()
     BSP_SDRAM_Init();
@@ -66,31 +66,31 @@ void Initialize() {
     MX_LTDC_Init();
     MX_USART3_UART_Init();
 
-    mcal::veh_can_base.Setup();
-
-    BSP_LCD_Init();
+    BSP_LCD_Init();  //! Breaks
     BSP_LCD_LayerDefaultInit(0, (uint32_t)SDRAM_DEVICE_ADDR);
-    BSP_LCD_Clear(LCD_COLOR_BLACK);
-
+    BSP_LCD_Clear(LCD_COLOR_CYAN);
     lv_init();
-
+    // Read actual register values
+    uint32_t systick_prio = NVIC_GetPriority(SysTick_IRQn);
+    uint32_t can_prio = NVIC_GetPriority(CAN1_RX0_IRQn);
+    MX_CAN1_Init();
+    mcal::veh_can_base.Setup();
+    //! USEFUL
     // init display
     uint32_t ltdc_layer_index = 0; /* typically 0 or 1 */
 #if 0
-  // note: direct mode with the LV_USE_DRAW_DMA2D enabled results in glitches on the screen
-  void *framebuffer1_address = (void *)SDRAM_DEVICE_ADDR;
-  void *framebuffer2_address = (void *)(SDRAM_DEVICE_ADDR + 3 * 1024 * 1024 / 2);
-  lv_st_ltdc_create_direct(framebuffer1_address, framebuffer2_address, ltdc_layer_index);
+    // note: direct mode with the LV_USE_DRAW_DMA2D enabled results in glitches on the screen
+    void *framebuffer1_address = (void *)SDRAM_DEVICE_ADDR;
+    void *framebuffer2_address = (void *)(SDRAM_DEVICE_ADDR + 3 * 1024 * 1024 / 2);
+    lv_st_ltdc_create_direct(framebuffer1_address, framebuffer2_address, ltdc_layer_index);
 #else
-// note: partial mode works fine with the LV_USE_DRAW_DMA2D enabled
+    // note: partial mode works fine with the LV_USE_DRAW_DMA2D enabled
 #define BUF_SIZE 800 * 48 * 4
     static uint8_t partial_buf1[BUF_SIZE];
     // static uint8_t optional_partial_buf2[BUF_SIZE];
     create_disp(partial_buf1, 0 /*optional_partial_buf2*/, BUF_SIZE,
                 ltdc_layer_index);
 #endif
-
-    // screen_driver_init();
 }
 
 void DelayMS(uint32_t ms) {

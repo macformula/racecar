@@ -51,7 +51,8 @@ load_dotenv(override=True)
 # ---------------------------------------------------------------------------
 TARGET_IDS = {
     202,        # FcAlerts             (veh) - 13 boolean fault flags
-    211,        # LvStatus             (veh) - ImdFault, BmsFault
+    211,        # LvStatus             (veh) - LV state/status
+    212,        # LvAlerts             (veh) - HsdOvercurrent, ImdFault, BmsFault
     214,        # LvDcdc               (veh) - LV battery/bus voltage + bus current
     230,        # DashCommand          (veh) - Speed
     300,        # Accumulator_Soc      (veh) - battery state
@@ -91,7 +92,7 @@ IMPORTANT_SIGNALS = {
     "BusCurrent",         # DCDC bus current (A)        — LvDcdc (214)
 }
 
-# Boolean fault signals from FcAlerts (202) and LvStatus (211).
+# Boolean fault signals from FcAlerts (202) and LvAlerts (212).
 # Value == 1 means the fault is active. Each maps to (system, description, severity).
 FAULT_SIGNALS = {
     # FcAlerts (202)
@@ -108,7 +109,8 @@ FAULT_SIGNALS = {
     "EV47Active":                     ("Safety",    "EV4.7 Rule Active",            "CRITICAL"),
     "NoInv1Can":                      ("Inverter",  "No INV1 CAN Comm",             "CRITICAL"),
     "NoInv2Can":                      ("Inverter",  "No INV2 CAN Comm",             "CRITICAL"),
-    # LvStatus (211)
+    # LvAlerts (212)
+    "HsdOvercurrent":                 ("LV",        "HSD Overcurrent",              "CRITICAL"),
     "ImdFault":                       ("IMD",       "Isolation Fault",              "CRITICAL"),
     "BmsFault":                       ("BMS",       "BMS Fault",                    "CRITICAL"),
 }
