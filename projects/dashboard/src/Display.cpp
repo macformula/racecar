@@ -45,6 +45,7 @@ void Display::CheckContactorState() {
     bool hv_running = positive_closed && negative_closed && precharge_open;
 
     if (!hv_running) {
+        shutdown_reason = ShutdownReason::CONTACTOR_MISMATCH;
         ChangeState(State::SHUTDOWN);
     }
 }
@@ -73,6 +74,7 @@ void Display::Update(int time_ms) {
             case State::SELECT_PROFILE:
                 break;  // don't react if already at initial state
             default:
+                shutdown_reason = ShutdownReason::NONE;
                 ChangeState(State::SELECT_PROFILE);
                 break;
         }
