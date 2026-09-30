@@ -1,0 +1,17 @@
+name: SIL Docker Image
+on:
+  pull_request:
+    paths:
+      - 'docker/sil/**'
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build sil Docker image
+        run: docker build -t racecar-sil docker/sil
+      - name: Build lvcontroller sil environment inside container
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/workspace" \
+            -w /workspace/projects/lvcontroller \
+            racecar-sil pio run -e sil

@@ -29,6 +29,17 @@ _Optional: You may also install [PlatformIO Core](https://docs.platformio.org/en
     
     Prior to 2025-26, Mac Formula used [Clangd](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd) for C++ language support. You should disable/uninstall the Clangd extension when working on `racecar`.
 
+!!! tip "Alternative: Docker"
+
+    If you don't want to install PlatformIO Core, Python, or a C++ toolchain
+    natively, you can build and run the `sil` PlatformIO environment inside a
+    container instead. See [`docker/sil/README.md`](https://github.com/macformula/racecar/blob/main/docker/sil/README.md).
+
+    This is unrelated to the [Virtual CAN on WSL2](../../tutorials/wsl-can/index.md)
+    tutorial - that page covers the separate `linux` platform's real SocketCAN
+    setup (used by the CAN demo/dashboard projects), not the `sil` environment,
+    which does not use SocketCAN.
+
 ## STM32CubeMX
 
 CubeMX is a program which generates configuration code for our microcontrollers.
