@@ -74,10 +74,7 @@ macfe::periph::DigitalOutput& front_controller_en = mcal::front_controller_en;
 macfe::periph::DigitalOutput& imu_gps_en = mcal::imu_gps_en;
 macfe::periph::DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 
-// DCDC System & Measurement
-macfe::periph::DigitalOutput& dcdc_en = mcal::dcdc_en;
-macfe::periph::DigitalOutput& dcdc_sense_select = mcal::dcdc_sense_select;
-macfe::periph::AnalogInput& dcdc_sense = mcal::dcdc_sense;
+// DCDC System & Measurement - Removed Rev3 Bindings 
 
 // Other IO
 macfe::periph::DigitalOutput& brake_light_en = mcal::brake_light_en;

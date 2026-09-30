@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
- ******************************************************************************
- * @file           : main.h
- * @brief          : Header for main.c file.
- *                   This file contains the common defines of the application.
- ******************************************************************************
- * @attention
- *
- * Copyright (c) 2026 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- ******************************************************************************
- */
+  ******************************************************************************
+  * @file           : main.h
+  * @brief          : Header for main.c file.
+  *                   This file contains the common defines of the application.
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -143,8 +143,6 @@ void Error_Handler(void);
 #define VICOR_EN_GPIO_Port GPIOG
 #define MOTOR_CONTROLLER_SWITCH_EN_Pin GPIO_PIN_12
 #define MOTOR_CONTROLLER_SWITCH_EN_GPIO_Port GPIOG
-#define DCDC_SNS_SEL_Pin GPIO_PIN_14
-#define DCDC_SNS_SEL_GPIO_Port GPIOG
 
 /* USER CODE BEGIN Private defines */
 

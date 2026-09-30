@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
- ******************************************************************************
- * @file    gpio.c
- * @brief   This file provides code for the configuration
- *          of all used GPIO pins.
- ******************************************************************************
- * @attention
- *
- * Copyright (c) 2026 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- ******************************************************************************
- */
+  ******************************************************************************
+  * @file    gpio.c
+  * @brief   This file provides code for the configuration
+  *          of all used GPIO pins.
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2026 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -33,115 +33,91 @@
 /* USER CODE END 1 */
 
 /** Configure pins as
- * Analog
- * Input
- * Output
- * EVENT_OUT
- * EXTI
- */
-void MX_GPIO_Init(void) {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+        * Analog
+        * Input
+        * Output
+        * EVENT_OUT
+        * EXTI
+*/
+void MX_GPIO_Init(void)
+{
 
-    /* GPIO Ports Clock Enable */
-    __HAL_RCC_GPIOE_CLK_ENABLE();
-    __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOF_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOG_CLK_ENABLE();
-    __HAL_RCC_GPIOD_CLK_ENABLE();
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOE,
-                      HSD3_I_SENSE_EN_Pin | HSD3_SEL_Pin |
-                          POWERTRAIN_PUMP1_EN_Pin | POWERTRAIN_PUMP2_EN_Pin,
-                      GPIO_PIN_RESET);
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOE_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOF_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOG_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
 
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(
-        GPIOC,
-        HSD6_I_SENSE_EN_Pin | HSD6_SEL_Pin | TSSI_RED_SIG_Pin | TSSI_GN_SIG_Pin,
-        GPIO_PIN_RESET);
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOE, HSD3_I_SENSE_EN_Pin|HSD3_SEL_Pin|POWERTRAIN_PUMP1_EN_Pin|POWERTRAIN_PUMP2_EN_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(
-        GPIOF,
-        HSD4_I_SENSE_EN_Pin | HSD4_SEL_Pin | HSD5_I_SENSE_EN_Pin | HSD5_SEL_Pin,
-        GPIO_PIN_RESET);
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, HSD6_I_SENSE_EN_Pin|HSD6_SEL_Pin|TSSI_RED_SIG_Pin|TSSI_GN_SIG_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(
-        GPIOG,
-        POWERTRAIN_FAN1_EN_Pin | IMU_GPS_EN_Pin | FRONT_CONTROLLER_EN_Pin |
-            MOTOR_CONTROLLER_EN_Pin | POWERTRAIN_FAN2_EN_Pin | TSSI_EN_Pin |
-            SHUTDOWN_CIRCUIT_EN_Pin | MOTOR_CONTROLLER_PRECHARGE_EN_Pin |
-            ACCUMULATOR_EN_Pin | BRAKE_LIGHT_EN_Pin | VICOR_EN_Pin |
-            MOTOR_CONTROLLER_SWITCH_EN_Pin | DCDC_SNS_SEL_Pin,
-        GPIO_PIN_RESET);
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOF, HSD4_I_SENSE_EN_Pin|HSD4_SEL_Pin|HSD5_I_SENSE_EN_Pin|HSD5_SEL_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB,
-                      HSD1_I_SENSE_EN_Pin | HSD1_SEL0_Pin | HSD1_SEL1_Pin |
-                          HSD2_I_SENSE_EN_Pin | HSD2_SEL_Pin,
-                      GPIO_PIN_RESET);
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOG, POWERTRAIN_FAN1_EN_Pin|IMU_GPS_EN_Pin|FRONT_CONTROLLER_EN_Pin|MOTOR_CONTROLLER_EN_Pin
+                          |POWERTRAIN_FAN2_EN_Pin|TSSI_EN_Pin|SHUTDOWN_CIRCUIT_EN_Pin|MOTOR_CONTROLLER_PRECHARGE_EN_Pin
+                          |ACCUMULATOR_EN_Pin|BRAKE_LIGHT_EN_Pin|VICOR_EN_Pin|MOTOR_CONTROLLER_SWITCH_EN_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : HSD3_I_SENSE_EN_Pin HSD3_SEL_Pin
-     * POWERTRAIN_PUMP1_EN_Pin POWERTRAIN_PUMP2_EN_Pin */
-    GPIO_InitStruct.Pin = HSD3_I_SENSE_EN_Pin | HSD3_SEL_Pin |
-                          POWERTRAIN_PUMP1_EN_Pin | POWERTRAIN_PUMP2_EN_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, HSD1_I_SENSE_EN_Pin|HSD1_SEL0_Pin|HSD1_SEL1_Pin|HSD2_I_SENSE_EN_Pin
+                          |HSD2_SEL_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : HSD6_I_SENSE_EN_Pin HSD6_SEL_Pin TSSI_RED_SIG_Pin
-     * TSSI_GN_SIG_Pin */
-    GPIO_InitStruct.Pin =
-        HSD6_I_SENSE_EN_Pin | HSD6_SEL_Pin | TSSI_RED_SIG_Pin | TSSI_GN_SIG_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  /*Configure GPIO pins : HSD3_I_SENSE_EN_Pin HSD3_SEL_Pin POWERTRAIN_PUMP1_EN_Pin POWERTRAIN_PUMP2_EN_Pin */
+  GPIO_InitStruct.Pin = HSD3_I_SENSE_EN_Pin|HSD3_SEL_Pin|POWERTRAIN_PUMP1_EN_Pin|POWERTRAIN_PUMP2_EN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : HSD4_I_SENSE_EN_Pin HSD4_SEL_Pin HSD5_I_SENSE_EN_Pin
-     * HSD5_SEL_Pin */
-    GPIO_InitStruct.Pin =
-        HSD4_I_SENSE_EN_Pin | HSD4_SEL_Pin | HSD5_I_SENSE_EN_Pin | HSD5_SEL_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+  /*Configure GPIO pins : HSD6_I_SENSE_EN_Pin HSD6_SEL_Pin TSSI_RED_SIG_Pin TSSI_GN_SIG_Pin */
+  GPIO_InitStruct.Pin = HSD6_I_SENSE_EN_Pin|HSD6_SEL_Pin|TSSI_RED_SIG_Pin|TSSI_GN_SIG_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : POWERTRAIN_FAN1_EN_Pin IMU_GPS_EN_Pin
-       FRONT_CONTROLLER_EN_Pin MOTOR_CONTROLLER_EN_Pin POWERTRAIN_FAN2_EN_Pin
-       TSSI_EN_Pin SHUTDOWN_CIRCUIT_EN_Pin MOTOR_CONTROLLER_PRECHARGE_EN_Pin
-                             ACCUMULATOR_EN_Pin BRAKE_LIGHT_EN_Pin VICOR_EN_Pin
-       MOTOR_CONTROLLER_SWITCH_EN_Pin DCDC_SNS_SEL_Pin */
-    GPIO_InitStruct.Pin =
-        POWERTRAIN_FAN1_EN_Pin | IMU_GPS_EN_Pin | FRONT_CONTROLLER_EN_Pin |
-        MOTOR_CONTROLLER_EN_Pin | POWERTRAIN_FAN2_EN_Pin | TSSI_EN_Pin |
-        SHUTDOWN_CIRCUIT_EN_Pin | MOTOR_CONTROLLER_PRECHARGE_EN_Pin |
-        ACCUMULATOR_EN_Pin | BRAKE_LIGHT_EN_Pin | VICOR_EN_Pin |
-        MOTOR_CONTROLLER_SWITCH_EN_Pin | DCDC_SNS_SEL_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+  /*Configure GPIO pins : HSD4_I_SENSE_EN_Pin HSD4_SEL_Pin HSD5_I_SENSE_EN_Pin HSD5_SEL_Pin */
+  GPIO_InitStruct.Pin = HSD4_I_SENSE_EN_Pin|HSD4_SEL_Pin|HSD5_I_SENSE_EN_Pin|HSD5_SEL_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : HSD1_I_SENSE_EN_Pin HSD1_SEL0_Pin HSD1_SEL1_Pin
-       HSD2_I_SENSE_EN_Pin HSD2_SEL_Pin */
-    GPIO_InitStruct.Pin = HSD1_I_SENSE_EN_Pin | HSD1_SEL0_Pin | HSD1_SEL1_Pin |
-                          HSD2_I_SENSE_EN_Pin | HSD2_SEL_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  /*Configure GPIO pins : POWERTRAIN_FAN1_EN_Pin IMU_GPS_EN_Pin FRONT_CONTROLLER_EN_Pin MOTOR_CONTROLLER_EN_Pin
+                           POWERTRAIN_FAN2_EN_Pin TSSI_EN_Pin SHUTDOWN_CIRCUIT_EN_Pin MOTOR_CONTROLLER_PRECHARGE_EN_Pin
+                           ACCUMULATOR_EN_Pin BRAKE_LIGHT_EN_Pin VICOR_EN_Pin MOTOR_CONTROLLER_SWITCH_EN_Pin */
+  GPIO_InitStruct.Pin = POWERTRAIN_FAN1_EN_Pin|IMU_GPS_EN_Pin|FRONT_CONTROLLER_EN_Pin|MOTOR_CONTROLLER_EN_Pin
+                          |POWERTRAIN_FAN2_EN_Pin|TSSI_EN_Pin|SHUTDOWN_CIRCUIT_EN_Pin|MOTOR_CONTROLLER_PRECHARGE_EN_Pin
+                          |ACCUMULATOR_EN_Pin|BRAKE_LIGHT_EN_Pin|VICOR_EN_Pin|MOTOR_CONTROLLER_SWITCH_EN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : IMD_FAULT_STATUS_Pin BMS_FAULT_STATUS_Pin */
-    GPIO_InitStruct.Pin = IMD_FAULT_STATUS_Pin | BMS_FAULT_STATUS_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+  /*Configure GPIO pins : HSD1_I_SENSE_EN_Pin HSD1_SEL0_Pin HSD1_SEL1_Pin HSD2_I_SENSE_EN_Pin
+                           HSD2_SEL_Pin */
+  GPIO_InitStruct.Pin = HSD1_I_SENSE_EN_Pin|HSD1_SEL0_Pin|HSD1_SEL1_Pin|HSD2_I_SENSE_EN_Pin
+                          |HSD2_SEL_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : IMD_FAULT_STATUS_Pin BMS_FAULT_STATUS_Pin */
+  GPIO_InitStruct.Pin = IMD_FAULT_STATUS_Pin|BMS_FAULT_STATUS_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
 }
 
 /* USER CODE BEGIN 2 */
