@@ -25,6 +25,9 @@ State GetState(void);
 bool GetInverterEnable(void);
 float GetMph(void);
 
+float GetLeftWheelRpm(void);
+float GetRightWheelRpm(void);
+
 amk::State GetLeftState(void);
 amk::State GetRightState(void);
 

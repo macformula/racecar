@@ -35,15 +35,19 @@ TorqueVector AdjustTorqueVectoring(float steering_angle) {
     }
 }
 
-// Note: The CalculateActualSlip function has Div-by-Zero error if left front
-// and right front wheel speeds = 0.
 float CalculateActualSlip(const sensors::dynamics::WheelSpeed& ws) {
-    float idle_wheel_spd = (ws.front_left + ws.front_right) / 2.0;
-    float actual_slip =
-        std::max(ws.rear_left, +ws.rear_right) / idle_wheel_spd - 1;
+    constexpr float kMinIdleSpeedRpm = 21.0f;  // ~1 mph with 16" wheels
+    float idle_wheel_spd = (ws.front_left + ws.front_right) / 2.0f;
 
-    if (actual_slip < 0) {
-        actual_slip = 0;
+    if (idle_wheel_spd < kMinIdleSpeedRpm) {
+        return 0.0f;
+    }
+
+    float actual_slip =
+        std::max(ws.rear_left, ws.rear_right) / idle_wheel_spd - 1.0f;
+
+    if (actual_slip < 0.0f) {
+        actual_slip = 0.0f;
     }
     return actual_slip;
 }

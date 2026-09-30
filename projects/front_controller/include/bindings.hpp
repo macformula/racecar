@@ -17,10 +17,9 @@ extern macfe::periph::CanBase& pt_can_base;
 // =========== Vehicle Dynamics Sensors ====================
 extern macfe::periph::AnalogInput& suspension_travel1;
 extern macfe::periph::AnalogInput& suspension_travel2;
-extern macfe::periph::AnalogInput& wheel_speed_front_left;   // A
-extern macfe::periph::AnalogInput& wheel_speed_front_right;  // A
-extern macfe::periph::AnalogInput& wheel_speed_rear_left;    // B
-extern macfe::periph::AnalogInput& wheel_speed_rear_right;   // B
+
+extern uint32_t GetWheelTicksLeft();
+extern uint32_t GetWheelTicksRight();
 
 // =========== Driver Control ==============================
 extern macfe::periph::AnalogInput& steering_angle_sensor;

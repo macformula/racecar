@@ -74,15 +74,13 @@ void Init(void) {
 }
 
 void Update_100Hz(void) {
-    // int time_ms = bindings::GetTickMs();
+    int time_ms = bindings::GetTickMs();
 
-    // float actual_slip =
-    //     CalculateActualSlip(sensors::dynamics::GetWheelSpeeds());
-    //
-    // float tc_scale_factor = traction_ctrl.UpdateScaleFactor(
-    //     actual_slip, target_slip_ratio, time_ms);
-    //
-    float tc_scale_factor = 1.f;
+    float actual_slip =
+        CalculateActualSlip(sensors::dynamics::GetWheelSpeeds());
+
+    float tc_scale_factor = traction_ctrl.UpdateScaleFactor(
+        actual_slip, target_slip_ratio, time_ms);
 
     TorqueVector tv = {.left = 1.0, .right = 1.0};
     if (torque_vector_enable) {
