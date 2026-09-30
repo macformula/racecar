@@ -23,32 +23,20 @@ Display::State Display::GetState() const {
     return state_;
 }
 
-void Display::CheckContactorState() {
-    bool expects_hv =
-        state_ == State::PRESS_FOR_MOTOR || state_ == State::STARTING_MOTORS ||
-        state_ == State::BRAKE_TO_START || state_ == State::RUNNING;
+void Display::CheckHvShutdown() {
+    auto fc_msg = veh_bus.GetRxDashCommand();
 
-    if (!expects_hv) {
+    if (!fc_msg.has_value()) {
         return;
     }
 
-    auto contactors = veh_bus.GetRxContactor_Feedback();
-
-    if (!contactors.has_value()) {
-        return;
-    }
-
-    bool positive_closed = !contactors->Pack_Positive_Feedback();
-    bool negative_closed = !contactors->Pack_Negative_Feedback();
-    bool precharge_open = contactors->Pack_Precharge_Feedback();
-
-    bool hv_running = positive_closed && negative_closed && precharge_open;
-
-    if (!hv_running) {
-        shutdown_reason = ShutdownReason::CONTACTOR_MISMATCH;
+    if (fc_msg->HvShutdown()) {
         ChangeState(State::SHUTDOWN);
+    } else if (state_ == State::SHUTDOWN) {
+        ChangeState(State::PRESS_FOR_HV);
     }
 }
+
 void Display::ChangeState(State new_state_) {
     // Don't immediately construct the new screen, only set a flag.
     // This prevents a screen from deleting itself during its Update().
@@ -66,7 +54,7 @@ void Display::Update(int time_ms) {
 
     screen_->Update();
 
-    CheckContactorState();
+    CheckHvShutdown();
 
     auto cmd = veh_bus.GetRxDashCommand();
     if (cmd.has_value() && cmd->Reset()) {

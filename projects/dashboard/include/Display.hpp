@@ -43,7 +43,7 @@ public:
 
 private:
     void InnerChangeState(State new_state);
-    void CheckContactorState();
+    void CheckHvShutdown();
 
     std::optional<State> transition_;
     State state_ = State::SELECT_PROFILE;
