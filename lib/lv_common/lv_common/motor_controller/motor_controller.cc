@@ -1,37 +1,20 @@
 #include "motor_controller.hpp"
 
-#include "bindings.hpp"
 #include "generated/can/veh_messages.hpp"
 
-namespace motor_controller {
+namespace macfe::lv {
 
 using namespace generated::can;
 
-static bool enabled = false;
-
-bool sw = false;
-static State state = State::OFF;
-static uint32_t elapsed = 0;
-
-void Init(void) {
-    bindings::motor_ctrl_precharge_en.SetLow();
-    bindings::motor_controller_en.SetLow();
-    bindings::motor_ctrl_switch_en.SetLow();
-
-    enabled = false;
-    state = State::OFF;
-    elapsed = 0;
-}
-
-State GetState(void) {
+State Motor_Controller::GetState(void) {
     return state;
 }
 
-void SetEnabled(bool enable) {
+void Motor_Controller::SetEnabled(bool enable) {
     enabled = enable;
 }
 
-static void StateMachine_100hz(void) {
+void Motor_Controller::StateMachine_100hz(void) {
     bool precharge = false;
     bool positive = false;
 
@@ -85,11 +68,11 @@ static void StateMachine_100hz(void) {
         elapsed += 10;
     }
 
-    bindings::motor_ctrl_precharge_en.Set(precharge);
-    bindings::motor_controller_en.Set(positive);
+    _motor_ctrl_precharge_en.Set(precharge);
+    _motor_controller_en.Set(positive);
 }
 
-void HandleSwitch(VehBus& veh_can) {
+void Motor_Controller::HandleSwitch(VehBus& veh_can) {
     auto msg = veh_can.GetRxInverterSwitchCommand();
     if (msg.has_value()) {
         sw = msg->CloseInverterSwitch();
@@ -97,16 +80,16 @@ void HandleSwitch(VehBus& veh_can) {
         sw = false;
     }
 
-    bindings::motor_ctrl_switch_en.Set(sw);
+    _motor_ctrl_switch_en.Set(sw);
 }
 
-bool GetSwitchClosed(void) {
+bool Motor_Controller::GetSwitchClosed(void) {
     return sw;
 }
 
-void task_100hz(VehBus& veh_can) {
+void Motor_Controller::task_100hz(VehBus& veh_can) {
     StateMachine_100hz();
     HandleSwitch(veh_can);
 }
 
-}  // namespace motor_controller
+}  // namespace macfe::lv
