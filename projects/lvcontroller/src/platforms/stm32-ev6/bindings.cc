@@ -76,7 +76,7 @@ DigitalOutput shutdown_circuit_en{SHUTDOWN_CIRCUIT_EN_GPIO_Port,
 
 // DCDC System  Measurement
 DigitalOutput vicor_en{VICOR_EN_GPIO_Port, VICOR_EN_Pin};
-DigitalOutput dcdc_sense_select{DCDC_SNS_SEL_GPIO_Port, DCDC_SNS_SEL_Pin};
+
 // Analog Sensing (Rev 4)
 AnalogInput lv_battery{&hadc3, ADC_CHANNEL_15};
 AnalogInput bus_voltage{&hadc3, ADC_CHANNEL_14};
@@ -152,10 +152,9 @@ DigitalOutput& front_controller_en = mcal::front_controller_en;
 DigitalOutput& imu_gps_en = mcal::imu_gps_en;
 DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 
-DigitalOutput& dcdc_en = mcal::vicor_en;
-DigitalOutput& dcdc_sense_select = mcal::dcdc_sense_select;
-AnalogInput& dcdc_sense = mcal::bus_current;
+// DC-DC
 DigitalOutput& vicor_en = mcal::vicor_en;
+
 // Analog Sensing Rev 4
 AnalogInput& lv_battery = mcal::lv_battery;
 AnalogInput& bus_voltage = mcal::bus_voltage;

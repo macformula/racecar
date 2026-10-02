@@ -188,9 +188,6 @@ DigitalOutput& imu_gps_en = mcal::imu_gps_en;
 DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 
 // DCDC System
-DigitalOutput& dcdc_en = mcal::dcdc_en;
-DigitalOutput& dcdc_sense_select = mcal::dcdc_sense_select;
-AnalogInput& dcdc_sense = mcal::dcdc_sense;
 DigitalOutput& vicor_en = mcal::vicor_en;
 AnalogInput& lv_battery = mcal::lv_battery;
 AnalogInput& bus_voltage = mcal::bus_voltage;
