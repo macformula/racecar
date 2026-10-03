@@ -51,9 +51,6 @@ DigitalOutput imu_gps_en{&outputs.imu_gps_en};
 DigitalOutput shutdown_circuit_en{&outputs.shutdown_circuit_en};
 
 // DCDC System  Measurement;
-DigitalOutput dcdc_en{&outputs.dcdc_en};
-DigitalOutput dcdc_sense_select{&outputs.dcdc_sense_select};
-AnalogInput dcdc_sense{&inputs.dcdc_sense};
 DigitalOutput vicor_en{&outputs.vicor_en};
 AnalogInput lv_battery{&inputs.lv_battery};
 AnalogInput bus_voltage{&inputs.bus_voltage};

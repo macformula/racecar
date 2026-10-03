@@ -46,11 +46,6 @@ DigitalOutput front_controller_en{"FRONT_CONTROLLER_EN"};
 DigitalOutput imu_gps_en{"IMU_GPS_EN"};
 DigitalOutput shutdown_circuit_en{"SHUTDOWN_CIRCUIT_EN"};
 
-// DCDC System  Measurement;
-DigitalOutput dcdc_en{"DCDC_EN"};
-DigitalOutput dcdc_sense_select{"DCDC_SENSE_SELECT"};
-AnalogInput dcdc_sense{"DCDC_SENSE"};
-
 // HSD Sensing
 AnalogInput hsd1_isense{"HSD1_ISENSE"};
 DigitalOutput hsd1_isense_en{"HSD1_ISENSE_EN"};
