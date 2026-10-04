@@ -21,6 +21,11 @@ public:
     using State = generated::can::TxDashStatus::State_t;
     using Profile = generated::can::TxDashStatus::Profile_t;
 
+    enum class ShutdownReason {
+        NONE,
+        CONTACTOR_MISMATCH
+    };
+
     Display(Button& enter, Button& scroll, generated::can::VehBus& veh);
 
     // CAN and Buttons are public so the ScreenUpdate can access them
@@ -28,6 +33,7 @@ public:
     Button scroll;
     generated::can::VehBus& veh_bus;
     Profile selected_profile = Profile::Default;
+    ShutdownReason shutdown_reason = ShutdownReason::NONE;
 
     void Start();
     void Update(int time_ms);
@@ -37,6 +43,7 @@ public:
 
 private:
     void InnerChangeState(State new_state);
+    void CheckHvShutdown();
 
     std::optional<State> transition_;
     State state_ = State::SELECT_PROFILE;
