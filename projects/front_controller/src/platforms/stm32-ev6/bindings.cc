@@ -1,5 +1,7 @@
 #include "bindings.hpp"
 
+#include <atomic>
+
 #include "adc.h"
 #include "can.h"
 #include "gpio.h"
@@ -25,10 +27,6 @@ CanBase pt_can_base{&hcan1};
 // =========== Vehicle Dynamics Sensors ====================
 AnalogInput suspension_travel1{&hadc1, ADC_CHANNEL_8};
 AnalogInput suspension_travel2{&hadc1, ADC_CHANNEL_9};
-AnalogInput wheel_speed_front_left{&hadc1, ADC_CHANNEL_15};
-AnalogInput wheel_speed_front_right{&hadc3, ADC_CHANNEL_14};
-AnalogInput wheel_speed_rear_left{&hadc1, ADC_CHANNEL_14};
-AnalogInput wheel_speed_rear_right{&hadc3, ADC_CHANNEL_9};
 
 // =========== Driver Control ==============================
 AnalogInput steering_angle_sensor{&hadc1, ADC_CHANNEL_2};
@@ -64,6 +62,19 @@ hsd::HSD1Channel hsd2{hsd2_isense, hsd2_isense_en};
 
 }  // namespace mcal
 
+// =========== Wheel Speed Sensor Interrupts =============
+static std::atomic<uint32_t> wheel_ticks_left{0};
+static std::atomic<uint32_t> wheel_ticks_right{0};
+
+// Exported with C linkage so STM32 HAL invokes it
+extern "C" void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+    if (GPIO_Pin == WHEEL_SPEED_LEFT_A_BUFFERED_Pin) {
+        wheel_ticks_left.fetch_add(1, std::memory_order_relaxed);
+    } else if (GPIO_Pin == WHEEL_SPEED_RIGHT_A_BUFFERED_Pin) {
+        wheel_ticks_right.fetch_add(1, std::memory_order_relaxed);
+    }
+}
+
 namespace bindings {
 
 // =========== CAN =========================================
@@ -73,13 +84,14 @@ macfe::periph::CanBase& pt_can_base = mcal::pt_can_base;
 // =========== Vehicle Dynamics Sensors ====================
 macfe::periph::AnalogInput& suspension_travel1 = mcal::suspension_travel1;
 macfe::periph::AnalogInput& suspension_travel2 = mcal::suspension_travel2;
-macfe::periph::AnalogInput& wheel_speed_front_left =
-    mcal::wheel_speed_front_left;
-macfe::periph::AnalogInput& wheel_speed_front_right =
-    mcal::wheel_speed_front_right;
-macfe::periph::AnalogInput& wheel_speed_rear_left = mcal::wheel_speed_rear_left;
-macfe::periph::AnalogInput& wheel_speed_rear_right =
-    mcal::wheel_speed_rear_right;
+
+uint32_t GetWheelTicksLeft() {
+    return wheel_ticks_left.load(std::memory_order_relaxed);
+}
+
+uint32_t GetWheelTicksRight() {
+    return wheel_ticks_right.load(std::memory_order_relaxed);
+}
 
 // =========== Driver Control ==============================
 macfe::periph::AnalogInput& steering_angle_sensor = mcal::steering_angle_sensor;

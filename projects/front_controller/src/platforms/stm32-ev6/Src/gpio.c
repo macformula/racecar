@@ -101,6 +101,21 @@ void MX_GPIO_Init(void) {
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(RTDS_EN_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : WHEEL_SPEED_LEFT_A_BUFFERED_Pin
+     * WHEEL_SPEED_RIGHT_A_BUFFERED_Pin*/
+    GPIO_InitStruct.Pin = WHEEL_SPEED_LEFT_A_BUFFERED_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(WHEEL_SPEED_LEFT_A_BUFFERED_GPIO_Port, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = WHEEL_SPEED_RIGHT_A_BUFFERED_Pin;
+    HAL_GPIO_Init(WHEEL_SPEED_RIGHT_A_BUFFERED_GPIO_Port, &GPIO_InitStruct);
+
+    // Configure associated wheel teeth interrupt priorities
+    HAL_NVIC_SetPriority(EXTI4_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 }
 
 /* USER CODE BEGIN 2 */

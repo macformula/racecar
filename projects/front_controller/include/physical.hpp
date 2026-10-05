@@ -35,5 +35,6 @@ constexpr float steer_volt_full_right = 2.74;
 // Powertrain
 constexpr float gearbox_ratio = 12.9;
 constexpr float motor_diam_inch = 16;
+constexpr float wheel_teeth_count = 30.0f;
 
 }  // namespace tuning

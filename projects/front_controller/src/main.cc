@@ -329,7 +329,7 @@ void task_10hz(void* argument) {
             .hv_shutdown = fsm::state == fsm::State::SHUTDOWN,
             .hv_precharge_percent =
                 static_cast<uint8_t>(accumulator::GetPrechargePercent()),
-            .speed = motors::GetMph(),
+            .speed = sensors::dynamics::GetMph(),
             .hv_soc_percent =
                 static_cast<uint8_t>(accumulator::GetSocPercent()),
         });
