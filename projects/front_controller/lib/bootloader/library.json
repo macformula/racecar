@@ -1,0 +1,7 @@
+{
+    "name": "bootloader",
+    "version": "1.0.0",
+    "description": "Resident CAN bootloader for STM32F767 ECUs",
+    "frameworks": "stm32cube",
+    "platforms": "ststm32"
+}
