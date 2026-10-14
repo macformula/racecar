@@ -268,6 +268,14 @@ static void Update_100Hz(void) {
             if (dash.has_value() && (dash->State() == DashState::SHUTDOWN)) {
                 new_state = SHUTDOWN;
             }
+            auto inv1_2 = pt_can_bus.GetRxInv1_ActualValues2();
+            auto inv2_2 = pt_can_bus.GetRxInv2_ActualValues2();
+            veh_can_bus.Send(TxInverterStatus{
+                .temp_motor_inv1 = inv1_2->TempMotor(),
+                .temp_inverter_inv1 = inv1_2->TempInverter(),
+                .temp_motor_inv2 = inv2_2->TempMotor(),
+                .temp_inverter_inv2 = inv2_2->TempInverter(),
+            });
         } break;
 
         case SHUTDOWN:
@@ -398,6 +406,7 @@ void task_10hz(void* argument) {
             .drive_started = fsm::state == fsm::State::RUNNING,
             .reset = fsm::state == fsm::State::START_DASHBOARD,
             .errored = fsm::state == fsm::State::ERROR,
+            .hv_shutdown = fsm::state == fsm::State::SHUTDOWN,
             .hv_precharge_percent =
                 static_cast<uint8_t>(accumulator::GetPrechargePercent()),
             .speed = motors::GetMph(),

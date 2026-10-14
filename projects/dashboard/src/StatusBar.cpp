@@ -15,7 +15,7 @@ void StatusBar::Create(lv_obj_t* parent) {
     lv_obj_align(bar_container_, LV_ALIGN_TOP_MID, 0, 0);
 
     // Style: Red/orange background
-    lv_obj_set_style_bg_color(bar_container_, lv_color_hex(0xFF4500),
+    lv_obj_set_style_bg_color(bar_container_, lv_color_hex(0x00008B),
                               LV_PART_MAIN);  // Orange-red
     lv_obj_set_style_bg_opa(bar_container_, LV_OPA_COVER, LV_PART_MAIN);
     lv_obj_set_style_border_width(bar_container_, 0, LV_PART_MAIN);

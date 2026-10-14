@@ -33,11 +33,6 @@ DigitalOutput front_controller_en{"FRONT_CONTROLLER_EN"};
 DigitalOutput imu_gps_en{"IMU_GPS_EN"};
 DigitalOutput shutdown_circuit_en{"SHUTDOWN_CIRCUIT_EN"};
 
-// DCDC System & Measurement
-DigitalOutput dcdc_en{"DCDC_EN"};
-DigitalOutput dcdc_sense_select{"DCDC_SENSE_SELECT"};
-AnalogInput dcdc_sense{"DCDC_SENSE"};
-
 // Other IO
 DigitalOutput brake_light_en{"BRAKE_LIGHT_EN"};
 AnalogInput suspension_travel3{"SUSPENSION_TRAVEL3"};
@@ -74,10 +69,7 @@ macfe::periph::DigitalOutput& front_controller_en = mcal::front_controller_en;
 macfe::periph::DigitalOutput& imu_gps_en = mcal::imu_gps_en;
 macfe::periph::DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 
-// DCDC System & Measurement
-macfe::periph::DigitalOutput& dcdc_en = mcal::dcdc_en;
-macfe::periph::DigitalOutput& dcdc_sense_select = mcal::dcdc_sense_select;
-macfe::periph::AnalogInput& dcdc_sense = mcal::dcdc_sense;
+// DCDC System & Measurement - Removed Rev3 Bindings
 
 // Other IO
 macfe::periph::DigitalOutput& brake_light_en = mcal::brake_light_en;

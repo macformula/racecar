@@ -62,6 +62,7 @@ functions.
 #include "../../../Utilities/Fonts/font24.c"
 #include "../../../Utilities/Fonts/font8.c"
 #include "../../../Utilities/Fonts/fonts.h"
+#include "gpio.h"
 
 /** @addtogroup BSP
  * @{
@@ -188,6 +189,8 @@ uint8_t BSP_LCD_Init(void) {
  *     - OTM8009A LCD Display IC Driver ititialization
  * @retval LCD state
  */
+static uint8_t led_counter = 0;
+
 uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
     DSI_PLLInitTypeDef dsiPllInit;
     DSI_PHY_TimerTypeDef PhyTimings;
@@ -205,10 +208,9 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
     uint32_t HFP;  /*!< Horizontal Front Porch time in units of lcdClk */
     uint32_t HACT; /*!< Horizontal Active time in units of lcdClk = imageSize X
                       in pixels to display */
-
     /* Toggle Hardware Reset of the DSI LCD using
      * its XRES signal (active low) */
-    BSP_LCD_Reset();
+    BSP_LCD_Reset();  //! Breaks
 
     /* Call first MSP Initialize only in case of first initialization
      * This will set IP blocks LTDC, DSI and DMA2D
@@ -217,7 +219,13 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
      * - NVIC IRQ related to IP blocks enabled
      */
     BSP_LCD_MspInit();
-
+    int toggle = 0;
+    while (0) {  //! Toggle once we reach the while
+        HAL_Delay(500);
+        toggle = !toggle;
+        HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin,
+                          (toggle) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+    }
     /*************************DSI
      * Initialization***********************************/
 
@@ -226,7 +234,6 @@ uint8_t BSP_LCD_InitEx(LCD_OrientationTypeDef orientation) {
     hdsi_eval.Instance = DSI;
 
     HAL_DSI_DeInit(&(hdsi_eval));
-
 #if !defined(USE_STM32469I_DISCO_REVA)
     dsiPllInit.PLLNDIV = 125;
     dsiPllInit.PLLIDF = DSI_PLL_IN_DIV2;
@@ -451,8 +458,8 @@ void BSP_LCD_Reset(void) {
 #if !defined(USE_STM32469I_DISCO_REVA)
     /* Disco Rev B and beyond : reset the LCD by activation of XRES (active low)
      * connected to PH7 */
+    led_counter = 0;  //! stupid
     GPIO_InitTypeDef gpio_init_structure;
-
     __HAL_RCC_GPIOH_CLK_ENABLE();
 
     /* Configure the GPIO on PH7 */
@@ -471,13 +478,12 @@ void BSP_LCD_Reset(void) {
     /* Activate XRES active low */
     HAL_GPIO_WritePin(GPIOH, GPIO_PIN_7, GPIO_PIN_RESET);
 
-    HAL_Delay(20); /* wait 20 ms */
+    HAL_Delay(200); /* wait 20 ms */
 
     /* Deactivate XRES */
     HAL_GPIO_WritePin(GPIOH, GPIO_PIN_7, GPIO_PIN_SET);
-
     /* Wait for 20ms after releasing XRES before sending commands */
-    HAL_Delay(20);
+    HAL_Delay(200);
 #else
     /* Nothing to do in case of Disco Rev A */
 #endif /* USE_STM32469I_DISCO_REVA == 0 */

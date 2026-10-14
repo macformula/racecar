@@ -16,7 +16,6 @@
 #include "StartingMotors.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
-
 class Display {
 public:
     using State = generated::can::TxDashStatus::State_t;
@@ -28,7 +27,6 @@ public:
     Button enter;
     Button scroll;
     generated::can::VehBus& veh_bus;
-
     Profile selected_profile = Profile::Default;
 
     void Start();

@@ -58,21 +58,23 @@
 
 /* USER CODE END 0 */
 /**
- * Initializes the Global MSP.
- */
-void HAL_MspInit(void) {
-    /* USER CODE BEGIN MspInit 0 */
+  * Initializes the Global MSP.
+  */
+void HAL_MspInit(void)
+{
 
-    /* USER CODE END MspInit 0 */
+  /* USER CODE BEGIN MspInit 0 */
 
-    __HAL_RCC_SYSCFG_CLK_ENABLE();
-    __HAL_RCC_PWR_CLK_ENABLE();
+  /* USER CODE END MspInit 0 */
 
-    /* System interrupt init*/
+  __HAL_RCC_SYSCFG_CLK_ENABLE();
+  __HAL_RCC_PWR_CLK_ENABLE();
 
-    /* USER CODE BEGIN MspInit 1 */
+  /* System interrupt init*/
 
-    /* USER CODE END MspInit 1 */
+  /* USER CODE BEGIN MspInit 1 */
+
+  /* USER CODE END MspInit 1 */
 }
 
 /* USER CODE BEGIN 1 */

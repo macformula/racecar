@@ -15,10 +15,10 @@ To verify, recompile and flash FrontController and look at the same message.
 The `apps1_pos` and `apps2_pos` signals should both be 0.0 when the pedal
 is released and 100.0 when fully depressed. +- 0.5% is acceptable.
 */
-constexpr float apps2_volt_pos_0 = 2.836;  // aim for 2.8V
-constexpr float apps2_volt_pos_100 = 1.9495;
-constexpr float apps1_volt_pos_0 = 0.453;  // aim for 0.55V
-constexpr float apps1_volt_pos_100 = 1.275;
+constexpr float apps2_volt_pos_0 = 2.700;  // aim for 2.8V
+constexpr float apps2_volt_pos_100 = 1.95;
+constexpr float apps1_volt_pos_0 = 0.7;  // aim for 0.55V
+constexpr float apps1_volt_pos_100 = 1.43;
 
 // See datasheets/race_grade/RG_SPEC-0030_M_APT_G2_DTM.pdf
 // Needs to be tuned
