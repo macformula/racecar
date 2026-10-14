@@ -2,6 +2,8 @@
 
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "periph/analog_input.hpp"
+#include "periph/gpio.hpp"
 
 enum class ContactorFeedback : bool {
     // WARNING: feedback is inverted relative to command
@@ -15,8 +17,8 @@ enum class ContactorCommand {
 };
 
 struct accumulator_periph {
-    macfe::periph::DigitalOutput*
-}
+    macfe::periph::DigitalOutput* accumulator_en;
+};
 
 struct ContactorFeedbacks {
     ContactorFeedback precharge;
@@ -36,9 +38,8 @@ using State = generated::can::TxFcStatus::AccumulatorState_t;
 
 class Controller {
 public:
-    void Init(DigitalOutput& accumulator_en) {}
-
-}
+    void Init(macfe::periph::DigitalOutput& accumulator_en) {}
+};
 
 enum class Command {
     OFF,
@@ -54,6 +55,7 @@ float GetPrechargePercent(void);
 void SetCommand(Command command);
 
 void Init(void);
-void Update_100Hz(generated::can::VehBus& veh_can);
+void Update_100Hz(generated::can::VehBus& veh_can,
+                  macfe::periph::AnalogInput& precharge_monitor);
 
 }  // namespace accumulator

@@ -1,11 +1,13 @@
 /// @author Blake Freer
 /// @date 2025-06
 
-#include "bindings.hpp"
+#include "adc.h"
+#include "can.h"
 #include "fc-common/accumulator/accumulator.hpp"
 #include "fc-common/alerts/alerts.hpp"
 #include "fc-common/dbc_hash/dbc_hash.hpp"
 #include "fc-common/driver_interface/driver_interface.hpp"
+#include "fc-common/hsd/hsd.hpp"
 #include "fc-common/motors/motors.hpp"
 #include "fc-common/sensors/driver/driver.hpp"
 #include "fc-common/sensors/dynamics/dynamics.hpp"
@@ -16,12 +18,19 @@
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "generated/githash.hpp"
+#include "gpio.h"
+#include "main.h"
+#include "mcal/stm32f/analog_input.hpp"
+#include "mcal/stm32f/can.hpp"
+#include "mcal/stm32f/gpio.hpp"
 #include "physical.hpp"
 #include "thresholds.hpp"
 
 // FreeRTOS
 #include "FreeRTOS.h"
 #include "task.h"
+
+extern "C" void SystemClock_Config();
 
 static const size_t STACK_SIZE_WORDS =
     2048 * 16;  // TODO: Does this need to be so large?
@@ -40,34 +49,8 @@ StackType_t t10hz_buffer[STACK_SIZE_WORDS];
 StaticTask_t t1hz_control_block;
 StackType_t t1hz_buffer[STACK_SIZE_WORDS];
 
-void Initialize() {
-    SystemClock_Config();
-
-    MX_GPIO_Init();
-    MX_ADC1_Init();
-    MX_ADC3_Init();
-    MX_CAN1_Init();
-    MX_CAN2_Init();
-
-    mcal::veh_can_base.Setup();
-    mcal::pt_can_base.Setup();
-}
-
-int GetTickMs() {
-    return HAL_GetTick();
-}
-
-void DelayMs(int ms) {
-    HAL_Delay(ms);
-}
-
-void SoftwareReset() {
-    NVIC_SystemReset();
-    Error_Handler();
-}
-
 using namespace generated::can;
-using mcal::stm32f;
+using namespace mcal::stm32f;
 
 // =========== Vehicle Dynamics Sensors ====================
 AnalogInput suspension_travel1{&hadc1, ADC_CHANNEL_8};
@@ -111,6 +94,32 @@ hsd::HSD1Channel hsd2{hsd2_isense, hsd2_isense_en};
 
 CanBase veh_can_base{&hcan2};
 CanBase pt_can_base{&hcan1};
+
+void Initialize() {
+    SystemClock_Config();
+
+    MX_GPIO_Init();
+    MX_ADC1_Init();
+    MX_ADC3_Init();
+    MX_CAN1_Init();
+    MX_CAN2_Init();
+
+    veh_can_base.Setup();
+    pt_can_base.Setup();
+}
+
+int GetTickMs() {
+    return HAL_GetTick();
+}
+
+void DelayMs(int ms) {
+    HAL_Delay(ms);
+}
+
+void SoftwareReset() {
+    NVIC_SystemReset();
+    Error_Handler();
+}
 
 VehBus veh_can_bus{veh_can_base};
 PtBus pt_can_bus{pt_can_base};
@@ -364,8 +373,9 @@ void task_10hz(void* argument) {
         dbc_hash::Update_10Hz(veh_can_bus);
         // CheckCanFlash();  // no CAN flash in 2025. pcb needs an external
         // oscillator
-        suspension::task_10hz(veh_can_bus);
-        hsd::Update_10Hz(veh_can_bus);
+        suspension::ReadAndSendTravel(veh_can_bus, suspension_travel1,
+                                      suspension_travel2);
+        hsd::Update_10Hz(hsd1, hsd2);
 
         veh_can_bus.Send(TxFcStatus{
             .counter = tx_counter++,
@@ -412,13 +422,17 @@ void task_100hz(void* argument) {
     TickType_t wake_time = xTaskGetTickCount();
 
     while (true) {
-        sensors::driver::Update_100Hz();
-        sensors::dynamics::Update_100Hz();
+        sensors::driver::Update_100Hz(steering_angle_sensor,
+                                      brake_pressure_sensor,
+                                      accel_pedal_sensor1, accel_pedal_sensor2);
+        sensors::dynamics::Update_100Hz(
+            wheel_speed_front_left, wheel_speed_front_right,
+            wheel_speed_rear_left, wheel_speed_rear_right);
         driver_interface::Update_100Hz();
 
         fsm::Update_100Hz();
 
-        accumulator::Update_100Hz(veh_can_bus);
+        accumulator::Update_100Hz(veh_can_bus, precharge_monitor);
         vehicle_dynamics::Update_100Hz();
         motors::Update_100Hz(pt_can_bus, veh_can_bus,
                              vehicle_dynamics::GetLeftMotorRequest(),
@@ -446,7 +460,7 @@ int main(void) {
     alerts::Reset();
     accumulator::Init();
     motors::Init();
-    vehicle_dynamics::Init();
+    vehicle_dynamics::Init(GetTickMs());
 
     // todo (2026): this is always on. just tie high on PCB
     dashboard_power_en.SetHigh();

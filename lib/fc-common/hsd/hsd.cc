@@ -4,7 +4,6 @@
 #include "hsd.hpp"
 
 #include "alerts/alerts.hpp"
-#include "bindings.hpp"
 
 namespace hsd {
 
@@ -50,7 +49,7 @@ Reading HSD4Channel::Read(uint8_t channel) {
     };
 }
 
-bool HasOverCurrent() {
+bool HasOvercurrent() {
     for (const Reading& r : channels) {
         if (r.fault) {
             return true;
@@ -59,17 +58,17 @@ bool HasOverCurrent() {
     return false;
 }
 
-void Update_10Hz(generated::can::VehBus&) {
+void Update_10Hz(HSD& hsd1, HSD& hsd2) {
     // HSD1 - 4 Channels
     channels[0] = hsd1.Read(0);
     channels[1] = hsd1.Read(1);
     channels[2] = hsd1.Read(2);
     channels[3] = hsd1.Read(3);
 
-    channels[4] = bindings::hsd2.Read(
-        0);  //  function requires channel but ideally should not
+    channels[4] =
+        hsd2.Read(0);  //  function requires channel but ideally should not
 
-    bool any_fault = HasOverCurrent();
+    bool any_fault = HasOvercurrent();
 
     alerts::Get().hsd_overcurrent = any_fault;
 }

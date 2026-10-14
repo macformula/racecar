@@ -1,5 +1,7 @@
 #pragma once
 
+#include "periph/analog_input.hpp"
+
 namespace sensors::dynamics {
 
 struct WheelSpeed {
@@ -11,6 +13,9 @@ struct WheelSpeed {
 
 const WheelSpeed& GetWheelSpeeds(void);
 
-void Update_100Hz(void);
+void Update_100Hz(macfe::periph::AnalogInput& wheel_speed_front_left,
+                  macfe::periph::AnalogInput& wheel_speed_front_right,
+                  macfe::periph::AnalogInput& wheel_speed_rear_left,
+                  macfe::periph::AnalogInput& wheel_speed_rear_right);
 
 }  // namespace sensors::dynamics

@@ -23,7 +23,7 @@ public:
     virtual ~HSD() = default;
 };
 
-void Update_10Hz(generated::can::VehBus& veh_can);
+void Update_10Hz(HSD& hsd1, HSD& hsd2);
 
 bool HasOvercurrent();
 float GetCurrent(uint8_t channel_index);

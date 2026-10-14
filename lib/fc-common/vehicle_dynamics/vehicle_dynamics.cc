@@ -51,7 +51,7 @@ void SetDriverTorqueRequest(float _driver_torque_request) {
     driver_torque_request = _driver_torque_request;
 }
 
-void Init(void) {
+void Init(int time_ms) {
     SetTorqueVectorEnable(false);
     SetTargetSlipRatio(0.2f);
     SetProfile(Profile_t::Default);
@@ -69,12 +69,10 @@ void Init(void) {
     };
 
     driver_torque_request = 0;
-    traction_ctrl.Init(GetTickMs());
+    traction_ctrl.Init(time_ms);
 }
 
 void Update_100Hz(void) {
-    // int time_ms = bindings::GetTickMs();
-
     // float actual_slip =
     //     CalculateActualSlip(sensors::dynamics::GetWheelSpeeds());
     //

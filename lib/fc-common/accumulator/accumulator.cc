@@ -1,7 +1,6 @@
 #include "accumulator.hpp"
 
 #include "alerts/alerts.hpp"
-#include "bindings.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "moving_average.hpp"
@@ -90,12 +89,13 @@ static bool FeedbackMatchesCommand(ContactorCommands cmd,
     return precharge_match && positive_match && negative_match;
 }
 
-static void MeasureVoltages(VehBus& veh_can) {
+static void MeasureVoltages(VehBus& veh_can,
+                            macfe::periph::AnalogInput& precharge_monitor) {
     // Precharge
     const float HV_SCALE = (6e6 + 20e3) / (20e3);
     static macfe::MovingAverage<50> ma;
 
-    ma.LoadValue(bindings::precharge_monitor.ReadVoltage() * HV_SCALE);
+    ma.LoadValue(precharge_monitor.ReadVoltage() * HV_SCALE);
     precharge_voltage = ma.GetValue();
 
     auto msg = veh_can.PopRxPack_SOC();
@@ -300,8 +300,9 @@ static std::optional<ContactorFeedbacks> ReadContactorFeedbacks(
     }
 }
 
-void Update_100Hz(VehBus& veh_can) {
-    MeasureVoltages(veh_can);
+void Update_100Hz(VehBus& veh_can,
+                  macfe::periph::AnalogInput& precharge_monitor) {
+    MeasureVoltages(veh_can, precharge_monitor);
 
     auto fb = ReadContactorFeedbacks(veh_can);
 
