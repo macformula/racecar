@@ -323,6 +323,8 @@ void Update_100hz(void) {
             }
 
             break;
+        case SHUTDOWN_COMPLETE:
+            break;
     }
 
     bool check_shutdown = state == DCDC_ON || state == POWERTRAIN_PUMP_ON ||
