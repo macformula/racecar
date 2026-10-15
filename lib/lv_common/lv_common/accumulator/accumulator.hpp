@@ -25,7 +25,7 @@ private:
     void UpdateOutputs();
     macfe::periph::DigitalOutput& accumulator_en;
     bool enabled = false;
-    std::optional<RxContactor_Feedback> contactors;
+    std::optional<generated::can::RxContactor_Feedback> contactors;
 };
 
 }  // namespace macfe::lv

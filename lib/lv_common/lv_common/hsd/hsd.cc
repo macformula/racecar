@@ -3,7 +3,7 @@
 
 #include "hsd.hpp"
 
-#include "lib/lv_common/lv_common/alerts/alerts.hpp"
+#include "lv_common/alerts/alerts.hpp"
 
 namespace macfe::lv {
 
@@ -16,8 +16,7 @@ Reading HSD2::Read(uint8_t channel) {
     _isense_en.SetHigh();
     float v = _isense.ReadVoltage();
     bool overthreshold =
-        (v > kFaultThresholdV) &&
-        (overthreshold && prev_tick_ch[channel] > kFaultThresholdV);
+        (v > kFaultThresholdV && prev_tick_ch[channel] > kFaultThresholdV);
     prev_tick_ch[channel] = v;
     _isense_en.SetLow();
 
@@ -33,8 +32,7 @@ Reading HSD4::Read(uint8_t channel) {
     _isense_en.SetHigh();
     float v = _isense.ReadVoltage();
     bool overthreshold =
-        (v > kFaultThresholdV) &&
-        (overthreshold && prev_tick_ch[channel] > kFaultThresholdV);
+        (v > kFaultThresholdV && prev_tick_ch[channel] > kFaultThresholdV);
     prev_tick_ch[channel] = v;
     _isense_en.SetLow();
 

@@ -3,7 +3,6 @@
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "optional"
-#include "periph/gpio.hpp"
 namespace macfe::lv {
 
 using namespace generated::can;
@@ -42,7 +41,7 @@ bool Accumulator::IsRunning(void) {
     }
 }
 
-void Accumulator::task_10hz(generated::can::VehBus& veh_can) {
+void Accumulator::task_10hz(VehBus& veh_can) {
     contactors = veh_can.GetRxContactor_Feedback();
     UpdateOutputs();
 }

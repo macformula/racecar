@@ -6,11 +6,7 @@
 
 namespace macfe::lv {
 
-using State = generated::can::TxLvStatus::Motor_ControllerState_t;
-
-macfe::periph::DigitalOutput& motor_ctrl_precharge_en;
-macfe::periph::DigitalOutput& motor_controller_en;
-macfe::periph::DigitalOutput& motor_ctrl_switch_en;
+using State = ::generated::can::TxLvStatus::MotorControllerState_t;
 
 class Motor_Controller {
 public:
@@ -34,7 +30,7 @@ public:
     void task_100hz(generated::can::VehBus& veh_can);
 
 private:
-    void HandleSwitch(VehBus& veh_can);
+    void HandleSwitch(generated::can::VehBus& veh_can);
     void StateMachine_100hz(void);
     macfe::periph::DigitalOutput& _motor_ctrl_precharge_en;
     macfe::periph::DigitalOutput& _motor_controller_en;

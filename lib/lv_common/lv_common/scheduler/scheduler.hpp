@@ -8,6 +8,6 @@ namespace scheduler {
 
 void register_task(void (*task)(void), uint32_t period_ms);
 
-void run(void);
+void run(uint32_t);
 
 }  // namespace scheduler

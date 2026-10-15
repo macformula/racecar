@@ -21,10 +21,9 @@ public:
     void task_10hz();
     bool GetImdFault(void);
     bool GetBmsFault(void);
-
-private:
     void SetEnabled(bool enable);
 
+private:
     macfe::periph::DigitalOutput& _tssi_en;
     macfe::periph::DigitalOutput& _tssi_red_signal;
     macfe::periph::DigitalOutput& _tssi_green_signal;
