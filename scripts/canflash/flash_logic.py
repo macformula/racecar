@@ -2,6 +2,7 @@ import os
 import subprocess
 from datetime import datetime
 from constants import ECU_CONFIG, UPLOAD_DIR
+from metadata import load_metadata, save_metadata
 
 
 def save_uploaded_file(ecu: str, file_name: str, file_content: bytes) -> str:
@@ -11,6 +12,8 @@ def save_uploaded_file(ecu: str, file_name: str, file_content: bytes) -> str:
 
     os.makedirs(full_path, exist_ok=True)
     file_path = os.path.join(full_path, file_name)
+
+    save_metadata(file_name, "", timestamp, ecu.lower(), ecu_dir)
 
     with open(file_path, "wb") as f:
         f.write(file_content)
