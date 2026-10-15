@@ -3,7 +3,6 @@
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "periph/analog_input.hpp"
-#include "periph/gpio.hpp"
 
 enum class ContactorFeedback : bool {
     // WARNING: feedback is inverted relative to command
@@ -14,10 +13,6 @@ enum class ContactorFeedback : bool {
 enum class ContactorCommand {
     OPEN = false,
     CLOSE = true,
-};
-
-struct accumulator_periph {
-    macfe::periph::DigitalOutput* accumulator_en;
 };
 
 struct ContactorFeedbacks {
@@ -35,11 +30,6 @@ struct ContactorCommands {
 namespace accumulator {
 
 using State = generated::can::TxFcStatus::AccumulatorState_t;
-
-class Controller {
-public:
-    void Init(macfe::periph::DigitalOutput& accumulator_en) {}
-};
 
 enum class Command {
     OFF,
