@@ -33,12 +33,12 @@ def generate_git_hash_file():
 
 #include <cstdint>
 
-namespace generated::githash {{
+namespace macfe::generated {{
 
 const uint32_t GIT_HASH = 0x{git_hash:08x};
 const bool GIT_DIRTY = {'true' if is_dirty else 'false'};
 
-}} // namespace generated::githash
+}} // namespace macfe::generated
 """
 
     header_path.write_text(header_content)

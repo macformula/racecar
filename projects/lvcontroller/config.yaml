@@ -1,5 +1,5 @@
 canGen:
-  outputPath: Inc/generated/can
+  outputPath: include/generated/can
   busses:
     - name: veh
       node: LVC

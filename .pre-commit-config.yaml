@@ -10,13 +10,9 @@ repos:
         args: [--branch, main]
         stages: [pre-commit]
     
-  # install clang format locally for this to work
-  - repo: local
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v20.1.8
     hooks:
-      - id: clang-format
-        name: clang-format
-        entry: clang-format
-        language: system
-        types_or: [c, c++]
-        args: [-i]
- 
+    - id: clang-format
+      require_serial: true
+      stages: [pre-commit]
