@@ -27,7 +27,7 @@ public:
     void task_100hz(void);
 
 private:
-    void MeasureLvBatteryVoltage() {}
+    void MeasureLvBatteryVoltage();
     void MeasureAmps();
     void MeasureVolts();
     macfe::periph::DigitalOutput& _vicor_en;

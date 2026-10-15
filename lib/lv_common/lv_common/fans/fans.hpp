@@ -5,10 +5,6 @@
 
 namespace macfe::lv {
 
-macfe::periph::PWMOutput& powertrain_fan_pwm;
-macfe::periph::DigitalOutput& powertrain_fan1_en;
-macfe::periph::DigitalOutput& powertrain_fan2_en;
-
 class Fans {
 public:
     Fans(macfe::periph::PWMOutput& powertrain_fan_pwm,

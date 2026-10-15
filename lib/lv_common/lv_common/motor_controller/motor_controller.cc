@@ -72,7 +72,7 @@ void Motor_Controller::StateMachine_100hz(void) {
     _motor_controller_en.Set(positive);
 }
 
-void Motor_Controller::HandleSwitch(VehBus& veh_can) {
+void Motor_Controller::HandleSwitch(generated::can::VehBus& veh_can) {
     auto msg = veh_can.GetRxInverterSwitchCommand();
     if (msg.has_value()) {
         sw = msg->CloseInverterSwitch();
