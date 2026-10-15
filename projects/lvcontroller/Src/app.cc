@@ -82,9 +82,9 @@ macfe::stm32f::DigitalOutput shutdown_circuit_en{SHUTDOWN_CIRCUIT_EN_GPIO_Port,
 
 // DCDC System  Measurement
 macfe::stm32f::DigitalOutput vicor_en{VICOR_EN_GPIO_Port, VICOR_EN_Pin};
-macfe::stm32f::DigitalOutput dcdc_sense_select{DCDC_SNS_SEL_GPIO_Port,
-                                               DCDC_SNS_SEL_Pin};
-// Analog Sensing (Rev 4)
+// macfe::stm32f::DigitalOutput dcdc_sense_select{DCDC_SNS_SEL_GPIO_Port,
+//                                                DCDC_SNS_SEL_Pin};
+// // Analog Sensing (Rev 4)
 macfe::stm32f::AnalogInput lv_battery{&hadc3, ADC_CHANNEL_15};
 macfe::stm32f::AnalogInput bus_voltage{&hadc3, ADC_CHANNEL_14};
 macfe::stm32f::AnalogInput bus_current{&hadc3, ADC_CHANNEL_9};
