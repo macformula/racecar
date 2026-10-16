@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fc-common/sensors/driver/driver.hpp"
+#include "fc_common/sensors/driver/driver.hpp"
 
 namespace driver_interface {
 

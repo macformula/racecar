@@ -3,9 +3,9 @@
 
 #include "vehicle_dynamics.hpp"
 
-#include "fc-common/motors/motors.hpp"
-#include "fc-common/sensors/driver/driver.hpp"
-#include "fc-common/sensors/dynamics/dynamics.hpp"
+#include "fc_common/motors/motors.hpp"
+#include "fc_common/sensors/driver/driver.hpp"
+#include "fc_common/sensors/dynamics/dynamics.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "lookup_table.hpp"
 #include "thresholds.hpp"

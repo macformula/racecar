@@ -1,6 +1,6 @@
 #pragma once
 
-#include "fc-common/sensors/dynamics/dynamics.hpp"
+#include "fc_common/sensors/dynamics/dynamics.hpp"
 
 namespace ctrl {
 

@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "etl/algorithm.h"
-#include "fc-common/sensors/dynamics/dynamics.hpp"
+#include "fc_common/sensors/dynamics/dynamics.hpp"
 #include "lookup_table.hpp"
 
 namespace ctrl {
