@@ -46,11 +46,6 @@ DigitalOutput front_controller_en{"FRONT_CONTROLLER_EN"};
 DigitalOutput imu_gps_en{"IMU_GPS_EN"};
 DigitalOutput shutdown_circuit_en{"SHUTDOWN_CIRCUIT_EN"};
 
-// DCDC System  Measurement;
-DigitalOutput dcdc_en{"DCDC_EN"};
-DigitalOutput dcdc_sense_select{"DCDC_SENSE_SELECT"};
-AnalogInput dcdc_sense{"DCDC_SENSE"};
-
 // HSD Sensing
 AnalogInput hsd1_isense{"HSD1_ISENSE"};
 DigitalOutput hsd1_isense_en{"HSD1_ISENSE_EN"};
@@ -125,10 +120,6 @@ DigitalOutput& imu_gps_en = mcal::imu_gps_en;
 DigitalOutput& shutdown_circuit_en = mcal::shutdown_circuit_en;
 
 // DCDC System & Measurement = mcal::Measurement
-DigitalOutput& dcdc_en = mcal::dcdc_en;
-DigitalOutput& dcdc_sense_select = mcal::dcdc_sense_select;
-AnalogInput& dcdc_sense = mcal::dcdc_sense;
-
 DigitalOutput& vicor_en = mcal::vicor_en;
 AnalogInput& bus_voltage = mcal::bus_voltage;
 AnalogInput& bus_current = mcal::bus_current;

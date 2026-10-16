@@ -326,6 +326,7 @@ void task_10hz(void* argument) {
             .drive_started = fsm::state == fsm::State::RUNNING,
             .reset = fsm::state == fsm::State::START_DASHBOARD,
             .errored = fsm::state == fsm::State::ERROR,
+            .hv_shutdown = fsm::state == fsm::State::SHUTDOWN,
             .hv_precharge_percent =
                 static_cast<uint8_t>(accumulator::GetPrechargePercent()),
             .speed = motors::GetMph(),
