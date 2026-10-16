@@ -371,8 +371,8 @@ void task_1hz(void* argument) {
 
     while (true) {
         veh_can_bus.Send(TxFcGitHash{
-            .commit = macfe::generated::GIT_HASH,
-            .dirty = macfe::generated::GIT_DIRTY,
+            .commit = generated::githash::GIT_HASH,
+            .dirty = generated::githash::GIT_DIRTY,
         });
 
         vTaskDelayUntil(&wake_time, pdMS_TO_TICKS(1000));
