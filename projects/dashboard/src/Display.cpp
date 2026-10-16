@@ -23,6 +23,20 @@ Display::State Display::GetState() const {
     return state_;
 }
 
+void Display::CheckHvShutdown() {
+    auto fc_msg = veh_bus.GetRxDashCommand();
+
+    if (!fc_msg.has_value()) {
+        return;
+    }
+
+    if (fc_msg->HvShutdown()) {
+        ChangeState(State::SHUTDOWN);
+    } else if (state_ == State::SHUTDOWN) {
+        ChangeState(State::PRESS_FOR_HV);
+    }
+}
+
 void Display::ChangeState(State new_state_) {
     // Don't immediately construct the new screen, only set a flag.
     // This prevents a screen from deleting itself during its Update().
@@ -40,12 +54,15 @@ void Display::Update(int time_ms) {
 
     screen_->Update();
 
+    CheckHvShutdown();
+
     auto cmd = veh_bus.GetRxDashCommand();
     if (cmd.has_value() && cmd->Reset()) {
         switch (state_) {
             case State::SELECT_PROFILE:
                 break;  // don't react if already at initial state
             default:
+                shutdown_reason = ShutdownReason::NONE;
                 ChangeState(State::SELECT_PROFILE);
                 break;
         }
