@@ -28,7 +28,7 @@
 #include "semphr.h"
 #endif
 
-namespace mcal::stm32f {
+namespace macfe::stm32f {
 
 class CanBase : public macfe::periph::CanBase {
 public:
@@ -77,6 +77,6 @@ private:
 #endif
 };
 
-}  // namespace mcal::stm32f
+}  // namespace macfe::stm32f
 
 #endif  // HAL_CAN_MODULE_ENABLED

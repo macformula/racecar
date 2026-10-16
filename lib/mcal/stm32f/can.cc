@@ -18,7 +18,7 @@
 #include "semphr.h"
 #endif
 
-using CanBase = mcal::stm32f::CanBase;
+using CanBase = macfe::stm32f::CanBase;
 
 namespace interrupt_handler {
 
@@ -86,7 +86,7 @@ IMPLEMENT_CAN_TX_CB(HAL_CAN_TxMailbox2CompleteCallback);
 #endif
 }
 
-namespace mcal::stm32f {
+namespace macfe::stm32f {
 
 CanBase::CanBase(CAN_HandleTypeDef* hcan) : hcan_{hcan} {}
 
@@ -227,6 +227,6 @@ void CanBase::ConfigFilters() {
     HAL_CAN_ConfigFilter(hcan_, &filter_config);
 }
 
-}  // namespace mcal::stm32f
+}  // namespace macfe::stm32f
 
 #endif  // HAL_CAN_MODULE_ENABLED

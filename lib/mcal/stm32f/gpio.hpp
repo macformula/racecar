@@ -15,7 +15,7 @@
 
 #ifdef HAL_GPIO_MODULE_ENABLED
 
-namespace mcal::stm32f {
+namespace macfe::stm32f {
 
 class DigitalInput : public macfe::periph::DigitalInput {
 private:
@@ -51,6 +51,6 @@ public:
     }
 };
 
-}  // namespace mcal::stm32f
+}  // namespace macfe::stm32f
 
 #endif  // HAL_GPIO_MODULE_ENABLED

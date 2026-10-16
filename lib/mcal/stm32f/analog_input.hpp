@@ -13,10 +13,10 @@
                               stm32f4) */
 #endif
 
+// given that none of the FW works anyway if ADC not enabled, do we want to
+// remove this?
 #ifdef HAL_ADC_MODULE_ENABLED
-
-namespace mcal::stm32f {
-
+namespace macfe::stm32f {
 class AnalogInput : public macfe::periph::AnalogInput {
 public:
     AnalogInput(ADC_HandleTypeDef* hadc, uint32_t adc_channel,
@@ -66,6 +66,5 @@ private:
     };
 };
 
-}  // namespace mcal::stm32f
-
+}  // namespace macfe::stm32f
 #endif  // HAL_ADC_MODULE_ENABLED

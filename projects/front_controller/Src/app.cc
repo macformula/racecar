@@ -20,10 +20,10 @@
 #include "generated/githash.hpp"
 #include "gpio.h"
 #include "main.h"
-#include "mcal/stm32f/analog_input.hpp"
-#include "mcal/stm32f/can.hpp"
-#include "mcal/stm32f/gpio.hpp"
 #include "physical.hpp"
+#include "stm32f/analog_input.hpp"
+#include "stm32f/can.hpp"
+#include "stm32f/gpio.hpp"
 #include "thresholds.hpp"
 
 // FreeRTOS
@@ -49,8 +49,11 @@ StackType_t t10hz_buffer[STACK_SIZE_WORDS];
 StaticTask_t t1hz_control_block;
 StackType_t t1hz_buffer[STACK_SIZE_WORDS];
 
-using namespace generated::can;
-using namespace mcal::stm32f;
+using generated::can::kVehDbcHash;
+using generated::can::VehBus;
+using macfe::stm32f::AnalogInput;
+using macfe::stm32f::DigitalInput;
+using macfe::stm32f::DigitalOutput;
 
 // =========== Vehicle Dynamics Sensors ====================
 AnalogInput suspension_travel1{&hadc1, ADC_CHANNEL_8};
@@ -92,8 +95,8 @@ DigitalOutput hsd2_isense_en{HSD2_I_SENSE_EN_GPIO_Port, HSD2_I_SENSE_EN_Pin};
 hsd::HSD4Channel hsd1{hsd1_isense, hsd1_isense_en, hsd1_sel0, hsd1_sel1};
 hsd::HSD1Channel hsd2{hsd2_isense, hsd2_isense_en};
 
-CanBase veh_can_base{&hcan2};
-CanBase pt_can_base{&hcan1};
+macfe::stm32f::CanBase veh_can_base{&hcan2};
+macfe::stm32f::CanBase pt_can_base{&hcan1};
 
 void Initialize() {
     SystemClock_Config();
@@ -121,8 +124,8 @@ void SoftwareReset() {
     Error_Handler();
 }
 
-VehBus veh_can_bus{veh_can_base};
-PtBus pt_can_bus{pt_can_base};
+generated::can::VehBus veh_can_bus{veh_can_base};
+generated::can::PtBus pt_can_bus{pt_can_base};
 
 // Controllers own their state; sensor dependencies are shared explicitly.
 sensors::driver::DriverSensors driver_sensors;
@@ -132,14 +135,14 @@ accumulator::Accumulator accumulator_controller;
 motors::Motors motor_controller;
 
 namespace fsm {
-using State = TxFcStatus::State_t;
+using State = generated::can::TxFcStatus::State_t;
 
 static State state = State::START_DASHBOARD;
 static uint32_t elapsed = 0;
 
 static void Update_100Hz(void) {
     using enum State;
-    using DashState = RxDashStatus::State_t;
+    using DashState = generated::can::RxDashStatus::State_t;
 
     State new_state = state;
 
@@ -280,7 +283,7 @@ static void Update_100Hz(void) {
             }
             auto inv1_2 = pt_can_bus.GetRxInv1_ActualValues2();
             auto inv2_2 = pt_can_bus.GetRxInv2_ActualValues2();
-            veh_can_bus.Send(TxInverterStatus{
+            veh_can_bus.Send(generated::can::TxInverterStatus{
                 .temp_motor_inv1 = inv1_2->TempMotor(),
                 .temp_inverter_inv1 = inv1_2->TempInverter(),
                 .temp_motor_inv2 = inv2_2->TempMotor(),
@@ -347,7 +350,8 @@ void CheckCanFlash() {
     auto msg = veh_can_bus.GetRxInitiateCanFlash();
 
     if (msg.has_value() &&
-        msg->ECU() == RxInitiateCanFlash::ECU_t::FrontController) {
+        msg->ECU() ==
+            generated::can::RxInitiateCanFlash::ECU_t::FrontController) {
         SoftwareReset();
     }
 }
@@ -370,7 +374,7 @@ void task_1hz(void* argument) {
     TickType_t wake_time = xTaskGetTickCount();
 
     while (true) {
-        veh_can_bus.Send(TxFcGitHash{
+        veh_can_bus.Send(generated::can::TxFcGitHash{
             .commit = generated::githash::GIT_HASH,
             .dirty = generated::githash::GIT_DIRTY,
         });
@@ -395,13 +399,13 @@ void task_10hz(void* argument) {
                                       suspension_travel2);
         hsd::Update_10Hz(hsd1, hsd2);
 
-        veh_can_bus.Send(TxFcStatus{
+        veh_can_bus.Send(generated::can::TxFcStatus{
             .counter = tx_counter++,
             .state = fsm::state,
             .accumulator_state = accumulator_controller.GetState(),
             .motor_state = motor_controller.GetState(),
             .inv1_state = motor_controller.GetLeftState(),
-            .inv2_state = static_cast<TxFcStatus::Inv2State_t>(
+            .inv2_state = static_cast<generated::can::TxFcStatus::Inv2State_t>(
                 motor_controller.GetRightState()),
             .dbc_valid = dbc_hash::IsValid(),
             .inv1_starter =
@@ -409,7 +413,7 @@ void task_10hz(void* argument) {
             .inv2_starter =
                 static_cast<uint8_t>(motor_controller.GetRightStarterState()),
         });
-        veh_can_bus.Send(TxDashCommand{
+        veh_can_bus.Send(generated::can::TxDashCommand{
             .config_received = fsm::state == fsm::State::WAIT_START_HV,
             .hv_started = accumulator_controller.GetState() ==
                           accumulator::State::RUNNING,
@@ -460,12 +464,12 @@ void task_100hz(void* argument) {
             dynamics_controller.GetRightMotorRequest());
 
         veh_can_bus.Send(accumulator_controller.GetContactorCommand());
-        veh_can_bus.Send(TxLvCommand{
+        veh_can_bus.Send(generated::can::TxLvCommand{
             .brake_light_enable = driver_controls.IsBrakePressed(),
         });
 
         // Disable Inverter commands for manual debugging
-        veh_can_bus.Send(TxInverterSwitchCommand{
+        veh_can_bus.Send(generated::can::TxInverterSwitchCommand{
             .close_inverter_switch = motor_controller.GetInverterEnable(),
         });
         pt_can_bus.Send(motor_controller.GetLeftSetpoints());
