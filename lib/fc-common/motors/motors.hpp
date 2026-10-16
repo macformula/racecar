@@ -2,7 +2,9 @@
 
 #include "amk/amk.hpp"
 #include "amk/starter.hpp"
+#include "generated/can/pt_bus.hpp"
 #include "generated/can/pt_messages.hpp"
+#include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 
 namespace motors {
@@ -15,31 +17,55 @@ enum class Command {
     ENABLED
 };
 
-// ---------- Modifiers ----------
-void SetCommand(Command cmd);
-void SetLeftRequest(Request request);
-void SetRightRequest(Request request);
+class Motors {
+public:
+    Motors() {
+        Init();
+    }
 
-// ---------- Accessors ----------
-State GetState(void);
-bool GetInverterEnable(void);
-float GetMph(void);
+    // ---------- Modifiers ----------
+    void SetCommand(Command cmd);
+    void SetLeftRequest(Request request);
+    void SetRightRequest(Request request);
 
-amk::State GetLeftState(void);
-amk::State GetRightState(void);
+    // ---------- Accessors ----------
+    State GetState(void);
+    bool GetInverterEnable(void);
+    float GetMph(void);
 
-generated::can::TxInv1_Setpoints1 GetLeftSetpoints(void);
-generated::can::TxInv2_Setpoints1 GetRightSetpoints(void);
+    amk::State GetLeftState(void);
+    amk::State GetRightState(void);
 
-amk::StarterState GetLeftStarterState(void);
-amk::StarterState GetRightStarterState(void);
+    generated::can::TxInv1_Setpoints1 GetLeftSetpoints(void);
+    generated::can::TxInv2_Setpoints1 GetRightSetpoints(void);
 
-generated::can::TxFcCounters GetCounters(void);
+    amk::StarterState GetLeftStarterState(void);
+    amk::StarterState GetRightStarterState(void);
 
-// ---------- Behaviour ----------
-void Init(void);
-void Update_100Hz(generated::can::PtBus& pt_can,
-                  generated::can::VehBus& veh_can, amk::Request req_left,
-                  amk::Request req_right);
+    generated::can::TxFcCounters GetCounters(void);
+
+    // ---------- Behaviour ----------
+    void Init(void);
+    void Update_100Hz(generated::can::PtBus& pt_can,
+                      generated::can::VehBus& veh_can, amk::Request req_left,
+                      amk::Request req_right);
+
+private:
+    amk::Amk<generated::can::RxInv1_ActualValues1,
+             generated::can::RxInv1_ActualValues2,
+             generated::can::TxInv1_Setpoints1>
+        amk_left;
+    amk::Amk<generated::can::RxInv2_ActualValues1,
+             generated::can::RxInv2_ActualValues2,
+             generated::can::TxInv2_Setpoints1>
+        amk_right;
+    amk::Starter left_starter{};
+    amk::Starter right_starter{};
+    uint8_t counter = 0;
+    Command command = Command::OFF;
+    State state = State::IDLE;
+    uint32_t elapsed = 0;
+    bool inverter_enable = false;
+};
 
 }  // namespace motors

@@ -6,13 +6,9 @@
 
 namespace driver_interface {
 
-static bool pedal_needs_reset = false;  // rule EV.4.7
-
-static float torque_request = 0.f;
-
-void Update_100Hz(void) {
-    float apps_main = sensors::driver::GetAccelPercent1();
-    float apps_backup = sensors::driver::GetAccelPercent2();
+void DriverInterface::Update_100Hz(void) {
+    float apps_main = driver_sensors.GetAccelPercent1();
+    float apps_backup = driver_sensors.GetAccelPercent2();
 
     bool apps_implausible = std::abs(apps_main - apps_backup) >
                             threshold::PEDAL_IMPLAUSIBLE_PERCENT;
@@ -39,13 +35,12 @@ void Update_100Hz(void) {
     }
 }
 
-float GetTorqueRequest(void) {
+float DriverInterface::GetTorqueRequest(void) {
     return torque_request;
 }
 
-bool IsBrakePressed(void) {
-    return sensors::driver::GetBrakePercent() >
-           threshold::BRAKES_PRESSED_PERCENT;
+bool DriverInterface::IsBrakePressed(void) {
+    return driver_sensors.GetBrakePercent() > threshold::BRAKES_PRESSED_PERCENT;
 }
 
 }  // namespace driver_interface

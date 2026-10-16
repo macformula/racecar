@@ -2,6 +2,7 @@
 
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
+#include "moving_average.hpp"
 #include "periph/analog_input.hpp"
 
 enum class ContactorFeedback : bool {
@@ -36,16 +37,39 @@ enum class Command {
     ENABLED,
 };
 
-State GetState(void);
-generated::can::TxContactorCommand GetContactorCommand(void);
-generated::can::TxAccumulator_Soc GetDebugMsg(void);
-float GetSocPercent(void);
-float GetPrechargePercent(void);
+class Accumulator {
+public:
+    Accumulator() {
+        Init();
+    }
 
-void SetCommand(Command command);
+    State GetState(void);
+    generated::can::TxContactorCommand GetContactorCommand(void);
+    generated::can::TxAccumulator_Soc GetDebugMsg(void);
+    float GetSocPercent(void);
+    float GetPrechargePercent(void);
 
-void Init(void);
-void Update_100Hz(generated::can::VehBus& veh_can,
-                  macfe::periph::AnalogInput& precharge_monitor);
+    void SetCommand(Command command);
+
+    void Init(void);
+    void Update_100Hz(generated::can::VehBus& veh_can,
+                      macfe::periph::AnalogInput& precharge_monitor);
+
+private:
+    void MeasureVoltages(generated::can::VehBus& veh_can,
+                         macfe::periph::AnalogInput& precharge_monitor);
+    bool IsPrechargeComplete();
+    void UpdateStateMachine(ContactorFeedbacks fb);
+    State state = State::IDLE;
+    ContactorCommands contactor_command{};
+    Command command = Command::OFF;
+    uint32_t elapsed = 0;
+    float pack_voltage = 0;
+    uint32_t pack_voltage_timeout = 0;
+    bool pack_voltage_valid = false;
+    float precharge_voltage = 0;
+    float max_pack_voltage = 0;
+    macfe::MovingAverage<50> ma;
+};
 
 }  // namespace accumulator

@@ -13,72 +13,55 @@ using namespace generated::can;
 
 namespace motors {
 
-amk::Amk<RxInv1_ActualValues1, RxInv1_ActualValues2, TxInv1_Setpoints1>
-    amk_left;
-
-amk::Amk<RxInv2_ActualValues1, RxInv2_ActualValues2, TxInv2_Setpoints1>
-    amk_right;
-
-amk::Starter left_starter;
-amk::Starter right_starter;
-static uint8_t counter;
-
-amk::StarterState GetLeftStarterState(void) {
+amk::StarterState Motors::GetLeftStarterState(void) {
     return left_starter.GetState();
 }
 
-amk::StarterState GetRightStarterState(void) {
+amk::StarterState Motors::GetRightStarterState(void) {
     return right_starter.GetState();
 }
 
-static Command command;
-
-static State state;
-static uint32_t elapsed;
-
-static bool inverter_enable;
-
 // ---------- Modifiers ----------
 
-void SetCommand(Command cmd) {
+void Motors::SetCommand(Command cmd) {
     command = cmd;
 }
 
-void SetLeftRequest(Request request) {
+void Motors::SetLeftRequest(Request request) {
     amk_left.SetRequest(request);
 }
 
-void SetRightRequest(Request request) {
+void Motors::SetRightRequest(Request request) {
     amk_right.SetRequest(request);
 }
 
 // ---------- Accessors ----------
 
-State GetState(void) {
+State Motors::GetState(void) {
     return state;
 }
 
-bool GetInverterEnable(void) {
+bool Motors::GetInverterEnable(void) {
     return inverter_enable;
 }
 
-TxInv1_Setpoints1 GetLeftSetpoints(void) {
+TxInv1_Setpoints1 Motors::GetLeftSetpoints(void) {
     return amk_left.GetSetpoints();
 }
 
-TxInv2_Setpoints1 GetRightSetpoints(void) {
+TxInv2_Setpoints1 Motors::GetRightSetpoints(void) {
     return amk_right.GetSetpoints();
 }
 
-amk::State GetLeftState(void) {
+amk::State Motors::GetLeftState(void) {
     return amk_left.GetState();
 }
 
-amk::State GetRightState(void) {
+amk::State Motors::GetRightState(void) {
     return amk_right.GetState();
 }
 
-float GetMph(void) {
+float Motors::GetMph(void) {
     constexpr float PI = 3.1415926;
     constexpr float in_per_rev = PI * tuning::motor_diam_inch;
     constexpr float in_per_mile = 12 * 5280;
@@ -91,7 +74,7 @@ float GetMph(void) {
     return (motor_rpm * in_per_rev * min_per_hr) / in_per_mile;
 }
 
-generated::can::TxFcCounters GetCounters(void) {
+generated::can::TxFcCounters Motors::GetCounters(void) {
     return TxFcCounters{
         .motor = counter,
         .amk1 = amk_left.counter,
@@ -103,7 +86,7 @@ generated::can::TxFcCounters GetCounters(void) {
 
 // ---------- Behaviour ----------
 
-void Init(void) {
+void Motors::Init(void) {
     command = Command::OFF;
     state = State::IDLE;
     inverter_enable = false;
@@ -112,8 +95,8 @@ void Init(void) {
     amk_right.Init();
 }
 
-void Update_100Hz(PtBus& pt_can, VehBus& veh_can, amk::Request req_left,
-                  amk::Request req_right) {
+void Motors::Update_100Hz(PtBus& pt_can, VehBus& veh_can, amk::Request req_left,
+                          amk::Request req_right) {
     using enum State;
 
     State new_state = state;

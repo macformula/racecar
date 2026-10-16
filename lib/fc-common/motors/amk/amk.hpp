@@ -80,20 +80,20 @@ public:
     void Init(void);
     void Update_100Hz(AV1 av1, AV2 av2);
 
-    uint8_t counter;
+    uint8_t counter = 0;
 
 private:
-    State state;
-    Command command;
-    Request request;
+    State state{};
+    Command command{};
+    Request request{};
 
-    uint32_t elapsed;
-    bool inverter_is_set_flag;
+    uint32_t elapsed = 0;
+    bool inverter_is_set_flag = false;
 
-    uint16_t error_code;
-    bool ready_for_inverter;
-    SP setpoints;
-    float rpm;
+    uint16_t error_code = 0;
+    bool ready_for_inverter = false;
+    SP setpoints{};
+    float rpm = 0;
 };
 
 }  // namespace amk

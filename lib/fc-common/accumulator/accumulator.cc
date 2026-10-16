@@ -9,27 +9,11 @@
 using namespace generated::can;
 namespace accumulator {
 
-static State state;
-static ContactorCommands contactor_command;
-static Command command;
-
-static uint32_t elapsed;
-
-// Pack Voltages
-
-static float pack_voltage;
-static uint32_t pack_voltage_timeout;
-static bool pack_voltage_valid;
-
-static float precharge_voltage;
-
-static float max_pack_voltage;
-
-State GetState(void) {
+State Accumulator::GetState(void) {
     return state;
 }
 
-TxContactorCommand GetContactorCommand(void) {
+TxContactorCommand Accumulator::GetContactorCommand(void) {
     return TxContactorCommand{
         .pack_positive = static_cast<bool>(contactor_command.positive),
         .pack_precharge = static_cast<bool>(contactor_command.precharge),
@@ -37,7 +21,7 @@ TxContactorCommand GetContactorCommand(void) {
     };
 }
 
-TxAccumulator_Soc GetDebugMsg(void) {
+TxAccumulator_Soc Accumulator::GetDebugMsg(void) {
     return TxAccumulator_Soc{
         .pack_voltage = static_cast<uint8_t>(pack_voltage),
         .precharge_voltage = static_cast<uint16_t>(precharge_voltage),
@@ -47,21 +31,21 @@ TxAccumulator_Soc GetDebugMsg(void) {
     };
 }
 
-float GetSocPercent(void) {
+float Accumulator::GetSocPercent(void) {
     return (pack_voltage - threshold::HV_MIN_VOLTAGE) * 100.f /
            (threshold::HV_MAX_VOLTAGE - threshold::HV_MIN_VOLTAGE);
 }
 
-float GetPrechargePercent(void) {
+float Accumulator::GetPrechargePercent(void) {
     // Has a different denominator than SOC
     return 100.f * precharge_voltage / pack_voltage;
 }
 
-void SetCommand(Command _command) {
+void Accumulator::SetCommand(Command _command) {
     command = _command;
 }
 
-void Init(void) {
+void Accumulator::Init(void) {
     state = State::IDLE;
     contactor_command = {
         .precharge = ContactorCommand::OPEN,
@@ -89,11 +73,10 @@ static bool FeedbackMatchesCommand(ContactorCommands cmd,
     return precharge_match && positive_match && negative_match;
 }
 
-static void MeasureVoltages(VehBus& veh_can,
-                            macfe::periph::AnalogInput& precharge_monitor) {
+void Accumulator::MeasureVoltages(
+    VehBus& veh_can, macfe::periph::AnalogInput& precharge_monitor) {
     // Precharge
     const float HV_SCALE = (6e6 + 20e3) / (20e3);
-    static macfe::MovingAverage<50> ma;
 
     ma.LoadValue(precharge_monitor.ReadVoltage() * HV_SCALE);
     precharge_voltage = ma.GetValue();
@@ -114,7 +97,7 @@ static void MeasureVoltages(VehBus& veh_can,
     }
 }
 
-static bool IsPrechargeComplete(void) {
+bool Accumulator::IsPrechargeComplete(void) {
     if (!pack_voltage_valid) {
         return false;
     }
@@ -122,7 +105,7 @@ static bool IsPrechargeComplete(void) {
     return GetPrechargePercent() > threshold::PRECHARGE_COMPLETE_PERCENT;
 }
 
-static void UpdateStateMachine(ContactorFeedbacks fb) {
+void Accumulator::UpdateStateMachine(ContactorFeedbacks fb) {
     using enum State;
     using enum ContactorFeedback;
     using enum ContactorCommand;
@@ -300,8 +283,8 @@ static std::optional<ContactorFeedbacks> ReadContactorFeedbacks(
     }
 }
 
-void Update_100Hz(VehBus& veh_can,
-                  macfe::periph::AnalogInput& precharge_monitor) {
+void Accumulator::Update_100Hz(VehBus& veh_can,
+                               macfe::periph::AnalogInput& precharge_monitor) {
     MeasureVoltages(veh_can, precharge_monitor);
 
     auto fb = ReadContactorFeedbacks(veh_can);
