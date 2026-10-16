@@ -34,12 +34,15 @@
 #include "lv_common/suspension/suspension.hpp"
 #include "lv_common/tssi/tssi.hpp"
 
+using generated::can::kVehDbcHash;
+using generated::can::VehBus;
 using macfe::stm32f::AnalogInput;
+using macfe::stm32f::DigitalInput;
 using macfe::stm32f::DigitalOutput;
-using macfe::stm32f::PWMOutput
+using macfe::stm32f::PWMOutput;
 
-    // Tractive System Status Indicator
-    DigitalOutput tssi_en{TSSI_EN_GPIO_Port, TSSI_EN_Pin};
+// Tractive System Status Indicator
+DigitalOutput tssi_en{TSSI_EN_GPIO_Port, TSSI_EN_Pin};
 DigitalOutput tssi_red_signal_n{TSSI_RED_SIG_GPIO_Port, TSSI_RED_SIG_Pin};
 DigitalOutput tssi_green_signal_n{TSSI_GN_SIG_GPIO_Port, TSSI_GN_SIG_Pin};
 
@@ -173,7 +176,7 @@ void SoftwareReset() {
 
 namespace fsm {
 
-using LvState = TxLvStatus::LvState_t;
+using LvState = generated::can::TxLvStatus::LvState_t;
 
 static LvState state = LvState::PWRUP_START;
 static uint32_t elapsed = 0;
@@ -248,7 +251,7 @@ void Update_100hz(void) {
             shutdown_circuit_en.SetHigh();
 
             if (Accumulator.IsRunning()) {
-                veh_can.Send(TxIMD_Request{
+                veh_can.Send(generated::can::TxIMD_Request{
                     .index = 0x47,
                     .data0 = 0x2C,
                     .data1 = 0x01,
@@ -366,18 +369,19 @@ void check_can_flash(void) {
     auto msg = veh_can.GetRxInitiateCanFlash();
 
     if (msg.has_value() &&
-        msg->ECU() == RxInitiateCanFlash::ECU_t::LvController) {
+        msg->ECU() == generated::can::RxInitiateCanFlash::ECU_t::LvController) {
         SoftwareReset();
     }
 }
 
 void task_1hz(void) {
-    veh_can.Send(TxLvDbcHash(generated::can::kVehDbcHash));
-    veh_can.Send(TxLvGitHash{
+    veh_can.Send(generated::can::TxLvDbcHash(generated::can::kVehDbcHash));
+    veh_can.Send(generated::can::TxLvGitHash{
         .commit = generated::githash::GIT_HASH,
         .dirty = generated::githash::GIT_DIRTY,
     });
-    veh_can.Send(TxIMD_Request{.index = 0x4A});  // ask for warning threshold
+    veh_can.Send(generated::can::TxIMD_Request{
+        .index = 0x4A});  // ask for warning threshold
     veh_can.GetRxIMD_Response();
 }
 
@@ -390,7 +394,7 @@ void task_10hz(void) {
     // check_can_flash(); // unused in 2025
     HSD.Update_10Hz(veh_can);
 
-    veh_can.Send(TxLvAlerts{
+    veh_can.Send(generated::can::TxLvAlerts{
         .hsd_overcurrent = alerts::Get().hsd_overcurrent,
         .imd_fault = TSSI.GetImdFault(),
         .bms_fault = TSSI.GetBmsFault(),
@@ -402,7 +406,7 @@ void task_10hz(void) {
     //     .bus_current = DCDC.Controller.GetAmps(),
     // });
 
-    veh_can.Send(TxLvStatus{
+    veh_can.Send(generated::can::TxLvStatus{
         .counter = tx_counter++,
         .lv_state = fsm::state,
         .motor_controller_state = Motor_Controller.GetState(),
