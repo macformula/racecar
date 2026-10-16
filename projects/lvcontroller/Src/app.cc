@@ -34,92 +34,83 @@
 #include "lv_common/suspension/suspension.hpp"
 #include "lv_common/tssi/tssi.hpp"
 
-using namespace generated::can;
+using macfe::stm32f::AnalogInput;
+using macfe::stm32f::DigitalOutput;
+using macfe::stm32f::PWMOutput
 
-// Tractive System Status Indicator
-macfe::stm32f::DigitalOutput tssi_en{TSSI_EN_GPIO_Port, TSSI_EN_Pin};
-macfe::stm32f::DigitalOutput tssi_red_signal_n{TSSI_RED_SIG_GPIO_Port,
-                                               TSSI_RED_SIG_Pin};
-macfe::stm32f::DigitalOutput tssi_green_signal_n{TSSI_GN_SIG_GPIO_Port,
-                                                 TSSI_GN_SIG_Pin};
+    // Tractive System Status Indicator
+    DigitalOutput tssi_en{TSSI_EN_GPIO_Port, TSSI_EN_Pin};
+DigitalOutput tssi_red_signal_n{TSSI_RED_SIG_GPIO_Port, TSSI_RED_SIG_Pin};
+DigitalOutput tssi_green_signal_n{TSSI_GN_SIG_GPIO_Port, TSSI_GN_SIG_Pin};
 
 // Both red and green are inverted logic
 macfe::periph::InvertedDigitalOutput tssi_red_signal{tssi_red_signal_n};
 macfe::periph::InvertedDigitalOutput tssi_green_signal{tssi_green_signal_n};
 
-macfe::stm32f::DigitalInput imd_fault{IMD_FAULT_STATUS_GPIO_Port,
-                                      IMD_FAULT_STATUS_Pin};
-macfe::stm32f::DigitalInput bms_fault{BMS_FAULT_STATUS_GPIO_Port,
-                                      BMS_FAULT_STATUS_Pin};
+DigitalInput imd_fault{IMD_FAULT_STATUS_GPIO_Port, IMD_FAULT_STATUS_Pin};
+DigitalInput bms_fault{BMS_FAULT_STATUS_GPIO_Port, BMS_FAULT_STATUS_Pin};
 
 // Powertrain Cooling
-macfe::stm32f::DigitalOutput powertrain_pump1_en{POWERTRAIN_PUMP1_EN_GPIO_Port,
-                                                 POWERTRAIN_PUMP1_EN_Pin};
-macfe::stm32f::DigitalOutput powertrain_pump2_en{POWERTRAIN_PUMP2_EN_GPIO_Port,
-                                                 POWERTRAIN_PUMP2_EN_Pin};
-macfe::stm32f::DigitalOutput powertrain_fan1_en{POWERTRAIN_FAN1_EN_GPIO_Port,
-                                                POWERTRAIN_FAN1_EN_Pin};
-macfe::stm32f::DigitalOutput powertrain_fan2_en{POWERTRAIN_FAN2_EN_GPIO_Port,
-                                                POWERTRAIN_FAN2_EN_Pin};
-macfe::stm32f::PWMOutput powertrain_fan_pwm{&htim2, HAL_TIM_ACTIVE_CHANNEL_1};
+DigitalOutput powertrain_pump1_en{POWERTRAIN_PUMP1_EN_GPIO_Port,
+                                  POWERTRAIN_PUMP1_EN_Pin};
+DigitalOutput powertrain_pump2_en{POWERTRAIN_PUMP2_EN_GPIO_Port,
+                                  POWERTRAIN_PUMP2_EN_Pin};
+DigitalOutput powertrain_fan1_en{POWERTRAIN_FAN1_EN_GPIO_Port,
+                                 POWERTRAIN_FAN1_EN_Pin};
+DigitalOutput powertrain_fan2_en{POWERTRAIN_FAN2_EN_GPIO_Port,
+                                 POWERTRAIN_FAN2_EN_Pin};
+PWMOutput powertrain_fan_pwm{&htim2, HAL_TIM_ACTIVE_CHANNEL_1};
 
 // Motor Controller (i.e. Inverters)
-macfe::stm32f::DigitalOutput motor_controller_en{MOTOR_CONTROLLER_EN_GPIO_Port,
-                                                 MOTOR_CONTROLLER_EN_Pin};
-macfe::stm32f::DigitalOutput motor_ctrl_precharge_en{
-    MOTOR_CONTROLLER_PRECHARGE_EN_GPIO_Port, MOTOR_CONTROLLER_PRECHARGE_EN_Pin};
-macfe::stm32f::DigitalOutput motor_ctrl_switch_en{
-    MOTOR_CONTROLLER_SWITCH_EN_GPIO_Port, MOTOR_CONTROLLER_SWITCH_EN_Pin};
+DigitalOutput motor_controller_en{MOTOR_CONTROLLER_EN_GPIO_Port,
+                                  MOTOR_CONTROLLER_EN_Pin};
+DigitalOutput motor_ctrl_precharge_en{MOTOR_CONTROLLER_PRECHARGE_EN_GPIO_Port,
+                                      MOTOR_CONTROLLER_PRECHARGE_EN_Pin};
+DigitalOutput motor_ctrl_switch_en{MOTOR_CONTROLLER_SWITCH_EN_GPIO_Port,
+                                   MOTOR_CONTROLLER_SWITCH_EN_Pin};
 
 // Subsystems
-macfe::stm32f::DigitalOutput accumulator_en{ACCUMULATOR_EN_GPIO_Port,
-                                            ACCUMULATOR_EN_Pin};
-macfe::stm32f::DigitalOutput front_controller_en{FRONT_CONTROLLER_EN_GPIO_Port,
-                                                 FRONT_CONTROLLER_EN_Pin};
-macfe::stm32f::DigitalOutput imu_gps_en{IMU_GPS_EN_GPIO_Port, IMU_GPS_EN_Pin};
-macfe::stm32f::DigitalOutput shutdown_circuit_en{SHUTDOWN_CIRCUIT_EN_GPIO_Port,
-                                                 SHUTDOWN_CIRCUIT_EN_Pin};
+DigitalOutput accumulator_en{ACCUMULATOR_EN_GPIO_Port, ACCUMULATOR_EN_Pin};
+DigitalOutput front_controller_en{FRONT_CONTROLLER_EN_GPIO_Port,
+                                  FRONT_CONTROLLER_EN_Pin};
+DigitalOutput imu_gps_en{IMU_GPS_EN_GPIO_Port, IMU_GPS_EN_Pin};
+DigitalOutput shutdown_circuit_en{SHUTDOWN_CIRCUIT_EN_GPIO_Port,
+                                  SHUTDOWN_CIRCUIT_EN_Pin};
 
 // DCDC System  Measurement
-macfe::stm32f::DigitalOutput vicor_en{VICOR_EN_GPIO_Port, VICOR_EN_Pin};
+DigitalOutput vicor_en{VICOR_EN_GPIO_Port, VICOR_EN_Pin};
 // macfe::stm32f::DigitalOutput dcdc_sense_select{DCDC_SNS_SEL_GPIO_Port,
 //                                                DCDC_SNS_SEL_Pin};
 // // Analog Sensing (Rev 4)
-macfe::stm32f::AnalogInput lv_battery{&hadc3, ADC_CHANNEL_15};
-macfe::stm32f::AnalogInput bus_voltage{&hadc3, ADC_CHANNEL_14};
-macfe::stm32f::AnalogInput bus_current{&hadc3, ADC_CHANNEL_9};
+AnalogInput lv_battery{&hadc3, ADC_CHANNEL_15};
+AnalogInput bus_voltage{&hadc3, ADC_CHANNEL_14};
+AnalogInput bus_current{&hadc3, ADC_CHANNEL_9};
 
 // HSD
-macfe::stm32f::AnalogInput hsd1_isense{&hadc1, ADC_CHANNEL_8};
-macfe::stm32f::DigitalOutput hsd1_isense_en{HSD1_I_SENSE_EN_GPIO_Port,
-                                            HSD1_I_SENSE_EN_Pin};
-macfe::stm32f::DigitalOutput hsd1_sel0{HSD1_SEL0_GPIO_Port, HSD1_SEL0_Pin};
-macfe::stm32f::DigitalOutput hsd1_sel1{HSD1_SEL1_GPIO_Port, HSD1_SEL1_Pin};
+AnalogInput hsd1_isense{&hadc1, ADC_CHANNEL_8};
+DigitalOutput hsd1_isense_en{HSD1_I_SENSE_EN_GPIO_Port, HSD1_I_SENSE_EN_Pin};
+DigitalOutput hsd1_sel0{HSD1_SEL0_GPIO_Port, HSD1_SEL0_Pin};
+DigitalOutput hsd1_sel1{HSD1_SEL1_GPIO_Port, HSD1_SEL1_Pin};
 
-macfe::stm32f::AnalogInput hsd2_isense{&hadc1, ADC_CHANNEL_9};
-macfe::stm32f::DigitalOutput hsd2_isense_en{HSD2_I_SENSE_EN_GPIO_Port,
-                                            HSD2_I_SENSE_EN_Pin};
-macfe::stm32f::DigitalOutput hsd2_sel{HSD2_SEL_GPIO_Port, HSD2_SEL_Pin};
+AnalogInput hsd2_isense{&hadc1, ADC_CHANNEL_9};
+DigitalOutput hsd2_isense_en{HSD2_I_SENSE_EN_GPIO_Port, HSD2_I_SENSE_EN_Pin};
+DigitalOutput hsd2_sel{HSD2_SEL_GPIO_Port, HSD2_SEL_Pin};
 
-macfe::stm32f::AnalogInput hsd3_isense{&hadc3, ADC_CHANNEL_6};
-macfe::stm32f::DigitalOutput hsd3_isense_en{HSD3_I_SENSE_EN_GPIO_Port,
-                                            HSD3_I_SENSE_EN_Pin};
-macfe::stm32f::DigitalOutput hsd3_sel{HSD3_SEL_GPIO_Port, HSD3_SEL_Pin};
+AnalogInput hsd3_isense{&hadc3, ADC_CHANNEL_6};
+DigitalOutput hsd3_isense_en{HSD3_I_SENSE_EN_GPIO_Port, HSD3_I_SENSE_EN_Pin};
+DigitalOutput hsd3_sel{HSD3_SEL_GPIO_Port, HSD3_SEL_Pin};
 
-macfe::stm32f::AnalogInput hsd4_isense{&hadc3, ADC_CHANNEL_7};
-macfe::stm32f::DigitalOutput hsd4_isense_en{HSD4_I_SENSE_EN_GPIO_Port,
-                                            HSD4_I_SENSE_EN_Pin};
-macfe::stm32f::DigitalOutput hsd4_sel{HSD4_SEL_GPIO_Port, HSD4_SEL_Pin};
+AnalogInput hsd4_isense{&hadc3, ADC_CHANNEL_7};
+DigitalOutput hsd4_isense_en{HSD4_I_SENSE_EN_GPIO_Port, HSD4_I_SENSE_EN_Pin};
+DigitalOutput hsd4_sel{HSD4_SEL_GPIO_Port, HSD4_SEL_Pin};
 
-macfe::stm32f::AnalogInput hsd5_isense{&hadc3, ADC_CHANNEL_8};
-macfe::stm32f::DigitalOutput hsd5_isense_en{HSD5_I_SENSE_EN_GPIO_Port,
-                                            HSD5_I_SENSE_EN_Pin};
-macfe::stm32f::DigitalOutput hsd5_sel{HSD5_SEL_GPIO_Port, HSD5_SEL_Pin};
+AnalogInput hsd5_isense{&hadc3, ADC_CHANNEL_8};
+DigitalOutput hsd5_isense_en{HSD5_I_SENSE_EN_GPIO_Port, HSD5_I_SENSE_EN_Pin};
+DigitalOutput hsd5_sel{HSD5_SEL_GPIO_Port, HSD5_SEL_Pin};
 
-macfe::stm32f::AnalogInput hsd6_isense{&hadc3, ADC_CHANNEL_5};
-macfe::stm32f::DigitalOutput hsd6_isense_en{HSD6_I_SENSE_EN_GPIO_Port,
-                                            HSD6_I_SENSE_EN_Pin};
-macfe::stm32f::DigitalOutput hsd6_sel{HSD6_SEL_GPIO_Port, HSD6_SEL_Pin};
+AnalogInput hsd6_isense{&hadc3, ADC_CHANNEL_5};
+DigitalOutput hsd6_isense_en{HSD6_I_SENSE_EN_GPIO_Port, HSD6_I_SENSE_EN_Pin};
+DigitalOutput hsd6_sel{HSD6_SEL_GPIO_Port, HSD6_SEL_Pin};
 
 macfe::lv::HSD4 hsd1{hsd1_isense, hsd1_isense_en, hsd1_sel0, hsd1_sel1};
 macfe::lv::HSD2 hsd2{hsd2_isense, hsd2_isense_en, hsd2_sel};
@@ -129,12 +120,10 @@ macfe::lv::HSD2 hsd5{hsd5_isense, hsd5_isense_en, hsd5_sel};
 macfe::lv::HSD2 hsd6{hsd6_isense, hsd6_isense_en, hsd6_sel};
 
 // Other IO
-macfe::stm32f::DigitalOutput brake_light_en{BRAKE_LIGHT_EN_GPIO_Port,
-                                            BRAKE_LIGHT_EN_Pin};
-macfe::stm32f::AnalogInput suspension_travel3{&hadc1, ADC_CHANNEL_15};
-macfe::stm32f::AnalogInput suspension_travel4{&hadc1, ADC_CHANNEL_14};
+DigitalOutput brake_light_en{BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin};
+AnalogInput suspension_travel3{&hadc1, ADC_CHANNEL_15};
+AnalogInput suspension_travel4{&hadc1, ADC_CHANNEL_14};
 
-//! Just declare stuff here
 macfe::stm32f::CanBase veh_can_base{&hcan2};
 generated::can::VehBus veh_can{veh_can_base};
 
