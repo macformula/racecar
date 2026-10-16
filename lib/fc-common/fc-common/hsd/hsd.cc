@@ -3,7 +3,7 @@
 
 #include "hsd.hpp"
 
-#include "alerts/alerts.hpp"
+#include "fc-common/alerts/alerts.hpp"
 
 namespace hsd {
 

@@ -1,7 +1,7 @@
 #include "driver_interface.hpp"
 
-#include "alerts/alerts.hpp"
-#include "sensors/driver/driver.hpp"
+#include "fc-common/alerts/alerts.hpp"
+#include "fc-common/sensors/driver/driver.hpp"
 #include "thresholds.hpp"
 
 namespace driver_interface {

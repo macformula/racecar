@@ -1,8 +1,8 @@
 #include "motors.hpp"
 
-#include "alerts/alerts.hpp"
 #include "amk/amk.hpp"
 #include "amk/starter.hpp"
+#include "fc-common/alerts/alerts.hpp"
 #include "generated/can/pt_bus.hpp"
 #include "generated/can/pt_messages.hpp"
 #include "generated/can/veh_bus.hpp"
