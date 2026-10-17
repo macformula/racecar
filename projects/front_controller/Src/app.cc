@@ -106,7 +106,7 @@ macfe::fc::sensors::DriverSensors driver_sensors;
 macfe::fc::DriverInterface driver_controls{driver_sensors};
 macfe::fc::VehicleDynamics dynamics{driver_sensors};
 //! move state to state
-macfe::fc::Accumulator accumulator = macfe::fc::Accumulator();
+macfe::fc::Accumulator accumulator = macfe::fc::Accumulator(precharge_monitor);
 macfe::fc::Motors motors = macfe::fc::Motors();
 macfe::fc::HSD hsd = macfe::fc::HSD(hsd1, hsd2);
 void Initialize() {
@@ -244,7 +244,6 @@ static void Update_100Hz(void) {
             speaker = false;
             torque_request = 0;
 
-            //! Testing if this works, Motors being now an instance of a class
             if (motors.GetState() == macfe::fc::Motors::State::RUNNING) {
                 new_state = STARTUP_SEND_READY_TO_DRIVE;
             }
@@ -457,7 +456,7 @@ void task_100hz(void* argument) {
 
         fsm::Update_100Hz();
 
-        accumulator.Update_100Hz(veh_can_bus, precharge_monitor);
+        accumulator.Update_100Hz(veh_can_bus);
         dynamics.Update_100Hz();
         motors.Update_100Hz(pt_can_bus, veh_can_bus,
                             dynamics.GetLeftMotorRequest(),

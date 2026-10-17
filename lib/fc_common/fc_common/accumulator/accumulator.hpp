@@ -37,7 +37,8 @@ public:
         ContactorCommand negative;
     };
 
-    Accumulator() {
+    Accumulator(macfe::periph::AnalogInput& precharge_monitor)
+        : _precharge_monitor(precharge_monitor) {
         state = State::IDLE;
         contactor_command = {
             .precharge = ContactorCommand::OPEN,
@@ -61,18 +62,17 @@ public:
 
     void SetCommand(Command command);
 
-    void Update_100Hz(generated::can::VehBus& veh_can,
-                      macfe::periph::AnalogInput& precharge_monitor);
+    void Update_100Hz(generated::can::VehBus& veh_can);
 
 private:
-    void MeasureVoltages(generated::can::VehBus& veh_can,
-                         macfe::periph::AnalogInput& precharge_monitor);
+    void MeasureVoltages(generated::can::VehBus& veh_can);
     bool IsPrechargeComplete();
     void UpdateStateMachine(ContactorFeedbacks fb);
     static bool FeedbackMatchesCommand(ContactorCommands cmd,
                                        ContactorFeedbacks fb);
     static std::optional<ContactorFeedbacks> ReadContactorFeedbacks(
         generated::can::VehBus& veh_can);
+    macfe::periph::AnalogInput& _precharge_monitor;
     State state = State::IDLE;
     ContactorCommands contactor_command{};
     Command command = Command::OFF;
