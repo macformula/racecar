@@ -4,7 +4,7 @@
 #include "fc_common/sensors/driver/driver.hpp"
 #include "thresholds.hpp"
 
-namespace driver_interface {
+namespace macfe::fc {
 
 void DriverInterface::Update_100Hz(void) {
     float apps_main = driver_sensors.GetAccelPercent1();
@@ -43,4 +43,4 @@ bool DriverInterface::IsBrakePressed(void) {
     return driver_sensors.GetBrakePercent() > threshold::BRAKES_PRESSED_PERCENT;
 }
 
-}  // namespace driver_interface
+}  // namespace macfe::fc

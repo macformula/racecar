@@ -11,6 +11,8 @@
 namespace macfe::lv {
 
 using macfe::periph::AnalogInput;
+using macfe::periph::DigitalOutput;
+
 struct Reading {
     float current_ma = 0.0f;
     bool fault = false;
@@ -25,32 +27,29 @@ public:
 };
 class HSD2 : public HSD_Base {
 public:
-    HSD2(macfe::periph::AnalogInput& isense,
-         macfe::periph::DigitalOutput& isense_en,
-         macfe::periph::DigitalOutput& sel1)
+    HSD2(AnalogInput& isense, DigitalOutput& isense_en, DigitalOutput& sel1)
         : _isense(isense), _isense_en(isense_en), _sel1(sel1) {};
     Reading Read(uint8_t channel) override;
 
 private:
-    macfe::periph::AnalogInput& _isense;
-    macfe::periph::DigitalOutput& _isense_en;
-    macfe::periph::DigitalOutput& _sel1;
+    AnalogInput& _isense;
+    DigitalOutput& _isense_en;
+    DigitalOutput& _sel1;
     float prev_tick_ch[2] = {};
 };
 
 class HSD4 : public HSD_Base {
 public:
-    HSD4(macfe::periph::AnalogInput& isense,
-         macfe::periph::DigitalOutput& isense_en,
-         macfe::periph::DigitalOutput& sel1, macfe::periph::DigitalOutput& sel2)
+    HSD4(AnalogInput& isense, DigitalOutput& isense_en, DigitalOutput& sel1,
+         DigitalOutput& sel2)
         : _isense(isense), _isense_en(isense_en), _sel1(sel1), _sel2(sel2) {};
     Reading Read(uint8_t channel) override;
 
 private:
-    macfe::periph::AnalogInput& _isense;
-    macfe::periph::DigitalOutput& _isense_en;
-    macfe::periph::DigitalOutput& _sel1;
-    macfe::periph::DigitalOutput& _sel2;
+    AnalogInput& _isense;
+    DigitalOutput& _isense_en;
+    DigitalOutput& _sel1;
+    DigitalOutput& _sel2;
     float prev_tick_ch[4] = {};
 };
 class HSD {

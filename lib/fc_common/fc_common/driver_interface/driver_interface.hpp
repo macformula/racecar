@@ -2,11 +2,11 @@
 
 #include "fc_common/sensors/driver/driver.hpp"
 
-namespace driver_interface {
+namespace macfe::fc {
 
 class DriverInterface {
 public:
-    explicit DriverInterface(sensors::driver::DriverSensors& sensors)
+    explicit DriverInterface(macfe::fc::sensors::DriverSensors& sensors)
         : driver_sensors(sensors) {}
 
     float GetTorqueRequest(void);
@@ -15,9 +15,9 @@ public:
     void Update_100Hz(void);
 
 private:
-    sensors::driver::DriverSensors& driver_sensors;
+    macfe::fc::sensors::DriverSensors& driver_sensors;
     bool pedal_needs_reset = false;  // rule EV.4.7
     float torque_request = 0.f;
 };
 
-}  // namespace driver_interface
+}  // namespace macfe::fc

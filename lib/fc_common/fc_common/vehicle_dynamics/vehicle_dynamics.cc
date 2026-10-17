@@ -15,7 +15,7 @@
 using namespace ctrl;
 using namespace generated::can;
 using Profile_t = RxDashStatus::Profile_t;
-namespace vehicle_dynamics {
+namespace macfe::fc {
 
 amk::Request VehicleDynamics::GetLeftMotorRequest(void) {
     return left_request;
@@ -92,4 +92,4 @@ void VehicleDynamics::Update_100Hz(void) {
     };
 }
 
-}  // namespace vehicle_dynamics
+}  // namespace macfe::fc

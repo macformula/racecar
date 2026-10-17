@@ -10,8 +10,9 @@
 #include "physical.hpp"
 
 using namespace generated::can;
+using State = generated::can::TxFcStatus::MotorState_t;
 
-namespace motors {
+namespace macfe::fc {
 
 amk::StarterState Motors::GetLeftStarterState(void) {
     return left_starter.GetState();
@@ -85,15 +86,6 @@ generated::can::TxFcCounters Motors::GetCounters(void) {
 }
 
 // ---------- Behaviour ----------
-
-void Motors::Init(void) {
-    command = Command::OFF;
-    state = State::IDLE;
-    inverter_enable = false;
-
-    amk_left.Init();
-    amk_right.Init();
-}
 
 void Motors::Update_100Hz(PtBus& pt_can, VehBus& veh_can, amk::Request req_left,
                           amk::Request req_right) {
@@ -217,4 +209,4 @@ void Motors::Update_100Hz(PtBus& pt_can, VehBus& veh_can, amk::Request req_left,
     counter++;
 }
 
-}  // namespace motors
+}  // namespace macfe::fc

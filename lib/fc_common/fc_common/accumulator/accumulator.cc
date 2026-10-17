@@ -7,7 +7,9 @@
 #include "thresholds.hpp"
 
 using namespace generated::can;
-namespace accumulator {
+namespace macfe::fc {
+
+using State = generated::can::TxFcStatus::AccumulatorState_t;
 
 State Accumulator::GetState(void) {
     return state;
@@ -45,23 +47,8 @@ void Accumulator::SetCommand(Command _command) {
     command = _command;
 }
 
-void Accumulator::Init(void) {
-    state = State::IDLE;
-    contactor_command = {
-        .precharge = ContactorCommand::OPEN,
-        .positive = ContactorCommand::OPEN,
-        .negative = ContactorCommand::OPEN,
-    };
-    elapsed = 0;
-    max_pack_voltage = 0;
-    precharge_voltage = 0;
-    pack_voltage = 0;
-    pack_voltage_valid = false;
-    pack_voltage_timeout = 0;
-}
-
-static bool FeedbackMatchesCommand(ContactorCommands cmd,
-                                   ContactorFeedbacks fb) {
+bool Accumulator::FeedbackMatchesCommand(ContactorCommands cmd,
+                                         ContactorFeedbacks fb) {
     using enum ContactorCommand;
     using enum ContactorFeedback;
 
@@ -263,8 +250,8 @@ void Accumulator::UpdateStateMachine(ContactorFeedbacks fb) {
     }
 }
 
-static std::optional<ContactorFeedbacks> ReadContactorFeedbacks(
-    VehBus& veh_can) {
+std::optional<Accumulator::ContactorFeedbacks>
+Accumulator::ReadContactorFeedbacks(VehBus& veh_can) {
     auto fb_msg = veh_can.GetRxContactor_Feedback();
 
     if (fb_msg.has_value()) {
@@ -294,4 +281,4 @@ void Accumulator::Update_100Hz(VehBus& veh_can,
     }
 }
 
-}  // namespace accumulator
+}  // namespace macfe::fc

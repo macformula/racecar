@@ -92,12 +92,23 @@ DigitalOutput hsd1_sel1{HSD1_SEL1_GPIO_Port, HSD1_SEL1_Pin};
 AnalogInput hsd2_isense{&hadc1, ADC_CHANNEL_11};
 DigitalOutput hsd2_isense_en{HSD2_I_SENSE_EN_GPIO_Port, HSD2_I_SENSE_EN_Pin};
 
-hsd::HSD4Channel hsd1{hsd1_isense, hsd1_isense_en, hsd1_sel0, hsd1_sel1};
-hsd::HSD1Channel hsd2{hsd2_isense, hsd2_isense_en};
+macfe::fc::HSD4 hsd1{hsd1_isense, hsd1_isense_en, hsd1_sel0, hsd1_sel1};
+macfe::fc::HSD1 hsd2{hsd2_isense, hsd2_isense_en};
 
 macfe::stm32f::CanBase veh_can_base{&hcan2};
 macfe::stm32f::CanBase pt_can_base{&hcan1};
 
+generated::can::VehBus veh_can_bus{veh_can_base};
+generated::can::PtBus pt_can_bus{pt_can_base};
+
+// Controllers own their state; sensor dependencies are shared explicitly.
+macfe::fc::sensors::DriverSensors driver_sensors;
+macfe::fc::DriverInterface driver_controls{driver_sensors};
+macfe::fc::VehicleDynamics dynamics{driver_sensors};
+//! move state to state
+macfe::fc::Accumulator accumulator = macfe::fc::Accumulator();
+macfe::fc::Motors motors = macfe::fc::Motors();
+macfe::fc::HSD hsd = macfe::fc::HSD(hsd1, hsd2);
 void Initialize() {
     SystemClock_Config();
 
@@ -124,16 +135,6 @@ void SoftwareReset() {
     Error_Handler();
 }
 
-generated::can::VehBus veh_can_bus{veh_can_base};
-generated::can::PtBus pt_can_bus{pt_can_base};
-
-// Controllers own their state; sensor dependencies are shared explicitly.
-sensors::driver::DriverSensors driver_sensors;
-driver_interface::DriverInterface driver_controls{driver_sensors};
-vehicle_dynamics::VehicleDynamics dynamics_controller{driver_sensors};
-accumulator::Accumulator accumulator_controller;
-motors::Motors motor_controller;
-
 namespace fsm {
 using State = generated::can::TxFcStatus::State_t;
 
@@ -146,8 +147,9 @@ static void Update_100Hz(void) {
 
     State new_state = state;
 
-    accumulator::Command acc_cmd = accumulator::Command::OFF;
-    motors::Command motor_cmd = motors::Command::OFF;
+    macfe::fc::Accumulator::Command acc_cmd =
+        macfe::fc::Accumulator::Command::OFF;
+    macfe::fc::Motors::Command motor_cmd = macfe::fc::Motors::Command::OFF;
     bool speaker = false;
     float torque_request = 0.f;
 
@@ -155,8 +157,8 @@ static void Update_100Hz(void) {
 
     switch (state) {
         case START_DASHBOARD: {
-            acc_cmd = accumulator::Command::OFF;
-            motor_cmd = motors::Command::OFF;
+            acc_cmd = macfe::fc::Accumulator::Command::OFF;
+            motor_cmd = macfe::fc::Motors::Command::OFF;
             speaker = false;
             torque_request = 0;
 
@@ -177,23 +179,23 @@ static void Update_100Hz(void) {
         } break;
 
         case WAIT_DRIVER_SELECT: {
-            acc_cmd = accumulator::Command::OFF;
-            motor_cmd = motors::Command::OFF;
+            acc_cmd = macfe::fc::Accumulator::Command::OFF;
+            motor_cmd = macfe::fc::Motors::Command::OFF;
             speaker = false;
             torque_request = 0;
 
             auto msg = veh_can_bus.GetRxDashStatus();
             if (msg.has_value()) {
                 if (msg->State() == DashState::WAIT_SELECTION_ACK) {
-                    dynamics_controller.SetProfile(msg->Profile());
+                    dynamics.SetProfile(msg->Profile());
                     new_state = WAIT_START_HV;
                 }
             }
         } break;
 
         case WAIT_START_HV: {
-            acc_cmd = accumulator::Command::OFF;
-            motor_cmd = motors::Command::OFF;
+            acc_cmd = macfe::fc::Accumulator::Command::OFF;
+            motor_cmd = macfe::fc::Motors::Command::OFF;
             speaker = false;
             torque_request = 0;
 
@@ -206,16 +208,16 @@ static void Update_100Hz(void) {
         } break;
 
         case STARTING_HV:
-            acc_cmd = accumulator::Command::ENABLED;
-            motor_cmd = motors::Command::OFF;
+            acc_cmd = macfe::fc::Accumulator::Command::ENABLED;
+            motor_cmd = macfe::fc::Motors::Command::OFF;
             speaker = false;
             torque_request = 0;
 
-            if (accumulator_controller.GetState() ==
-                accumulator::State::RUNNING) {
+            if (accumulator.GetState() ==
+                macfe::fc::Accumulator::State::RUNNING) {
                 new_state = WAIT_START_MOTOR;
-            } else if (accumulator_controller.GetState() ==
-                       accumulator::State::ERROR) {
+            } else if (accumulator.GetState() ==
+                       macfe::fc::Accumulator::State::ERROR) {
                 new_state = ERROR;
             } else {
                 // waiting
@@ -223,8 +225,8 @@ static void Update_100Hz(void) {
             break;
 
         case WAIT_START_MOTOR: {
-            acc_cmd = accumulator::Command::ENABLED;
-            motor_cmd = motors::Command::OFF;
+            acc_cmd = macfe::fc::Accumulator::Command::ENABLED;
+            motor_cmd = macfe::fc::Motors::Command::OFF;
             speaker = false;
             torque_request = 0;
 
@@ -237,23 +239,24 @@ static void Update_100Hz(void) {
         } break;
 
         case STARTING_MOTORS:
-            acc_cmd = accumulator::Command::ENABLED;
-            motor_cmd = motors::Command::ENABLED;
+            acc_cmd = macfe::fc::Accumulator::Command::ENABLED;
+            motor_cmd = macfe::fc::Motors::Command::ENABLED;
             speaker = false;
             torque_request = 0;
 
-            if (motor_controller.GetState() == motors::State::RUNNING) {
+            //! Testing if this works, Motors being now an instance of a class
+            if (motors.GetState() == macfe::fc::Motors::State::RUNNING) {
                 new_state = STARTUP_SEND_READY_TO_DRIVE;
             }
 
-            if (motor_controller.GetState() == motors::State::ERROR) {
+            if (motors.GetState() == macfe::fc::Motors::State::ERROR) {
                 new_state = ERROR;
             }
             break;
 
         case STARTUP_SEND_READY_TO_DRIVE:
-            acc_cmd = accumulator::Command::ENABLED;
-            motor_cmd = motors::Command::ENABLED;
+            acc_cmd = macfe::fc::Accumulator::Command::ENABLED;
+            motor_cmd = macfe::fc::Motors::Command::ENABLED;
             speaker = false;
             torque_request = 0;
 
@@ -263,17 +266,17 @@ static void Update_100Hz(void) {
             break;
 
         case RUNNING: {
-            acc_cmd = accumulator::Command::ENABLED;
-            motor_cmd = motors::Command::ENABLED;
+            acc_cmd = macfe::fc::Accumulator::Command::ENABLED;
+            motor_cmd = macfe::fc::Motors::Command::ENABLED;
             speaker = elapsed < timeout::SPEAKER_DURATION;
             torque_request = driver_controls.GetTorqueRequest();
 
-            if (accumulator_controller.GetState() ==
-                accumulator::State::ERROR) {
+            if (accumulator.GetState() ==
+                macfe::fc::Accumulator::State::ERROR) {
                 new_state = ERROR;
             }
 
-            if (motor_controller.GetState() == motors::State::ERROR) {
+            if (motors.GetState() == macfe::fc::Motors::State::ERROR) {
                 new_state = ERROR;
             }
 
@@ -292,20 +295,20 @@ static void Update_100Hz(void) {
         } break;
 
         case SHUTDOWN:
-            acc_cmd = accumulator::Command::OFF;
-            motor_cmd = motors::Command::OFF;
+            acc_cmd = macfe::fc::Accumulator::Command::OFF;
+            motor_cmd = macfe::fc::Motors::Command::OFF;
             speaker = false;
             torque_request = 0;
 
-            if (accumulator_controller.GetState() == accumulator::State::IDLE) {
+            if (accumulator.GetState() == macfe::fc::Accumulator::State::IDLE) {
                 // should probably check if motors and DI have shut down
                 new_state = START_DASHBOARD;
             }
             break;
 
         case ERROR: {
-            acc_cmd = accumulator::Command::OFF;
-            motor_cmd = motors::Command::OFF;
+            acc_cmd = macfe::fc::Accumulator::Command::OFF;
+            motor_cmd = macfe::fc::Motors::Command::OFF;
             speaker = false;
             torque_request = 0;
 
@@ -323,9 +326,9 @@ static void Update_100Hz(void) {
         new_state = SHUTDOWN;
     }
 
-    accumulator_controller.SetCommand(acc_cmd);
-    motor_controller.SetCommand(motor_cmd);
-    dynamics_controller.SetDriverTorqueRequest(torque_request);
+    accumulator.SetCommand(acc_cmd);
+    motors.SetCommand(motor_cmd);
+    dynamics.SetDriverTorqueRequest(torque_request);
     ready_to_drive_sig_en.Set(speaker);
 
     if (new_state != state) {
@@ -397,45 +400,42 @@ void task_10hz(void* argument) {
         // oscillator
         suspension::ReadAndSendTravel(veh_can_bus, suspension_travel1,
                                       suspension_travel2);
-        hsd::Update_10Hz(hsd1, hsd2);
+        hsd.Update_10Hz(veh_can_bus);
 
         veh_can_bus.Send(generated::can::TxFcStatus{
             .counter = tx_counter++,
             .state = fsm::state,
-            .accumulator_state = accumulator_controller.GetState(),
-            .motor_state = motor_controller.GetState(),
-            .inv1_state = motor_controller.GetLeftState(),
+            .accumulator_state = accumulator.GetState(),
+            .motor_state = motors.GetState(),
+            .inv1_state = motors.GetLeftState(),
             .inv2_state = static_cast<generated::can::TxFcStatus::Inv2State_t>(
-                motor_controller.GetRightState()),
+                motors.GetRightState()),
             .dbc_valid = dbc_hash::IsValid(),
-            .inv1_starter =
-                static_cast<uint8_t>(motor_controller.GetLeftStarterState()),
-            .inv2_starter =
-                static_cast<uint8_t>(motor_controller.GetRightStarterState()),
+            .inv1_starter = static_cast<uint8_t>(motors.GetLeftStarterState()),
+            .inv2_starter = static_cast<uint8_t>(motors.GetRightStarterState()),
         });
         veh_can_bus.Send(generated::can::TxDashCommand{
             .config_received = fsm::state == fsm::State::WAIT_START_HV,
-            .hv_started = accumulator_controller.GetState() ==
-                          accumulator::State::RUNNING,
+            .hv_started = accumulator.GetState() ==
+                          macfe::fc::Accumulator::State::RUNNING,
             .motor_started =
-                motor_controller.GetState() == motors::State::RUNNING,
+                motors.GetState() == macfe::fc::Motors::State::RUNNING,
             .drive_started = fsm::state == fsm::State::RUNNING,
             .reset = fsm::state == fsm::State::START_DASHBOARD,
             .errored = fsm::state == fsm::State::ERROR,
             .hv_shutdown = fsm::state == fsm::State::SHUTDOWN,
-            .hv_precharge_percent = static_cast<uint8_t>(
-                accumulator_controller.GetPrechargePercent()),
-            .speed = motor_controller.GetMph(),
-            .hv_soc_percent =
-                static_cast<uint8_t>(accumulator_controller.GetSocPercent()),
+            .hv_precharge_percent =
+                static_cast<uint8_t>(accumulator.GetPrechargePercent()),
+            .speed = motors.GetMph(),
+            .hv_soc_percent = static_cast<uint8_t>(accumulator.GetSocPercent()),
         });
 
-        veh_can_bus.Send(accumulator_controller.GetDebugMsg());
+        veh_can_bus.Send(accumulator.GetDebugMsg());
         veh_can_bus.Send(alerts::Get());
 
         veh_can_bus.Send(driver_sensors.GetAppsDebugMsg());
         veh_can_bus.Send(driver_sensors.GetBppsSteerDebugMsg());
-        veh_can_bus.Send(motor_controller.GetCounters());
+        veh_can_bus.Send(motors.GetCounters());
 
         vTaskDelayUntil(&wake_time, pdMS_TO_TICKS(100));
     }
@@ -457,23 +457,23 @@ void task_100hz(void* argument) {
 
         fsm::Update_100Hz();
 
-        accumulator_controller.Update_100Hz(veh_can_bus, precharge_monitor);
-        dynamics_controller.Update_100Hz();
-        motor_controller.Update_100Hz(
-            pt_can_bus, veh_can_bus, dynamics_controller.GetLeftMotorRequest(),
-            dynamics_controller.GetRightMotorRequest());
+        accumulator.Update_100Hz(veh_can_bus, precharge_monitor);
+        dynamics.Update_100Hz();
+        motors.Update_100Hz(pt_can_bus, veh_can_bus,
+                            dynamics.GetLeftMotorRequest(),
+                            dynamics.GetRightMotorRequest());
 
-        veh_can_bus.Send(accumulator_controller.GetContactorCommand());
+        veh_can_bus.Send(accumulator.GetContactorCommand());
         veh_can_bus.Send(generated::can::TxLvCommand{
             .brake_light_enable = driver_controls.IsBrakePressed(),
         });
 
         // Disable Inverter commands for manual debugging
         veh_can_bus.Send(generated::can::TxInverterSwitchCommand{
-            .close_inverter_switch = motor_controller.GetInverterEnable(),
+            .close_inverter_switch = motors.GetInverterEnable(),
         });
-        pt_can_bus.Send(motor_controller.GetLeftSetpoints());
-        pt_can_bus.Send(motor_controller.GetRightSetpoints());
+        pt_can_bus.Send(motors.GetLeftSetpoints());
+        pt_can_bus.Send(motors.GetRightSetpoints());
 
         vTaskDelayUntil(&wake_time, pdMS_TO_TICKS(10));
     }
@@ -483,9 +483,7 @@ int main(void) {
     Initialize();
 
     alerts::Reset();
-    accumulator_controller.Init();
-    motor_controller.Init();
-    dynamics_controller.Init(GetTickMs());
+    dynamics.Init(GetTickMs());
 
     // todo (2026): this is always on. just tie high on PCB
     dashboard_power_en.SetHigh();

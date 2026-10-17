@@ -5,45 +5,55 @@
 #include "moving_average.hpp"
 #include "periph/analog_input.hpp"
 
-enum class ContactorFeedback : bool {
-    // WARNING: feedback is inverted relative to command
-    IS_OPEN = true,
-    IS_CLOSED = false,
-};
-
-enum class ContactorCommand {
-    OPEN = false,
-    CLOSE = true,
-};
-
-struct ContactorFeedbacks {
-    ContactorFeedback precharge;
-    ContactorFeedback negative;
-    ContactorFeedback positive;
-};
-
-struct ContactorCommands {
-    ContactorCommand precharge;
-    ContactorCommand positive;
-    ContactorCommand negative;
-};
-
-namespace accumulator {
-
-using State = generated::can::TxFcStatus::AccumulatorState_t;
-
-enum class Command {
-    OFF,
-    ENABLED,
-};
+namespace macfe::fc {
 
 class Accumulator {
 public:
+    using State = generated::can::TxFcStatus::AccumulatorState_t;
+    enum class Command {
+        OFF,
+        ENABLED,
+    };
+    enum class ContactorFeedback : bool {
+        // WARNING: feedback is inverted relative to command
+        IS_OPEN = true,
+        IS_CLOSED = false,
+    };
+
+    enum class ContactorCommand {
+        OPEN = false,
+        CLOSE = true,
+    };
+
+    struct ContactorFeedbacks {
+        ContactorFeedback precharge;
+        ContactorFeedback negative;
+        ContactorFeedback positive;
+    };
+
+    struct ContactorCommands {
+        ContactorCommand precharge;
+        ContactorCommand positive;
+        ContactorCommand negative;
+    };
+
     Accumulator() {
-        Init();
+        state = State::IDLE;
+        contactor_command = {
+            .precharge = ContactorCommand::OPEN,
+            .positive = ContactorCommand::OPEN,
+            .negative = ContactorCommand::OPEN,
+        };
+        elapsed = 0;
+        max_pack_voltage = 0;
+        precharge_voltage = 0;
+        pack_voltage = 0;
+        pack_voltage_valid = false;
+        pack_voltage_timeout = 0;
     }
 
     State GetState(void);
+
     generated::can::TxContactorCommand GetContactorCommand(void);
     generated::can::TxAccumulator_Soc GetDebugMsg(void);
     float GetSocPercent(void);
@@ -51,7 +61,6 @@ public:
 
     void SetCommand(Command command);
 
-    void Init(void);
     void Update_100Hz(generated::can::VehBus& veh_can,
                       macfe::periph::AnalogInput& precharge_monitor);
 
@@ -60,6 +69,10 @@ private:
                          macfe::periph::AnalogInput& precharge_monitor);
     bool IsPrechargeComplete();
     void UpdateStateMachine(ContactorFeedbacks fb);
+    static bool FeedbackMatchesCommand(ContactorCommands cmd,
+                                       ContactorFeedbacks fb);
+    static std::optional<ContactorFeedbacks> ReadContactorFeedbacks(
+        generated::can::VehBus& veh_can);
     State state = State::IDLE;
     ContactorCommands contactor_command{};
     Command command = Command::OFF;
@@ -72,4 +85,4 @@ private:
     macfe::MovingAverage<50> ma;
 };
 
-}  // namespace accumulator
+}  // namespace macfe::fc

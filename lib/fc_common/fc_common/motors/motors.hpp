@@ -7,21 +7,25 @@
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 
-namespace motors {
-
-using Request = amk::Request;
-using State = generated::can::TxFcStatus::MotorState_t;
-
-enum class Command {
-    OFF,
-    ENABLED
-};
+namespace macfe::fc {
 
 class Motors {
 public:
+    enum class Command {
+        OFF,
+        ENABLED
+    };
     Motors() {
-        Init();
+        command = Command::OFF;
+        state = State::IDLE;
+        inverter_enable = false;
+
+        amk_left.Init();
+        amk_right.Init();
     }
+
+    using Request = amk::Request;
+    using State = generated::can::TxFcStatus::MotorState_t;
 
     // ---------- Modifiers ----------
     void SetCommand(Command cmd);
@@ -45,7 +49,6 @@ public:
     generated::can::TxFcCounters GetCounters(void);
 
     // ---------- Behaviour ----------
-    void Init(void);
     void Update_100Hz(generated::can::PtBus& pt_can,
                       generated::can::VehBus& veh_can, amk::Request req_left,
                       amk::Request req_right);
@@ -68,4 +71,4 @@ private:
     bool inverter_enable = false;
 };
 
-}  // namespace motors
+}  // namespace macfe::fc

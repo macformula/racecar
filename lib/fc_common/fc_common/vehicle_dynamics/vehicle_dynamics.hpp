@@ -8,17 +8,17 @@
 #include "generated/can/veh_messages.hpp"
 #include "vehicle_dynamics_calc.hpp"
 
-namespace vehicle_dynamics {
+namespace macfe::fc {
 
 class VehicleDynamics {
 public:
-    explicit VehicleDynamics(sensors::driver::DriverSensors& sensors)
+    explicit VehicleDynamics(macfe::fc::sensors::DriverSensors& sensors)
         : driver_sensors(sensors) {
         Init(0);
     }
 
-    motors::Request GetLeftMotorRequest(void);
-    motors::Request GetRightMotorRequest(void);
+    amk::Request GetLeftMotorRequest(void);
+    amk::Request GetRightMotorRequest(void);
 
     void SetTorqueVectorEnable(bool enable);
     void SetTargetSlipRatio(float target_slip);
@@ -29,14 +29,14 @@ public:
     void Update_100Hz();
 
 private:
-    sensors::driver::DriverSensors& driver_sensors;
+    macfe::fc::sensors::DriverSensors& driver_sensors;
     float driver_torque_request = 0;
-    motors::Request left_request{};
-    motors::Request right_request{};
+    amk::Request left_request{};
+    amk::Request right_request{};
     generated::can::RxDashStatus::Profile_t profile{};
     float target_slip_ratio = 0;
     ctrl::TractionControl traction_ctrl{};
     bool torque_vector_enable = false;
 };
 
-}  // namespace vehicle_dynamics
+}  // namespace macfe::fc

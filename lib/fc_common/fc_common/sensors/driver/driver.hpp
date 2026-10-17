@@ -4,7 +4,7 @@
 #include "moving_average.hpp"
 #include "periph/analog_input.hpp"
 
-namespace sensors::driver {
+namespace macfe::fc::sensors {
 
 class DriverSensors {
 public:
@@ -41,4 +41,4 @@ private:
     macfe::MovingAverage<10> accel_percent2;
 };
 
-}  // namespace sensors::driver
+}  // namespace macfe::fc::sensors

@@ -8,7 +8,7 @@
 using namespace generated::can;
 using macfe::MovingAverage;
 
-namespace sensors::driver {
+namespace macfe::fc::sensors {
 
 // Using moving average to smooth transients
 
@@ -93,4 +93,4 @@ TxBppsSteerDebug DriverSensors::GetBppsSteerDebugMsg(void) {
     };
 }
 
-}  // namespace sensors::driver
+}  // namespace macfe::fc::sensors

@@ -5,7 +5,7 @@
 
 #include "fc_common/alerts/alerts.hpp"
 
-namespace hsd {
+namespace macfe::fc {
 
 static constexpr float kFaultThresholdV_4ch = 0.64f;
 static constexpr float kFaultThresholdV_1ch = 0.48f;
@@ -15,33 +15,24 @@ static constexpr float kVoltsToMa_1ch = 4000.0f / 0.3424f;  // HSD_2
 static constexpr uint8_t kTotalChannels = 5;
 static Reading channels[kTotalChannels];
 
-Reading HSD1Channel::Read(uint8_t channel) {
-    en_.SetHigh();
-    float v = isense_.ReadVoltage();
-    en_.SetLow();
+Reading HSD1::Read(uint8_t channel) {
+    _isense_en.SetHigh();
+    float v = _isense.ReadVoltage();
+    _isense_en.SetLow();
 
     return Reading{.current_ma = v * kVoltsToMa_1ch,
                    .fault = (v > kFaultThresholdV_1ch)};
 }
 
-Reading HSD4Channel::Read(uint8_t channel) {
-    sel0_.Set(channel & 0b01);
-    sel1_.Set(channel & 0b10);
-
-    en_.SetHigh();
-
-    float v = isense_.ReadVoltage();
-    bool overthreshold = (v > kFaultThresholdV_4ch);
-
-    if (overthreshold && prev_tick_ch4[channel] > kFaultThresholdV_4ch) {
-        overthreshold = true;
-
-    } else {
-        overthreshold = false;
-    }
-    prev_tick_ch4[channel] = v;
-
-    en_.SetLow();
+Reading HSD4::Read(uint8_t channel) {
+    _sel1.Set(channel & 0x01);
+    _sel2.Set(channel & 0x02);
+    _isense_en.SetHigh();
+    float v = _isense.ReadVoltage();
+    bool overthreshold = (v > kFaultThresholdV_4ch &&
+                          prev_tick_ch[channel] > kFaultThresholdV_4ch);
+    prev_tick_ch[channel] = v;
+    _isense_en.SetLow();
 
     return Reading{
         .current_ma = v * kVoltsToMa_4ch,
@@ -49,7 +40,7 @@ Reading HSD4Channel::Read(uint8_t channel) {
     };
 }
 
-bool HasOvercurrent() {
+bool HSD::HasOverCurrent() {
     for (const Reading& r : channels) {
         if (r.fault) {
             return true;
@@ -58,19 +49,17 @@ bool HasOvercurrent() {
     return false;
 }
 
-void Update_10Hz(HSD& hsd1, HSD& hsd2) {
-    // HSD1 - 4 Channels
-    channels[0] = hsd1.Read(0);
-    channels[1] = hsd1.Read(1);
-    channels[2] = hsd1.Read(2);
-    channels[3] = hsd1.Read(3);
+void HSD::Update_10Hz(generated::can::VehBus&) {
+    uint8_t channel_index = 0;
 
-    channels[4] =
-        hsd2.Read(0);  //  function requires channel but ideally should not
+    for (uint8_t hsd_index = 0; hsd_index < hsd_count; ++hsd_index) {
+        for (uint8_t channel = 0; channel < channels_per_hsd[hsd_index];
+             ++channel) {
+            _channels[channel_index++] = _hsds[hsd_index]->Read(channel);
+        }
+    }
 
-    bool any_fault = HasOvercurrent();
-
-    alerts::Get().hsd_overcurrent = any_fault;
+    alerts::Get().hsd_overcurrent = HasOverCurrent();
 }
 
 bool IsOverCurrent(uint8_t channel_index) {
@@ -84,4 +73,4 @@ float GetCurrent(uint8_t channel_index) {
     return channels[channel_index].current_ma;
 }
 
-}  // namespace hsd
+}  // namespace macfe::fc
