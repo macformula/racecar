@@ -16,16 +16,16 @@
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "generated/githash.hpp"
-#include "mcal/stm32f/analog_input.hpp"
-#include "mcal/stm32f/can.hpp"
-#include "mcal/stm32f/gpio.hpp"
-#include "mcal/stm32f/pwm.hpp"
 #include "periph/analog_input.hpp"
 #include "periph/gpio.hpp"
 #include "periph/pwm.hpp"
-#include "tms-common/fan_controller.hpp"
-#include "tms-common/temp_sensor.hpp"
-#include "tms-common/tms-common.hpp"
+#include "stm32f/analog_input.hpp"
+#include "stm32f/can.hpp"
+#include "stm32f/gpio.hpp"
+#include "stm32f/pwm.hpp"
+#include "tms_common/fan_controller.hpp"
+#include "tms_common/temp_sensor.hpp"
+#include "tms_common/tms_common.hpp"
 
 // FreeRTOS
 #include "FreeRTOS.h"
@@ -41,7 +41,7 @@ StackType_t t10hz_buffer[STACK_SIZE_WORDS];
 StaticTask_t t1hz_control_block;
 StackType_t t1hz_buffer[STACK_SIZE_WORDS];
 
-using namespace mcal::stm32f;
+using namespace macfe::stm32f;
 
 AnalogInput temp_sensor_adc_1{&hadc1, SENS_1_UC_IN_CHANNEL};
 AnalogInput temp_sensor_adc_2{&hadc1, SENS_2_UC_IN_CHANNEL};
