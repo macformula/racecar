@@ -3,9 +3,10 @@
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "optional"
-namespace macfe::lv {
 
 using namespace generated::can;
+namespace macfe::lv {
+
 using macfe::periph::DigitalOutput;
 enum Feedback : bool {
     // feedback is inverted relative to command
