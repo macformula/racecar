@@ -1,9 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
- * File Name          : FMC.h
- * Description        : This file provides code for the configuration
- *                      of the FMC peripheral.
+ * @file    dma2d.h
+ * @brief   This file contains all the function prototypes for
+ *          the dma2d.c file
  ******************************************************************************
  * @attention
  *
@@ -18,10 +18,11 @@
  */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __FMC_H
-#define __FMC_H
+#ifndef __DMA2D_H__
+#define __DMA2D_H__
+
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -31,15 +32,13 @@
 
 /* USER CODE END Includes */
 
-extern SDRAM_HandleTypeDef hsdram1;
+extern DMA2D_HandleTypeDef hdma2d;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-void MX_FMC_Init(void);
-void HAL_SDRAM_MspInit(SDRAM_HandleTypeDef* hsdram);
-void HAL_SDRAM_MspDeInit(SDRAM_HandleTypeDef* hsdram);
+void MX_DMA2D_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
@@ -48,12 +47,5 @@ void HAL_SDRAM_MspDeInit(SDRAM_HandleTypeDef* hsdram);
 #ifdef __cplusplus
 }
 #endif
-#endif /*__FMC_H */
 
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
+#endif /* __DMA2D_H__ */

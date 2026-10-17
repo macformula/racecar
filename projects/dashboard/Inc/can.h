@@ -1,9 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
- * @file    dsihost.h
+ * @file    can.h
  * @brief   This file contains all the function prototypes for
- *          the dsihost.c file
+ *          the can.c file
  ******************************************************************************
  * @attention
  *
@@ -18,8 +18,8 @@
  */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __DSIHOST_H__
-#define __DSIHOST_H__
+#ifndef __CAN_H__
+#define __CAN_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,13 +32,13 @@ extern "C" {
 
 /* USER CODE END Includes */
 
-extern DSI_HandleTypeDef hdsi;
+extern CAN_HandleTypeDef hcan1;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-void MX_DSIHOST_DSI_Init(void);
+void MX_CAN1_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
@@ -48,5 +48,4 @@ void MX_DSIHOST_DSI_Init(void);
 }
 #endif
 
-#endif /* __DSIHOST_H__ */
-
+#endif /* __CAN_H__ */

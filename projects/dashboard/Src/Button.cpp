@@ -1,7 +1,5 @@
 #include "Button.hpp"
 
-#include "bindings.hpp"
-
 Button::Button(macfe::periph::DigitalInput& input) : input_(input) {
     initialized_ = false;
     previous_state_ = false;

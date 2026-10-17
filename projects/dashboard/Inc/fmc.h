@@ -1,9 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
- * @file    can.h
- * @brief   This file contains all the function prototypes for
- *          the can.c file
+ * File Name          : FMC.h
+ * Description        : This file provides code for the configuration
+ *                      of the FMC peripheral.
  ******************************************************************************
  * @attention
  *
@@ -18,9 +18,8 @@
  */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __CAN_H__
-#define __CAN_H__
-
+#ifndef __FMC_H
+#define __FMC_H
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -32,13 +31,15 @@ extern "C" {
 
 /* USER CODE END Includes */
 
-extern CAN_HandleTypeDef hcan1;
+extern SDRAM_HandleTypeDef hsdram1;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-void MX_CAN1_Init(void);
+void MX_FMC_Init(void);
+void HAL_SDRAM_MspInit(SDRAM_HandleTypeDef* hsdram);
+void HAL_SDRAM_MspDeInit(SDRAM_HandleTypeDef* hsdram);
 
 /* USER CODE BEGIN Prototypes */
 
@@ -47,6 +48,12 @@ void MX_CAN1_Init(void);
 #ifdef __cplusplus
 }
 #endif
+#endif /*__FMC_H */
 
-#endif /* __CAN_H__ */
+/**
+ * @}
+ */
 
+/**
+ * @}
+ */

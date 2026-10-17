@@ -1,18 +1,25 @@
-#include "bindings.hpp"
+#ifdef __linux__
+#include <iostream>
+#endif
 
 #include <cstdint>
 
+#include "Button.hpp"
+#include "Display.hpp"
 #include "can.h"
 #include "dma.h"
 #include "dma2d.h"
 #include "dsihost.h"
+#include "generated/can/veh_bus.hpp"
+#include "generated/can/veh_messages.hpp"
 #include "gpio.h"
 #include "ltdc.h"
+#include "lvgl.h"
 #include "usart.h"
 
 // firmware includes
-#include "mcal/stm32f/can.hpp"
-#include "mcal/stm32f/gpio.hpp"
+#include "stm32f/can.hpp"
+#include "stm32f/gpio.hpp"
 
 // drivers
 #include "hal_stm_lvgl/screen_driver.h"
@@ -20,10 +27,16 @@
 #include "stm32469i_discovery_lcd.h"
 #include "stm32469i_discovery_sdram.h"
 
+using generated::can::kVehDbcHash;
+using generated::can::VehBus;
+using macfe::stm32f::DigitalInput;
+using macfe::stm32f::DigitalOutput;
+
 extern "C" {
 #include "hal_stm_lvgl/screen_driver.h"
 #include "stm32469i_discovery_sdram.h"
 extern void SystemClock_Config(void);
+extern lv_display_t* lv_display;
 }
 
 /// @brief  SDRAM refresh counter (90 MHz SD clock)
@@ -31,22 +44,18 @@ extern void SystemClock_Config(void);
 #define REFRESH_COUNT ((uint32_t)0x0569)
 #define SDRAM_TIMEOUT ((uint32_t)0xFFFF)
 
-namespace mcal {
-using namespace stm32f;
-
-CanBase veh_can_base{&hcan1};
-DigitalInput button_scroll_n{BUTTON_SCROLL_GPIO_Port, BUTTON_SCROLL_Pin};
-DigitalInput button_enter_n{BUTTON_SELECT_GPIO_Port, BUTTON_SELECT_Pin};
+macfe::stm32f::CanBase veh_can_base{&hcan1};
+macfe::stm32f::DigitalInput button_scroll_n{BUTTON_SCROLL_GPIO_Port,
+                                            BUTTON_SCROLL_Pin};
+macfe::stm32f::DigitalInput button_enter_n{BUTTON_SELECT_GPIO_Port,
+                                           BUTTON_SELECT_Pin};
 macfe::periph::InvertedDigitalInput button_scroll{button_scroll_n};
 macfe::periph::InvertedDigitalInput button_enter{button_enter_n};
 
-}  // namespace mcal
-
-namespace bindings {
-
-macfe::periph::CanBase& veh_can_base = mcal::veh_can_base;
-macfe::periph::DigitalInput& button_scroll = mcal::button_scroll;
-macfe::periph::DigitalInput& button_enter = mcal::button_enter;
+Button btn_enter{button_enter};
+Button btn_scroll{button_scroll};
+VehBus veh_can{veh_can_base};
+Display display{btn_enter, btn_scroll, veh_can};
 
 void Initialize() {
     HAL_Init();
@@ -74,7 +83,7 @@ void Initialize() {
     uint32_t systick_prio = NVIC_GetPriority(SysTick_IRQn);
     uint32_t can_prio = NVIC_GetPriority(CAN1_RX0_IRQn);
     MX_CAN1_Init();
-    mcal::veh_can_base.Setup();
+    veh_can_base.Setup();
     //! USEFUL
     // init display
     uint32_t ltdc_layer_index = 0; /* typically 0 or 1 */
@@ -106,4 +115,46 @@ void Shutdown() {
     // No-op on STM32, hardware doesn't shutdown via software
 }
 
-}  // namespace bindings
+using namespace generated::can;
+
+const int kUpdatePeriodMs = 20;
+static uint8_t tx_counter = 0;
+
+int main(void) {
+    Initialize();
+
+    display.Start();
+    while (!ShouldQuit()) {
+#ifdef __linux__
+        try {
+#endif
+
+            int time_ms = lv_tick_get();
+
+            display.Update(time_ms);
+
+            veh_can.Send(TxDashStatus{
+                .counter = tx_counter++,
+                .state = display.GetState(),
+                .profile = display.selected_profile,
+            });
+
+            DelayMS(kUpdatePeriodMs);
+#ifdef __linux__
+        } catch (const std::exception& e) {
+            std::cerr << "Exception in main loop: " << e.what() << std::endl;
+            break;
+        } catch (...) {
+            std::cerr << "Unknown exception in main loop" << std::endl;
+            break;
+        }
+#endif
+    }
+
+    // Clean shutdown
+    lv_deinit();
+    Shutdown();  // Note: On Linux, this calls _exit(0) and never
+                 // returns
+
+    return 0;  // Only reached on STM32
+}

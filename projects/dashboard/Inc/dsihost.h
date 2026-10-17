@@ -1,9 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
- * @file    dma2d.h
+ * @file    dsihost.h
  * @brief   This file contains all the function prototypes for
- *          the dma2d.c file
+ *          the dsihost.c file
  ******************************************************************************
  * @attention
  *
@@ -18,8 +18,8 @@
  */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __DMA2D_H__
-#define __DMA2D_H__
+#ifndef __DSIHOST_H__
+#define __DSIHOST_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,13 +32,13 @@ extern "C" {
 
 /* USER CODE END Includes */
 
-extern DMA2D_HandleTypeDef hdma2d;
+extern DSI_HandleTypeDef hdsi;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-void MX_DMA2D_Init(void);
+void MX_DSIHOST_DSI_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
@@ -48,5 +48,4 @@ void MX_DMA2D_Init(void);
 }
 #endif
 
-#endif /* __DMA2D_H__ */
-
+#endif /* __DSIHOST_H__ */

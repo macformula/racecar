@@ -1,9 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
- * @file    dma.h
+ * @file    usart.h
  * @brief   This file contains all the function prototypes for
- *          the dma.c file
+ *          the usart.c file
  ******************************************************************************
  * @attention
  *
@@ -16,11 +16,10 @@
  *
  ******************************************************************************
  */
-
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __DMA_H__
-#define __DMA_H__
+#ifndef __USART_H__
+#define __USART_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,18 +28,17 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-/* DMA memory to memory transfer handles -------------------------------------*/
-extern DMA_HandleTypeDef hdma_memtomem_dma2_stream0;
-
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
+
+extern UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
-void MX_DMA_Init(void);
+void MX_USART3_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
@@ -50,5 +48,4 @@ void MX_DMA_Init(void);
 }
 #endif
 
-#endif /* __DMA_H__ */
-
+#endif /* __USART_H__ */
