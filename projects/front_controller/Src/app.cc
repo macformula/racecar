@@ -102,7 +102,10 @@ generated::can::VehBus veh_can_bus{veh_can_base};
 generated::can::PtBus pt_can_bus{pt_can_base};
 
 // Controllers own their state; sensor dependencies are shared explicitly.
-macfe::fc::sensors::DriverSensors driver_sensors;
+macfe::fc::sensors::DriverSensors driver_sensors =
+    macfe::fc::sensors::DriverSensors(steering_angle_sensor,
+                                      brake_pressure_sensor,
+                                      accel_pedal_sensor1, accel_pedal_sensor2);
 macfe::fc::DriverInterface driver_controls{driver_sensors};
 macfe::fc::VehicleDynamics dynamics{driver_sensors};
 //! move state to state
@@ -446,9 +449,7 @@ void task_100hz(void* argument) {
     TickType_t wake_time = xTaskGetTickCount();
 
     while (true) {
-        driver_sensors.Update_100Hz(steering_angle_sensor,
-                                    brake_pressure_sensor, accel_pedal_sensor1,
-                                    accel_pedal_sensor2);
+        driver_sensors.Update_100Hz();
         sensors::dynamics::Update_100Hz(
             wheel_speed_front_left, wheel_speed_front_right,
             wheel_speed_rear_left, wheel_speed_rear_right);

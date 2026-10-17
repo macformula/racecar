@@ -8,29 +8,36 @@ namespace macfe::fc::sensors {
 
 class DriverSensors {
 public:
-    // Full Left = -1
-    // Straight = 0
-    // Full Right = +1
-    float GetSteeringWheel(void);
+    DriverSensors(macfe::periph::AnalogInput& steering_angle_sensor,
+                  macfe::periph::AnalogInput& brake_pressure_sensor,
+                  macfe::periph::AnalogInput& accel_pedal_sensor1,
+                  macfe::periph::AnalogInput& accel_pedal_sensor2)
+        : _steering_angle_sensor(steering_angle_sensor),
+          _brake_pressure_sensor(brake_pressure_sensor),
+          _accel_pedal_sensor1(accel_pedal_sensor1),
+          _accel_pedal_sensor2(accel_pedal_sensor2) {}
 
+    float GetSteeringWheel(void);
     float GetBrakePercent(void);
     float GetAccelPercent1(void);
     float GetAccelPercent2(void);
 
-    void Update_100Hz(macfe::periph::AnalogInput& steering_angle_sensor,
-                      macfe::periph::AnalogInput& brake_pressure_sensor,
-                      macfe::periph::AnalogInput& accel_pedal_sensor1,
-                      macfe::periph::AnalogInput& accel_pedal_sensor2);
+    void Update_100Hz(void);
 
     // Logging
     generated::can::TxAppsDebug GetAppsDebugMsg(void);
     generated::can::TxBppsSteerDebug GetBppsSteerDebugMsg(void);
 
 private:
-    void UpdateSteeringWheel(macfe::periph::AnalogInput& sensor);
-    void UpdateBrake(macfe::periph::AnalogInput& sensor);
-    void UpdatePedals(macfe::periph::AnalogInput& sensor1,
-                      macfe::periph::AnalogInput& sensor2);
+    void UpdateSteeringWheel(void);
+    void UpdateBrake(void);
+    void UpdatePedals(void);
+
+    macfe::periph::AnalogInput& _steering_angle_sensor;
+    macfe::periph::AnalogInput& _brake_pressure_sensor;
+    macfe::periph::AnalogInput& _accel_pedal_sensor1;
+    macfe::periph::AnalogInput& _accel_pedal_sensor2;
+
     float steer_v = 0;
     float brake_v = 0;
     float accel_v1 = 0;
