@@ -49,7 +49,11 @@
 
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
+<<<<<<<< HEAD:projects/front_controller/src/platforms/stm32-ev6/Src/shared/freertos.c
 uint32_t defaultTaskBuffer[128];
+========
+uint32_t defaultTaskBuffer[256];
+>>>>>>>> main:projects/tms/Src/freertos.c
 osStaticThreadDef_t defaultTaskControlBlock;
 
 /* Private function prototypes -----------------------------------------------*/
@@ -108,7 +112,11 @@ void MX_FREERTOS_Init(void) {
 
     /* Create the thread(s) */
     /* definition and creation of defaultTask */
+<<<<<<<< HEAD:projects/front_controller/src/platforms/stm32-ev6/Src/shared/freertos.c
     osThreadStaticDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128,
+========
+    osThreadStaticDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 256,
+>>>>>>>> main:projects/tms/Src/freertos.c
                       defaultTaskBuffer, &defaultTaskControlBlock);
     defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 

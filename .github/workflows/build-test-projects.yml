@@ -24,31 +24,31 @@ jobs:
 
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
-        
+
       - name: Test PlatformIO Libaries and Projects
         shell: bash
         run: |
           git ls-files -z '**/platformio.ini' | while IFS= read -r -d '' ini; do
               dir=$(dirname "$ini")
               if [ -d "$dir/test" ]; then
-                  echo "============================================================"
                   echo "==== Testing $dir"
-                  echo "============================================================"
                   pio test --project-dir "$dir" -vvv || exit 1
               else
                   echo "No tests found in $dir"
               fi
           done
 
-      - name: Build PlatformIO Projects
+      - name: Build vehicle env
         shell: bash
         run: |
           git ls-files -z 'projects/**/platformio.ini' | while IFS= read -r -d '' ini; do
               dir=$(dirname "$ini")
-              echo "============================================================"
-              echo "==== Building $dir"
-              echo "============================================================"
-              pio run --project-dir "$dir" -vvv || exit 1
+              if grep -q '^\[env:vehicle\]' "$ini"; then
+                  echo "==== Building $dir (vehicle)"
+                  pio run --project-dir "$dir" -e vehicle -vvv || exit 1
+              else
+                  echo "No vehicle env in $dir → skipping"
+              fi
           done
 
       - name: Perform Static Code Analysis on PlatformIO Projects

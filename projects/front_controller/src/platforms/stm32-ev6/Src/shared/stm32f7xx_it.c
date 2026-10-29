@@ -56,7 +56,10 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+<<<<<<<< HEAD:projects/front_controller/src/platforms/stm32-ev6/Src/shared/stm32f7xx_it.c
 extern CAN_HandleTypeDef hcan1;
+========
+>>>>>>>> main:projects/tms/Src/stm32f7xx_it.c
 extern CAN_HandleTypeDef hcan2;
 extern TIM_HandleTypeDef htim6;
 
@@ -152,6 +155,7 @@ void DebugMon_Handler(void) {
 /******************************************************************************/
 
 /**
+<<<<<<<< HEAD:projects/front_controller/src/platforms/stm32-ev6/Src/shared/stm32f7xx_it.c
  * @brief This function handles CAN1 TX interrupts.
  */
 void CAN1_TX_IRQHandler(void) {
@@ -178,6 +182,8 @@ void CAN1_RX0_IRQHandler(void) {
 }
 
 /**
+========
+>>>>>>>> main:projects/tms/Src/stm32f7xx_it.c
  * @brief This function handles TIM6 global interrupt, DAC1 and DAC2 underrun
  * error interrupts.
  */
@@ -192,6 +198,7 @@ void TIM6_DAC_IRQHandler(void) {
 }
 
 /**
+<<<<<<<< HEAD:projects/front_controller/src/platforms/stm32-ev6/Src/shared/stm32f7xx_it.c
  * @brief This function handles CAN2 TX interrupts.
  */
 void CAN2_TX_IRQHandler(void) {
@@ -205,6 +212,8 @@ void CAN2_TX_IRQHandler(void) {
 }
 
 /**
+========
+>>>>>>>> main:projects/tms/Src/stm32f7xx_it.c
  * @brief This function handles CAN2 RX0 interrupts.
  */
 void CAN2_RX0_IRQHandler(void) {

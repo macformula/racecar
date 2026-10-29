@@ -1,6 +1,9 @@
 canGen:
-  outputPath: include/generated/can
+  outputPath: Inc/generated/can
   busses:
     - name: veh
       node: DASH
       dbcFile: "../veh.dbc"
+    - name: pt
+      node: DASH
+      dbcFile: "../pt.dbc"

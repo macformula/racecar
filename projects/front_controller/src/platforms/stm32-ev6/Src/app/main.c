@@ -23,6 +23,10 @@
 #include "can.h"
 #include "cmsis_os.h"
 #include "gpio.h"
+<<<<<<<< HEAD:projects/front_controller/src/platforms/stm32-ev6/Src/app/main.c
+========
+#include "tim.h"
+>>>>>>>> main:projects/tms/Src/main.c
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -52,7 +56,10 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+<<<<<<<< HEAD:projects/front_controller/src/platforms/stm32-ev6/Src/app/main.c
 static void MPU_Config(void);
+========
+>>>>>>>> main:projects/tms/Src/main.c
 void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -89,10 +96,17 @@ void SystemClock_Config(void) {
     RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+<<<<<<<< HEAD:projects/front_controller/src/platforms/stm32-ev6/Src/app/main.c
     RCC_OscInitStruct.PLL.PLLM = 16;
     RCC_OscInitStruct.PLL.PLLN = 192;
     RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
     RCC_OscInitStruct.PLL.PLLQ = 2;
+========
+    RCC_OscInitStruct.PLL.PLLM = 8;
+    RCC_OscInitStruct.PLL.PLLN = 96;
+    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+    RCC_OscInitStruct.PLL.PLLQ = 4;
+>>>>>>>> main:projects/tms/Src/main.c
     RCC_OscInitStruct.PLL.PLLR = 2;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         Error_Handler();
@@ -122,6 +136,7 @@ void SystemClock_Config(void) {
 
 /* USER CODE END 4 */
 
+<<<<<<<< HEAD:projects/front_controller/src/platforms/stm32-ev6/Src/app/main.c
 /* MPU Configuration */
 
 void MPU_Config(void) {
@@ -149,6 +164,8 @@ void MPU_Config(void) {
     HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 }
 
+========
+>>>>>>>> main:projects/tms/Src/main.c
 /**
  * @brief  Period elapsed callback in non blocking mode
  * @note   This function is called  when TIM6 interrupt took place, inside
