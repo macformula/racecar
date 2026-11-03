@@ -1,0 +1,39 @@
+Yes. vcan is VM instance name. can0 and can1 are virtual CAN interfaces inside it.
+
+From macOS:
+
+limactl start vcan    # Start Linux VM
+limactl shell vcan    # Enter Linux terminal
+
+Inside VM, run commands directly:
+
+candump can0 can1
+cansend can0 123#1122334455667788
+
+sudo means “run as root”; it doesn’t enter VM. Your VM user already has passwordless sudo:
+
+sudo ip link show
+
+Want persistent root shell inside VM?
+
+sudo -i
+
+Leave root shell with exit. Another exit returns to macOS.
+
+From macOS, stop Linux:
+
+limactl stop vcan
+
+Open another macOS terminal and run limactl shell vcan for a second Linux session.
+
+
+
+dionx MINGW64 ~ 
+$ limactl shell vcan
+dionx@lima-vcan:~$ candump can0 can1
+  can0  123   [8]  11 22 33 44 55 66 77 88
+
+
+dionx MINGW64 ~ 
+$ limactl shell vcan
+dionx@lima-vcan:~$ cansend can0 123#1122334455667788

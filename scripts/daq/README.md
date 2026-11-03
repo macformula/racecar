@@ -192,14 +192,6 @@ To add a new fault signal, add an entry to `FAULT_SIGNALS` in `logger.py` with `
 
 ---
 
-## Go Bindings (legacy notes)
+## Go CAN Reader
 
-The Go files (`main.go`, `can.go`, `heartbeat.go`, `telemetry.go`) implement a Go-based CAN reader for the heartbeat system. The DBC bindings are generated with:
-
-```bash
-go get -u go.einride.tech/can
-cd dbc
-go run go.einride.tech/can/cmd/cantool generate ./ ../generated/
-```
-
-Note: the `Reset` message was removed from DashCommand in the DBC to avoid name conflicts in the generated Go bindings.
+The Go files (`main.go`, `can.go`, `telemetry.go`) record raw CAN frames to a local SQLite telemetry cache. They do not decode DBC messages or require generated Go bindings. The DBC files are still used by the Python logger for signal decoding.

@@ -323,6 +323,7 @@ def _candump_reader(
 
 
 def main() -> int:
+    # Parse command-line arguments
     parser = argparse.ArgumentParser(
         description='CAN data logger: candump -> DBC decode -> CSV + InfluxDB'
     )
@@ -342,6 +343,7 @@ def main() -> int:
 
     args = parser.parse_args()
 
+    # Determine paths relative to this script
     script_dir = Path(__file__).resolve().parent
 
     veh_dbc = script_dir / 'dbc' / 'veh.dbc'
@@ -354,6 +356,7 @@ def main() -> int:
         print(f'Error: veh.dbc not found at {veh_dbc}', file=sys.stderr)
         return 1
 
+    # Start InfluxDB client if environment variables are set; otherwise just log to CSV.
     init_influx()
 
     db = load_dbc(veh_dbc, pt_dbc)
