@@ -16,3 +16,5 @@ __pycache__/
 
 .pio
 generated/
+# canflash runtime state
+scripts/canflash/metadata.json

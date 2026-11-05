@@ -1,9 +1,97 @@
 name: Build and Test Projects
-on: [pull_request, workflow_dispatch]
-jobs:
-  build:
-    runs-on: ubuntu-latest
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      verbose:
+        description: 'Run PlatformIO with -vvv'
+        type: boolean
+        default: false
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  PIO_VERBOSE: ${{ inputs.verbose && '-vvv' || '' }}
+
+jobs:
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio
+          key: ${{ runner.os }}-py3.13-pio-unit-${{ hashFiles('**/platformio.ini') }}
+          restore-keys: ${{ runner.os }}-py3.13-pio-unit-
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      - name: Test PlatformIO Libraries and Projects
+        shell: bash
+        run: |
+          failed=()
+          while IFS= read -r -d '' ini; do
+              dir=$(dirname "$ini")
+              if [ -d "$dir/test" ]; then
+                  echo "==== Testing $dir"
+                  pio test --project-dir "$dir" $PIO_VERBOSE || failed+=("$dir")
+              else
+                  echo "No tests found in $dir"
+              fi
+          done < <(git ls-files -z '**/platformio.ini')
+
+          if [ ${#failed[@]} -ne 0 ]; then
+              echo "::error::Tests failed in: ${failed[*]}"
+              exit 1
+          fi
+
+  build-vehicle:
+    name: Build ${{ matrix.project }} (vehicle)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Keep in sync with: grep -l '^\[env:vehicle\]' projects/*/platformio.ini
+        project: [dashboard, front_controller, lvcontroller, tms]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio
+          key: ${{ runner.os }}-py3.13-pio-${{ matrix.project }}-${{ hashFiles(format('projects/{0}/platformio.ini', matrix.project), 'lib/**/platformio.ini') }}
+          restore-keys: ${{ runner.os }}-py3.13-pio-${{ matrix.project }}-
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      - name: Build vehicle env
+        run: pio run --project-dir projects/${{ matrix.project }} -e vehicle $PIO_VERBOSE
+
+  static-analysis:
+    name: Static analysis
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -14,8 +102,9 @@ jobs:
         with:
           path: |
             ~/.cache/pip
-            ~/.platformio/.cache
-          key: ${{ runner.os }}-pio
+            ~/.platformio
+          key: ${{ runner.os }}-py3.13-pio-check-${{ hashFiles('**/platformio.ini') }}
+          restore-keys: ${{ runner.os }}-py3.13-pio-check-
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -24,32 +113,6 @@ jobs:
 
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
-
-      - name: Test PlatformIO Libaries and Projects
-        shell: bash
-        run: |
-          git ls-files -z '**/platformio.ini' | while IFS= read -r -d '' ini; do
-              dir=$(dirname "$ini")
-              if [ -d "$dir/test" ]; then
-                  echo "==== Testing $dir"
-                  pio test --project-dir "$dir" -vvv || exit 1
-              else
-                  echo "No tests found in $dir"
-              fi
-          done
-
-      - name: Build vehicle env
-        shell: bash
-        run: |
-          git ls-files -z 'projects/**/platformio.ini' | while IFS= read -r -d '' ini; do
-              dir=$(dirname "$ini")
-              if grep -q '^\[env:vehicle\]' "$ini"; then
-                  echo "==== Building $dir (vehicle)"
-                  pio run --project-dir "$dir" -e vehicle -vvv || exit 1
-              else
-                  echo "No vehicle env in $dir → skipping"
-              fi
-          done
 
       - name: Perform Static Code Analysis on PlatformIO Projects
         shell: bash
