@@ -21,10 +21,7 @@
 
 #include <string.h>
 
-#include "adc.h"
 #include "can.h"
-#include "cmsis_os.h"
-#include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -197,20 +194,21 @@ HAL_StatusTypeDef ReceiveFirmwareBlock(uint32_t firmware_can_id,
 
         if (header.DLC == 0U || header.DLC > 8U) {
             return HAL_ERROR;
-
-            uint32_t remaining = block_bytes - receieved;
-            uint32_t count = header.DLC;
-
-            if (count > remaining) {
-                count = remaining;
-            }
-
-            memcpy(&buffer[receieved], data, count);
-            receieved += count;
-            last_rx = HAL_GetTick();
         }
-        return HAL_OK;
+
+        uint32_t remaining = block_bytes - receieved;
+        uint32_t count = header.DLC;
+
+        if (count > remaining) {
+            count = remaining;
+        }
+
+        memcpy(&buffer[receieved], data, count);
+        receieved += count;
+        last_rx = HAL_GetTick();
     }
+
+    return HAL_OK;
 }
 
 HAL_StatusTypeDef WriteFirmwareBlock(uint32_t address, const uint8_t* buffer,
@@ -478,7 +476,7 @@ int main(void) {
     // 3. Extract the Application's Stack Pointer and Reset Handler
     uint32_t app_stack_pointer = *(__IO uint32_t*)APP_ADDRESS;
     uint32_t app_entry_address = *(__IO uint32_t*)(APP_ADDRESS + 4);
-    pFunction app_entry = (pFunction)app_entry_address;
+    void (*app_entry)(void) = (void (*)(void))app_entry_address;
 
     // 4. Set the Main Stack Pointer
     __set_MSP(app_stack_pointer);
