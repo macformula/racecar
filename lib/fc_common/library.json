@@ -1,0 +1,9 @@
+{
+  "name": "fc_common",
+  "version": "0.1.0",
+  "description": "Shared Front Controller application logic",
+  "build": {
+    "srcDir": "fc_common",
+    "includeDir": "."
+  }
+}

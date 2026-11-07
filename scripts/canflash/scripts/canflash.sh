@@ -32,7 +32,7 @@ sudo ip link set can0 up type can bitrate 500000
 sleep 1
 
 # Send reset CAN message
-canprog -n can0 send 0x6D "$(printf "%02X" "$ecu")"
+canprog -n can0 send 0x8C "$(printf "%02X" "$ecu")"
 sleep 1
 
 # Enable the can0 interface at 125kbps flash rate
