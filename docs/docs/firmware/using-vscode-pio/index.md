@@ -1,129 +1,54 @@
 # Using VS Code and PlatformIO
 
-## Openning a Project
+## Open a project
 
-Open a new VS Code window. Go to the Platform IO homepage by clicking the :material-home: icon in the Status Bar.
+Open the PlatformIO Home page from the VS Code status bar (:material-home:) or
+with ++f1++ → `PlatformIO: PlatformIO Home`, then choose **Open Project** and
+select a folder under `projects/`.
 
-![](img/pio-home-button.png)
+For the car firmware, open the ECU you are working on, for example
+`projects/front_controller`. Each production project contains:
 
-??? tip "I don't see the :material-home:"
+```text
+front_controller/
+├── Src/              application and CubeMX source
+├── Inc/              headers and generated CAN code
+├── lib/              symlinks to the shared libraries
+├── config.yaml       CAN generation settings
+└── platformio.ini    build environments
+```
 
-    You can alternatively open the PlatformIO homepage running the Command Palette with ++f1++ then typing `PlatformIO: PlatformIO Home`.
+The application entry point is `Src/app.cc`. See
+[Software layout](../../architecture/software.md) for the full repository
+structure.
 
-From PlatformIO Home, click **Open Project** and open `racecar/projects/demo/blink`.
+## Select an environment
 
-![](img/open-project.png)
+Use the PlatformIO status-bar menu to choose an environment:
 
-![](img/demo-blink.png)
+- **`vehicle`** builds for the real board and is the only environment used by
+  the four production ECUs.
+- Demo projects under `projects/demo/` may also offer host environments such as
+  `cli` or `linux`. These are teaching and simulation aids.
 
-You should now see the files and folders in for the `blink` project.
+## Build and upload
 
-![](img/folder.png)
+Use the PlatformIO buttons in the status bar:
 
-## Project Structure
+- :material-check: **Build** compiles the selected environment.
+- :material-arrow-right: **Upload** flashes the board over ST-Link.
 
-Every project uses the same structure, so let's explore the itema in the `demo/blink` project. Click on a file to open it in the VS Code window.
+The same actions from a terminal:
 
-=== "platformio.ini"
+```bash
+cd projects/front_controller
+pio run -e vehicle
+pio run -e vehicle -t upload
+```
 
-    This file describes how to compile the project.
+A build regenerates the CAN headers from the DBC files and embeds the current
+Git hash. The first build installs the toolchain and libraries and is slower
+than later builds.
 
-    ```ini
-    [platformio]
-    name = "Blink"
-    description = "A simple program to toggle a digital output."
-
-    [env]
-    ... # omitted for simplicity
-
-    [common]
-    ...
-
-    [env:stm32f767]
-    ...
-
-    [env:stm32f469]
-    ...
-
-    [env:cli]
-    ...
-
-    [env:linux]
-    ...
-    ```
-
-    PlatformIO uses __environments__ to let you define different compilation instructions for different platforms.
-
-    This file shows that the Blink project is defined for 4 environments: STM32F767, STM32F469, a generic Command Line Interface, and the Linux CLI.
-
-    ??? question "What is the difference between the Linux and Generic CLI environments?"
-
-        Linux computers have certain features that aren't available on Windows and Mac, namely it supports CAN at the kernel layer (see <https://netmodule-linux.readthedocs.io/en/latest/howto/can.html>).
-
-        This means that projects using CAN are better simulated on a Linux machine. The Blink project doesn't use CAN, so there is no difference.
-
-=== "README.md"
-
-    Whenever you see a README file, __read it__! It provides useful information about the code around it.
-
-    ![](img/readme.png)
-
-=== "src/"
-
-    This folder contains the project "source code" (hence "src"), which is C and C++ code that tells the processor _what to do_.
-
-    ![](img/src.png)
-
-    Every project has a `main.cc` file with a `main()` function. This is where the program starts. Other projects may have more `.cc` files.
-
-    The `src/` folder also has a `platforms/` folder, with one subfolder per environment. This subfolder connects the abstract `main` code to a specific environment platform.
-    
-    Finally, there is a symlink to `racecar/lib/mcal`. MCAL stands for "Micro-Controller Abstraction Layer," more on that in [Architecture](../architecture/index.md).
-
-    ??? question "What is a symlink?"
-
-        A symlink (symbolic link) is a "link" to another file or folder. It lets you easily reference far-away files.
-        
-        In our case, we write the `mcal` code once, in `racecar/lib/mcal`, but want all projects to use it. A symlink lets each project reference the same `mcal`.
-
-=== "include/"
-
-    These are C++ header files which don't contain source code themselves, but are "included" by other source files in `src/`
-
-    ![](img/include.png)
-
-=== "lib/"
-
-    Library code is code which we write _once_ for use in _many_ projects. Each project's `lib/` folder contains symlinks to folders `racecar/lib` depending on which shared code it needs to use.
-
-    For example, if you want to use a Lookup Table in a project, you would add a symlink to `racecar/lib/lookup_table`.
-
-    ![](img/lib.png)
-
-=== ".pio and .vscode"
-
-    These are "hidden" folders managed by PlatformIO. You should not edit them.
-
----
-
-## Building and Uploading with PlatformIO
-
-First, select which environment / platform you'd like to compile for. Since the Blink project supports CLI, we will be able to run it in our terminal, so let's select the `cli` environment.
-
-![](img/envcli.png)
-
-PlatformIO will quickly reconfigure itself for the new environment.
-
-Click the Build button :material-check: to build / compile the project. PlatformIO will open a window and display progress and any errors.
-
-> The first build may be slow since PlatformIO needs to install dependencies for each project and environment. Successive builds will be much faster.
-
-![](img/build.png)
-
-Click the Upload button :material-arrow-right: to run the Blink program in your CLI.
-
-![](img/upload.png)
-
----
-
-To upload to STM, see [Uploading Firmware to STM](../flashing/index.md).
+To connect an ST-Link to a vehicle ECU, see
+[Uploading firmware to STM](../flashing/index.md).
