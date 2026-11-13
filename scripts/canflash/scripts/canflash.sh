@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Flash a binary file to an ECU using the CAN bus
 # Runs on Raspberry Pi with a CAN hat attachment
