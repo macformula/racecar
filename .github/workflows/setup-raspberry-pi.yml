@@ -1,0 +1,33 @@
+name: Setup Raspberry Pi
+
+on:
+  # push:
+  workflow_dispatch:
+
+jobs:
+  setup-raspberry-pi:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Tailscale
+      run: |
+        curl -fsSL https://tailscale.com/install.sh | sh
+
+    - name: Add Machine to Tailscale Network
+      uses: tailscale/github-action@v2
+      with:
+        oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+        oauth-secret: ${{ secrets.TAILSCALE_OAUTH_CLIENT_SECRET }}
+        tags: tag:ci
+
+    - name: Install Ansible
+      run: |
+        sudo apt update
+        sudo apt install -y ansible
+
+    - name: Run Ansible Setup Playbook on Raspberry Pi
+      run: |
+        ansible-playbook -i scripts/hil/inventory.yml scripts/hil/setup_raspberry_pi.yml

@@ -1,0 +1,54 @@
+name: Build Project
+
+on:
+  workflow_call:
+    inputs:
+      project:
+        description: 'Project to build (i.e. Demo/Blink)'
+        required: true
+        type: string
+      platform:
+        description: 'Platform to build for (i.e. cli, stm32f767)'
+        required: true
+        type: string
+
+jobs:
+  build-upload-project:
+    runs-on: 'self-hosted'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+            submodules: true
+
+      - name: Setup Python
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install -e scripts/cangen
+
+      - name: Build ${{ inputs.project }} for ${{ inputs.platform }}
+        run: |
+          source .venv/bin/activate
+          cd firmware
+          make PROJECT=${{ inputs.project }} PLATFORM=${{ inputs.platform }} build
+
+      - name: Prepare artifact name
+        id: prepare-artifact-name
+        run: |
+          project_name="${{ inputs.project }}" 
+          project_name="${project_name//\//-}"
+          github_sha="${{ github.sha }}"
+          github_sha="${github_sha:0:7}"
+          artifact_name="build-${project_name}-${{ inputs.platform }}-${github_sha}"
+          echo "artifact_name=${artifact_name}" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: firmware/build/${{ inputs.project }}/${{ inputs.platform }}
+          name: ${{ steps.prepare-artifact-name.outputs.artifact_name }}
+
+      - name: Upload File to Raspberry Pi
+        run: |
+          scp -r firmware/build/${{ inputs.project }}/${{ inputs.platform }} macformula@100.73.87.83:${{ steps.prepare-artifact-name.outputs.artifact_name }}/
