@@ -1,6 +1,6 @@
-#include "AcknowledgeConfig.hpp"
+#include "dash_common/screens/AcknowledgeConfig.hpp"
 
-#include "Display.hpp"
+#include "dash_common/Display.hpp"
 #include "lvgl.h"
 
 AcknowledgeConfig::AcknowledgeConfig(Display* display) : Screen(display) {}

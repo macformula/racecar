@@ -1,4 +1,4 @@
-#include "StatusBar.hpp"
+#include "dash_common/screens/StatusBar.hpp"
 
 StatusBar::StatusBar()
     : bar_container_(nullptr), icon_container_(nullptr), next_warning_id_(1) {}

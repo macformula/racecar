@@ -4,9 +4,9 @@
 
 #include <cstdint>
 
-#include "Button.hpp"
-#include "Display.hpp"
 #include "can.h"
+#include "dash_common/Button.hpp"
+#include "dash_common/Display.hpp"
 #include "dma.h"
 #include "dma2d.h"
 #include "dsihost.h"
@@ -17,6 +17,31 @@
 #include "lvgl.h"
 #include "usart.h"
 
+// screens
+#include "dash_common/screens/AcknowledgeConfig.cpp"
+#include "dash_common/screens/AcknowledgeConfig.hpp"
+#include "dash_common/screens/ConfirmMenu.cpp"
+#include "dash_common/screens/ConfirmMenu.hpp"
+#include "dash_common/screens/DriveModeMenu.cpp"
+#include "dash_common/screens/DriveModeMenu.hpp"
+#include "dash_common/screens/ErrorScreen.cpp"
+#include "dash_common/screens/ErrorScreen.hpp"
+#include "dash_common/screens/ProfileSelect.cpp"
+#include "dash_common/screens/ProfileSelect.hpp"
+#include "dash_common/screens/Shutdown.cpp"
+#include "dash_common/screens/Shutdown.hpp"
+#include "dash_common/screens/StartDriving.cpp"
+#include "dash_common/screens/StartDriving.hpp"
+#include "dash_common/screens/StartHV.cpp"
+#include "dash_common/screens/StartHV.hpp"
+#include "dash_common/screens/StartMotors.cpp"
+#include "dash_common/screens/StartMotors.hpp"
+#include "dash_common/screens/StartingHV.cpp"
+#include "dash_common/screens/StartingHV.hpp"
+#include "dash_common/screens/StartingMotors.cpp"
+#include "dash_common/screens/StartingMotors.hpp"
+#include "dash_common/screens/StatusBar.cpp"
+#include "dash_common/screens/StatusBar.hpp"
 // firmware includes
 #include "stm32f/can.hpp"
 #include "stm32f/gpio.hpp"

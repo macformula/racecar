@@ -1,6 +1,6 @@
-#include "ConfirmMenu.hpp"
+#include "dash_common/screens/ConfirmMenu.hpp"
 
-#include "Display.hpp"
+#include "dash_common/Display.hpp"
 #include "generated/can/veh_bus.hpp"
 
 ConfirmMenu::ConfirmMenu(Display* display) : Screen(display) {}
