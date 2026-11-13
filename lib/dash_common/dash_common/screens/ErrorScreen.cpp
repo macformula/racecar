@@ -1,7 +1,7 @@
-#include "ErrorScreen.hpp"
+#include "dash_common/screens/ErrorScreen.hpp"
 
-#include "Button.hpp"
-#include "Display.hpp"
+#include "dash_common/Button.hpp"
+#include "dash_common/Display.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "lvgl.h"
 

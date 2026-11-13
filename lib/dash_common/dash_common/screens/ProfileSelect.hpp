@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Screen.hpp"
+#include "dash_common/Screen.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "lvgl.h"
 

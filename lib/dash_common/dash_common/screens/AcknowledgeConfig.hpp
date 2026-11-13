@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Screen.hpp"
+#include "dash_common/Screen.hpp"
 
 class AcknowledgeConfig : public Screen {
 public:

@@ -1,7 +1,7 @@
-#include "StartingHV.hpp"
+#include "dash_common/screens/StartingHV.hpp"
 
-#include "Button.hpp"
-#include "Display.hpp"
+#include "dash_common/Button.hpp"
+#include "dash_common/Display.hpp"
 
 StartingHV::StartingHV(Display* display) : Screen(display) {}
 

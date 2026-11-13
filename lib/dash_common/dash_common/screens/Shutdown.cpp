@@ -1,6 +1,6 @@
-#include "Shutdown.hpp"
+#include "dash_common/screens/Shutdown.hpp"
 
-#include "Display.hpp"
+#include "dash_common/Display.hpp"
 #include "lvgl.h"
 
 Shutdown::Shutdown(Display* display) : Screen(display) {}

@@ -1,6 +1,6 @@
-#include "ProfileSelect.hpp"
+#include "dash_common/screens/ProfileSelect.hpp"
 
-#include "Display.hpp"
+#include "dash_common/Display.hpp"
 #include "generated/can/veh_bus.hpp"
 
 ProfileSelect::ProfileSelect(Display* display) : Screen(display) {}
