@@ -24,17 +24,18 @@ CSV logging continues without InfluxDB. Telemetry is best effort: failed batches
 The Pi needs CAN hardware and drivers that expose `can0` and `can1`. Install the tools once:
 
 ```sh
-sudo apt update
-sudo apt install can-utils iproute2 ca-certificates
+bash setup_pi.sh
 ```
 
-Check the interfaces with `ip -details link show can0` and `ip -details link show can1`. If an interface is down, bring it up with its correct bitrate, for example:
+Run the script on the Pi from `scripts/daq`. It installs CAN tools and brings up `can0` and `can1` at 500 kbit/s. Set `CAN_BITRATE` for a different bitrate, or pass interface names for a single bus. Interfaces already up are left unchanged. Check their settings with `ip -details link show can0` and `ip -details link show can1`. To bring up an interface manually:
 
 ```sh
 sudo ip link set can0 up type can bitrate 500000
 ```
 
 Repeat for `can1`. Manual CAN setup may need to be repeated after reboot.
+
+To install InfluxDB and Grafana on a Debian-based machine, run `bash setup.sh` there. This optional script adds their package repositories and starts both services. It does not create the InfluxDB organization, bucket, or token.
 
 ### Build and copy
 
@@ -85,13 +86,11 @@ go test -mod=readonly ./...
 go vet -mod=readonly ./...
 ```
 
-For a Linux VM with `can-utils`, `iproute2`, and kernel `vcan` support, create a virtual bus and run DAQ against it:
+On a Debian-based Linux VM with kernel `vcan` support, create two virtual buses and run DAQ against them:
 
 ```sh
-sudo modprobe vcan
-sudo ip link add dev vcan0 type vcan
-sudo ip link set vcan0 up
-./mac-daq --interfaces vcan0
+bash setup_vm.sh
+./mac-daq --interfaces vcan0 vcan1
 ```
 
 In another terminal, send a sample frame:
@@ -100,7 +99,7 @@ In another terminal, send a sample frame:
 cansend vcan0 624#58028813000000
 ```
 
-Check the CSV in `logs/` for decoded signals. Create `vcan1` the same way to test two interfaces.
+Check the CSV in `logs/` for decoded signals. The virtual interfaces may need to be recreated after reboot.
 
 Optional manual Python tools live in `tests/`. Install `cantools`, `influxdb-client`, and `python-dotenv`, then run `python3 tests/test_encode.py` or `python3 tests/test_influx.py`. The InfluxDB test writes simulated data to the bucket configured in `.env`.
 
