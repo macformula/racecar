@@ -139,6 +139,8 @@ macfe::lv::Motor_Controller Motor_Controller = macfe::lv::Motor_Controller(
 macfe::lv::TSSI TSSI = macfe::lv::TSSI(tssi_en, tssi_red_signal,
                                        tssi_green_signal, imd_fault, bms_fault);
 
+//! REMOVE THIS
+DigitalOutput blinker{OUTPUTNOAH_GPIO_Port, OUTPUTNOAH_Pin};
 extern "C" {
 /**
  * This requires extern since it is not declared in a header, only defined
@@ -383,6 +385,17 @@ void task_1hz(void) {
     veh_can.Send(generated::can::TxIMD_Request{
         .index = 0x4A});  // ask for warning threshold
     veh_can.GetRxIMD_Response();
+    static bool high = false;
+    high = !high;
+    blinker.Set(high);
+
+    while (1) {
+        HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
+        HAL_Delay(500);
+        // for (int i = 0; i < 500000; i++) {
+        break;
+        // }
+    }
 }
 
 void task_10hz(void) {
@@ -424,6 +437,24 @@ void task_100hz(void) {
 }
 
 int main(void) {
+    Initialize();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+
+    GPIO_InitTypeDef gpio = {0};
+    gpio.Pin = GPIO_PIN_0;
+    gpio.Mode = GPIO_MODE_OUTPUT_PP;
+    gpio.Pull = GPIO_PULLUP;
+    gpio.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOB, &gpio);
+
+    while (1) {
+        HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
+        HAL_Delay(500);
+        // for (int i = 0; i < 500000; i++) {
+        // }
+        break;
+    }
+
     fsm::Init();
 
     scheduler::register_task(task_100hz, 10);

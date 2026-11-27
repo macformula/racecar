@@ -85,6 +85,8 @@ void Error_Handler(void);
 #define TSSI_GN_SIG_GPIO_Port GPIOC
 #define FAN_PWM_INVERT_Pin GPIO_PIN_0
 #define FAN_PWM_INVERT_GPIO_Port GPIOA
+#define OUTPUTNOAH_Pin GPIO_PIN_3
+#define OUTPUTNOAH_GPIO_Port GPIOA
 #define STP4_SIG_Pin GPIO_PIN_4
 #define STP4_SIG_GPIO_Port GPIOC
 #define STP3_SIG_Pin GPIO_PIN_5
