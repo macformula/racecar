@@ -16,3 +16,6 @@ __pycache__/
 
 .pio
 generated/
+
+#nix (flakes can't be gitignored easily)
+.direnv
