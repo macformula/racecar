@@ -388,6 +388,14 @@ void task_1hz(void) {
     static bool high = false;
     high = !high;
     blinker.Set(high);
+
+    while (1) {
+        HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
+        HAL_Delay(500);
+        // for (int i = 0; i < 500000; i++) {
+        break;
+        // }
+    }
 }
 
 void task_10hz(void) {
@@ -429,6 +437,24 @@ void task_100hz(void) {
 }
 
 int main(void) {
+    Initialize();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+
+    GPIO_InitTypeDef gpio = {0};
+    gpio.Pin = GPIO_PIN_0;
+    gpio.Mode = GPIO_MODE_OUTPUT_PP;
+    gpio.Pull = GPIO_PULLUP;
+    gpio.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOB, &gpio);
+
+    while (1) {
+        HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
+        HAL_Delay(500);
+        // for (int i = 0; i < 500000; i++) {
+        // }
+        break;
+    }
+
     fsm::Init();
 
     scheduler::register_task(task_100hz, 10);
