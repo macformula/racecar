@@ -71,7 +71,6 @@ plugins:
       skip_files:
       - credits.md
       - coverage.md
-      - reference/* 
 
       # whether to only check in strict mode
       strict_only: yes
@@ -127,18 +126,21 @@ extra:
 nav:
   - Home:
     - index.md
+  - Architecture:
+    - architecture/index.md
+    - Software layout: architecture/software.md
+    - CAN: architecture/can.md
+    - Startup and governor: architecture/startup.md
+    - Front controller: architecture/front-controller.md
+    - LV controller: architecture/lv-controller.md
+    - Dashboard: architecture/dashboard.md
+    - TMS: architecture/tms.md
+    - Build and tools: architecture/tools.md
   - Firmware:
     - firmware/index.md
     - firmware/dev-setup/index.md
     - firmware/using-vscode-pio/index.md
     - firmware/flashing/index.md
-    # # The following documents need to be updated for PlatformIO
-    # - firmware/architecture/index.md
-    # - firmware/project-structure/index.md
-    # - STM32 Platform:
-    #   - firmware/stm32/start-cubemx-project.md
-    #   - firmware/stm32/configure.md
-    #   - firmware/stm32/bindings.md
     - firmware/can-traffic/index.md
   - Tutorials:
     - tutorials/index.md

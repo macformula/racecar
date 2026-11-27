@@ -1,3 +1,62 @@
 :root {
     --md-primary-fg-color: #C22A00;
 }
+
+/* ------------------------------------------------------------------
+   Architecture hero styling
+   ------------------------------------------------------------------ */
+
+.md-typeset .architecture-hero {
+    margin: 0 0 1.2rem;
+    padding: 1.6rem 1.8rem;
+    border-radius: 0.4rem;
+    background: linear-gradient(135deg, #c22a00 0%, #7d1a00 100%);
+    color: #fff;
+}
+
+.md-typeset .architecture-hero h2 {
+    margin-top: 0;
+    color: #fff;
+    font-weight: 700;
+}
+
+.md-typeset .architecture-hero p {
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.md-typeset .architecture-hero .architecture-eyebrow {
+    display: inline-block;
+    margin-bottom: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.md-typeset .architecture-hero .md-button {
+    margin: 0.4rem 0.4rem 0 0;
+    border-color: rgba(255, 255, 255, 0.7);
+    color: #fff;
+}
+
+.md-typeset .architecture-hero .md-button--primary {
+    background-color: #fff;
+    border-color: #fff;
+    color: #c22a00;
+}
+
+.md-typeset .architecture-hero .md-button--primary:hover {
+    background-color: rgba(255, 255, 255, 0.88);
+    border-color: rgba(255, 255, 255, 0.88);
+}
+
+/* Keep wide diagrams and tables readable on large screens. */
+.md-typeset .mermaid {
+    text-align: center;
+}
+
+.md-typeset table:not([class]) th,
+.md-typeset table:not([class]) td {
+    white-space: normal;
+}

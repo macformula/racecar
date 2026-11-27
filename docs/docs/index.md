@@ -12,6 +12,8 @@ hide:
 
 - ## [:octicons-book-16: __Tutorials__](tutorials/index.md)
 
+- ## [:material-state-machine: __System Architecture__](architecture/index.md)
+
 </div>
 
 ## Using this documentation

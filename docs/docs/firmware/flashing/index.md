@@ -60,6 +60,6 @@
 
 ## Upload with PlatformIO
 
-Open a PlatformIO project in VS Code. Select the STM environment and click upload.
+Open a PlatformIO project in VS Code. Select the `vehicle` environment and click upload.
 
 ![](img/stm-upload.png)
