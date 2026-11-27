@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StatusBar.hpp"
+#include "dash_common/screens/StatusBar.hpp"
 #include "generated/can/veh_bus.hpp"
 #include "generated/can/veh_messages.hpp"
 #include "lvgl.h"

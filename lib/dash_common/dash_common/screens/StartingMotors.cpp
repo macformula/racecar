@@ -1,6 +1,6 @@
-#include "StartingMotors.hpp"
+#include "dash_common/screens/StartingMotors.hpp"
 
-#include "Display.hpp"
+#include "dash_common/Display.hpp"
 #include "lvgl.h"
 
 StartingMotors::StartingMotors(Display* display) : Screen(display) {}

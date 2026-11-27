@@ -1,6 +1,6 @@
-#include "StartHV.hpp"
+#include "dash_common/screens/StartHV.hpp"
 
-#include "Display.hpp"
+#include "dash_common/Display.hpp"
 #include "lvgl.h"
 
 StartHV::StartHV(Display* display) : Screen(display) {}

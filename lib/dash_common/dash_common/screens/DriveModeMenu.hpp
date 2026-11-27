@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Screen.hpp"
+#include "dash_common/Screen.hpp"
 #include "etl/circular_buffer.h"
 #include "etl/vector.h"
 #include "lvgl.h"

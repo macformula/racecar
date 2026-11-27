@@ -1,6 +1,6 @@
-#include "StartDriving.hpp"
+#include "dash_common/screens/StartDriving.hpp"
 
-#include "Display.hpp"
+#include "dash_common/Display.hpp"
 #include "lvgl.h"
 
 StartDriving::StartDriving(Display* display) : Screen(display) {}

@@ -1,6 +1,6 @@
-#include "DriveModeMenu.hpp"
+#include "dash_common/screens/DriveModeMenu.hpp"
 
-#include "Display.hpp"
+#include "dash_common/Display.hpp"
 #include "lvgl.h"
 
 // ─────────────────────────────────────────────────────────────

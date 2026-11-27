@@ -1,4 +1,4 @@
-#include "Button.hpp"
+#include "dash_common/Button.hpp"
 
 Button::Button(macfe::periph::DigitalInput& input) : input_(input) {
     initialized_ = false;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Screen.hpp"
+#include "dash_common/Screen.hpp"
 
 class StartMotors : public Screen {
 public:
