@@ -64,6 +64,9 @@ void MX_GPIO_Init(void) {
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(OUTPUTNOAH_GPIO_Port, OUTPUTNOAH_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOF,
         HSD4_I_SENSE_EN_Pin | HSD4_SEL_Pin | HSD5_I_SENSE_EN_Pin | HSD5_SEL_Pin,
@@ -102,6 +105,13 @@ void MX_GPIO_Init(void) {
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : OUTPUTNOAH_Pin */
+    GPIO_InitStruct.Pin = OUTPUTNOAH_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(OUTPUTNOAH_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : HSD4_I_SENSE_EN_Pin HSD4_SEL_Pin HSD5_I_SENSE_EN_Pin
      * HSD5_SEL_Pin */

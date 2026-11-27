@@ -139,6 +139,8 @@ macfe::lv::Motor_Controller Motor_Controller = macfe::lv::Motor_Controller(
 macfe::lv::TSSI TSSI = macfe::lv::TSSI(tssi_en, tssi_red_signal,
                                        tssi_green_signal, imd_fault, bms_fault);
 
+//! REMOVE THIS
+DigitalOutput blinker{OUTPUTNOAH_GPIO_Port, OUTPUTNOAH_Pin};
 extern "C" {
 /**
  * This requires extern since it is not declared in a header, only defined
@@ -383,6 +385,9 @@ void task_1hz(void) {
     veh_can.Send(generated::can::TxIMD_Request{
         .index = 0x4A});  // ask for warning threshold
     veh_can.GetRxIMD_Response();
+    static bool high = false;
+    high = !high;
+    blinker.Set(high);
 }
 
 void task_10hz(void) {
